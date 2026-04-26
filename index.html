@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,14 +13,16 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <nav class="top-nav">
         <button id="menu-btn" class="menu-btn">☰</button>
         <div id="side-menu" class="side-menu">
             <button id="close-menu-btn" class="close-menu-btn">&times;</button>
-            <a href="#spots" class="menu-link">Alle Spots</a>
-            <a href="#comparison" class="menu-link">Vergleich</a>
-            <a href="#weightings" class="menu-link">Bewertungssystem</a>
+            <a href="#spots" class="menu-link">Reviews</a>
+            <a href="#comparison" class="menu-link">Head-to-Head</a>
+            <a href="#weightings" class="menu-link">Rating system</a>
+            <a href="#contact" class="menu-link">Contact</a>
         </div>
         <div id="menu-overlay" class="menu-overlay"></div>
     </nav>
@@ -35,7 +38,8 @@
         <section class="spots-section" id="spots">
             <div class="section-header view-header">
                 <div>
-                    <h2>Alle Spots</h2>
+                    <h2>Reviews</h2>
+                    <p>Alle getesteten Döner-Spots – ehrlich, unabhängig und nach System bewertet.</p>
                     <div class="filters-bar">
                         <div class="filter-group" id="filter-city-group"></div>
                         <div class="filter-group" id="filter-dish-group"></div>
@@ -54,10 +58,10 @@
         <!-- Comparison Section -->
         <section class="comparison-section" id="comparison">
             <div class="section-header">
-                <h2>Vergleich</h2>
-                <p>Wähle Döner-Spots aus, um ihre Bewertungen im Spinnendiagramm zu vergleichen.</p>
+                <h2>Head-to-Head</h2>
+                <p>Vergleiche ausgewählte Döner-Spots direkt miteinander.</p>
             </div>
-            
+
             <div class="comparison-container">
                 <div class="chart-wrapper">
                     <canvas id="radarChart"></canvas>
@@ -71,22 +75,65 @@
         <!-- Weightings Section -->
         <section class="weightings-section" id="weightings">
             <div class="section-header">
-                <h2>Bewertungsgewichtung</h2>
+                <h2>Rating system</h2>
                 <p>So setzt sich die finale Gesamtnote (Score) zusammen.</p>
             </div>
             <div class="weightings-content">
                 <div class="weightings-image-wrapper">
-                    <img src="pictures/kebab-expert/Certified-Tester.png" alt="Certified Tester" class="weightings-image">
+                    <img src="pictures/kebab-expert/Certified-Tester.png" alt="Certified Tester"
+                        class="weightings-image">
                 </div>
                 <div class="weightings-text">
-                    <p>Meine Dönerbewertungen folgen keinem willkürlichen Bauchgefühl, sondern einem bewusst austarierten System, das die kulinarische Realität dieses Gerichts mit fast schon wissenschaftlicher Präzision abbildet.</p>
-                    <p>Im Zentrum steht – wenig überraschend – das <strong>Fleisch (18,2 %)</strong>: Es ist nicht bloß eine Zutat, sondern das tragende Fundament, die geschmackliche Hauptachse, um die sich alles dreht. Seine Qualität entscheidet über Triumph oder Totalausfall. Geschmack, Saftigkeit und Textur sind hier keine Details, sondern das Maß aller Dinge.</p>
-                    <p>Nahezu gleichrangig wirken <strong>Gemüse, Soße und Brot (jeweils 14,5 %)</strong> als kongeniales Ensemble. Sie sind weit mehr als bloßes Beiwerk – sie sind das orchestrale Umfeld, das dem Fleisch erst Bühne und Tiefe verleiht. Frische, Biss und aromatische Abstimmung greifen hier idealerweise ineinander wie ein präzise gefertigtes Uhrwerk.</p>
-                    <p>Die <strong>Balance (10,9 %)</strong> fungiert als stille Instanz der Harmonie: Ein Döner überzeugt nicht durch einzelne Glanzleistungen, sondern durch das perfekte Zusammenspiel aller Komponenten. Ergänzt wird dies durch die <strong>Auswahl (9,1 %)</strong>, die Raum für Kreativität und Individualität lässt, ohne den Kern des Klassikers zu verwässern.</p>
-                    <p>Die <strong>Portion (9,1 %)</strong> misst schließlich, ob der Döner seinem ureigenen Versprechen gerecht wird: sättigend zu sein, ohne in plumpen Überfluss zu verfallen.</p>
-                    <p><strong>Hygiene (5,5 %)</strong> und <strong>Service (3,6 %)</strong> finden bewusst Berücksichtigung, bleiben jedoch im Hintergrund – nicht aus Geringschätzung, sondern weil sie den Rahmen bilden, nicht das Kunstwerk selbst.</p>
-                    <p>Das Ergebnis ist ein Bewertungssystem, das den Döner nicht nur beurteilt, sondern ihn ernst nimmt – als das, was er im besten Fall ist: ein perfekt komponiertes Gesamterlebnis.</p>
+                    <p>Meine Dönerbewertungen folgen keinem willkürlichen Bauchgefühl, sondern einem bewusst
+                        austarierten System, das die kulinarische Realität dieses Gerichts mit fast schon
+                        wissenschaftlicher Präzision abbildet.</p>
+                    <p>Im Zentrum steht – wenig überraschend – das <strong>Fleisch (18,2 %)</strong>: Es ist nicht bloß
+                        eine Zutat, sondern das tragende Fundament, die geschmackliche Hauptachse, um die sich alles
+                        dreht. Seine Qualität entscheidet über Triumph oder Totalausfall. Geschmack, Saftigkeit und
+                        Textur sind hier keine Details, sondern das Maß aller Dinge.</p>
+                    <p>Nahezu gleichrangig wirken <strong>Gemüse, Soße und Brot (jeweils 14,5 %)</strong> als
+                        kongeniales Ensemble. Sie sind weit mehr als bloßes Beiwerk – sie sind das orchestrale Umfeld,
+                        das dem Fleisch erst Bühne und Tiefe verleiht. Frische, Biss und aromatische Abstimmung greifen
+                        hier idealerweise ineinander wie ein präzise gefertigtes Uhrwerk.</p>
+                    <p>Die <strong>Balance (10,9 %)</strong> fungiert als stille Instanz der Harmonie: Ein Döner
+                        überzeugt nicht durch einzelne Glanzleistungen, sondern durch das perfekte Zusammenspiel aller
+                        Komponenten. Ergänzt wird dies durch die <strong>Auswahl (9,1 %)</strong>, die Raum für
+                        Kreativität und Individualität lässt, ohne den Kern des Klassikers zu verwässern.</p>
+                    <p>Die <strong>Portion (9,1 %)</strong> misst schließlich, ob der Döner seinem ureigenen Versprechen
+                        gerecht wird: sättigend zu sein, ohne in plumpen Überfluss zu verfallen.</p>
+                    <p><strong>Hygiene (5,5 %)</strong> und <strong>Service (3,6 %)</strong> finden bewusst
+                        Berücksichtigung, bleiben jedoch im Hintergrund – nicht aus Geringschätzung, sondern weil sie
+                        den Rahmen bilden, nicht das Kunstwerk selbst.</p>
+                    <p>Das Ergebnis ist ein Bewertungssystem, das den Döner nicht nur beurteilt, sondern ihn ernst nimmt
+                        – als das, was er im besten Fall ist: ein perfekt komponiertes Gesamterlebnis.</p>
                 </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact-section" id="contact">
+            <div class="section-header">
+                <h2>Contact</h2>
+                <p>Du hast einen Geheimtipp für mich oder möchtest Feedback geben? Schreib mir eine Nachricht!</p>
+            </div>
+            <div class="contact-container">
+                <form id="contact-form" class="contact-form" action="mailto:ducphamhuynh347@yahoo.de" method="post"
+                    enctype="text/plain">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="Name" required placeholder="Dein Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">E-Mail</label>
+                        <input type="email" id="email" name="Email" required placeholder="deine@email.de">
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Nachricht</label>
+                        <textarea id="message" name="Nachricht" rows="5" required
+                            placeholder="Deine Nachricht"></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Nachricht senden</button>
+                </form>
             </div>
         </section>
     </main>
@@ -102,4 +149,5 @@
     <script src="database/data.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>
