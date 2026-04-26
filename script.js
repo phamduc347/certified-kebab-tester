@@ -14,8 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.getElementById('spots-grid');
     const btnGrid = document.getElementById('btn-grid');
     const btnList = document.getElementById('btn-list');
-    const filterCity = document.getElementById('filter-city');
-    const filterDish = document.getElementById('filter-dish');
 
     let radarChart;
     const selectedSpots = new Set([kebabData[0].id, kebabData[1].id]); // Select top 2 by default
@@ -146,34 +144,58 @@ document.addEventListener('DOMContentLoaded', () => {
         return `hsl(${hue}, 80%, 40%)`;
     }
 
+    let activeCities = new Set();
+    let activeDishes = new Set();
+
     function populateFilters() {
         const cities = [...new Set(kebabData.map(spot => spot.city))].sort();
         const dishes = [...new Set(kebabData.map(spot => spot.dish))].sort();
         
+        const cityGroup = document.getElementById('filter-city-group');
+        const dishGroup = document.getElementById('filter-dish-group');
+        
         cities.forEach(city => {
-            const option = document.createElement('option');
-            option.value = city;
-            option.textContent = city;
-            filterCity.appendChild(option);
+            activeCities.add(city);
+            const btn = document.createElement('button');
+            btn.className = 'filter-bubble active';
+            btn.textContent = city;
+            btn.addEventListener('click', () => {
+                if (activeCities.has(city)) {
+                    activeCities.delete(city);
+                    btn.classList.remove('active');
+                } else {
+                    activeCities.add(city);
+                    btn.classList.add('active');
+                }
+                renderGrid();
+            });
+            cityGroup.appendChild(btn);
         });
 
         dishes.forEach(dish => {
-            const option = document.createElement('option');
-            option.value = dish;
-            option.textContent = dish;
-            filterDish.appendChild(option);
+            activeDishes.add(dish);
+            const btn = document.createElement('button');
+            btn.className = 'filter-bubble active';
+            btn.textContent = dish;
+            btn.addEventListener('click', () => {
+                if (activeDishes.has(dish)) {
+                    activeDishes.delete(dish);
+                    btn.classList.remove('active');
+                } else {
+                    activeDishes.add(dish);
+                    btn.classList.add('active');
+                }
+                renderGrid();
+            });
+            dishGroup.appendChild(btn);
         });
     }
 
     function renderGrid() {
         gridContainer.innerHTML = '';
-        const selectedCity = filterCity.value;
-        const selectedDish = filterDish.value;
 
         const filteredData = kebabData.filter(spot => {
-            const matchCity = selectedCity === '' || spot.city === selectedCity;
-            const matchDish = selectedDish === '' || spot.dish === selectedDish;
-            return matchCity && matchDish;
+            return activeCities.has(spot.city) && activeDishes.has(spot.dish);
         });
 
         if (filteredData.length === 0) {
@@ -188,50 +210,72 @@ document.addEventListener('DOMContentLoaded', () => {
             const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
 
             card.innerHTML = `
-                <img src="${spot.image || 'kebab_spot_demo.png'}" alt="Bild von ${spot.name}" class="spot-image" />
-                <div class="spot-content">
+                <div class="spot-card-header">
                     <div class="spot-rank">#${spot.rank}</div>
-                    <h3>
-                        <a href="${mapsLink}" target="_blank" rel="noopener noreferrer" class="maps-link" title="Auf Google Maps ansehen">
-                            ${spot.name}
-                        </a>
-                    </h3>
-                    <div class="spot-city">
-                        <a href="${mapsLink}" target="_blank" rel="noopener noreferrer" class="maps-link">
-                            ${spot.city}
-                        </a>
-                    </div>
-                    
-                    <div class="spot-categories">
-                        <div class="cat-item"><span>Fleisch</span><span style="color: ${getColorForScore(spot.fleisch)}">${spot.fleisch}</span></div>
-                        <div class="cat-item"><span>Gemüse</span><span style="color: ${getColorForScore(spot.gemuese)}">${spot.gemuese}</span></div>
-                        <div class="cat-item"><span>Soße</span><span style="color: ${getColorForScore(spot.sosse)}">${spot.sosse}</span></div>
-                        <div class="cat-item"><span>Brot</span><span style="color: ${getColorForScore(spot.brot)}">${spot.brot}</span></div>
-                        <div class="cat-item"><span>Balance</span><span style="color: ${getColorForScore(spot.balance)}">${spot.balance}</span></div>
-                        <div class="cat-item"><span>Auswahl</span><span style="color: ${getColorForScore(spot.auswahl)}">${spot.auswahl}</span></div>
-                        <div class="cat-item"><span>Portion</span><span style="color: ${getColorForScore(spot.portion)}">${spot.portion}</span></div>
-                        <div class="cat-item"><span>Hygiene</span><span style="color: ${getColorForScore(spot.hygiene)}">${spot.hygiene}</span></div>
-                        <div class="cat-item"><span>Service</span><span style="color: ${getColorForScore(spot.service)}">${spot.service}</span></div>
-                    </div>
-                    
-                    <div class="spot-stats">
-                        <div class="stat-item">
-                            <span class="stat-label">Score</span>
-                            <span class="stat-val">${spot.score}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Rating</span>
-                            <span class="stat-val" style="color: #ffd700;">${spot.stars}</span>
+                    <div class="spot-header-text">
+                        <h3>
+                            <a href="${mapsLink}" target="_blank" rel="noopener noreferrer" class="maps-link" title="Auf Google Maps ansehen">
+                                ${spot.name}
+                            </a>
+                        </h3>
+                        <div class="spot-city">
+                            <a href="${mapsLink}" target="_blank" rel="noopener noreferrer" class="maps-link">
+                                ${spot.city}
+                            </a>
                         </div>
                     </div>
-                    
-                    <div class="spot-details">
-                        <span class="badge">${spot.dish}</span>
-                        <span class="badge">P/L: ${spot.plIndex}</span>
-                        <span class="badge">Besuche: ${spot.besuche || 1}</span>
+                    <div class="spot-list-score">
+                        <span class="stat-val">${spot.score}</span>
+                        <span class="stat-val" style="color: #ffd700;">${spot.stars}</span>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                </div>
+                
+                <div class="spot-expandable">
+                    <img src="${spot.image || 'kebab_spot_demo.png'}" alt="Bild von ${spot.name}" class="spot-image" />
+                    <div class="spot-content">
+                        <div class="spot-categories">
+                            <div class="cat-item"><span>Fleisch</span><span style="color: ${getColorForScore(spot.fleisch)}">${spot.fleisch}</span></div>
+                            <div class="cat-item"><span>Gemüse</span><span style="color: ${getColorForScore(spot.gemuese)}">${spot.gemuese}</span></div>
+                            <div class="cat-item"><span>Soße</span><span style="color: ${getColorForScore(spot.sosse)}">${spot.sosse}</span></div>
+                            <div class="cat-item"><span>Brot</span><span style="color: ${getColorForScore(spot.brot)}">${spot.brot}</span></div>
+                            <div class="cat-item"><span>Balance</span><span style="color: ${getColorForScore(spot.balance)}">${spot.balance}</span></div>
+                            <div class="cat-item"><span>Auswahl</span><span style="color: ${getColorForScore(spot.auswahl)}">${spot.auswahl}</span></div>
+                            <div class="cat-item"><span>Portion</span><span style="color: ${getColorForScore(spot.portion)}">${spot.portion}</span></div>
+                            <div class="cat-item"><span>Hygiene</span><span style="color: ${getColorForScore(spot.hygiene)}">${spot.hygiene}</span></div>
+                            <div class="cat-item"><span>Service</span><span style="color: ${getColorForScore(spot.service)}">${spot.service}</span></div>
+                        </div>
+                        
+                        <div class="spot-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Score</span>
+                                <span class="stat-val">${spot.score}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Rating</span>
+                                <span class="stat-val" style="color: #ffd700;">${spot.stars}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="spot-details">
+                            <span class="badge">${spot.dish}</span>
+                            <span class="badge">P/L: ${spot.plIndex}</span>
+                            <span class="badge">Besuche: ${spot.besuche || 1}</span>
+                        </div>
+                        
+                        ${spot.kommentar ? `<div class="spot-comment">"${spot.kommentar}"</div>` : ''}
                     </div>
                 </div>
             `;
+            
+            const header = card.querySelector('.spot-card-header');
+            header.addEventListener('click', (e) => {
+                if (gridContainer.classList.contains('spots-list')) {
+                    if (!e.target.closest('.maps-link')) {
+                        card.classList.toggle('expanded');
+                    }
+                }
+            });
             
             gridContainer.appendChild(card);
         });
@@ -256,8 +300,4 @@ document.addEventListener('DOMContentLoaded', () => {
         btnList.classList.add('active');
         btnGrid.classList.remove('active');
     });
-
-    // Filters
-    filterCity.addEventListener('change', renderGrid);
-    filterDish.addEventListener('change', renderGrid);
 });

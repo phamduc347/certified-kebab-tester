@@ -78,25 +78,37 @@ section {
 
 .filters-bar {
     display: flex;
+    flex-direction: column;
     gap: 12px;
     margin-top: 12px;
 }
 
-.filter-select {
-    padding: 8px 12px;
+.filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.filter-bubble {
+    padding: 6px 14px;
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 20px;
     background-color: var(--bg-card);
-    color: var(--text-main);
-    font-family: inherit;
+    color: var(--text-muted);
     font-size: 0.85rem;
     cursor: pointer;
     outline: none;
     transition: var(--transition);
 }
 
-.filter-select:hover, .filter-select:focus {
+.filter-bubble:hover {
     border-color: rgba(0, 0, 0, 0.3);
+}
+
+.filter-bubble.active {
+    background-color: var(--text-main);
+    color: var(--bg-main);
+    border-color: var(--text-main);
 }
 
 .view-btn {
@@ -217,12 +229,31 @@ section {
     transition: var(--transition);
     position: relative;
     overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .spot-card:hover {
     transform: translateY(-4px);
     border-color: rgba(0, 0, 0, 0.3);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+.spot-card-header {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.spot-list-score {
+    display: none;
+}
+
+.spot-expandable {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .spot-rank {
@@ -236,7 +267,7 @@ section {
 }
 
 .spot-card h3 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 4px;
     padding-right: 40px;
@@ -259,6 +290,18 @@ section {
 .maps-link:hover {
     color: #60a5fa;
     text-decoration: underline;
+}
+
+.spot-comment {
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--text-muted);
+    margin-top: 16px;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border-left: 3px solid var(--text-muted);
+    border-radius: 0 4px 4px 0;
+    white-space: pre-wrap;
 }
 
 .spot-content {
@@ -388,29 +431,70 @@ section {
     font-size: 0.85rem;
 }
 
-/* List View */
+/* List View (Accordion) */
 .spots-list {
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    max-height: 1200px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-right: 12px;
-}
-
-.spots-list::-webkit-scrollbar {
-    width: 6px;
-}
-.spots-list::-webkit-scrollbar-track {
-    background: transparent;
-}
-.spots-list::-webkit-scrollbar-thumb {
-    background-color: var(--border-color);
-    border-radius: 10px;
+    gap: 16px;
 }
 
 .spots-list .spot-card {
+    padding: 16px 24px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.spots-list .spot-card-header {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.spots-list .spot-rank {
+    position: static;
+    font-size: 1.5rem;
+    margin-right: 16px;
+    color: var(--text-muted);
+}
+
+.spots-list .spot-header-text {
+    flex: 1;
+}
+
+.spots-list .spot-header-text h3 {
+    margin-bottom: 0;
+}
+
+.spots-list .spot-city {
+    margin-bottom: 0;
+}
+
+.spots-list .spot-list-score {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.1rem;
+}
+
+.spots-list .expand-icon {
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+}
+
+.spots-list .spot-card.expanded .expand-icon {
+    transform: rotate(180deg);
+}
+
+.spots-list .spot-expandable {
+    display: none;
+    margin-top: 24px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 24px;
+}
+
+.spots-list .spot-card.expanded .spot-expandable {
     display: flex;
     flex-direction: row;
     gap: 32px;
@@ -418,14 +502,25 @@ section {
 }
 
 .spots-list .spot-image {
-    width: 280px;
+    width: auto;
+    max-width: 400px;
     height: auto;
-    min-height: 200px;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
     margin-bottom: 0;
 }
 
+.spots-list .spot-content {
+    flex: 1;
+}
+
 .spots-list .spot-categories {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+}
+
+.spots-list .spot-stats {
+    display: none; /* Hidden since score is in header */
 }
 
 /* Responsive */

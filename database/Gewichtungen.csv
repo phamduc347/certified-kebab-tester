@@ -1,0 +1,16 @@
+⚖️ KATEGORIEN-GEWICHTUNG,,,
+📝 Trage für jede Kategorie eine Wichtigkeit von 1 (unwichtig) bis 10 (sehr wichtig) ein.,,,
+,,,
+Kategorie,Gewichtung (1–10),%-Anteil,Kommentar
+🥩 Fleisch,10,"18,2%","Geschmack, Konsistenz, Frische "
+🥗 Gemüse,8,"14,5%","Geschmack, Konsistenz, Frische "
+🫙 Soße,8,"14,5%","Geschmack, Konsistenz, Frische "
+🫓 Brot,8,"14,5%","Geschmack, Konsistenz, Frische "
+⚖️ Balance,6,"10,9%","Balance zwischen Fleisch, Salat, Soße usw."
+🔢 Auswahl,5,"9,1%",Variation an Zutaten oder Besonderheiten
+🍽️ Portion,5,"9,1%",Sättigungsgefühl
+🧹 Hygiene,3,"5,5%","Sauberkeit der Location (Tisch, Besteck usw.)"
+⭐ Service,2,"3,6%","Service, Dauer der Bestellung usw."
+∑ Gesamt,55,100%,
+,,,
+💡 Ändere die Gewichtungen in Spalte B – alle Gesamtnoten im Logbuch werden automatisch neu berechnet.,,,

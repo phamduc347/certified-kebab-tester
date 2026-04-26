@@ -16,7 +16,9 @@ const kebabData = [
         score: "92,10%",
         stars: "★★★★★",
         rank: 1,
-        plIndex: "12,40%"
+        plIndex: "12,40%",
+        image: "pictures/Rüyam.jpeg",
+        kommentar: "Döner wurde mitgenommen und nicht frisch verzehrt"
     },
     {
         id: 3,
@@ -35,7 +37,9 @@ const kebabData = [
         score: "86,90%",
         stars: "★★★★☆",
         rank: 2,
-        plIndex: "8,30%"
+        plIndex: "8,30%",
+        image: "pictures/SendlingerSpezial.jpeg",
+        kommentar: "Wie Kleinduc schon sagte \"eher ein sandwich\"\nEs fehlte etwas sauer eingelegtes Gemüse"
     },
     {
         id: 4,
@@ -54,7 +58,9 @@ const kebabData = [
         score: "86,40%",
         stars: "★★★★☆",
         rank: 3,
-        plIndex: "12,30%"
+        plIndex: "12,30%",
+        image: "pictures/Taksim.jpeg",
+        kommentar: "Hervorragende Balance - bis zum Ende noch Gemüse im Brot\nBrot war etwas zu crunchy und damit trocken"
     },
     {
         id: 5,
@@ -73,7 +79,9 @@ const kebabData = [
         score: "85,70%",
         stars: "★★★★☆",
         rank: 4,
-        plIndex: "9,50%"
+        plIndex: "9,50%",
+        image: "pictures/Bosporus.jpeg",
+        kommentar: "Gute portion aber geschmacklich nicht ganz harmonisch"
     },
     {
         id: 6,
@@ -92,7 +100,9 @@ const kebabData = [
         score: "85,00%",
         stars: "★★★★☆",
         rank: 5,
-        plIndex: "11,30%"
+        plIndex: "11,30%",
+        image: "pictures/RoyalPizza.jpeg",
+        kommentar: "Überraschend gut. Sogar mit Basilikum garniert"
     },
     {
         id: 7,
@@ -111,6 +121,8 @@ const kebabData = [
         score: "73,70%",
         stars: "★★★★☆",
         rank: 6,
-        plIndex: "8,70%"
+        plIndex: "8,70%",
+        image: "pictures/Kebab&Smash.jpeg",
+        kommentar: "Bei google ne 4,9 aber 100 % erkauft\nInsgesamt eine trockene Angelegenheit\nService war nett - Çay gab es for free"
     }
 ];
