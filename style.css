@@ -10,6 +10,10 @@
     --transition: all 0.3s ease;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -32,28 +36,120 @@ body {
 
 /* Header */
 .header {
-    padding: 60px 0 40px;
+    padding: 24px 0 24px;
     border-bottom: 1px solid var(--border-color);
-    margin-bottom: 60px;
+    margin-bottom: 40px;
+    padding-left: 48px;
 }
 
 .logo {
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: 800;
-    letter-spacing: -1.5px;
-    line-height: 1.1;
-    margin-bottom: 16px;
+    letter-spacing: -1px;
+    line-height: 1.2;
+    margin-bottom: 8px;
     text-transform: uppercase;
 }
 
 .logo .highlight {
     color: var(--text-muted);
+    font-weight: 300;
 }
 
 .subtitle {
     font-size: 1.125rem;
     color: var(--text-muted);
     font-weight: 300;
+}
+
+/* Navigation Menu */
+.top-nav {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    z-index: 100;
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-main);
+    padding: 8px;
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.menu-btn:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+.side-menu {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 250px;
+    height: 100vh;
+    background: var(--bg-main);
+    box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+    z-index: 1000;
+    transition: left 0.3s ease;
+    padding: 80px 32px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.side-menu.open {
+    left: 0;
+}
+
+.close-menu-btn {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: none;
+    border: none;
+    font-size: 2.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    line-height: 1;
+}
+
+.close-menu-btn:hover {
+    color: var(--text-main);
+}
+
+.menu-link {
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 1.25rem;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.menu-link:hover {
+    color: var(--text-muted);
+}
+
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.menu-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* Section Common */
@@ -373,7 +469,6 @@ section {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: auto;
 }
 
 .badge {
@@ -386,41 +481,41 @@ section {
 }
 
 /* Weightings Section */
-.weightings-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 16px;
-}
-
-.weight-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    padding: 16px;
-    border-radius: 8px;
+.weightings-content {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    transition: var(--transition);
+    flex-direction: row;
+    gap: 40px;
+    align-items: stretch;
 }
 
-.weight-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(0, 0, 0, 0.2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+.weightings-image-wrapper {
+    flex: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-main);
 }
 
-.weight-card span {
-    font-size: 0.85rem;
+.weightings-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.weightings-text {
+    flex: 1;
     color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
+    font-size: 1rem;
+    line-height: 1.8;
 }
 
-.weight-card strong {
-    font-size: 1.5rem;
+.weightings-text p {
+    margin-bottom: 16px;
+}
+
+.weightings-text strong {
     color: var(--text-main);
+    font-weight: 600;
 }
 
 .footer {
@@ -498,7 +593,7 @@ section {
     display: flex;
     flex-direction: row;
     gap: 32px;
-    align-items: stretch;
+    align-items: flex-start;
 }
 
 .spots-list .spot-image {
@@ -542,6 +637,15 @@ section {
     
     .spots-list .spot-categories {
         grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .weightings-content {
+        flex-direction: column;
+    }
+    
+    .weightings-image-wrapper {
+        width: 100%;
+        max-width: 500px;
     }
 }
 

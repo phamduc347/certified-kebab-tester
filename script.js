@@ -15,6 +15,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnGrid = document.getElementById('btn-grid');
     const btnList = document.getElementById('btn-list');
 
+    // Menu logic
+    const menuBtn = document.getElementById('menu-btn');
+    const closeBtn = document.getElementById('close-menu-btn');
+    const sideMenu = document.getElementById('side-menu');
+    const menuOverlay = document.getElementById('menu-overlay');
+
+    function toggleMenu() {
+        sideMenu.classList.toggle('open');
+        menuOverlay.classList.toggle('open');
+    }
+
+    if (menuBtn && closeBtn && sideMenu && menuOverlay) {
+        menuBtn.addEventListener('click', toggleMenu);
+        closeBtn.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+
+        document.querySelectorAll('.menu-link').forEach(link => {
+            link.addEventListener('click', toggleMenu);
+        });
+    }
+
     let radarChart;
     const selectedSpots = new Set([kebabData[0].id, kebabData[1].id]); // Select top 2 by default
 
