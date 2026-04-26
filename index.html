@@ -21,6 +21,30 @@
     </header>
 
     <main class="container">
+        <!-- Leaderboard / Spot List -->
+        <section class="spots-section">
+            <div class="section-header view-header">
+                <div>
+                    <h2>Alle Spots</h2>
+                    <div class="filters-bar">
+                        <select id="filter-city" class="filter-select">
+                            <option value="">Alle Städte</option>
+                        </select>
+                        <select id="filter-dish" class="filter-select">
+                            <option value="">Alle Gerichte</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="view-toggles">
+                    <button id="btn-grid" class="view-btn active">Kacheln</button>
+                    <button id="btn-list" class="view-btn">Liste</button>
+                </div>
+            </div>
+            <div class="spots-grid" id="spots-grid">
+                <!-- Spot cards will be injected here via JS -->
+            </div>
+        </section>
+
         <!-- Comparison Section -->
         <section class="comparison-section">
             <div class="section-header">
@@ -38,13 +62,22 @@
             </div>
         </section>
 
-        <!-- Leaderboard / Spot List -->
-        <section class="spots-section">
+        <!-- Weightings Section -->
+        <section class="weightings-section">
             <div class="section-header">
-                <h2>Alle Spots</h2>
+                <h2>Bewertungsgewichtung</h2>
+                <p>So setzt sich die finale Gesamtnote (Score) zusammen.</p>
             </div>
-            <div class="spots-grid" id="spots-grid">
-                <!-- Spot cards will be injected here via JS -->
+            <div class="weightings-grid">
+                <div class="weight-card"><span>Fleisch</span><strong>18,2%</strong></div>
+                <div class="weight-card"><span>Gemüse</span><strong>14,5%</strong></div>
+                <div class="weight-card"><span>Soße</span><strong>14,5%</strong></div>
+                <div class="weight-card"><span>Brot</span><strong>14,5%</strong></div>
+                <div class="weight-card"><span>Balance</span><strong>10,9%</strong></div>
+                <div class="weight-card"><span>Auswahl</span><strong>9,1%</strong></div>
+                <div class="weight-card"><span>Portion</span><strong>9,1%</strong></div>
+                <div class="weight-card"><span>Hygiene</span><strong>5,5%</strong></div>
+                <div class="weight-card"><span>Service</span><strong>3,6%</strong></div>
             </div>
         </section>
     </main>
