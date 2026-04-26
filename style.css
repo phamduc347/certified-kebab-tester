@@ -567,16 +567,30 @@ section {
 }
 
 .submit-btn {
-    padding: 14px 24px;
-    background: var(--text-main);
-    color: var(--bg-main);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-decoration: none;
+    padding: 16px 40px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+    color: #fff;
     border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 1rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
     cursor: pointer;
-    transition: opacity 0.3s, transform 0.2s;
-    margin-top: 10px;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.submit-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    opacity: 1;
+    background: linear-gradient(135deg, #000 0%, #444 100%);
 }
 
 .submit-btn:hover {
