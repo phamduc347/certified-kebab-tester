@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pham Certified Kebab Tester</title>
+    <meta name="description" content="Der ultimative Döner-Vergleich mit harten Fakten und spitzfindigen Bewertungen.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">PHAM CERTIFIED <br><span class="highlight">KEBAB TESTER</span></h1>
+            <p class="subtitle">Data-driven analysis of the finest Döner spots.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Comparison Section -->
+        <section class="comparison-section">
+            <div class="section-header">
+                <h2>Vergleich</h2>
+                <p>Wähle Döner-Spots aus, um ihre Bewertungen im Spinnendiagramm zu vergleichen.</p>
+            </div>
+            
+            <div class="comparison-container">
+                <div class="chart-wrapper">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                <div class="controls-wrapper" id="spot-toggles">
+                    <!-- Spot checkboxes will be injected here via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Leaderboard / Spot List -->
+        <section class="spots-section">
+            <div class="section-header">
+                <h2>Alle Spots</h2>
+            </div>
+            <div class="spots-grid" id="spots-grid">
+                <!-- Spot cards will be injected here via JS -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Pham Certified Kebab Tester. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
