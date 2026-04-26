@@ -17,7 +17,7 @@ const kebabData = [
         stars: "★★★★★",
         rank: 1,
         plIndex: "12,40%",
-        image: "pictures/Rüyam.jpeg",
+        image: "pictures/Rueyam.jpeg",
         kommentar: "Döner wurde mitgenommen und nicht frisch verzehrt",
         date: "28.02.2026"
     },
@@ -127,7 +127,7 @@ const kebabData = [
         stars: "★★★★☆",
         rank: 6,
         plIndex: "8,70%",
-        image: "pictures/Kebab&Smash.jpeg",
+        image: "pictures/Kebab-Smash.jpeg",
         kommentar: "Bei google ne 4,9 aber 100 % erkauft\nInsgesamt eine trockene Angelegenheit\nService war nett - Çay gab es for free",
         date: "06.04.2026"
     }
