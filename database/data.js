@@ -18,7 +18,8 @@ const kebabData = [
         rank: 1,
         plIndex: "12,40%",
         image: "pictures/Rüyam.jpeg",
-        kommentar: "Döner wurde mitgenommen und nicht frisch verzehrt"
+        kommentar: "Döner wurde mitgenommen und nicht frisch verzehrt",
+        date: "28.02.2026"
     },
     {
         id: 3,
@@ -39,7 +40,8 @@ const kebabData = [
         rank: 2,
         plIndex: "8,30%",
         image: "pictures/SendlingerSpezial.jpeg",
-        kommentar: "Wie Kleinduc schon sagte \"eher ein sandwich\"\nEs fehlte etwas sauer eingelegtes Gemüse"
+        kommentar: "Wie Kleinduc schon sagte \"eher ein sandwich\"\nEs fehlte etwas sauer eingelegtes Gemüse",
+        date: "11.04.2026"
     },
     {
         id: 4,
@@ -60,7 +62,8 @@ const kebabData = [
         rank: 3,
         plIndex: "12,30%",
         image: "pictures/Taksim.jpeg",
-        kommentar: "Hervorragende Balance - bis zum Ende noch Gemüse im Brot\nBrot war etwas zu crunchy und damit trocken"
+        kommentar: "Hervorragende Balance - bis zum Ende noch Gemüse im Brot\nBrot war etwas zu crunchy und damit trocken",
+        date: "24.04.2026"
     },
     {
         id: 5,
@@ -81,7 +84,8 @@ const kebabData = [
         rank: 4,
         plIndex: "9,50%",
         image: "pictures/Bosporus.jpeg",
-        kommentar: "Gute portion aber geschmacklich nicht ganz harmonisch"
+        kommentar: "Gute portion aber geschmacklich nicht ganz harmonisch",
+        date: "21.03.2026"
     },
     {
         id: 6,
@@ -102,7 +106,8 @@ const kebabData = [
         rank: 5,
         plIndex: "11,30%",
         image: "pictures/RoyalPizza.jpeg",
-        kommentar: "Überraschend gut. Sogar mit Basilikum garniert"
+        kommentar: "Überraschend gut. Sogar mit Basilikum garniert",
+        date: "18.04.2026"
     },
     {
         id: 7,
@@ -123,6 +128,7 @@ const kebabData = [
         rank: 6,
         plIndex: "8,70%",
         image: "pictures/Kebab&Smash.jpeg",
-        kommentar: "Bei google ne 4,9 aber 100 % erkauft\nInsgesamt eine trockene Angelegenheit\nService war nett - Çay gab es for free"
+        kommentar: "Bei google ne 4,9 aber 100 % erkauft\nInsgesamt eine trockene Angelegenheit\nService war nett - Çay gab es for free",
+        date: "06.04.2026"
     }
 ];

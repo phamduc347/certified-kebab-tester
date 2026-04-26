@@ -243,6 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <a href="${mapsLink}" target="_blank" rel="noopener noreferrer" class="maps-link">
                                 ${spot.city}
                             </a>
+                            ${spot.date ? `<span class="spot-date"> • ${spot.date}</span>` : ''}
                         </div>
                     </div>
                     <div class="spot-list-score">
@@ -282,6 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="badge">${spot.dish}</span>
                             <span class="badge">P/L: ${spot.plIndex}</span>
                             <span class="badge">Besuche: ${spot.besuche || 1}</span>
+                            ${spot.date ? `<span class="badge">Letzter Besuch: ${spot.date}</span>` : ''}
                         </div>
                         
                         ${spot.kommentar ? `<div class="spot-comment">"${spot.kommentar}"</div>` : ''}
