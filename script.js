@@ -265,7 +265,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             
                             <div class="spot-details">
                                 <span class="badge">${spot.dish}</span>
-                                <span class="badge">P/L: ${spot.plIndex}</span>
+                                ${spot.preis ? `<span class="badge">Preis: ${spot.preis}</span>` : ''}
+                                <span class="badge badge-tooltip">
+                                    P/L: ${spot.plIndex}
+                                    <span class="tooltip-text">Price-Leistungs-Index: Gesamtbewertung geteilt durch den Preis. Je höher, desto besser der Wert.</span>
+                                </span>
                                 <span class="badge">Besuche: ${spot.besuche || 1}</span>
                                 ${spot.date ? `<span class="badge">Letzter Besuch: ${spot.date}</span>` : ''}
                             </div>

@@ -755,6 +755,48 @@ section {
     transform: translateY(-1px);
 }
 
+.badge-tooltip {
+    position: relative;
+    cursor: help;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+}
+
+.badge-tooltip .tooltip-text {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    width: 220px;
+    line-height: 1.5;
+    z-index: 10;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    pointer-events: none;
+}
+
+.badge-tooltip .tooltip-text::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #1a1a1a;
+}
+
+.badge-tooltip:hover .tooltip-text {
+    display: block;
+}
+
 .spot-comment {
     font-size: 1.1rem;
     font-style: italic;
