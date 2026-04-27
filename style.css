@@ -961,9 +961,9 @@ body.lightbox-open {
 }
 
 .spots-list .spot-image {
-    width: 350px;
+    width: 320px;
     height: auto;
-    max-height: 350px;
+    max-height: 400px;
     object-fit: cover;
     border-radius: 8px;
     flex-shrink: 0;
@@ -975,9 +975,17 @@ body.lightbox-open {
 
 .spots-list .spot-categories {
     grid-template-columns: repeat(2, 1fr);
-    max-width: 600px;
+    max-width: 500px;
+    width: 100%;
     border: none;
     padding: 0;
+}
+
+.spots-list .spot-details {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .spots-list .spot-stats {

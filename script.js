@@ -282,18 +282,19 @@ document.addEventListener('DOMContentLoaded', () => {
                                 ${renderCriteriaBar('Hygiene', spot.hygiene)}
                                 ${renderCriteriaBar('Service', spot.service)}
                             </div>
+                            
+                            <div class="spot-details">
+                                <span class="badge">${spot.dish}</span>
+                                <span class="badge">P/L: ${spot.plIndex}</span>
+                                <span class="badge">Besuche: ${spot.besuche || 1}</span>
+                                ${spot.date ? `<span class="badge">Letzter Besuch: ${spot.date}</span>` : ''}
+                            </div>
+
+                            ${spot.kommentar ? `<div class="spot-comment">"${spot.kommentar}"</div>` : ''}
                         </div>
                     </div>
                     
                     <div class="spot-footer-content">
-                        <div class="spot-details">
-                            <span class="badge">${spot.dish}</span>
-                            <span class="badge">P/L: ${spot.plIndex}</span>
-                            <span class="badge">Besuche: ${spot.besuche || 1}</span>
-                            ${spot.date ? `<span class="badge">Letzter Besuch: ${spot.date}</span>` : ''}
-                        </div>
-                        
-                        ${spot.kommentar ? `<div class="spot-comment">"${spot.kommentar}"</div>` : ''}
                     </div>
                 </div>
             `;
