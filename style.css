@@ -491,15 +491,15 @@ section {
 .spots-container {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 16px;
 }
 
 .spot-card {
     background: var(--bg-main);
     border: 1px solid var(--border-color);
-    border-radius: 24px;
-    padding: 24px 32px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    border-radius: 20px;
+    padding: 16px 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
     transition: var(--transition);
     cursor: pointer;
 }
@@ -518,7 +518,7 @@ section {
 
 .spot-card.expanded .spot-card-header {
     margin-bottom: 24px;
-    padding-bottom: 20px;
+    padding-bottom: 16px;
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -622,23 +622,29 @@ section {
 }
 
 .spot-main-content {
-    display: none;
-    animation: slideDown 0.4s ease-out;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    overflow: hidden;
 }
 
 .spot-card.expanded .spot-main-content {
-    display: block;
+    grid-template-rows: 1fr;
 }
 
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+
 
 .spot-top-content {
     display: flex;
     gap: 40px;
     align-items: flex-start;
+    min-height: 0;
+    padding-top: 24px;
+    margin-top: 0;
+}
+
+.spot-card.expanded .spot-top-content {
+    border-top: 1px solid var(--border-color);
 }
 
 .spot-image {
@@ -696,7 +702,12 @@ section {
 .bar-fill {
     height: 100%;
     border-radius: 10px;
+    width: 0;
     transition: width 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.spot-card.expanded .bar-fill {
+    width: var(--target-width);
 }
 
 .spot-details {

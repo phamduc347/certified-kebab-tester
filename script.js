@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span style="color: ${color}">${value}</span>
                 </div>
                 <div class="bar-bg">
-                    <div class="bar-fill" style="width: ${percentage}%; background-color: ${color}"></div>
+                    <div class="bar-fill" style="--target-width: ${percentage}%; background-color: ${color}"></div>
                 </div>
             </div>
         `;
