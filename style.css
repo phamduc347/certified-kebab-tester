@@ -516,6 +516,11 @@ section {
     color: var(--text-muted);
 }
 
+.spot-header-date {
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
 
 
 .spot-score-pill {
