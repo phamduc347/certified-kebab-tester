@@ -259,6 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="label">SCORE</span>
                             <span class="value">${spot.score}</span>
                         </div>
+                        <span class="expand-icon">▼</span>
                     </div>
                 </div>
                 
@@ -290,6 +291,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
+            
+            const header = card.querySelector('.spot-card-header');
+            header.addEventListener('click', (e) => {
+                if (!e.target.closest('.maps-button')) {
+                    card.classList.toggle('expanded');
+                }
+            });
+            
             gridContainer.appendChild(card);
         });
     }
@@ -403,38 +412,27 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrid();
     initSpotlight();
 
-    // View toggles
-    btnGrid.addEventListener('click', () => {
-        gridContainer.className = 'spots-grid';
-        btnGrid.classList.add('active');
-        btnList.classList.remove('active');
-    });
-
-    btnList.addEventListener('click', () => {
-        gridContainer.className = 'spots-list';
-        btnList.classList.add('active');
-        btnGrid.classList.remove('active');
-    });
-
     // Lightbox logic
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
 
-    document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('spot-image')) {
-            lightboxImg.src = e.target.src;
-            lightbox.classList.add('active');
-            document.body.classList.add('lightbox-open');
-        }
-    });
-
-    lightbox.addEventListener('click', () => {
-        lightbox.classList.remove('active');
-        document.body.classList.remove('lightbox-open');
-        setTimeout(() => {
-            if (!lightbox.classList.contains('active')) {
-                lightboxImg.src = '';
+    if (lightbox && lightboxImg) {
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('spot-image')) {
+                lightboxImg.src = e.target.src;
+                lightbox.classList.add('active');
+                document.body.classList.add('lightbox-open');
             }
-        }, 300);
-    });
+        });
+
+        lightbox.addEventListener('click', () => {
+            lightbox.classList.remove('active');
+            document.body.classList.remove('lightbox-open');
+            setTimeout(() => {
+                if (!lightbox.classList.contains('active')) {
+                    lightboxImg.src = '';
+                }
+            }, 300);
+        });
+    }
 });
