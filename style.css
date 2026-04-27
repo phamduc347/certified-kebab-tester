@@ -516,6 +516,10 @@ section {
     color: var(--text-muted);
 }
 
+.spot-mobile-date {
+    display: none;
+}
+
 .spot-score-pill {
     background: var(--text-main);
     color: var(--bg-main);
@@ -850,7 +854,15 @@ section {
     }
 
     .spot-rank {
-        display: none;
+        display: block;
+        font-size: 1.8rem;
+        margin-right: 16px;
+    }
+
+    .spot-mobile-date {
+        display: inline;
+        font-size: 0.9rem;
+        opacity: 0.8;
     }
 }
 

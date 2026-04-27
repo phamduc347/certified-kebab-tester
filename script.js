@@ -229,7 +229,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="spot-rank">${spot.rank}</div>
                     <div class="spot-header-text">
                         <h3>${spot.name}</h3>
-                        <div class="spot-city">${spot.city}</div>
+                        <div class="spot-city">
+                            ${spot.city}
+                            ${spot.date ? `<span class="spot-mobile-date"> • ${spot.date}</span>` : ''}
+                        </div>
                     </div>
                     <div class="spot-header-actions">
                         <a href="${mapsLink}" target="_blank" class="maps-button">
