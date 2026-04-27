@@ -516,9 +516,7 @@ section {
     color: var(--text-muted);
 }
 
-.spot-mobile-date {
-    display: none;
-}
+
 
 .spot-score-pill {
     background: var(--text-main);
@@ -580,8 +578,6 @@ section {
 
 .maps-button:hover svg {
     opacity: 1;
-.maps-button.mobile-only-maps {
-    display: none;
 }
 
 .spot-score-pill .label {
@@ -849,32 +845,14 @@ section {
         gap: 12px;
     }
 
-    .spot-score-pill {
+    .spot-score-pill, .maps-button {
         width: 100%;
         text-align: center;
         justify-content: center;
     }
 
-    .spot-header-actions .maps-button {
-        display: none;
-    }
-
-    .mobile-only-maps {
-        display: flex !important;
-        width: 100%;
-        margin: 24px 0 8px;
-    }
-
     .spot-rank {
-        display: block;
-        font-size: 1.8rem;
-        margin-right: 16px;
-    }
-
-    .spot-mobile-date {
-        display: inline;
-        font-size: 0.9rem;
-        opacity: 0.8;
+        display: none;
     }
 }
 
