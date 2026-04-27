@@ -165,6 +165,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return `hsl(${hue}, 80%, 40%)`;
     }
 
+    function renderCriteriaBar(label, value) {
+        const percentage = (parseFloat(value) / 10) * 100;
+        const color = getColorForScore(value);
+        return `
+            <div class="cat-item-bar">
+                <div class="cat-info">
+                    <span>${label}</span>
+                    <span style="color: ${color}">${value}</span>
+                </div>
+                <div class="bar-bg">
+                    <div class="bar-fill" style="width: ${percentage}%; background-color: ${color}"></div>
+                </div>
+            </div>
+        `;
+    }
+
     let activeCities = new Set();
     let activeDishes = new Set();
 
@@ -240,9 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </a>
                         </h3>
                         <div class="spot-city">
-                            <a href="${mapsLink}" target="_blank" rel="noopener noreferrer" class="maps-link">
-                                ${spot.city}
-                            </a>
+                            ${spot.city}
                             ${spot.date ? `<span class="spot-date"> • ${spot.date}</span>` : ''}
                         </div>
                     </div>
@@ -257,15 +271,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img src="${spot.image || 'kebab_spot_demo.png'}" alt="Bild von ${spot.name}" class="spot-image" />
                     <div class="spot-content">
                         <div class="spot-categories">
-                            <div class="cat-item"><span>Fleisch</span><span style="color: ${getColorForScore(spot.fleisch)}">${spot.fleisch}</span></div>
-                            <div class="cat-item"><span>Gemüse</span><span style="color: ${getColorForScore(spot.gemuese)}">${spot.gemuese}</span></div>
-                            <div class="cat-item"><span>Soße</span><span style="color: ${getColorForScore(spot.sosse)}">${spot.sosse}</span></div>
-                            <div class="cat-item"><span>Brot</span><span style="color: ${getColorForScore(spot.brot)}">${spot.brot}</span></div>
-                            <div class="cat-item"><span>Balance</span><span style="color: ${getColorForScore(spot.balance)}">${spot.balance}</span></div>
-                            <div class="cat-item"><span>Auswahl</span><span style="color: ${getColorForScore(spot.auswahl)}">${spot.auswahl}</span></div>
-                            <div class="cat-item"><span>Portion</span><span style="color: ${getColorForScore(spot.portion)}">${spot.portion}</span></div>
-                            <div class="cat-item"><span>Hygiene</span><span style="color: ${getColorForScore(spot.hygiene)}">${spot.hygiene}</span></div>
-                            <div class="cat-item"><span>Service</span><span style="color: ${getColorForScore(spot.service)}">${spot.service}</span></div>
+                            ${renderCriteriaBar('Fleisch', spot.fleisch)}
+                            ${renderCriteriaBar('Gemüse', spot.gemuese)}
+                            ${renderCriteriaBar('Soße', spot.sosse)}
+                            ${renderCriteriaBar('Brot', spot.brot)}
+                            ${renderCriteriaBar('Balance', spot.balance)}
+                            ${renderCriteriaBar('Auswahl', spot.auswahl)}
+                            ${renderCriteriaBar('Portion', spot.portion)}
+                            ${renderCriteriaBar('Hygiene', spot.hygiene)}
+                            ${renderCriteriaBar('Service', spot.service)}
                         </div>
                         
                         <div class="spot-stats">
@@ -322,5 +336,27 @@ document.addEventListener('DOMContentLoaded', () => {
         gridContainer.className = 'spots-list';
         btnList.classList.add('active');
         btnGrid.classList.remove('active');
+    });
+
+    // Lightbox logic
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+
+    gridContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('spot-image')) {
+            lightboxImg.src = e.target.src;
+            lightbox.classList.add('active');
+            document.body.classList.add('lightbox-open');
+        }
+    });
+
+    lightbox.addEventListener('click', () => {
+        lightbox.classList.remove('active');
+        document.body.classList.remove('lightbox-open');
+        setTimeout(() => {
+            if (!lightbox.classList.contains('active')) {
+                lightboxImg.src = '';
+            }
+        }, 300);
     });
 });
