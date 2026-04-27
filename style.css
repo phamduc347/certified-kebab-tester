@@ -855,26 +855,31 @@ section {
 
 @media (max-width: 600px) {
     .spot-card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-    }
-
-    .spot-header-actions {
-        width: 100%;
-        flex-direction: column;
+        flex-wrap: wrap;
         gap: 12px;
-    }
-
-    .spot-score-pill, .maps-button {
-        width: 100%;
-        text-align: center;
-        justify-content: center;
     }
 
     .spot-rank {
         display: block;
         font-size: 1.8rem;
+        flex-shrink: 0;
+    }
+
+    .spot-header-text {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .spot-header-actions {
+        width: 100%;
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .spot-score-pill, .maps-button {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
     }
 }
 
