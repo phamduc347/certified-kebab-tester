@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="spot-header-text">
                         <h3>${spot.name}</h3>
                         <div class="spot-city">
-                            ${spot.city}${spot.date ? `<span class="spot-header-date"> · ${spot.date}</span>` : ''}
+                            ${spot.city}${spot.date ? `<span class="spot-header-date"> · ${spot.date}</span>` : ''}${spot.preis ? `<span class="spot-mobile-price"> · ${spot.preis}</span>` : ''}
                         </div>
                     </div>
                     <div class="spot-header-actions">

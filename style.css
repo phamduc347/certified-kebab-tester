@@ -559,6 +559,10 @@ section {
     opacity: 0.7;
 }
 
+.spot-mobile-price {
+    display: none;
+}
+
 
 
 .spot-score-pill {
@@ -960,6 +964,12 @@ section {
         flex: 1;
         text-align: center;
         justify-content: center;
+    }
+
+    .spot-mobile-price {
+        display: inline;
+        font-size: 0.85rem;
+        opacity: 0.7;
     }
 }
 
