@@ -218,15 +218,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return cityMatch && dishMatch;
         });
 
-        filteredData.forEach(spot => {
+        filteredData.forEach((spot, index) => {
             const card = document.createElement('div');
             card.className = 'spot-card';
             
             const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
+            const displayRank = index + 1;
 
             card.innerHTML = `
                 <div class="spot-card-header">
-                    <div class="spot-rank">${spot.rank}</div>
+                    <div class="spot-rank">${displayRank}</div>
                     <div class="spot-header-text">
                         <h3>${spot.name}</h3>
                         <div class="spot-city">
