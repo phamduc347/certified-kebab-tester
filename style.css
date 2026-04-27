@@ -580,6 +580,8 @@ section {
 
 .maps-button:hover svg {
     opacity: 1;
+.maps-button.mobile-only-maps {
+    display: none;
 }
 
 .spot-score-pill .label {
@@ -847,10 +849,20 @@ section {
         gap: 12px;
     }
 
-    .spot-score-pill, .maps-button {
+    .spot-score-pill {
         width: 100%;
         text-align: center;
         justify-content: center;
+    }
+
+    .spot-header-actions .maps-button {
+        display: none;
+    }
+
+    .mobile-only-maps {
+        display: flex !important;
+        width: 100%;
+        margin: 24px 0 8px;
     }
 
     .spot-rank {
