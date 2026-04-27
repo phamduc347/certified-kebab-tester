@@ -36,120 +36,87 @@ body {
 
 /* Header */
 .header {
-    padding: 24px 0 24px;
+    padding: 40px 0 24px;
+    margin-bottom: 48px;
     border-bottom: 1px solid var(--border-color);
-    margin-bottom: 40px;
-    padding-left: 48px;
+    text-align: center;
 }
 
 .logo {
-    font-size: 2.5rem;
-    font-weight: 800;
-    letter-spacing: -1px;
-    line-height: 1.2;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-}
-
-.logo .highlight {
-    color: var(--text-muted);
-    font-weight: 300;
-}
-
-.subtitle {
-    font-size: 1.125rem;
-    color: var(--text-muted);
-    font-weight: 300;
-}
-
-/* Navigation Menu */
-.top-nav {
-    position: absolute;
-    top: 24px;
-    left: 24px;
-    z-index: 100;
-}
-
-.menu-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--text-main);
-    padding: 8px;
-    border-radius: 4px;
-    transition: var(--transition);
-}
-
-.menu-btn:hover {
-    background: rgba(0,0,0,0.05);
-}
-
-.side-menu {
-    position: fixed;
-    top: 0;
-    left: -300px;
-    width: 250px;
-    height: 100vh;
-    background: var(--bg-main);
-    box-shadow: 2px 0 15px rgba(0,0,0,0.1);
-    z-index: 1000;
-    transition: left 0.3s ease;
-    padding: 80px 32px 32px;
     display: flex;
-    flex-direction: column;
-    gap: 24px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 24px;
 }
 
-.side-menu.open {
-    left: 0;
-}
-
-.close-menu-btn {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    background: none;
-    border: none;
-    font-size: 2.5rem;
-    cursor: pointer;
-    color: var(--text-muted);
+.logo-prefix {
+    font-size: 0.75rem;
+    font-weight: 800;
+    background: #000;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 1px;
     line-height: 1;
 }
 
-.close-menu-btn:hover {
-    color: var(--text-main);
-}
-
-.menu-link {
-    text-decoration: none;
-    color: var(--text-main);
-    font-size: 1.25rem;
+.logo-main {
+    font-size: 2rem; /* Exactly matching .section-header h2 */
     font-weight: 600;
-    transition: color 0.2s;
+    letter-spacing: -0.5px;
+    color: var(--text-main);
+    line-height: 1;
+    text-transform: none; /* More natural and premium */
 }
 
-.menu-link:hover {
+@media (max-width: 768px) {
+    .header {
+        padding: 24px 0;
+    }
+    
+    .logo {
+        margin-bottom: 16px;
+    }
+    
+    .logo-main {
+        font-size: 1.4rem;
+    }
+    
+    .logo-prefix {
+        font-size: 0.65rem;
+        padding: 3px 8px;
+    }
+}
+
+.header-nav {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+.header-link {
+    text-decoration: none;
     color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: var(--transition);
 }
 
-.menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.4);
-    backdrop-filter: blur(2px);
-    z-index: 999;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+.header-link:hover {
+    color: var(--text-main);
 }
 
-.menu-overlay.open {
-    opacity: 1;
-    pointer-events: auto;
+@media (max-width: 768px) {
+    .header-nav {
+        gap: 16px;
+    }
+    
+    .header-link {
+        font-size: 0.75rem;
+    }
 }
 
 /* Section Common */
@@ -497,8 +464,8 @@ section {
 .spot-card {
     background: var(--bg-main);
     border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 16px 24px;
+    border-radius: 16px;
+    padding: 12px 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
     transition: var(--transition);
     cursor: pointer;
@@ -533,11 +500,15 @@ section {
 
 .spot-header-text {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .spot-header-text h3 {
-    font-size: 1.8rem;
-    margin-bottom: 4px;
+    font-size: 1.5rem;
+    margin-bottom: 2px;
+    line-height: 1.1;
 }
 
 .spot-city {
@@ -548,11 +519,11 @@ section {
 .spot-score-pill {
     background: var(--text-main);
     color: var(--bg-main);
-    padding: 0 24px;
-    border-radius: 12px;
+    padding: 0 20px;
+    border-radius: 10px;
     text-align: right;
-    min-width: 120px;
-    height: 56px;
+    min-width: 100px;
+    height: 48px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -580,17 +551,17 @@ section {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 0 24px;
+    padding: 0 20px;
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 10px;
     color: var(--text-main);
     text-decoration: none;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
     transition: var(--transition);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    height: 56px;
+    height: 48px;
 }
 
 .maps-button:hover {
