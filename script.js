@@ -232,13 +232,10 @@ document.addEventListener('DOMContentLoaded', () => {
         gridContainer.innerHTML = '';
 
         const filteredData = kebabData.filter(spot => {
-            return activeCities.has(spot.city) && activeDishes.has(spot.dish);
+            const cityMatch = activeCities.size === 0 || activeCities.has(spot.city);
+            const dishMatch = activeDishes.size === 0 || activeDishes.has(spot.dish);
+            return cityMatch && dishMatch;
         });
-
-        if (filteredData.length === 0) {
-            gridContainer.innerHTML = '<p style="color: var(--text-muted); grid-column: 1 / -1;">Keine passenden Spots gefunden.</p>';
-            return;
-        }
 
         filteredData.forEach(spot => {
             const card = document.createElement('div');
@@ -248,26 +245,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             card.innerHTML = `
                 <div class="spot-card-header">
-                    <div class="spot-rank">#${spot.rank}</div>
+                    <div class="spot-rank">${spot.rank}</div>
                     <div class="spot-header-text">
-                        <h3>
-                            <a href="${mapsLink}" target="_blank" rel="noopener noreferrer" class="maps-link" title="Auf Google Maps ansehen">
-                                ${spot.name}
-                            </a>
-                        </h3>
-                        <div class="spot-city">
-                            ${spot.city}
-                            ${spot.date ? `<span class="spot-date"> • ${spot.date}</span>` : ''}
-                        </div>
+                        <h3>${spot.name}</h3>
+                        <div class="spot-city">${spot.city}</div>
                     </div>
-                    <div class="spot-list-score">
-                        <span class="stat-val">${spot.score}</span>
-                        <span class="stat-val" style="color: #ffd700;">${spot.stars}</span>
-                        <span class="expand-icon">▼</span>
+                    <div class="spot-header-actions">
+                        <a href="${mapsLink}" target="_blank" class="maps-button">
+                            <span>Google Maps</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        </a>
+                        <div class="spot-score-pill">
+                            <span class="label">SCORE</span>
+                            <span class="value">${spot.score}</span>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="spot-expandable">
+                <div class="spot-main-content">
                     <div class="spot-top-content">
                         <img src="${spot.image || 'kebab_spot_demo.png'}" alt="Bild von ${spot.name}" class="spot-image" />
                         <div class="spot-content">
@@ -293,21 +288,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${spot.kommentar ? `<div class="spot-comment">"${spot.kommentar}"</div>` : ''}
                         </div>
                     </div>
-                    
-                    <div class="spot-footer-content">
-                    </div>
                 </div>
             `;
-            
-            const header = card.querySelector('.spot-card-header');
-            header.addEventListener('click', (e) => {
-                if (gridContainer.classList.contains('spots-list')) {
-                    if (!e.target.closest('.maps-link')) {
-                        card.classList.toggle('expanded');
-                    }
-                }
-            });
-            
             gridContainer.appendChild(card);
         });
     }

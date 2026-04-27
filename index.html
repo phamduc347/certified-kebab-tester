@@ -20,9 +20,9 @@
         <div id="side-menu" class="side-menu">
             <button id="close-menu-btn" class="close-menu-btn">&times;</button>
             <a href="#spotlight" class="menu-link">Spotlight</a>
-            <a href="#spots" class="menu-link">Reviews</a>
+            <a href="#spots" class="menu-link">All Reviews</a>
             <a href="#comparison" class="menu-link">Head-to-Head</a>
-            <a href="#weightings" class="menu-link">Rating system</a>
+            <a href="#weightings" class="menu-link">Rating System</a>
             <a href="#contact" class="menu-link">Contact</a>
         </div>
         <div id="menu-overlay" class="menu-overlay"></div>
@@ -47,24 +47,17 @@
             <div id="spotlight-dots" class="spotlight-dots"></div>
         </section>
 
-        <!-- Leaderboard / Spot List -->
         <section class="spots-section" id="spots">
-            <div class="section-header view-header">
-                <div>
-                    <h2>Reviews</h2>
-                    <p>Alle getesteten Döner-Spots – ehrlich, unabhängig und nach System bewertet.</p>
-                    <div class="filters-bar">
-                        <div class="filter-group" id="filter-city-group"></div>
-                        <div class="filter-group" id="filter-dish-group"></div>
-                    </div>
-                </div>
-                <div class="view-toggles">
-                    <button id="btn-grid" class="view-btn active">Kacheln</button>
-                    <button id="btn-list" class="view-btn">Liste</button>
+            <div class="section-header">
+                <h2>All Reviews</h2>
+                <p>Ehrlich, unabhängig und nach System bewertet.</p>
+                <div class="filters-bar">
+                    <div class="filter-group" id="filter-city-group"></div>
+                    <div class="filter-group" id="filter-dish-group"></div>
                 </div>
             </div>
-            <div class="spots-grid" id="spots-grid">
-                <!-- Spot cards will be injected here via JS -->
+            <div id="spots-grid" class="spots-container">
+                <!-- Injected via JS -->
             </div>
         </section>
 
@@ -88,7 +81,7 @@
         <!-- Weightings Section -->
         <section class="weightings-section" id="weightings">
             <div class="section-header">
-                <h2>Rating system</h2>
+                <h2>Rating System</h2>
                 <p>So setzt sich die finale Gesamtnote (Score) zusammen.</p>
             </div>
             <div class="weightings-content">
