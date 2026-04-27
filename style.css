@@ -784,13 +784,19 @@ section {
     }
 
     .weightings-content {
-        flex-direction: column;
+        display: flex !important;
+        flex-direction: column !important;
         gap: 24px;
     }
 
+    .weightings-image-wrapper, .weightings-text {
+        width: 100% !important;
+        flex: none !important;
+    }
+
     .weightings-image-wrapper {
-        width: 100%;
-        height: 300px;
+        height: auto;
+        min-height: 250px;
     }
 
     .controls-wrapper {
