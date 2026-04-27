@@ -396,6 +396,30 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrid();
     initSpotlight();
 
+    // Toggle-All Button logic
+    const toggleAllBtn = document.getElementById('toggle-all-btn');
+    const toggleAllLabel = document.getElementById('toggle-all-label');
+    const toggleAllIcon = toggleAllBtn ? toggleAllBtn.querySelector('svg') : null;
+    let allExpanded = false;
+
+    if (toggleAllBtn) {
+        toggleAllBtn.addEventListener('click', () => {
+            allExpanded = !allExpanded;
+            const cards = gridContainer.querySelectorAll('.spot-card');
+            cards.forEach(card => {
+                if (allExpanded) {
+                    card.classList.add('expanded');
+                } else {
+                    card.classList.remove('expanded');
+                }
+            });
+            toggleAllLabel.textContent = allExpanded ? 'Alle einklappen' : 'Alle ausklappen';
+            if (toggleAllIcon) {
+                toggleAllIcon.style.transform = allExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+            }
+        });
+    }
+
     // Lightbox logic
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
