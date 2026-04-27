@@ -268,31 +268,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 
                 <div class="spot-expandable">
-                    <img src="${spot.image || 'kebab_spot_demo.png'}" alt="Bild von ${spot.name}" class="spot-image" />
-                    <div class="spot-content">
-                        <div class="spot-categories">
-                            ${renderCriteriaBar('Fleisch', spot.fleisch)}
-                            ${renderCriteriaBar('Gemüse', spot.gemuese)}
-                            ${renderCriteriaBar('Soße', spot.sosse)}
-                            ${renderCriteriaBar('Brot', spot.brot)}
-                            ${renderCriteriaBar('Balance', spot.balance)}
-                            ${renderCriteriaBar('Auswahl', spot.auswahl)}
-                            ${renderCriteriaBar('Portion', spot.portion)}
-                            ${renderCriteriaBar('Hygiene', spot.hygiene)}
-                            ${renderCriteriaBar('Service', spot.service)}
-                        </div>
-                        
-                        <div class="spot-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Score</span>
-                                <span class="stat-val">${spot.score}</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Rating</span>
-                                <span class="stat-val" style="color: #ffd700;">${spot.stars}</span>
+                    <div class="spot-top-content">
+                        <img src="${spot.image || 'kebab_spot_demo.png'}" alt="Bild von ${spot.name}" class="spot-image" />
+                        <div class="spot-content">
+                            <div class="spot-categories">
+                                ${renderCriteriaBar('Fleisch', spot.fleisch)}
+                                ${renderCriteriaBar('Gemüse', spot.gemuese)}
+                                ${renderCriteriaBar('Soße', spot.sosse)}
+                                ${renderCriteriaBar('Brot', spot.brot)}
+                                ${renderCriteriaBar('Balance', spot.balance)}
+                                ${renderCriteriaBar('Auswahl', spot.auswahl)}
+                                ${renderCriteriaBar('Portion', spot.portion)}
+                                ${renderCriteriaBar('Hygiene', spot.hygiene)}
+                                ${renderCriteriaBar('Service', spot.service)}
                             </div>
                         </div>
-                        
+                    </div>
+                    
+                    <div class="spot-footer-content">
                         <div class="spot-details">
                             <span class="badge">${spot.dish}</span>
                             <span class="badge">P/L: ${spot.plIndex}</span>
@@ -318,12 +311,114 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function initSpotlight() {
+        const container = document.getElementById('spotlight-container');
+        const dotsContainer = document.getElementById('spotlight-dots');
+        if (!container || !dotsContainer) return;
+
+        // Helper to parse scores
+        const parseScore = (s) => parseFloat(s.replace(',', '.').replace('%', ''));
+
+        const sortedByDate = [...kebabData].sort((a, b) => {
+            const dateA = a.date.split('.').reverse().join('-');
+            const dateB = b.date.split('.').reverse().join('-');
+            return new Date(dateB) - new Date(dateA);
+        });
+
+        const sortedByScore = [...kebabData].sort((a, b) => parseScore(b.score) - parseScore(a.score));
+
+        const spotlightItems = [
+            { spot: sortedByDate[0], label: "LATEST TEST", tag: "NEWEST ADDITION" },
+            { spot: sortedByScore[0], label: "ALL-TIME BEST", tag: "THE BENCHMARK" },
+            { spot: sortedByScore[sortedByScore.length - 1], label: "BOTTOM RANK", tag: "ROOM FOR IMPROVEMENT" }
+        ];
+
+        let currentIndex = 0;
+        let rotationTimer;
+
+        function renderDots() {
+            dotsContainer.innerHTML = spotlightItems.map((_, i) => 
+                `<div class="dot ${i === currentIndex ? 'active' : ''}" data-index="${i}"></div>`
+            ).join('');
+        }
+
+        function updateSpotlight(index = null) {
+            if (index !== null) currentIndex = index;
+
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px) scale(0.98)';
+
+            setTimeout(() => {
+                const item = spotlightItems[currentIndex];
+                const spot = item.spot;
+                const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
+
+                container.innerHTML = `
+                    <div class="latest-card">
+                        <div class="latest-image-wrapper">
+                            <img src="${spot.image || 'kebab_spot_demo.png'}" alt="${spot.name}" class="latest-image spot-image">
+                            <div class="latest-badge">${item.label}</div>
+                        </div>
+                        <div class="latest-content">
+                            <div class="latest-header">
+                                <div class="latest-info">
+                                    <span class="latest-label">${item.tag}</span>
+                                    <h3><a href="${mapsLink}" target="_blank" class="maps-link">${spot.name}</a></h3>
+                                    <div class="latest-meta">${spot.city} • ${spot.date}</div>
+                                </div>
+                                <div class="latest-score-block">
+                                    <div class="latest-score-label">SCORE</div>
+                                    <div class="latest-score-value">${spot.score}</div>
+                                </div>
+                            </div>
+                            <div class="latest-body">
+                                <div class="latest-details">
+                                    <span class="badge">${spot.dish}</span>
+                                    <span class="badge" style="color: #ffd700;">${spot.stars}</span>
+                                </div>
+                                <div class="latest-comment">
+                                    "${spot.kommentar.split('\n')[0]}"
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                renderDots();
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0) scale(1)';
+            }, 600);
+        }
+
+        function startRotation() {
+            clearInterval(rotationTimer);
+            rotationTimer = setInterval(() => {
+                currentIndex = (currentIndex + 1) % spotlightItems.length;
+                updateSpotlight();
+            }, 6000);
+        }
+
+        dotsContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('dot')) {
+                const index = parseInt(e.target.dataset.index);
+                if (index === currentIndex) return;
+                updateSpotlight(index);
+                startRotation(); // Reset timer
+            }
+        });
+
+        container.style.transition = 'all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1)';
+        updateSpotlight();
+        startRotation();
+    }
+
     // Initialization
     initChart();
     renderToggles();
     updateChart();
     populateFilters();
     renderGrid();
+    initSpotlight();
 
     // View toggles
     btnGrid.addEventListener('click', () => {
@@ -342,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
 
-    gridContainer.addEventListener('click', (e) => {
+    document.addEventListener('click', (e) => {
         if (e.target.classList.contains('spot-image')) {
             lightboxImg.src = e.target.src;
             lightbox.classList.add('active');
