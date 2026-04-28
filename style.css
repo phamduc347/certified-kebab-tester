@@ -310,7 +310,7 @@ body.lightbox-open {
 /* Scrolled state */
 .header.scrolled {
     padding: 8px 0;
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
     border-bottom-color: var(--border-color);
 }
