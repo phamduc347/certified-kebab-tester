@@ -434,7 +434,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const header = card.querySelector('.spot-card-header');
             header.addEventListener('click', (e) => {
                 if (!e.target.closest('.maps-button')) {
+                    const isOpening = !card.classList.contains('expanded');
                     card.classList.toggle('expanded');
+                    
+                    if (isOpening) {
+                        // Use a tiny timeout to ensure the scroll happens after the expansion transition starts
+                        setTimeout(() => {
+                            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 50);
+                    }
                 }
             });
             
