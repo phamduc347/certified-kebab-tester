@@ -361,14 +361,17 @@ section {
 }
 
 .latest-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
     border-top: 1px solid var(--border-color);
-    padding-top: 16px;
+    padding-top: 20px;
+    margin-top: 16px;
 }
 
 .latest-details {
     display: flex;
     gap: 8px;
-    margin-bottom: 12px;
     flex-wrap: wrap;
 }
 
@@ -394,10 +397,7 @@ section {
     font-family: serif;
 }
 
-.latest-footer {
-    margin-top: 20px;
-    display: flex;
-}
+
 
 .spotlight-jump-btn {
     display: flex;

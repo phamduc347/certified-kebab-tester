@@ -397,12 +397,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <span class="badge">${spot.dish}</span>
                                     <span class="badge" style="color: #ffd700;">${spot.stars}</span>
                                 </div>
-                                <div class="latest-footer">
-                                    <button class="spotlight-jump-btn" data-id="${spot.id}">
-                                        <span>Full Review</span>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-                                    </button>
-                                </div>
+                                <button class="spotlight-jump-btn" data-id="${spot.id}">
+                                    <span>Full Review</span>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                                </button>
                             </div>
                         </div>
                     </div>
