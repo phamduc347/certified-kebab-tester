@@ -424,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
             rotationTimer = setInterval(() => {
                 currentIndex = (currentIndex + 1) % spotlightItems.length;
                 updateSpotlight();
-            }, 6000);
+            }, 8000);
         }
 
         dotsContainer.addEventListener('click', (e) => {
