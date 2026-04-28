@@ -660,7 +660,8 @@ section {
 #spotlight-container {
     position: relative;
     width: 100%;
-    min-height: 260px;
+    height: 280px; /* Rigid fixed height for stability */
+    overflow: hidden;
 }
 
 .latest-card {
@@ -668,24 +669,23 @@ section {
     top: 0;
     left: 0;
     width: 100%;
+    height: 100%;
     display: flex;
     background: var(--bg-main);
     border: 1px solid var(--border-color);
     border-radius: 24px;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
-    transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-    height: 260px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    transition: opacity 0.8s ease-in-out; /* Pure opacity fade */
     opacity: 0;
     pointer-events: none;
-    transform: translateY(10px);
+    z-index: 1;
 }
 
 .latest-card.active {
     opacity: 1;
     pointer-events: auto;
-    transform: translateY(0);
-    position: relative; /* Only the active one takes up space to handle responsive height changes if needed */
+    z-index: 2;
 }
 
 .latest-card:hover {
@@ -1450,17 +1450,13 @@ section {
 
 @media (max-width: 768px) {
     /* Spotlight Mobile Optimization */
-    .latest-card {
-        flex-direction: column;
-        height: auto;
-        min-height: 400px;
-        position: absolute;
-        top: 0;
-        left: 0;
+    #spotlight-container {
+        height: 450px; /* Fixed height for mobile stability */
     }
 
-    .latest-card.active {
-        position: relative;
+    .latest-card {
+        flex-direction: column;
+        height: 100%;
     }
 
     .latest-image-wrapper {
