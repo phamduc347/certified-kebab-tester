@@ -39,7 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         max: 10,
                         ticks: {
                             stepSize: 1,
-                            display: false // Hide numbers on the rings for cleaner look
+                            display: true,
+                            backdropColor: 'transparent',
+                            color: '#9ca3af',
+                            font: {
+                                size: 10
+                            }
                         },
                         grid: {
                             color: 'rgba(0, 0, 0, 0.1)'
@@ -77,16 +82,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateChart() {
         const datasets = [];
+        let minVal = 10;
+
         kebabData.forEach((spot, index) => {
             if (selectedSpots.has(spot.id)) {
+                const scores = [
+                    spot.fleisch, spot.gemuese, spot.sosse, spot.brot, 
+                    spot.balance, spot.auswahl, spot.portion, spot.hygiene, spot.service
+                ];
+                
+                scores.forEach(val => {
+                    if (val < minVal) minVal = val;
+                });
+
                 const color = palette[index % palette.length];
                 datasets.push({
                     label: spot.name,
-                    data: [
-                        spot.fleisch, spot.gemuese, spot.sosse, spot.brot, 
-                        spot.balance, spot.auswahl, spot.portion, spot.hygiene, spot.service
-                    ],
-                    backgroundColor: color.replace('0.9', '0.15'), // Transparent fill
+                    data: scores,
+                    backgroundColor: color.replace('0.9', '0.15'),
                     borderColor: color,
                     pointBackgroundColor: color,
                     pointBorderColor: '#000',
@@ -96,6 +109,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
+        
+        // Dynamically set min to the floor of the lowest criteria found minus 1 for more "breathing room"
+        radarChart.options.scales.r.min = datasets.length > 0 ? Math.max(0, Math.floor(minVal) - 1) : 5;
         
         radarChart.data.datasets = datasets;
         radarChart.update();
