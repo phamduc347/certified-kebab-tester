@@ -509,4 +509,84 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    // Legal Modal Logic
+    const legalModal = document.getElementById('legal-modal');
+    const modalContent = document.getElementById('modal-content');
+    const openDisclaimer = document.getElementById('open-disclaimer');
+    const openPrivacy = document.getElementById('open-privacy');
+
+    const legalTexts = {
+        disclaimer: `
+            <h2>Disclaimer</h2>
+            <div class="legal-section">
+                <h3>1. Keine wirtschaftliche Absicht</h3>
+                <p>Diese Webseite ist ein rein privates Hobby-Projekt. Es besteht keinerlei kommerzielle oder wirtschaftliche Absicht. Ich schalte keine Werbung, nutze keine Affiliate-Links und erhalte keine Vergütungen von den getesteten Betrieben.</p>
+            </div>
+            <div class="legal-section">
+                <h3>2. Subjektivität & Momentaufnahme</h3>
+                <p>Alle Bewertungen basieren auf meiner persönlichen Meinung zum Zeitpunkt des Besuchs. Geschmack ist subjektiv. Ein Testbericht stellt keine allgemeingültige Aussage über die dauerhafte Qualität eines Gastronomiebetriebs dar.</p>
+            </div>
+            <div class="legal-section">
+                <h3>3. Richtigkeit der Angaben</h3>
+                <p>Preise, Speisekarten und Öffnungszeiten können sich jederzeit ändern. Ich bemühe mich um Aktualität, kann aber keine Gewähr für die Richtigkeit der hier angezeigten Daten übernehmen.</p>
+            </div>
+            <div class="legal-section">
+                <h3>4. Haftung für Links</h3>
+                <p>Trotz sorgfältiger inhaltlicher Kontrolle übernehme ich keine Haftung für die Inhalte externer Links (z.B. Google Maps). Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.</p>
+            </div>
+        `,
+        privacy: `
+            <h2>Datenschutzerklärung</h2>
+            <div class="legal-section">
+                <h3>1. Grundsatz</h3>
+                <p>Der Schutz deiner Daten ist mir extrem wichtig. Diese Seite ist darauf ausgelegt, so datensparsam wie möglich zu sein.</p>
+            </div>
+            <div class="legal-section">
+                <h3>2. Server-Log-Files</h3>
+                <p>Beim Aufruf dieser Webseite werden durch den Hosting-Provider (z. B. GitHub Pages) automatisch Informationen in sogenannten Server-Log-Files gespeichert (IP-Adresse, Browsertyp, Referrer URL, Zeitstempel). Diese Daten sind technisch notwendig für den Betrieb der Seite.</p>
+            </div>
+            <div class="legal-section">
+                <h3>3. Keine Analyse-Tools</h3>
+                <p>Ich verwende <strong>keinerlei Tracking-Tools</strong> wie Google Analytics, keine Werbenetzwerke und keine Social-Media-Pixel. Dein Surfverhalten wird auf dieser Seite nicht beobachtet.</p>
+            </div>
+            <div class="legal-section">
+                <h3>4. LocalStorage & Cookies</h3>
+                <p>Diese Seite nutzt keine klassischen Cookies. Wir verwenden lediglich den <strong>LocalStorage</strong> deines Browsers, um deine Präferenz für den Dark/Light Mode zu speichern. Diese Information verbleibt auf deinem Endgerät.</p>
+            </div>
+            <div class="legal-section">
+                <h3>5. Externe Karten (Leaflet)</h3>
+                <p>Für die Darstellung der Karte wird Leaflet.js genutzt. Dabei werden Kartendaten von OpenStreetMap/Carto geladen. Hierbei wird technisch bedingt deine IP-Adresse an diese Dienste übertragen.</p>
+            </div>
+        `
+    };
+
+    const openModal = (type) => {
+        if (!legalModal || !modalContent) return;
+        modalContent.innerHTML = legalTexts[type];
+        legalModal.classList.add('active');
+        document.body.classList.add('modal-open');
+    };
+
+    const closeModal = () => {
+        if (!legalModal) return;
+        legalModal.classList.remove('active');
+        document.body.classList.remove('modal-open');
+    };
+
+    if (openDisclaimer) openDisclaimer.addEventListener('click', (e) => { e.preventDefault(); openModal('disclaimer'); });
+    if (openPrivacy) openPrivacy.addEventListener('click', (e) => { e.preventDefault(); openModal('privacy'); });
+
+    if (legalModal) {
+        legalModal.addEventListener('click', (e) => {
+            if (e.target.id === 'legal-modal' || e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close')) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && legalModal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+    }
 });
