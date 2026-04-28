@@ -304,8 +304,8 @@ body.lightbox-open {
 /* Scrolled state */
 .header.scrolled {
     padding: 8px 0;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(16px);
     border-bottom-color: var(--border-color);
 }
 
@@ -431,7 +431,8 @@ body.lightbox-open {
     }
 
     .header.scrolled {
-        background: rgba(255, 255, 255, 0.95);
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(16px);
     }
     
     .logo-main {
