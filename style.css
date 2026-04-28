@@ -932,6 +932,23 @@ section {
     margin-right: 24px;
 }
 
+/* Medal Ranks Styling */
+.spot-card:nth-child(1) .spot-rank {
+    color: #D4AF37; /* Gold */
+    opacity: 0.9;
+    text-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+}
+
+.spot-card:nth-child(2) .spot-rank {
+    color: #A8A8A8; /* Silver */
+    opacity: 0.9;
+}
+
+.spot-card:nth-child(3) .spot-rank {
+    color: #B08D57; /* Bronze */
+    opacity: 0.9;
+}
+
 .spot-header-text {
     flex: 1;
     display: flex;
