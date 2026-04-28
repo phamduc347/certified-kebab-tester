@@ -327,6 +327,27 @@ body {
         font-size: 0.6rem;
         padding: 2px 6px;
     }
+
+    .header.scrolled {
+        padding: 4px 0;
+    }
+
+    .header.scrolled .container {
+        gap: 2px;
+    }
+
+    .header.scrolled .logo-main {
+        font-size: 1.1rem;
+    }
+
+    .header.scrolled .logo-prefix {
+        font-size: 0.5rem;
+        padding: 1px 4px;
+    }
+
+    .header.scrolled .header-link {
+        font-size: 0.55rem;
+    }
 }
 
 .header-nav {
