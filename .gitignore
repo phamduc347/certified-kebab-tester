@@ -1,0 +1,17 @@
+# Git Ignore File
+
+# Database folder (contains sensitive CSV data and JS database)
+# NOTE: Ignoring this will break the site on GitHub Pages as data.js will be missing!
+database/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
