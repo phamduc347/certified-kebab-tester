@@ -433,8 +433,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Find the card
         const card = document.getElementById(`spot-${spotId}`);
         if (card) {
-            // 3. Smooth scroll to it
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // 3. Smooth scroll to it - using 'start' to align with scroll-padding-top
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             // 4. Expand it after a short delay
             setTimeout(() => {
@@ -486,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="latest-header">
                                 <div class="latest-info">
                                     <span class="latest-label">${item.tag}</span>
-                                    <h3><a href="${mapsLink}" target="_blank" class="maps-link">${spot.name}</a></h3>
+                                    <h3 class="latest-title" data-id="${spot.id}">${spot.name}</h3>
                                     <div class="latest-meta">${spot.city} • ${spot.date}</div>
                                 </div>
                                 <div class="latest-score-block">
@@ -499,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <span class="badge">${spot.dish}</span>
                                     <span class="badge" style="color: #ffd700;">${spot.stars}</span>
                                 </div>
-                                <button class="spotlight-jump-btn" onclick="Antigravity.jumpToReview(${spot.id})">
+                                <button class="spotlight-jump-btn" data-id="${spot.id}">
                                     <span>Full Review</span>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                                 </button>
@@ -508,6 +508,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
             }).join('');
+
+            // Attach event listeners after rendering
+            container.querySelectorAll('.spotlight-jump-btn, .latest-title').forEach(el => {
+                el.addEventListener('click', () => {
+                    const id = el.dataset.id;
+                    jumpToReview(id);
+                });
+            });
         }
 
         function renderDots() {
