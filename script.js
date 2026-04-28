@@ -371,6 +371,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'spot-card';
             card.id = `spot-${spot.id}`;
+            // Staggered entry animation
+            card.style.animationDelay = `${index * 0.05}s`;
             
             const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
             const displayRank = index + 1;
