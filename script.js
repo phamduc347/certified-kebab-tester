@@ -1,4 +1,119 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // ── Kebab Silhouette Canvas Animation ──────────────────────────────
+    (function initKebabCanvas() {
+        const canvas = document.getElementById('kebab-canvas');
+        if (!canvas) return;
+        const ctx2d = canvas.getContext('2d');
+        let W, H, kebabs = [];
+
+        function resize() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            W = canvas.width  = rect.width;
+            H = canvas.height = rect.height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Draw original wrap silhouette (rounded rect + stripes + stick)
+        function drawKebab(ctx, x, y, size, opacity, angle) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            ctx.globalAlpha = opacity;
+            ctx.fillStyle = '#000';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = size * 0.04;
+
+            // Wrap / bread body (rounded rectangle)
+            const w = size * 0.45, h = size;
+            const r = w * 0.45;
+            ctx.beginPath();
+            ctx.moveTo(-w/2 + r, -h/2);
+            ctx.lineTo( w/2 - r, -h/2);
+            ctx.arcTo(  w/2,    -h/2,  w/2,    -h/2 + r, r);
+            ctx.lineTo( w/2,     h/2 - r);
+            ctx.arcTo(  w/2,     h/2,  w/2 - r, h/2,     r);
+            ctx.lineTo(-w/2 + r, h/2);
+            ctx.arcTo( -w/2,     h/2, -w/2,     h/2 - r, r);
+            ctx.lineTo(-w/2,    -h/2 + r);
+            ctx.arcTo( -w/2,    -h/2, -w/2 + r,-h/2,     r);
+            ctx.closePath();
+            ctx.fill();
+
+            // Filling stripes (lettuce / meat layers)
+            ctx.globalAlpha = opacity * 0.35;
+            ctx.fillStyle = '#fff';
+            const stripes = 4;
+            const stripeH = h / (stripes * 2.2);
+            for (let i = 0; i < stripes; i++) {
+                const sy = -h/2 + (i + 0.6) * (h / stripes);
+                ctx.fillRect(-w/2 + ctx.lineWidth, sy, w - ctx.lineWidth * 2, stripeH);
+            }
+
+            // Skewer / stick at bottom
+            ctx.globalAlpha = opacity;
+            ctx.fillStyle = '#000';
+            ctx.fillRect(-size * 0.04, h/2, size * 0.08, size * 0.35);
+
+            // Skewer tip at top (shorter, with round cap)
+            ctx.fillRect(-size * 0.04, -h/2 - size * 0.20, size * 0.08, size * 0.20);
+            ctx.beginPath();
+            ctx.arc(0, -h/2 - size * 0.20, size * 0.06, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        const COUNT = 18;
+
+        function randomKebab() {
+            const side = Math.random() < 0.5 ? 'left' : 'right';
+            const size = 28 + Math.random() * 42;
+            const startY = Math.random() * H;
+            const speed  = 0.4 + Math.random() * 0.9;
+            const drift  = (Math.random() - 0.5) * 0.4; // vertical drift
+            const spin   = (Math.random() - 0.5) * 0.015;
+            return {
+                x:       side === 'left' ? -size : W + size,
+                y:       startY,
+                size,
+                speed:   side === 'left' ? speed : -speed,
+                drift,
+                spin,
+                angle:   Math.random() * Math.PI * 2,
+                opacity: 0.04 + Math.random() * 0.09,
+            };
+        }
+
+        for (let i = 0; i < COUNT; i++) {
+            const k = randomKebab();
+            // Scatter initial positions across the full width
+            k.x = Math.random() * W;
+            k.y = Math.random() * H;
+            kebabs.push(k);
+        }
+
+        function animate() {
+            ctx2d.clearRect(0, 0, W, H);
+            for (const k of kebabs) {
+                k.x    += k.speed;
+                k.y    += k.drift;
+                k.angle += k.spin;
+
+                // Recycle when off-screen
+                if (k.x > W + k.size * 2 || k.x < -k.size * 2 ||
+                    k.y > H + k.size * 2 || k.y < -k.size * 2) {
+                    Object.assign(k, randomKebab());
+                }
+
+                drawKebab(ctx2d, k.x, k.y, k.size, k.opacity, k.angle);
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+    })();
+    // ── End Kebab Canvas ────────────────────────────────────────────────
+
     // Elegant monochrome palette for the spots
     const palette = [
         'rgba(239, 68, 68, 0.9)',      // Red
@@ -595,17 +710,42 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Optimized Scroll Listener
     let scrollTimeout;
+    const navLinks = document.querySelectorAll('.header-link');
+    const sections = Array.from(navLinks).map(link => {
+        const id = link.getAttribute('href').substring(1);
+        return document.getElementById(id);
+    }).filter(el => el !== null);
+
     const handleScroll = () => {
         if (!header || !heroSection) return;
         
         if (!scrollTimeout) {
             scrollTimeout = requestAnimationFrame(() => {
+                // Header shrink logic
                 const heroHeight = heroSection.offsetHeight;
                 if (window.scrollY > heroHeight - 50) {
                     header.classList.add('scrolled');
                 } else {
                     header.classList.remove('scrolled');
                 }
+
+                // Active link logic
+                let currentSectionId = "";
+                const scrollPos = window.scrollY + 120; // Offset for sticky header
+
+                sections.forEach(section => {
+                    if (scrollPos >= section.offsetTop && scrollPos < section.offsetTop + section.offsetHeight) {
+                        currentSectionId = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${currentSectionId}`) {
+                        link.classList.add('active');
+                    }
+                });
+
                 scrollTimeout = null;
             });
         }
