@@ -372,8 +372,16 @@ body.lightbox-open {
         gap: 0;
     }
     
-    .logo {
-        margin-bottom: 0;
+    .header-nav {
+        width: 100%;
+        justify-content: space-between;
+        gap: 0;
+        padding: 0 4px;
+    }
+
+    .header-link {
+        font-size: clamp(0.65rem, 3.4vw, 0.85rem);
+        letter-spacing: 0;
     }
     
     .logo-main {
