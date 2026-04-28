@@ -70,7 +70,18 @@ body.lightbox-open {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at center, transparent 0%, #fff 80%);
+    background: radial-gradient(circle at center, transparent 20%, rgba(255,255,255,0.85) 75%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
     pointer-events: none;
 }
 
@@ -100,6 +111,8 @@ body.lightbox-open {
 }
 
 .hero-content {
+    position: relative;
+    z-index: 2;
     max-width: 900px;
     padding: 0 40px;
 }
