@@ -1257,11 +1257,12 @@ section {
     }
 
     .spot-categories {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px 16px;
     }
 
     .spot-card {
-        padding: 24px;
+        padding: 16px;
     }
 
     .comparison-container {
@@ -1341,13 +1342,18 @@ section {
 
     .spot-rank {
         display: block;
-        font-size: 1.8rem;
+        font-size: 1.4rem;
+        margin-right: 12px;
         flex-shrink: 0;
     }
 
     .spot-header-text {
         flex: 1;
         min-width: 0;
+    }
+
+    .spot-header-text h3 {
+        font-size: 1.1rem;
     }
 
     .spot-header-actions {
@@ -1358,8 +1364,19 @@ section {
 
     .spot-score-pill, .maps-button {
         flex: 1;
+        height: 36px;
+        padding: 0 12px;
+        font-size: 0.75rem;
         text-align: center;
         justify-content: center;
+    }
+
+    .spot-score-pill .value {
+        font-size: 1.2rem;
+    }
+
+    .spot-score-pill .label {
+        font-size: 0.5rem;
     }
 
     .spot-mobile-price {
