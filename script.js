@@ -589,4 +589,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    // Header Scroll Optimization
+    const header = document.querySelector('.header');
+    const heroSection = document.querySelector('.hero-section');
+    
+    const handleScroll = () => {
+        if (!header || !heroSection) return;
+        const heroHeight = heroSection.offsetHeight;
+        if (window.scrollY > heroHeight - 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
 });

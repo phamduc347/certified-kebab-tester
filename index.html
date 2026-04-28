@@ -9,7 +9,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -31,6 +31,24 @@
     </header>
 
     <main class="container">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-glow-1"></div>
+            <div class="hero-glow-2"></div>
+            <div class="hero-content">
+                <p class="hero-subtitle">Die Wissenschaft des perfekten Döners.</p>
+                <div class="hero-actions">
+                    <a href="#spots" class="hero-btn primary">Entdecke alle Reviews</a>
+                    <a href="#weightings" class="hero-btn secondary">Unser Bewertungssystem</a>
+                </div>
+                <div class="hero-disclaimer">Privates Projekt zur reinen Unterhaltung. Keine kommerzielle Absicht.</div>
+            </div>
+            <div class="hero-scroll-indicator">
+                <span>SCROLL EXPLORE</span>
+                <div class="scroll-line"></div>
+            </div>
+        </section>
+
         <!-- Spotlight Section -->
         <section class="latest-section" id="spotlight">
             <div class="section-header">
@@ -155,8 +173,13 @@
     </main>
 
     <footer class="footer">
-        <div class="container">
+        <div class="container footer-content">
             <p>&copy; 2026 Pham Certified Kebab Tester. All Rights Reserved.</p>
+            <div class="footer-legal">
+                <a href="#" id="open-disclaimer">Disclaimer</a>
+                <span class="separator">·</span>
+                <a href="#" id="open-privacy">Datenschutz</a>
+            </div>
         </div>
     </footer>
 
@@ -164,6 +187,17 @@
     <div id="lightbox" class="lightbox">
         <div class="lightbox-overlay"></div>
         <img id="lightbox-img" class="lightbox-content" src="" alt="Enlarged view">
+    </div>
+
+    <!-- Legal Modal -->
+    <div id="legal-modal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-container">
+            <button class="modal-close" aria-label="Close modal">&times;</button>
+            <div id="modal-content" class="modal-content">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->
