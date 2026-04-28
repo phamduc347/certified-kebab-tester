@@ -306,8 +306,8 @@ document.addEventListener('DOMContentLoaded', () => {
         cities.forEach(city => {
             activeCities.add(city);
             const btn = document.createElement('button');
-            btn.className = 'filter-bubble active';
-            btn.textContent = city;
+            btn.className = 'filter-bubble filter-city active';
+            btn.innerHTML = `${city} <span class="filter-x">×</span>`;
             btn.addEventListener('click', () => {
                 if (activeCities.has(city)) {
                     activeCities.delete(city);
@@ -324,8 +324,8 @@ document.addEventListener('DOMContentLoaded', () => {
         dishes.forEach(dish => {
             activeDishes.add(dish);
             const btn = document.createElement('button');
-            btn.className = 'filter-bubble active';
-            btn.textContent = dish;
+            btn.className = 'filter-bubble filter-dish active';
+            btn.innerHTML = `${dish} <span class="filter-x">×</span>`;
             btn.addEventListener('click', () => {
                 if (activeDishes.has(dish)) {
                     activeDishes.delete(dish);
