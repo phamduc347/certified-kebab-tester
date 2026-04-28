@@ -817,4 +817,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+    // Add Logo Click Scroll to Top
+    const logo = document.querySelector('.logo');
+    if (logo) {
+        logo.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
 });

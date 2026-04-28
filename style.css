@@ -358,6 +358,7 @@ body.lightbox-open {
 
 .logo {
     margin-bottom: 0;
+    cursor: pointer;
 }
 
 .logo-prefix {
