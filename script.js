@@ -486,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        lightbox.addEventListener('click', () => {
+        const closeLightbox = () => {
             lightbox.classList.remove('active');
             document.body.classList.remove('lightbox-open');
             setTimeout(() => {
@@ -494,6 +494,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     lightboxImg.src = '';
                 }
             }, 300);
+        };
+
+        lightbox.addEventListener('click', (e) => {
+            // Close if clicking the overlay or background
+            if (e.target.id === 'lightbox' || e.target.classList.contains('lightbox-overlay')) {
+                closeLightbox();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                closeLightbox();
+            }
         });
     }
 });
