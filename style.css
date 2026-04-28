@@ -330,21 +330,21 @@ body.lightbox-open {
 
 .header-nav {
     display: flex;
-    gap: 32px;
+    gap: 24px;
     transition: all 0.3s ease;
 }
 
 .header-link {
     text-decoration: none;
     color: var(--text-muted);
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
     text-transform: uppercase;
     transition: var(--transition);
     white-space: nowrap;
     position: relative;
-    padding: 6px 0;
+    padding: 8px 0;
 }
 
 .header-link.active {
@@ -359,6 +359,7 @@ body.lightbox-open {
     width: 100%;
     height: 2px;
     background: var(--text-main);
+    transform-origin: center;
 }
 
 .header-link:hover {
@@ -399,7 +400,7 @@ body.lightbox-open {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 12px;
+        gap: 8px; /* Tighter gap for better balance */
         transition: all 0.4s ease;
     }
     
@@ -416,9 +417,16 @@ body.lightbox-open {
     }
 
     .header-link {
-        font-size: clamp(0.7rem, 3.2vw, 0.85rem);
-        letter-spacing: -0.2px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
         white-space: nowrap;
+        padding: 4px 0;
+    }
+
+    .header-link.active::after {
+        height: 1.5px;
+        bottom: -2px;
     }
 
     .header.scrolled {
