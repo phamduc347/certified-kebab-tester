@@ -472,25 +472,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentIndex = 0;
         let rotationTimer;
 
-        function renderDots() {
-            dotsContainer.innerHTML = spotlightItems.map((_, i) => 
-                `<div class="dot ${i === currentIndex ? 'active' : ''}" data-index="${i}"></div>`
-            ).join('');
-        }
-
-        function updateSpotlight(index = null) {
-            if (index !== null) currentIndex = index;
-
-            container.style.opacity = '0';
-            container.style.transform = 'translateY(20px) scale(0.98)';
-
-            setTimeout(() => {
-                const item = spotlightItems[currentIndex];
+        function renderSpotlightItems() {
+            container.innerHTML = spotlightItems.map((item, i) => {
                 const spot = item.spot;
                 const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
-
-                container.innerHTML = `
-                    <div class="latest-card">
+                return `
+                    <div class="latest-card ${i === 0 ? 'active' : ''}" data-index="${i}">
                         <div class="latest-image-wrapper">
                             <img src="${spot.image || 'kebab_spot_demo.png'}" alt="${spot.name}" class="latest-image spot-image">
                             <div class="latest-badge">${item.label}</div>
@@ -512,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <span class="badge">${spot.dish}</span>
                                     <span class="badge" style="color: #ffd700;">${spot.stars}</span>
                                 </div>
-                                <button class="spotlight-jump-btn" data-id="${spot.id}">
+                                <button class="spotlight-jump-btn" onclick="Antigravity.jumpToReview(${spot.id})">
                                     <span>Full Review</span>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                                 </button>
@@ -520,18 +507,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `;
-                
-                const jumpBtn = container.querySelector('.spotlight-jump-btn');
-                if (jumpBtn) {
-                    jumpBtn.addEventListener('click', () => {
-                        jumpToReview(spot.id);
-                    });
-                }
-                
-                renderDots();
-                container.style.opacity = '1';
-                container.style.transform = 'translateY(0) scale(1)';
-            }, 600);
+            }).join('');
+        }
+
+        function renderDots() {
+            dotsContainer.innerHTML = spotlightItems.map((_, i) => 
+                `<div class="dot ${i === currentIndex ? 'active' : ''}" data-index="${i}"></div>`
+            ).join('');
+        }
+
+        function updateSpotlight(index = null) {
+            if (index !== null) currentIndex = index;
+            
+            const cards = container.querySelectorAll('.latest-card');
+            cards.forEach((card, i) => {
+                card.classList.toggle('active', i === currentIndex);
+            });
+            
+            renderDots();
         }
 
         function startRotation() {
@@ -547,11 +540,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const index = parseInt(e.target.dataset.index);
                 if (index === currentIndex) return;
                 updateSpotlight(index);
-                startRotation(); // Reset timer
+                startRotation();
             }
         });
 
-        container.style.transition = 'all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1)';
+        renderSpotlightItems();
         updateSpotlight();
         startRotation();
     }

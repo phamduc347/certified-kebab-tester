@@ -27,6 +27,7 @@ body {
     color: var(--text-main);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
 }
 
 body.modal-open,
@@ -652,17 +653,39 @@ section {
 /* Latest Section */
 .latest-section {
     margin-bottom: 80px;
+    overflow: hidden;
+    position: relative;
+}
+
+#spotlight-container {
+    position: relative;
+    width: 100%;
+    min-height: 260px;
 }
 
 .latest-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     display: flex;
     background: var(--bg-main);
     border: 1px solid var(--border-color);
     border-radius: 24px;
     overflow: hidden;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
-    transition: var(--transition);
-    height: 260px; /* Fixed compact height */
+    transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    height: 260px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+}
+
+.latest-card.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    position: relative; /* Only the active one takes up space to handle responsive height changes if needed */
 }
 
 .latest-card:hover {
@@ -951,6 +974,7 @@ section {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
     transition: var(--transition);
     cursor: pointer;
+    will-change: transform, box-shadow;
 }
 
 .spot-card:hover {
@@ -1430,6 +1454,13 @@ section {
         flex-direction: column;
         height: auto;
         min-height: 400px;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .latest-card.active {
+        position: relative;
     }
 
     .latest-image-wrapper {
