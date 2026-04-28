@@ -312,6 +312,9 @@ body.lightbox-open {
 /* Minimal state (on scroll down) */
 .header.minimal {
     padding: 4px 0;
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom-color: transparent;
 }
 
 .header.minimal .logo {
