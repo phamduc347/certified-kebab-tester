@@ -1183,12 +1183,10 @@ section {
     border-radius: 16px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     z-index: 2001;
-    transform: scale(0.9);
-    transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .lightbox.active .lightbox-content {
-    transform: scale(1);
+    animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
 }
 
 body.modal-open {
