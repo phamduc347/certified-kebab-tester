@@ -639,12 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 300);
         };
 
-        lightbox.addEventListener('click', (e) => {
-            // Close if clicking the overlay or background
-            if (e.target.id === 'lightbox' || e.target.classList.contains('lightbox-overlay')) {
-                closeLightbox();
-            }
-        });
+        lightbox.addEventListener('click', closeLightbox);
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && lightbox.classList.contains('active')) {
@@ -720,11 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (openPrivacy) openPrivacy.addEventListener('click', (e) => { e.preventDefault(); openModal('privacy'); });
 
     if (legalModal) {
-        legalModal.addEventListener('click', (e) => {
-            if (e.target.id === 'legal-modal' || e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close')) {
-                closeModal();
-            }
-        });
+        legalModal.addEventListener('click', closeModal);
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && legalModal.classList.contains('active')) {
