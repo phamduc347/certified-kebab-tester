@@ -286,9 +286,9 @@ body.lightbox-open {
     width: 100%;
     padding: 16px 0;
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-color);
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom: 1px solid transparent;
     margin-bottom: 0;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform, padding, background-color;
@@ -310,7 +310,9 @@ body.lightbox-open {
 /* Scrolled state */
 .header.scrolled {
     padding: 8px 0;
-    background: rgba(255, 255, 255, 0.98);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom-color: var(--border-color);
 }
 
 /* Minimal state (on scroll up) */
