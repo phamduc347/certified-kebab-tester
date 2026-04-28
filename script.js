@@ -593,16 +593,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('.header');
     const heroSection = document.querySelector('.hero-section');
     
+    // Optimized Scroll Listener
+    let scrollTimeout;
     const handleScroll = () => {
         if (!header || !heroSection) return;
-        const heroHeight = heroSection.offsetHeight;
-        if (window.scrollY > heroHeight - 50) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
+        
+        if (!scrollTimeout) {
+            scrollTimeout = requestAnimationFrame(() => {
+                const heroHeight = heroSection.offsetHeight;
+                if (window.scrollY > heroHeight - 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+                scrollTimeout = null;
+            });
         }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
 });
