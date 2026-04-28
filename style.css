@@ -612,26 +612,37 @@ section {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: none;
-    border: 1px solid var(--border-color);
+    background: transparent;
+    border: none;
     color: var(--text-muted);
     font-family: inherit;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.7rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 8px 16px;
-    border-radius: 8px;
+    letter-spacing: 1px;
+    padding: 6px 0;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.2s ease;
     white-space: nowrap;
-    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+.filter-utilities {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .toggle-all-btn:hover {
-    background: var(--text-main);
-    color: var(--bg-main);
-    border-color: var(--text-main);
+    color: var(--text-main);
+    opacity: 1;
+}
+
+.toggle-all-btn:hover span {
+    text-decoration: underline;
+    text-underline-offset: 4px;
 }
 
 .toggle-all-btn svg {
@@ -1371,6 +1382,11 @@ section {
 
     .comparison-container {
         flex-direction: column;
+    }
+
+    .filter-utilities {
+        justify-content: center;
+        margin-top: 12px;
     }
 
     .weightings-content {
