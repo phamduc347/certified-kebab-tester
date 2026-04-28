@@ -381,7 +381,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 <div class="spot-main-content">
                     <div class="spot-top-content">
-                        <img src="${spot.image || 'kebab_spot_demo.png'}" alt="Bild von ${spot.name}" class="spot-image" />
+                        <div class="spot-image-container">
+                            <img src="${spot.image || 'kebab_spot_demo.png'}" alt="Bild von ${spot.name}" class="spot-image" />
+                        </div>
                         <div class="spot-content">
                             <div class="spot-categories">
                                 ${renderCriteriaBar('Fleisch', spot.fleisch)}
