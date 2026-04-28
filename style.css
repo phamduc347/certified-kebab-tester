@@ -298,6 +298,34 @@ body.lightbox-open {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: all 0.4s ease;
+}
+
+.header-nav {
+    display: flex;
+    gap: 32px;
+    transition: all 0.3s ease;
+}
+
+/* Scrolled state */
+.header.scrolled {
+    padding: 8px 0;
+    background: rgba(255, 255, 255, 0.98);
+}
+
+/* Minimal state (on scroll up) */
+.header.minimal {
+    padding: 4px 0;
+}
+
+.header.minimal .header-nav {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-5px);
+    pointer-events: none;
+    height: 0;
+    margin: 0;
+    overflow: hidden;
 }
 
 .logo {
@@ -333,6 +361,11 @@ body.lightbox-open {
     .header .container {
         flex-direction: column;
         gap: 12px;
+        transition: gap 0.3s ease;
+    }
+    
+    .header.minimal .container {
+        gap: 0;
     }
     
     .logo {
@@ -1235,7 +1268,7 @@ section {
     border: 1px solid var(--border-color);
     padding: 6px 12px;
     border-radius: 8px;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 700;
     color: var(--text-main);
     text-transform: uppercase;
@@ -1293,12 +1326,12 @@ section {
 }
 
 .spot-comment {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-style: italic;
     color: #4b5563;
     line-height: 1.6;
     background: #f9fafb;
-    padding: 20px 24px;
+    padding: 18px 22px;
     border-radius: 12px;
     border-left: 4px solid var(--border-color);
 }
@@ -1407,7 +1440,7 @@ section {
 
     .spot-comment {
         padding: 16px;
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
 
     /* Hint for zoom */
