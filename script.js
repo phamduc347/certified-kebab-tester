@@ -753,16 +753,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     header.classList.remove('minimal');
                 }
 
-                // 2. Directional minimal state (only when scrolled past hero)
+                // 2. Directional minimal state (only when scrolled past hero, MOBILE ONLY)
+                const isMobile = window.innerWidth < 768;
                 if (currentScrollY > heroHeight) {
                     const scrollDiff = Math.abs(currentScrollY - lastScrollY);
                     
-                    if (scrollDiff > 10) { // Threshold to prevent flickering
+                    if (scrollDiff > 10) { 
                         if (currentScrollY > lastScrollY) {
-                            // Scrolling DOWN -> Minimal (Hide links)
-                            header.classList.add('minimal');
+                            // Scrolling DOWN
+                            if (isMobile) header.classList.add('minimal');
                         } else {
-                            // Scrolling UP -> Show links
+                            // Scrolling UP
                             header.classList.remove('minimal');
                         }
                         lastScrollY = currentScrollY;
