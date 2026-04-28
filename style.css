@@ -61,12 +61,12 @@ body {
 }
 
 .logo-main {
-    font-size: 2rem; /* Exactly matching .section-header h2 */
-    font-weight: 600;
-    letter-spacing: -0.5px;
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
     color: var(--text-main);
     line-height: 1;
-    text-transform: none; /* More natural and premium */
+    text-transform: none;
 }
 
 @media (max-width: 768px) {
@@ -79,7 +79,9 @@ body {
     }
     
     .logo-main {
-        font-size: 1.4rem;
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
     }
     
     .logo-prefix {
