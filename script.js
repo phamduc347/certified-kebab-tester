@@ -221,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
         filteredData.forEach((spot, index) => {
             const card = document.createElement('div');
             card.className = 'spot-card';
+            card.id = `spot-${spot.id}`;
             
             const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
             const displayRank = index + 1;
@@ -291,6 +292,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function jumpToReview(spotId) {
+        // 1. Clear filters so the target spot is definitely in the grid
+        activeCities.clear();
+        activeDishes.clear();
+        populateFilters(); 
+        renderGrid();
+
+        // 2. Find the card
+        const card = document.getElementById(`spot-${spotId}`);
+        if (card) {
+            // 3. Smooth scroll to it
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // 4. Expand it after a short delay
+            setTimeout(() => {
+                card.classList.add('expanded');
+            }, 600);
+        }
+    }
+
     function initSpotlight() {
         const container = document.getElementById('spotlight-container');
         const dotsContainer = document.getElementById('spotlight-dots');
@@ -306,10 +327,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const sortedByScore = [...kebabData].sort((a, b) => parseScore(b.score) - parseScore(a.score));
+        const sortedByPL = [...kebabData].sort((a, b) => parseScore(b.plIndex) - parseScore(a.plIndex));
+        const bestDresden = [...kebabData].filter(s => s.city === 'Dresden').sort((a, b) => parseScore(b.score) - parseScore(a.score))[0];
 
         const spotlightItems = [
             { spot: sortedByDate[0], label: "LATEST TEST", tag: "NEWEST ADDITION" },
             { spot: sortedByScore[0], label: "ALL-TIME BEST", tag: "THE BENCHMARK" },
+            { spot: sortedByPL[0], label: "VALUE CHAMPION", tag: "BEST PRICE-PERFORMANCE" },
+            { spot: bestDresden, label: "DRESDEN'S HERO", tag: "TOP LOCAL CHOICE" },
             { spot: sortedByScore[sortedByScore.length - 1], label: "BOTTOM RANK", tag: "ROOM FOR IMPROVEMENT" }
         ];
 
@@ -356,13 +381,23 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <span class="badge">${spot.dish}</span>
                                     <span class="badge" style="color: #ffd700;">${spot.stars}</span>
                                 </div>
-                                <div class="latest-comment">
-                                    "${spot.kommentar.split('\n')[0]}"
+                                <div class="latest-footer">
+                                    <button class="spotlight-jump-btn" data-id="${spot.id}">
+                                        <span>Full Review</span>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 `;
+                
+                const jumpBtn = container.querySelector('.spotlight-jump-btn');
+                if (jumpBtn) {
+                    jumpBtn.addEventListener('click', () => {
+                        jumpToReview(spot.id);
+                    });
+                }
                 
                 renderDots();
                 container.style.opacity = '1';

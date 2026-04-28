@@ -392,6 +392,43 @@ section {
     font-family: serif;
 }
 
+.latest-footer {
+    margin-top: 20px;
+    display: flex;
+}
+
+.spotlight-jump-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--text-main);
+    color: var(--bg-main);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.spotlight-jump-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    background: #000;
+}
+
+.spotlight-jump-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.spotlight-jump-btn:hover svg {
+    transform: translate(2px, -2px);
+}
+
 /* Spotlight Dots */
 .spotlight-dots {
     display: flex;
