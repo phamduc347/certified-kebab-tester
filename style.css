@@ -923,75 +923,125 @@ section {
 
 /* Comparison Section */
 .comparison-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
     gap: 40px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 40px;
-    align-items: center;
+    align-items: start;
 }
 
 .chart-wrapper {
-    flex: 1;
-    min-width: 0; /* Prevents overflow */
-    position: relative;
-    height: 500px;
+    background: #fff;
+    padding: 32px;
+    border-radius: 24px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
 }
 
 .controls-wrapper {
-    width: 300px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 20px;
+    height: 100%;
+}
+
+.spot-search-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--bg-main);
+}
+
+.spot-search-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    background: #f8fafc;
+    transition: all 0.3s ease;
+}
+
+.spot-search-input:focus {
+    outline: none;
+    border-color: var(--text-main);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+}
+
+.spot-toggles-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Custom Scrollbar */
+.spot-toggles-list::-webkit-scrollbar {
+    width: 4px;
+}
+.spot-toggles-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+.spot-toggles-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
 }
 
 .toggle-label {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
-    background: var(--bg-card);
+    padding: 10px 14px;
+    background: #fff;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.2s ease;
     user-select: none;
 }
 
 .toggle-label:hover {
-    background: rgba(0, 0, 0, 0.05);
+    border-color: var(--text-main);
+    background: #f8fafc;
 }
 
-.toggle-label input[type="checkbox"] {
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border: 1px solid var(--text-muted);
-    border-radius: 4px;
-    outline: none;
-    cursor: pointer;
-    position: relative;
-    transition: var(--transition);
-    flex-shrink: 0;
+.toggle-label.selected {
+    background: #000;
+    color: #fff;
+    border-color: #000;
 }
 
-.toggle-label input[type="checkbox"]:checked {
-    background-color: var(--accent);
-    border-color: var(--accent);
+.toggle-label.selected .toggle-name small {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.toggle-label input {
+    display: none;
 }
 
 .spot-color-indicator {
-    width: 12px;
-    height: 12px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    display: inline-block;
     flex-shrink: 0;
 }
 
 .toggle-name {
-    font-weight: 400;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+}
+
+.toggle-name strong {
+    display: block;
+    font-weight: 700;
+}
+
+.toggle-name small {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
 }
 
 /* Unified Spot Cards (Premium List View) */
@@ -1470,7 +1520,16 @@ section {
     }
 
     .comparison-container {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .chart-wrapper {
+        padding: 16px;
+    }
+
+    .spot-toggles-list {
+        max-height: 300px;
     }
 
     .filter-utilities {

@@ -232,12 +232,20 @@ document.addEventListener('DOMContentLoaded', () => {
         radarChart.update();
     }
 
-    function renderToggles() {
+    function renderToggles(query = '') {
+        togglesContainer.innerHTML = '';
+        const lowerQuery = query.toLowerCase();
+        
         kebabData.forEach((spot, index) => {
+            if (query && !spot.name.toLowerCase().includes(lowerQuery) && !spot.city.toLowerCase().includes(lowerQuery)) {
+                return;
+            }
+
             const color = palette[index % palette.length];
             
             const label = document.createElement('label');
             label.className = 'toggle-label';
+            if (selectedSpots.has(spot.id)) label.classList.add('selected');
             
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
@@ -247,8 +255,10 @@ document.addEventListener('DOMContentLoaded', () => {
             checkbox.addEventListener('change', (e) => {
                 if (e.target.checked) {
                     selectedSpots.add(spot.id);
+                    label.classList.add('selected');
                 } else {
                     selectedSpots.delete(spot.id);
+                    label.classList.remove('selected');
                 }
                 updateChart();
             });
@@ -259,13 +269,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const nameSpan = document.createElement('span');
             nameSpan.className = 'toggle-name';
-            nameSpan.textContent = spot.name;
+            nameSpan.innerHTML = `<strong>${spot.name}</strong> <small>${spot.city}</small>`;
 
             label.appendChild(checkbox);
             label.appendChild(indicator);
             label.appendChild(nameSpan);
 
             togglesContainer.appendChild(label);
+        });
+    }
+
+    const searchInput = document.getElementById('spot-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            renderToggles(e.target.value);
         });
     }
 
