@@ -507,30 +507,67 @@ section {
 
 .filter-group {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
     gap: 8px;
+    padding: 4px 0;
 }
 
 .filter-bubble {
-    padding: 6px 14px;
+    padding: 4px 10px;
     border: 1px solid var(--border-color);
-    border-radius: 20px;
-    background-color: var(--bg-card);
+    background-color: transparent;
     color: var(--text-muted);
-    font-size: 0.85rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     cursor: pointer;
     outline: none;
-    transition: var(--transition);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filter-city {
+    border-radius: 4px;
+}
+
+.filter-dish {
+    border-radius: 20px;
+}
+
+.filter-x {
+    font-size: 0.75rem;
+    line-height: 1;
+    opacity: 0.25;
+    transition: opacity 0.2s;
+    font-weight: 300;
 }
 
 .filter-bubble:hover {
-    border-color: rgba(0, 0, 0, 0.3);
+    border-color: var(--text-main);
+    color: var(--text-main);
+}
+
+.filter-bubble:hover .filter-x {
+    opacity: 0.6;
 }
 
 .filter-bubble.active {
     background-color: var(--text-main);
     color: var(--bg-main);
     border-color: var(--text-main);
+}
+
+.filter-bubble.active .filter-x {
+    opacity: 0.75;
+    color: var(--bg-main);
+}
+
+.filter-bubble:not(.active) {
+    opacity: 0.6;
 }
 
 .view-btn {
