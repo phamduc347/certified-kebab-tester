@@ -405,16 +405,15 @@ body.lightbox-open {
         justify-content: space-between;
         gap: 0;
         padding: 0;
-        max-height: 100px;
         opacity: 1;
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        overflow: hidden;
+        transform: translateY(0);
     }
     
     .header.minimal .header-nav {
-        max-height: 0;
+        transform: translateY(-20px);
         opacity: 0;
-        margin: 0;
+        pointer-events: none;
     }
 
     .header-link {
@@ -1045,6 +1044,8 @@ section {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    content-visibility: auto;
+    contain-intrinsic-size: 0 120px;
 }
 
 .spot-card {
@@ -1057,6 +1058,7 @@ section {
     cursor: pointer;
     will-change: transform, box-shadow, opacity;
     animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    contain: content;
 }
 
 @keyframes fadeInUp {
