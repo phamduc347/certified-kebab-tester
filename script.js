@@ -743,44 +743,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!scrollTimeout) {
             scrollTimeout = requestAnimationFrame(() => {
                 const currentScrollY = window.scrollY;
-                const heroHeight = heroSection.offsetHeight;
 
                 // 1. Base scrolled state
                 if (currentScrollY > 50) {
                     header.classList.add('scrolled');
                 } else {
                     header.classList.remove('scrolled');
-                    header.classList.remove('minimal');
                 }
 
-                // 2. Directional minimal state (only when scrolled past hero, MOBILE ONLY)
-                const isMobile = window.innerWidth < 768;
-                if (currentScrollY > heroHeight) {
-                    const scrollDiff = Math.abs(currentScrollY - lastScrollY);
-                    
-                    if (scrollDiff > 10) { 
-                        if (currentScrollY > lastScrollY) {
-                            // Scrolling DOWN
-                            if (isMobile) header.classList.add('minimal');
-                        } else {
-                            // Scrolling UP
-                            header.classList.remove('minimal');
-                        }
-                        lastScrollY = currentScrollY;
-                    }
-                } else {
-                    lastScrollY = currentScrollY;
-                }
-
-                // 3. Active link tracking
+                // 2. Active link tracking
                 let currentSectionId = "";
-                const scrollPos = currentScrollY + 120; 
+                const scrollPos = currentScrollY + 140; // Increased offset for better trigger
 
-                sections.forEach(section => {
-                    if (scrollPos >= section.offsetTop && scrollPos < section.offsetTop + section.offsetHeight) {
-                        currentSectionId = section.getAttribute('id');
-                    }
-                });
+                // Check if we are at the bottom of the page (for Contact)
+                const isBottom = (window.innerHeight + currentScrollY) >= document.documentElement.scrollHeight - 60;
+
+                if (isBottom) {
+                    currentSectionId = "contact";
+                } else {
+                    sections.forEach(section => {
+                        if (scrollPos >= section.offsetTop && scrollPos < section.offsetTop + section.offsetHeight) {
+                            currentSectionId = section.getAttribute('id');
+                        }
+                    });
+                }
 
                 navLinks.forEach(link => {
                     link.classList.remove('active');
