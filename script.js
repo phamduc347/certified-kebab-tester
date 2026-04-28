@@ -310,20 +310,22 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    let activeCities = new Set();
-    let activeDishes = new Set();
+    const cities = [...new Set(kebabData.map(spot => spot.city))].sort();
+    const dishes = [...new Set(kebabData.map(spot => spot.dish))].sort();
+    let activeCities = new Set(cities);
+    let activeDishes = new Set(dishes);
 
     function populateFilters() {
-        const cities = [...new Set(kebabData.map(spot => spot.city))].sort();
-        const dishes = [...new Set(kebabData.map(spot => spot.dish))].sort();
-        
         const cityGroup = document.getElementById('filter-city-group');
         const dishGroup = document.getElementById('filter-dish-group');
+        if (!cityGroup || !dishGroup) return;
+
+        cityGroup.innerHTML = '';
+        dishGroup.innerHTML = '';
         
         cities.forEach(city => {
-            activeCities.add(city);
             const btn = document.createElement('button');
-            btn.className = 'filter-bubble filter-city active';
+            btn.className = `filter-bubble filter-city ${activeCities.has(city) ? 'active' : ''}`;
             btn.innerHTML = `${city} <span class="filter-x">×</span>`;
             btn.addEventListener('click', () => {
                 if (activeCities.has(city)) {
@@ -339,9 +341,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         dishes.forEach(dish => {
-            activeDishes.add(dish);
             const btn = document.createElement('button');
-            btn.className = 'filter-bubble filter-dish active';
+            btn.className = `filter-bubble filter-dish ${activeDishes.has(dish) ? 'active' : ''}`;
             btn.innerHTML = `${dish} <span class="filter-x">×</span>`;
             btn.addEventListener('click', () => {
                 if (activeDishes.has(dish)) {
@@ -451,9 +452,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function jumpToReview(spotId) {
-        // 1. Clear filters so the target spot is definitely in the grid
-        activeCities.clear();
-        activeDishes.clear();
+        // 1. Reset filters to all active
+        activeCities = new Set(cities);
+        activeDishes = new Set(dishes);
         populateFilters(); 
         renderGrid();
 
