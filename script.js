@@ -713,6 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Optimized Scroll Listener
     let scrollTimeout;
+    let lastScrollY = window.scrollY;
     const navLinks = document.querySelectorAll('.header-link');
     const sections = Array.from(navLinks).map(link => {
         const id = link.getAttribute('href').substring(1);
@@ -724,17 +725,38 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (!scrollTimeout) {
             scrollTimeout = requestAnimationFrame(() => {
-                // Header shrink logic
+                const currentScrollY = window.scrollY;
                 const heroHeight = heroSection.offsetHeight;
-                if (window.scrollY > heroHeight - 50) {
+
+                // 1. Base scrolled state
+                if (currentScrollY > 50) {
                     header.classList.add('scrolled');
                 } else {
                     header.classList.remove('scrolled');
+                    header.classList.remove('minimal');
                 }
 
-                // Active link logic
+                // 2. Directional minimal state (only when scrolled past hero)
+                if (currentScrollY > heroHeight) {
+                    const scrollDiff = Math.abs(currentScrollY - lastScrollY);
+                    
+                    if (scrollDiff > 10) { // Threshold to prevent flickering
+                        if (currentScrollY > lastScrollY) {
+                            // Scrolling DOWN -> Minimal (Hide links)
+                            header.classList.add('minimal');
+                        } else {
+                            // Scrolling UP -> Show links
+                            header.classList.remove('minimal');
+                        }
+                        lastScrollY = currentScrollY;
+                    }
+                } else {
+                    lastScrollY = currentScrollY;
+                }
+
+                // 3. Active link tracking
                 let currentSectionId = "";
-                const scrollPos = window.scrollY + 120; // Offset for sticky header
+                const scrollPos = currentScrollY + 120; 
 
                 sections.forEach(section => {
                     if (scrollPos >= section.offsetTop && scrollPos < section.offsetTop + section.offsetHeight) {
