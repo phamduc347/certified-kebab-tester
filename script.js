@@ -898,4 +898,141 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { threshold: 0.3 });
         observer.observe(weightingVisual);
     }
+
+    // ── Back to Top Button ──────────────────────────────────────────
+    const backToTopBtn = document.getElementById('back-to-top-btn');
+    if (backToTopBtn) {
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    // ── Price-Performance Chart ───────────────────────────────────────
+    (function initPricePerformanceChart() {
+        const canvas = document.getElementById('price-performance-chart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        const padding = { top: 40, right: 60, bottom: 40, left: 60 };
+        
+        // Process data
+        const data = kebabData.map(d => ({
+            name: d.name,
+            price: parseFloat(d.preis.replace(',', '.').replace(' €', '')) || 0,
+            score: parseFloat(d.score.replace(',', '.').replace('%', '')) || 0,
+            rank: d.rank
+        }));
+
+        // Dynamic Ranges (ZOOMED IN)
+        const prices = data.map(d => d.price);
+        const scores = data.map(d => d.score);
+        const minPrice = Math.min(...prices) - 0.2, maxPrice = Math.max(...prices) + 0.2;
+        const minScore = Math.max(0, Math.min(...scores) - 2), maxScore = Math.min(100, Math.max(...scores) + 2);
+
+        // Assign Unique Colors for Top 5
+        const topSpots = data.filter(d => d.rank <= 5).sort((a, b) => a.rank - b.rank);
+        const topColors = ['#e63946', '#40916c', '#457b9d', '#fca311', '#9b5de5'];
+        const spotColorMap = {};
+        topSpots.forEach((s, i) => spotColorMap[s.name] = topColors[i]);
+
+        // Inject Legend
+        const legendContainer = document.getElementById('chart-legend');
+        if (legendContainer) {
+            legendContainer.innerHTML = topSpots.map(s => `
+                <div class="legend-item">
+                    <span class="dot" style="background: ${spotColorMap[s.name]}"></span>
+                    ${s.name}
+                </div>
+            `).join('');
+        }
+
+        function resize() {
+            const container = canvas.parentElement;
+            if (!container) return;
+            const dpr = window.devicePixelRatio || 1;
+            width = canvas.width = container.clientWidth * dpr;
+            height = canvas.height = container.clientHeight * dpr;
+            ctx.scale(dpr, dpr);
+            width /= dpr;
+            height /= dpr;
+            draw();
+        }
+
+        new ResizeObserver(resize).observe(canvas.parentElement);
+
+        function mapX(p) { return padding.left + ((p - minPrice) / (maxPrice - minPrice)) * (width - padding.left - padding.right); }
+        function mapY(s) { return height - padding.bottom - ((s - minScore) / (maxScore - minScore)) * (height - padding.top - padding.bottom); }
+
+        function draw() {
+            if (width < 50 || height < 50) return;
+            ctx.clearRect(0, 0, width, height);
+            
+            // Value Zone
+            ctx.fillStyle = 'rgba(64, 145, 108, 0.08)';
+            ctx.fillRect(mapX(minPrice), mapY(maxScore), mapX(minPrice + (maxPrice - minPrice) * 0.33) - mapX(minPrice), mapY(maxScore - (maxScore - minScore) * 0.25) - mapY(maxScore));
+            
+            // Grid & Ticks
+            ctx.strokeStyle = 'rgba(0,0,0,0.03)';
+            ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+            ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.font = '800 8px Inter';
+            
+            const scoreStep = (maxScore - minScore) / 4;
+            for (let i = 0; i <= 4; i++) {
+                const s = minScore + i * scoreStep;
+                const y = mapY(s);
+                ctx.beginPath(); ctx.moveTo(padding.left, y); ctx.lineTo(width - padding.right, y); ctx.stroke();
+                ctx.textAlign = 'right'; ctx.fillText(Math.round(s) + '%', padding.left - 10, y + 3);
+            }
+            
+            const priceStep = (maxPrice - minPrice) / 4;
+            for (let i = 0; i <= 4; i++) {
+                const p = minPrice + i * priceStep;
+                const x = mapX(p);
+                ctx.beginPath(); ctx.moveTo(x, padding.top); ctx.lineTo(x, height - padding.bottom); ctx.stroke();
+                ctx.textAlign = 'center'; ctx.fillText(p.toFixed(1) + '€', x, height - padding.bottom + 15);
+            }
+            ctx.setLineDash([]);
+            
+            // Axes
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(padding.left, padding.top); ctx.lineTo(padding.left, height - padding.bottom); ctx.lineTo(width - padding.right, height - padding.bottom); ctx.stroke();
+
+            // Spreading
+            const pts = data.map(d => ({ ...d, x: mapX(d.price), y: mapY(d.score) }));
+            for (let i = 0; i < 8; i++) {
+                pts.forEach(p1 => {
+                    pts.forEach(p2 => {
+                        if (p1 === p2) return;
+                        const dx = p1.x - p2.x, dy = p1.y - p2.y, dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 40) {
+                            const angle = Math.atan2(dy, dx), force = (40 - dist) * 0.3;
+                            p1.x += Math.cos(angle) * force; p1.y += Math.sin(angle) * force;
+                            p2.x -= Math.cos(angle) * force; p2.y -= Math.sin(angle) * force;
+                        }
+                    });
+                    p1.x = Math.max(padding.left + 10, Math.min(width - padding.right - 10, p1.x));
+                    p1.y = Math.max(padding.top + 10, Math.min(height - padding.bottom - 10, p1.y));
+                });
+            }
+
+            // Labels
+            ctx.font = '900 10px Inter'; ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.letterSpacing = '2px'; ctx.textAlign = 'center';
+            ctx.fillText('PREIS', padding.left + (width - padding.left - padding.right) / 2, height - padding.bottom + 35);
+            ctx.save(); ctx.translate(padding.left - 45, padding.top + (height - padding.top - padding.bottom) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('SCORE', 0, 0); ctx.restore();
+
+            // Points
+            pts.forEach(p => {
+                const color = spotColorMap[p.name] || 'rgba(0,0,0,0.1)';
+                const isTop = p.rank <= 5;
+                if (isTop) {
+                    const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 12);
+                    g.addColorStop(0, color + '33'); g.addColorStop(1, color + '00');
+                    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, 12, 0, Math.PI * 2); ctx.fill();
+                }
+                ctx.fillStyle = color; ctx.beginPath(); ctx.arc(p.x, p.y, isTop ? 5 : 2, 0, Math.PI * 2); ctx.fill();
+            });
+        }
+        resize();
+    })();
 });
