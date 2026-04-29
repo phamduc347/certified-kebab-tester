@@ -780,6 +780,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const handleScroll = () => {
         if (!header || !heroSection) return;
+
+        // Update dynamic header height variable
+        document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
         
         if (!scrollTimeout) {
             scrollTimeout = requestAnimationFrame(() => {
@@ -822,6 +825,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
     handleScroll();
 
     // Clean URL navigation — scroll without adding hash to URL
@@ -830,8 +834,33 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const targetId = link.getAttribute('href').substring(1);
             const target = document.getElementById(targetId);
+            
             if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Truly dynamic offset:
+                // We need to know the header height in its SHRUNKEN state.
+                const wasScrolled = header.classList.contains('scrolled');
+                
+                // 1. Temporarily force shrunken state without transition to measure
+                header.classList.add('no-transition');
+                header.classList.add('scrolled');
+                const targetOffset = header.offsetHeight;
+                
+                // 2. Restore original state (if we were at top)
+                if (!wasScrolled) {
+                    header.classList.remove('scrolled');
+                }
+                
+                // 3. Small delay to ensure measure is done before restoring transition
+                setTimeout(() => {
+                    header.classList.remove('no-transition');
+                }, 10);
+                
+                // 4. Scroll to exact position (Target Top - Measured Header Height)
+                window.scrollTo({
+                    top: target.offsetTop - targetOffset,
+                    behavior: 'smooth'
+                });
+                
                 history.replaceState(null, '', window.location.pathname);
             }
         });

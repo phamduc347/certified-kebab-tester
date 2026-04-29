@@ -10,13 +10,17 @@
     --transition: all 0.3s ease;
 }
 
+:root {
+    --header-h: 80px;
+}
+
 html {
     scroll-behavior: smooth;
-    scroll-padding-top: 80px;
+    scroll-padding-top: var(--header-h);
 }
 
 section {
-    scroll-margin-top: 80px;
+    scroll-margin-top: var(--header-h);
 }
 
 * {
@@ -296,6 +300,11 @@ body.lightbox-open {
     margin-bottom: 0;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform, padding, background-color;
+}
+
+.no-transition,
+.no-transition * {
+    transition: none !important;
 }
 
 .header .container {
