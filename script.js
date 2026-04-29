@@ -852,18 +852,23 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', handleScroll, { passive: true });
     handleScroll();
 
-    // Clean URL navigation — scroll without adding hash to URL
-    document.querySelectorAll('.header-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = link.getAttribute('href').substring(1);
-            const target = document.getElementById(targetId);
-            
-            if (target) {
-                scrollToElementFlush(target);
-                history.replaceState(null, '', window.location.pathname);
-            }
-        });
+    // Clean URL navigation — scroll without adding hash to URL for ALL internal links
+    // Using event delegation to support dynamically injected links (Spotlight, Reviews, etc.)
+    document.body.addEventListener('click', (e) => {
+        const link = e.target.closest('a[href^="#"]');
+        if (!link) return;
+        
+        const href = link.getAttribute('href');
+        if (href === '#') return;
+        
+        e.preventDefault();
+        const targetId = href.substring(1);
+        const target = document.getElementById(targetId);
+        
+        if (target) {
+            scrollToElementFlush(target);
+            history.replaceState(null, '', window.location.pathname);
+        }
     });
     // Add Logo Click Scroll to Top
     const logo = document.querySelector('.logo');
