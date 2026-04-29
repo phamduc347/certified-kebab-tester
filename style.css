@@ -1731,15 +1731,32 @@ section {
 }
 
 /* Contact Section */
+.contact-section {
+    min-height: calc(100vh - 240px);
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 40px;
+}
+
 .contact-card {
+    flex: 1;
     background: linear-gradient(145deg, #ffffff, #f0f2f5);
     border: 1px solid var(--border-color);
     border-radius: 24px;
     padding: 60px 40px;
     max-width: 800px;
+    width: 100%;
     margin: 0 auto;
     text-align: center;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.contact-content {
+    width: 100%;
 }
 
 .contact-icon {
@@ -1803,6 +1820,10 @@ section {
 @media (max-width: 768px) {
     .contact-card {
         padding: 40px 24px;
+    }
+
+    .contact-section {
+        min-height: calc(100vh - 280px);
     }
     
     .contact-content h3 {
