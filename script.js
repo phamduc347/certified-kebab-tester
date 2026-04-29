@@ -138,6 +138,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // Chart Configuration
     const categories = ['Fleisch', 'Gemüse', 'Soße', 'Brot', 'Balance', 'Auswahl', 'Portion', 'Hygiene', 'Service'];
 
+    // ── Star Rating Renderer ──────────────────────────────────────────
+    function renderStars(scoreStr) {
+        if (!scoreStr) return '';
+        // Convert "92,10%" to 92.1
+        const scoreVal = parseFloat(scoreStr.replace(',', '.'));
+        
+        return `
+            <div class="star-rating" title="${scoreStr}">
+                <div class="stars-outer">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    <div class="stars-inner" style="width: ${scoreVal}%">
+                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     function initChart() {
         radarChart = new Chart(ctx, {
             type: 'radar',
@@ -381,7 +399,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="spot-card-header">
                     <div class="spot-rank">${displayRank}</div>
                     <div class="spot-header-text">
-                        <h3>${spot.name}</h3>
+                        <div class="spot-title-row">
+                            <h3>${spot.name}</h3>
+                            ${renderStars(spot.score)}
+                        </div>
                         <div class="spot-city">
                             ${spot.city}${spot.date ? `<span class="spot-header-date"> · ${spot.date}</span>` : ''}${spot.preis ? `<span class="spot-mobile-price"> · ${spot.preis}</span>` : ''}
                         </div>

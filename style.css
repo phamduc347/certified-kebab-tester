@@ -1149,12 +1149,36 @@ section {
     margin-bottom: 0;
 }
 
-.spot-stars {
-    color: #fbbf24;
-    font-size: 1rem;
-    letter-spacing: 2px;
-    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.2));
+.star-rating {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.stars-outer {
+    position: relative;
+    display: flex;
+    gap: 2px;
+    font-size: 1.1rem;
+    color: #e2e8f0; /* Gray for empty */
+    letter-spacing: 1px;
+    cursor: help;
+}
+
+.stars-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    gap: 2px;
     white-space: nowrap;
+    overflow: hidden;
+    color: #fbbf24; /* Gold for filled */
+    filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.3));
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stars-outer span, .stars-inner span {
+    line-height: 1;
 }
 
 .spot-city {
@@ -1685,18 +1709,17 @@ section {
         font-size: 1.1rem;
     }
 
+    .stars-outer {
+        font-size: 0.9rem;
+        letter-spacing: 0;
+    }
+
     .spot-title-row {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
         gap: 12px;
         margin-bottom: 4px;
-    }
-
-    .spot-stars {
-        font-size: 0.85rem;
-        letter-spacing: 1px;
-        text-align: right;
     }
 
     .spot-header-actions {
