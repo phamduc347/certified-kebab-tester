@@ -859,7 +859,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Weighting Diagram Animation Trigger ──────────────────────────
     const weightingVisual = document.querySelector('.weightings-visual');
-    let weightingAnimated = false;
+    if (weightingVisual) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    weightingVisual.classList.add('animate');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.3 });
+        observer.observe(weightingVisual);
+    }
 
     // Clean URL navigation — scroll without adding hash to URL for ALL internal links
     // Using event delegation to support dynamically injected links (Spotlight, Reviews, etc.)
@@ -877,14 +887,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target) {
             scrollToElementFlush(target);
             history.replaceState(null, '', window.location.pathname);
-
-            // Trigger animation ONLY ONCE on quicklink click
-            if (targetId === 'weightings' && weightingVisual && !weightingAnimated) {
-                weightingAnimated = true;
-                setTimeout(() => {
-                    weightingVisual.classList.add('animate');
-                }, 800);
-            }
         }
     });
 
