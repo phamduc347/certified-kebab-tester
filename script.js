@@ -538,6 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div class="latest-info">
                                     <span class="latest-label">${item.tag}</span>
                                     <h3 class="latest-title" data-id="${spot.id}">${spot.name}</h3>
+                                    ${renderStars(spot.score)}
                                     <div class="latest-meta">${spot.city} • ${spot.date}</div>
                                 </div>
                                 <div class="latest-score-block">
@@ -548,7 +549,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="latest-body">
                                 <div class="latest-details">
                                     <span class="badge">${spot.dish}</span>
-                                    <span class="badge" style="color: #ffd700;">${spot.stars}</span>
                                 </div>
                                 <button class="spotlight-jump-btn" data-id="${spot.id}">
                                     <span>Full Review</span>
