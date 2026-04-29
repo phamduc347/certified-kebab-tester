@@ -1438,7 +1438,7 @@ section {
 .weightings-visual {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto 32px auto;
+    margin: 32px auto 24px auto;
 }
 
 .stacked-bar {
@@ -1478,11 +1478,73 @@ section {
     z-index: 10;
 }
 
+.labels-container {
+    display: flex;
+    width: 100%;
+    height: 60px;
+    opacity: 0;
+    transition: opacity 1s ease 0.5s;
+}
+
+.weightings-visual.animate .labels-container {
+    opacity: 1;
+}
+
+.label-wrapper {
+    width: var(--w);
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.label-content {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.labels-container.top .label-content {
+    bottom: 0;
+}
+
+.labels-container.bottom .label-content {
+    top: 0;
+}
+
+.label-text {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.label-line {
+    width: 1px;
+    height: 30px;
+    background: var(--border-color);
+}
+
+.labels-container.top .label-line {
+    margin-top: 4px;
+}
+
+.labels-container.bottom .label-line {
+    margin-bottom: 4px;
+}
+
+.mobile-only {
+    display: none !important;
+}
+
 .stacked-legend {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px 24px;
     justify-items: center;
+    margin-top: 32px;
 }
 
 .legend-item {
@@ -1501,6 +1563,18 @@ section {
     height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
+}
+
+.stacked-bar {
+    display: flex;
+    height: 24px;
+    width: 100%;
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--bg-secondary);
+    margin: 12px 0;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
 }
 
 
@@ -1624,10 +1698,26 @@ section {
         margin-top: 12px;
     }
 
+    .labels-container {
+        display: none;
+    }
+
+    .mobile-only {
+        display: grid !important;
+    }
+
+    .weightings-visual {
+        margin-top: 0;
+    }
+
     .weightings-content {
         display: flex !important;
         flex-direction: column !important;
-        gap: 24px;
+        gap: 16px;
+    }
+
+    .stacked-legend {
+        margin-top: 16px;
     }
 
     .weightings-visual {
