@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('.header');
     const heroSection = document.querySelector('.hero-section');
 
-    // Helper: Scroll to element flush with the bottom of the header
+    // Helper: Scroll to element flush with the bottom of the header + breathing room
     const scrollToElementFlush = (target) => {
         if (!target || !header) return;
         
@@ -10,7 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const wasScrolled = header.classList.contains('scrolled');
         header.classList.add('no-transition');
         header.classList.add('scrolled');
-        const targetOffset = header.offsetHeight;
+        
+        // Add 24px of breathing room below the header
+        const scrollGap = 24;
+        const targetOffset = header.offsetHeight + scrollGap;
         
         if (!wasScrolled) {
             header.classList.remove('scrolled');
@@ -20,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
             header.classList.remove('no-transition');
         }, 10);
         
-        // 4. Scroll to exact position (Absolute Top - Measured Header Height)
+        // 4. Scroll to exact position (Absolute Top - Measured Header Height - Gap)
         const absoluteTop = target.getBoundingClientRect().top + window.pageYOffset;
         
         window.scrollTo({
@@ -806,12 +809,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleScroll = () => {
         if (!header || !heroSection) return;
 
-        // Update dynamic header height variable
-        document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+        // Update dynamic header height variable (including 24px breathing room)
+        const scrollGap = 24;
+        document.documentElement.style.setProperty('--header-h', (header.offsetHeight + scrollGap) + 'px');
         
         if (!scrollTimeout) {
             scrollTimeout = requestAnimationFrame(() => {
                 const currentScrollY = window.scrollY;
+                const headerH = header.offsetHeight;
 
                 // 1. Base scrolled state
                 if (currentScrollY > 50) {
@@ -822,8 +827,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 2. Active link tracking
                 let currentSectionId = "";
-                // Use a trigger point that matches the header bottom
-                const scrollPos = currentScrollY + 90; 
+                // Use a trigger point that matches the new landing position (Header + Gap)
+                const scrollPos = currentScrollY + headerH + scrollGap + 10; 
 
                 // Check if we are at the bottom of the page (for Contact)
                 const isBottom = (window.innerHeight + currentScrollY) >= document.documentElement.scrollHeight - 50;
