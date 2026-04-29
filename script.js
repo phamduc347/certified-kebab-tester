@@ -1,4 +1,34 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const header = document.querySelector('.header');
+    const heroSection = document.querySelector('.hero-section');
+
+    // Helper: Scroll to element flush with the bottom of the header
+    const scrollToElementFlush = (target) => {
+        if (!target || !header) return;
+        
+        // Ensure header is in scrolled state to get correct height
+        const wasScrolled = header.classList.contains('scrolled');
+        header.classList.add('no-transition');
+        header.classList.add('scrolled');
+        const targetOffset = header.offsetHeight;
+        
+        if (!wasScrolled) {
+            header.classList.remove('scrolled');
+        }
+        
+        setTimeout(() => {
+            header.classList.remove('no-transition');
+        }, 10);
+        
+        // 4. Scroll to exact position (Absolute Top - Measured Header Height)
+        const absoluteTop = target.getBoundingClientRect().top + window.pageYOffset;
+        
+        window.scrollTo({
+            top: absoluteTop - targetOffset,
+            behavior: 'smooth'
+        });
+    };
+
     // ── Kebab Silhouette Canvas Animation ──────────────────────────────
     (function initKebabCanvas() {
         const canvas = document.getElementById('kebab-canvas');
@@ -462,9 +492,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     card.classList.toggle('expanded');
                     
                     if (isOpening) {
-                        // Use a tiny timeout to ensure the scroll happens after the expansion transition starts
                         setTimeout(() => {
-                            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            scrollToElementFlush(card);
                         }, 50);
                     }
                 }
@@ -484,8 +513,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Find the card
         const card = document.getElementById(`spot-${spotId}`);
         if (card) {
-            // 3. Smooth scroll to it - using 'start' to align with scroll-padding-top
-            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // 3. Smooth scroll to it - using dynamic flush scroll
+            scrollToElementFlush(card);
 
             // 4. Expand it after a short delay
             setTimeout(() => {
@@ -765,10 +794,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    // Header Scroll Optimization
-    const header = document.querySelector('.header');
-    const heroSection = document.querySelector('.hero-section');
-    
     // Optimized Scroll Listener
     let scrollTimeout;
     let lastScrollY = window.scrollY;
@@ -797,26 +822,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 2. Active link tracking
                 let currentSectionId = "";
-                const scrollPos = currentScrollY + 140; // Increased offset for better trigger
+                // Use a trigger point that matches the header bottom
+                const scrollPos = currentScrollY + 90; 
 
                 // Check if we are at the bottom of the page (for Contact)
-                const isBottom = (window.innerHeight + currentScrollY) >= document.documentElement.scrollHeight - 60;
+                const isBottom = (window.innerHeight + currentScrollY) >= document.documentElement.scrollHeight - 50;
 
                 if (isBottom) {
                     currentSectionId = "contact";
                 } else {
                     sections.forEach(section => {
-                        if (scrollPos >= section.offsetTop && scrollPos < section.offsetTop + section.offsetHeight) {
+                        // Find the last section we've passed
+                        if (scrollPos >= section.offsetTop) {
                             currentSectionId = section.getAttribute('id');
                         }
                     });
                 }
 
                 navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === `#${currentSectionId}`) {
-                        link.classList.add('active');
-                    }
+                    link.classList.toggle('active', link.getAttribute('href') === `#${currentSectionId}`);
                 });
 
                 scrollTimeout = null;
@@ -836,31 +860,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const target = document.getElementById(targetId);
             
             if (target) {
-                // Truly dynamic offset:
-                // We need to know the header height in its SHRUNKEN state.
-                const wasScrolled = header.classList.contains('scrolled');
-                
-                // 1. Temporarily force shrunken state without transition to measure
-                header.classList.add('no-transition');
-                header.classList.add('scrolled');
-                const targetOffset = header.offsetHeight;
-                
-                // 2. Restore original state (if we were at top)
-                if (!wasScrolled) {
-                    header.classList.remove('scrolled');
-                }
-                
-                // 3. Small delay to ensure measure is done before restoring transition
-                setTimeout(() => {
-                    header.classList.remove('no-transition');
-                }, 10);
-                
-                // 4. Scroll to exact position (Target Top - Measured Header Height)
-                window.scrollTo({
-                    top: target.offsetTop - targetOffset,
-                    behavior: 'smooth'
-                });
-                
+                scrollToElementFlush(target);
                 history.replaceState(null, '', window.location.pathname);
             }
         });
