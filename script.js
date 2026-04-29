@@ -676,6 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalContent = document.getElementById('modal-content');
     const openDisclaimer = document.getElementById('open-disclaimer');
     const openPrivacy = document.getElementById('open-privacy');
+    const openImpressum = document.getElementById('open-impressum');
 
     const legalTexts = {
         disclaimer: `
@@ -719,6 +720,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3>5. Externe Karten (Leaflet)</h3>
                 <p>Für die Darstellung der Karte wird Leaflet.js genutzt. Dabei werden Kartendaten von OpenStreetMap/Carto geladen. Hierbei wird technisch bedingt deine IP-Adresse an diese Dienste übertragen.</p>
             </div>
+        `,
+        impressum: `
+            <h2>Impressum</h2>
+            <div class="legal-section">
+                <h3>Angaben gemäß § 5 TMG</h3>
+                <p>Pham Certified Kebab Tester<br>
+                Privatprojekt zur Unterhaltung</p>
+            </div>
+            <div class="legal-section">
+                <h3>Kontakt</h3>
+                <p>E-Mail: <a href="mailto:certifiedkebabtester-feedback@yahoo.com">certifiedkebabtester-feedback@yahoo.com</a></p>
+            </div>
+            <div class="legal-section">
+                <h3>Verantwortlich für den Inhalt</h3>
+                <p>Pham (Anschrift auf Anfrage per E-Mail)</p>
+            </div>
         `
     };
 
@@ -737,6 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (openDisclaimer) openDisclaimer.addEventListener('click', (e) => { e.preventDefault(); openModal('disclaimer'); });
     if (openPrivacy) openPrivacy.addEventListener('click', (e) => { e.preventDefault(); openModal('privacy'); });
+    if (openImpressum) openImpressum.addEventListener('click', (e) => { e.preventDefault(); openModal('impressum'); });
 
     if (legalModal) {
         legalModal.addEventListener('click', closeModal);
