@@ -873,6 +873,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target) {
             scrollToElementFlush(target);
             history.replaceState(null, '', window.location.pathname);
+
+            // Restart animation if navigating to weightings from a distant section
+            if (targetId === 'weightings' && weightingVisual) {
+                const currentActive = document.querySelector('.header-link.active')?.getAttribute('href');
+                const isAdjacent = currentActive === '#comparison' || currentActive === '#contact';
+                
+                if (!isAdjacent && currentActive !== '#weightings') {
+                    weightingVisual.classList.remove('animate');
+                    void weightingVisual.offsetWidth; // Force reflow
+                    setTimeout(() => {
+                        weightingVisual.classList.add('animate');
+                    }, 800);
+                }
+            }
         }
     });
     // Add Logo Click Scroll to Top
