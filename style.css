@@ -1136,10 +1136,25 @@ section {
     justify-content: center;
 }
 
+.spot-title-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
 .spot-header-text h3 {
     font-size: 1.5rem;
-    margin-bottom: 2px;
     line-height: 1.1;
+    margin-bottom: 0;
+}
+
+.spot-stars {
+    color: #fbbf24;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.2));
+    white-space: nowrap;
 }
 
 .spot-city {
@@ -1668,6 +1683,20 @@ section {
 
     .spot-header-text h3 {
         font-size: 1.1rem;
+    }
+
+    .spot-title-row {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 4px;
+    }
+
+    .spot-stars {
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        text-align: right;
     }
 
     .spot-header-actions {
