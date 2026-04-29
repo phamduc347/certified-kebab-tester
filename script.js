@@ -857,6 +857,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', handleScroll, { passive: true });
     handleScroll();
 
+    // ── Weighting Diagram Animation Trigger ──────────────────────────
+    const weightingVisual = document.querySelector('.weightings-visual');
+    let weightingAnimated = false;
+
     // Clean URL navigation — scroll without adding hash to URL for ALL internal links
     // Using event delegation to support dynamically injected links (Spotlight, Reviews, etc.)
     document.body.addEventListener('click', (e) => {
@@ -874,21 +878,16 @@ document.addEventListener('DOMContentLoaded', () => {
             scrollToElementFlush(target);
             history.replaceState(null, '', window.location.pathname);
 
-            // Restart animation if navigating to weightings from a distant section
-            if (targetId === 'weightings' && weightingVisual) {
-                const currentActive = document.querySelector('.header-link.active')?.getAttribute('href');
-                const isAdjacent = currentActive === '#comparison' || currentActive === '#contact';
-                
-                if (!isAdjacent && currentActive !== '#weightings') {
-                    weightingVisual.classList.remove('animate');
-                    void weightingVisual.offsetWidth; // Force reflow
-                    setTimeout(() => {
-                        weightingVisual.classList.add('animate');
-                    }, 800);
-                }
+            // Trigger animation ONLY ONCE on quicklink click
+            if (targetId === 'weightings' && weightingVisual && !weightingAnimated) {
+                weightingAnimated = true;
+                setTimeout(() => {
+                    weightingVisual.classList.add('animate');
+                }, 800);
             }
         }
     });
+
     // Add Logo Click Scroll to Top
     const logo = document.querySelector('.logo');
     if (logo) {
@@ -898,19 +897,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 behavior: 'smooth'
             });
         });
-    }
-    // ── Weighting Diagram Animation Observer ──────────────────────────
-    const weightingVisual = document.querySelector('.weightings-visual');
-    if (weightingVisual) {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    weightingVisual.classList.add('animate');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.3 });
-        observer.observe(weightingVisual);
     }
 
     // ── Back to Top Button ──────────────────────────────────────────
