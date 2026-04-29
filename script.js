@@ -772,26 +772,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     header.classList.add('scrolled');
                 } else {
                     header.classList.remove('scrolled');
-                    header.classList.remove('minimal');
-                }
-
-                // 2. Directional minimal state (MOBILE ONLY)
-                const isMobile = window.innerWidth < 768;
-                const heroHeight = heroSection.offsetHeight;
-                
-                if (isMobile && currentScrollY > heroHeight) {
-                    const scrollDiff = Math.abs(currentScrollY - lastScrollY);
-                    
-                    if (scrollDiff > 10) { 
-                        if (currentScrollY > lastScrollY) {
-                            header.classList.add('minimal');
-                        } else {
-                            header.classList.remove('minimal');
-                        }
-                        lastScrollY = currentScrollY;
-                    }
-                } else {
-                    lastScrollY = currentScrollY;
                 }
 
                 // 2. Active link tracking

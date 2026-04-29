@@ -309,17 +309,7 @@ body.lightbox-open {
     border-bottom-color: var(--border-color);
 }
 
-/* Minimal state (on scroll down) */
-.header.minimal {
-    padding: 4px 0;
-    background: transparent;
-    backdrop-filter: none;
-    border-bottom-color: transparent;
-}
 
-.header.minimal .logo {
-    margin-bottom: 0;
-}
 
 .header-nav {
     display: flex;
@@ -399,10 +389,7 @@ body.lightbox-open {
         transition: all 0.4s ease;
     }
     
-    .header.minimal .container {
-        gap: 0;
-    }
-    
+
     .header-nav {
         width: 100%;
         max-width: 480px;
@@ -414,19 +401,6 @@ body.lightbox-open {
         transform: translateY(0);
     }
     
-    .header.minimal .header-nav {
-        transform: translateY(-20px);
-        opacity: 0;
-        pointer-events: none;
-        height: 0;
-        margin: 0;
-    }
-
-    /* Ensure minimal state keeps background but stays thin */
-    .header.scrolled.minimal {
-        padding: 4px 0;
-    }
-
     .header-link {
         font-size: 0.7rem;
         font-weight: 800;
