@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.restore();
         }
 
-        const COUNT = 18;
+        const COUNT = window.innerWidth < 768 ? 8 : 18;
 
         function randomKebab() {
             const side = Math.random() < 0.5 ? 'left' : 'right';
@@ -126,6 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
             kebabs.push(k);
         }
 
+        let rafId = null;
         function animate() {
             ctx2d.clearRect(0, 0, W, H);
             for (const k of kebabs) {
@@ -141,8 +142,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 drawKebab(ctx2d, k.x, k.y, k.size, k.opacity, k.angle);
             }
-            requestAnimationFrame(animate);
+            rafId = requestAnimationFrame(animate);
         }
+
+        // Pause the loop when the hero section leaves the viewport
+        const canvasObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                if (!rafId) animate();
+            } else {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+        }, { threshold: 0 });
+        canvasObserver.observe(canvas.parentElement);
         animate();
     })();
     // ── End Kebab Canvas ────────────────────────────────────────────────
@@ -799,20 +811,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Optimized Scroll Listener
     let scrollTimeout;
-    let lastScrollY = window.scrollY;
+    const scrollGap = 24;
     const navLinks = document.querySelectorAll('.header-link');
     const sections = Array.from(navLinks).map(link => {
         const id = link.getAttribute('href').substring(1);
         return document.getElementById(id);
     }).filter(el => el !== null);
 
+    // Cache section offsets to avoid layout reads on every scroll frame
+    let sectionOffsets = sections.map(s => s ? s.offsetTop : 0);
+
+    // Update CSS variable and offset cache — only on resize/init, not every scroll
+    function updateHeaderHeight() {
+        if (header) {
+            document.documentElement.style.setProperty('--header-h', (header.offsetHeight + scrollGap) + 'px');
+        }
+        sectionOffsets = sections.map(s => s ? s.offsetTop : 0);
+    }
+    updateHeaderHeight();
+
     const handleScroll = () => {
         if (!header || !heroSection) return;
 
-        // Update dynamic header height variable (including 24px breathing room)
-        const scrollGap = 24;
-        document.documentElement.style.setProperty('--header-h', (header.offsetHeight + scrollGap) + 'px');
-        
         if (!scrollTimeout) {
             scrollTimeout = requestAnimationFrame(() => {
                 const currentScrollY = window.scrollY;
@@ -836,9 +856,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (isBottom) {
                     currentSectionId = "contact";
                 } else {
-                    sections.forEach(section => {
-                        // Find the last section we've passed
-                        if (scrollPos >= section.offsetTop) {
+                    sections.forEach((section, i) => {
+                        // Find the last section we've passed (using cached offsets)
+                        if (scrollPos >= sectionOffsets[i]) {
                             currentSectionId = section.getAttribute('id');
                         }
                     });
@@ -853,8 +873,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    let resizeTimer;
+    function handleResize() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            updateHeaderHeight();
+            handleScroll();
+        }, 150);
+    }
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
     handleScroll();
 
     // ── Weighting Diagram Animation Trigger ──────────────────────────

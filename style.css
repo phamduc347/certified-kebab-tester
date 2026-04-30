@@ -298,8 +298,8 @@ body.lightbox-open {
     backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border-color);
     margin-bottom: 0;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: transform, padding, background-color;
+    transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
 }
 
 .no-transition,
@@ -311,7 +311,7 @@ body.lightbox-open {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: all 0.4s ease;
+    transition: gap 0.4s ease;
 }
 
 
@@ -319,7 +319,7 @@ body.lightbox-open {
 .header-nav {
     display: flex;
     gap: 24px;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease;
 }
 
 .header-link {
@@ -377,7 +377,7 @@ body.lightbox-open {
     color: var(--text-main);
     line-height: 1;
     text-transform: none;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: font-size 0.4s cubic-bezier(0.16, 1, 0.3, 1), letter-spacing 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (max-width: 768px) {
@@ -391,7 +391,7 @@ body.lightbox-open {
 
     .header {
         padding: 4px 0;
-        backdrop-filter: blur(8px);
+        backdrop-filter: blur(4px);
     }
 
     .header .container {
@@ -399,7 +399,7 @@ body.lightbox-open {
         flex-direction: column;
         align-items: center;
         gap: 8px; /* Tighter gap for better balance */
-        transition: all 0.4s ease;
+        transition: gap 0.4s ease;
     }
     
 
@@ -414,7 +414,7 @@ body.lightbox-open {
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* Firefox */
         opacity: 1;
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         transform: translateY(0);
         mask-image: linear-gradient(to right, transparent 0%, black 28px, black calc(100% - 28px), transparent 100%);
         -webkit-mask-image: linear-gradient(to right, transparent 0%, black 28px, black calc(100% - 28px), transparent 100%);
@@ -1058,9 +1058,8 @@ section {
     border-radius: 16px;
     padding: 12px 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-    transition: var(--transition);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
     cursor: pointer;
-    will-change: transform, box-shadow, opacity;
     animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
     contain: content;
 }
@@ -2215,4 +2214,29 @@ body.modal-open {
     border-bottom: none !important;
     border-bottom-left-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
+}
+
+/* Accessibility: disable heavy animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .bar-fill {
+        transition: none !important;
+        width: var(--target-width) !important;
+    }
+
+    .segment {
+        transition: none !important;
+        width: var(--w) !important;
+    }
+
+    #kebab-canvas {
+        display: none;
+    }
 }
