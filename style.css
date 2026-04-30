@@ -2313,23 +2313,24 @@ section {
     }
 
     .analytics-card {
-        padding: 20px;
-        border-radius: 16px;
+        padding: 16px;
+        border-radius: 14px;
     }
 
     .analytics-card-header {
         flex-direction: column;
-        gap: 12px;
-        margin-bottom: 20px;
+        gap: 10px;
+        margin-bottom: 16px;
     }
 
     .analytics-title {
         font-size: 1rem;
     }
 
+    /* P/L Chart */
     .pl-row {
-        grid-template-columns: 28px 1fr;
-        gap: 12px;
+        grid-template-columns: 24px 1fr;
+        gap: 10px;
     }
 
     .pl-meta {
@@ -2337,44 +2338,64 @@ section {
     }
 
     .pl-value {
-        font-size: 0.75rem;
-        min-width: 44px;
+        font-size: 0.72rem;
+        min-width: 40px;
     }
 
     .pl-rank {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
 
+    /* Awards */
     .awards-grid {
         grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
+        gap: 6px;
     }
 
     .award-tile {
-        padding: 10px 10px;
+        padding: 8px;
+        border-radius: 8px;
+    }
+
+    .award-cat {
+        font-size: 0.55rem;
+        letter-spacing: 0.5px;
     }
 
     .award-name {
-        font-size: 0.72rem;
+        font-size: 0.68rem;
+    }
+
+    .award-val {
+        font-size: 0.95rem;
+    }
+
+    /* Heatmap: make cells smaller, ensure horizontal scroll */
+    .heatmap-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -16px;
+        padding: 0 16px;
     }
 
     .hm-header,
     .hm-row {
-        grid-template-columns: 80px repeat(9, 1fr);
+        grid-template-columns: 72px repeat(9, minmax(28px, 1fr));
         gap: 2px;
+        min-width: 400px;
     }
 
     .hm-cell {
-        height: 26px;
-        font-size: 0.6rem;
+        height: 24px;
+        font-size: 0.58rem;
     }
 
     .hm-row-label {
-        font-size: 0.62rem;
+        font-size: 0.6rem;
     }
 
     .hm-col-label {
-        font-size: 0.5rem;
+        font-size: 0.48rem;
     }
 }
 
