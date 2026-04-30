@@ -885,6 +885,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = document.getElementById(targetId);
         
         if (target) {
+            // Immediately sync active state so old link doesn't linger
+            if (link.classList.contains('header-link')) {
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                link.blur(); // release browser focus/hover state
+            }
             scrollToElementFlush(target);
             history.replaceState(null, '', window.location.pathname);
         }
