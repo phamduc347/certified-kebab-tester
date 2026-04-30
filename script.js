@@ -659,6 +659,73 @@ document.addEventListener('DOMContentLoaded', () => {
     populateFilters();
     renderGrid();
     initSpotlight();
+    initAnalytics();
+
+    // ── Analytics Section ────────────────────────────────────────────
+    function initAnalytics() {
+        const container = document.getElementById('pl-chart-container');
+        if (!container) return;
+
+        const parseVal = (s) => parseFloat(String(s).replace(',', '.').replace('%', '').replace(' €', '')) || 0;
+
+        // Sort by P/L-Index descending, take top 5
+        const top5 = [...kebabData]
+            .sort((a, b) => parseVal(b.plIndex) - parseVal(a.plIndex))
+            .slice(0, 5);
+
+        const maxPL = parseVal(top5[0].plIndex);
+
+        container.innerHTML = top5.map((spot, i) => {
+            const pl  = parseVal(spot.plIndex);
+            const sc  = parseVal(spot.score);
+            const pct = (pl / maxPL) * 100;
+            const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
+
+            return `
+            <div class="pl-row" style="--pl-delay: ${i * 0.1}s">
+                <div class="pl-rank">${i + 1}</div>
+                <div class="pl-info">
+                    <div class="pl-name-row">
+                        <span class="pl-name" data-id="${spot.id}">${spot.name}</span>
+                        <span class="pl-city">${spot.city}</span>
+                    </div>
+                    <div class="pl-bar-wrap">
+                        <div class="pl-bar-track">
+                            <div class="pl-bar-fill" style="--pl-width: ${pct}%"></div>
+                        </div>
+                        <span class="pl-value">${spot.plIndex}</span>
+                    </div>
+                </div>
+                <div class="pl-meta">
+                    <div class="pl-meta-score">
+                        <span class="pl-meta-label">SCORE</span>
+                        <span class="pl-meta-val">${spot.score}</span>
+                    </div>
+                    <div class="pl-meta-price">
+                        <span class="pl-meta-label">PREIS</span>
+                        <span class="pl-meta-val">${spot.preis}</span>
+                    </div>
+                    <a href="${mapsLink}" target="_blank" class="pl-maps-btn" title="Google Maps">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                </div>
+            </div>`;
+        }).join('');
+
+        // Animate bars when section enters viewport
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                container.classList.add('pl-animate');
+                observer.unobserve(container);
+            }
+        }, { threshold: 0.2 });
+        observer.observe(container);
+
+        // Click on name → jump to review
+        container.querySelectorAll('.pl-name[data-id]').forEach(el => {
+            el.addEventListener('click', () => jumpToReview(el.dataset.id));
+        });
+    }
 
     // Toggle-All Button logic
     const toggleAllBtn = document.getElementById('toggle-all-btn');

@@ -24,6 +24,7 @@
             </h1>
             <nav class="header-nav">
                 <a href="#spotlight" class="header-link">Spotlight</a>
+                <a href="#analytics" class="header-link">Analytics</a>
                 <a href="#spots" class="header-link">All Reviews</a>
                 <a href="#comparison" class="header-link">Head-to-Head</a>
                 <a href="#weightings" class="header-link">Rating System</a>
@@ -61,6 +62,32 @@
                 <!-- Injected via JS -->
             </div>
             <div id="spotlight-dots" class="spotlight-dots"></div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section class="analytics-section" id="analytics">
+            <div class="section-header">
+                <h2>Analytics</h2>
+                <p>Datengetriebene Einblicke in die Döner-Landschaft.</p>
+            </div>
+            <div class="analytics-grid">
+                <!-- Top 5 P/L Chart -->
+                <div class="analytics-card analytics-card--wide">
+                    <div class="analytics-card-header">
+                        <div>
+                            <span class="analytics-label">RANKING</span>
+                            <h3 class="analytics-title">Top 5 · Best Price-Performance</h3>
+                        </div>
+                        <div class="analytics-badge analytics-badge--tooltip">
+                            P/L-Index
+                            <span class="analytics-tooltip-text">Der Price-Leistungs-Index misst den Gegenwert pro ausgegebenem Euro: Gesamtbewertung (%) ÷ Preis (€). Je höher, desto mehr Qualität bekommst du fürs Geld.</span>
+                        </div>
+                    </div>
+                    <div id="pl-chart-container" class="pl-chart-container">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section class="spots-section" id="spots">
