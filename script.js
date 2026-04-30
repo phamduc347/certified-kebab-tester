@@ -725,6 +725,124 @@ document.addEventListener('DOMContentLoaded', () => {
         container.querySelectorAll('.pl-name[data-id]').forEach(el => {
             el.addEventListener('click', () => jumpToReview(el.dataset.id));
         });
+
+        // ── Kategorie-Awards ─────────────────────────────────────────
+        const awardsContainer = document.getElementById('category-awards-container');
+        if (awardsContainer) {
+            const cats = [
+                { key: 'fleisch',  label: 'Fleisch'  },
+                { key: 'gemuese',  label: 'Gemüse'   },
+                { key: 'sosse',    label: 'Soße'      },
+                { key: 'brot',     label: 'Brot'      },
+                { key: 'balance',  label: 'Balance'   },
+                { key: 'auswahl',  label: 'Auswahl'   },
+                { key: 'portion',  label: 'Portion'   },
+                { key: 'hygiene',  label: 'Hygiene'   },
+                { key: 'service',  label: 'Service'   },
+            ];
+
+            awardsContainer.innerHTML = cats.map(({ key, label }) => {
+                const winner = kebabData.reduce((best, s) =>
+                    s[key] > best[key] ? s : best, kebabData[0]);
+                const val = winner[key];
+                // shorten long names
+                const shortName = winner.name.length > 18
+                    ? winner.name.slice(0, 17).trimEnd() + '…'
+                    : winner.name;
+                return `
+                <div class="award-tile" data-id="${winner.id}">
+                    <span class="award-cat">${label}</span>
+                    <span class="award-name">${shortName}</span>
+                    <span class="award-val">${val.toFixed(1)}</span>
+                </div>`;
+            }).join('');
+
+            awardsContainer.querySelectorAll('.award-tile[data-id]').forEach(el => {
+                el.addEventListener('click', () => jumpToReview(el.dataset.id));
+            });
+        }
+
+        // ── Kriterien-Heatmap ────────────────────────────────────────
+        const heatmapContainer = document.getElementById('heatmap-container');
+        if (heatmapContainer) {
+            const cats = [
+                { key: 'fleisch', label: 'Fleisch' },
+                { key: 'gemuese', label: 'Gemüse'  },
+                { key: 'sosse',   label: 'Soße'    },
+                { key: 'brot',    label: 'Brot'    },
+                { key: 'balance', label: 'Balance' },
+                { key: 'auswahl', label: 'Auswahl' },
+                { key: 'portion', label: 'Portion' },
+                { key: 'hygiene', label: 'Hygiene' },
+                { key: 'service', label: 'Service' },
+            ];
+
+            // Sort spots by overall score descending, limit to top 8 for readability
+            const spots = [...kebabData]
+                .sort((a, b) => parseVal(b.score) - parseVal(a.score))
+                .slice(0, 8);
+
+            // Color: map value 7–10 to white→black
+            const cellColor = (v) => {
+                const t = Math.max(0, Math.min(1, (v - 7) / 3)); // 7=white, 10=black
+                const l = Math.round(96 - t * 80); // 96% → 16%
+                return `hsl(0,0%,${l}%)`;
+            };
+            const textColor = (v) => {
+                const t = Math.max(0, Math.min(1, (v - 7) / 3));
+                return t > 0.55 ? '#fff' : '#000';
+            };
+
+            // Header row (category labels)
+            const headerCells = cats.map(c =>
+                `<div class="hm-col-label">${c.label}</div>`
+            ).join('');
+
+            // Data rows
+            const dataRows = spots.map(spot => {
+                const shortName = spot.name.length > 16
+                    ? spot.name.slice(0, 15).trimEnd() + '…'
+                    : spot.name;
+                const cells = cats.map(c => {
+                    const v = spot[c.key];
+                    const bg = cellColor(v);
+                    const fg = textColor(v);
+                    return `<div class="hm-cell" style="background:${bg};color:${fg}" title="${c.label}: ${v}">${v.toFixed(1)}</div>`;
+                }).join('');
+                return `
+                <div class="hm-row" data-id="${spot.id}">
+                    <div class="hm-row-label" title="${spot.name}">${shortName}</div>
+                    ${cells}
+                </div>`;
+            }).join('');
+
+            heatmapContainer.innerHTML = `
+                <div class="hm-header">
+                    <div class="hm-row-label"></div>
+                    ${headerCells}
+                </div>
+                <div class="hm-body hm-animate-target">
+                    ${dataRows}
+                </div>
+                <div class="hm-legend">
+                    <span class="hm-legend-label">7.0</span>
+                    <div class="hm-legend-bar"></div>
+                    <span class="hm-legend-label">10.0</span>
+                </div>`;
+
+            heatmapContainer.querySelectorAll('.hm-row[data-id]').forEach(el => {
+                el.addEventListener('click', () => jumpToReview(el.dataset.id));
+            });
+
+            const hmObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    heatmapContainer.querySelector('.hm-animate-target')
+                        ?.classList.add('hm-animate');
+                    hmObserver.unobserve(heatmapContainer);
+                }
+            }, { threshold: 0.15 });
+            hmObserver.observe(heatmapContainer);
+        }
     }
 
     // Toggle-All Button logic

@@ -1902,8 +1902,12 @@ section {
 
 .analytics-grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 24px;
+}
+
+.analytics-card--wide {
+    grid-column: 1 / -1;
 }
 
 .analytics-card {
@@ -2152,8 +2156,162 @@ section {
     margin-top: 0;
 }
 
+/* ── Kategorie-Awards ─────────────────────────── */
+.awards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.award-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.award-tile:hover {
+    background: var(--text-main);
+    border-color: var(--text-main);
+}
+
+.award-tile:hover .award-cat,
+.award-tile:hover .award-name,
+.award-tile:hover .award-val {
+    color: var(--bg-main);
+}
+
+.award-cat {
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+}
+
+.award-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.2;
+    transition: color 0.2s ease;
+}
+
+.award-val {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1;
+    margin-top: 2px;
+    transition: color 0.2s ease;
+}
+
+/* ── Kriterien-Heatmap ───────────────────────── */
+.heatmap-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.hm-header,
+.hm-row {
+    display: grid;
+    grid-template-columns: 110px repeat(9, 1fr);
+    gap: 3px;
+    align-items: center;
+}
+
+.hm-header {
+    margin-bottom: 3px;
+}
+
+.hm-col-label {
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 0 2px;
+}
+
+.hm-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.hm-body.hm-animate {
+    opacity: 1;
+}
+
+.hm-row {
+    cursor: pointer;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.hm-row:hover .hm-cell {
+    filter: brightness(1.12);
+}
+
+.hm-row-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 8px;
+}
+
+.hm-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    border-radius: 4px;
+    transition: filter 0.2s ease;
+    cursor: pointer;
+}
+
+.hm-legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.hm-legend-bar {
+    flex: 1;
+    height: 6px;
+    border-radius: 100px;
+    background: linear-gradient(to right, hsl(0,0%,96%), hsl(0,0%,16%));
+}
+
+.hm-legend-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
 /* Analytics mobile */
 @media (max-width: 768px) {
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+
     .analytics-card {
         padding: 20px;
         border-radius: 16px;
@@ -2185,6 +2343,38 @@ section {
 
     .pl-rank {
         font-size: 1.2rem;
+    }
+
+    .awards-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .award-tile {
+        padding: 10px 10px;
+    }
+
+    .award-name {
+        font-size: 0.72rem;
+    }
+
+    .hm-header,
+    .hm-row {
+        grid-template-columns: 80px repeat(9, 1fr);
+        gap: 2px;
+    }
+
+    .hm-cell {
+        height: 26px;
+        font-size: 0.6rem;
+    }
+
+    .hm-row-label {
+        font-size: 0.62rem;
+    }
+
+    .hm-col-label {
+        font-size: 0.5rem;
     }
 }
 
