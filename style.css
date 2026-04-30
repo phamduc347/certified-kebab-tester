@@ -1072,10 +1072,6 @@ section {
     position: relative;
 }
 
-.spot-pl-bubble {
-    display: none;
-}
-
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -1904,66 +1900,6 @@ section {
         display: inline;
         font-size: 0.85rem;
         opacity: 0.7;
-    }
-
-    .spot-pl-bubble {
-        display: block;
-        position: absolute;
-        top: 10px;
-        right: 12px;
-        background: var(--text-main);
-        color: var(--bg-main);
-        font-size: 0.6rem;
-        font-weight: 800;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        padding: 3px 7px;
-        border-radius: 6px;
-        pointer-events: auto;
-        cursor: help;
-        z-index: 2;
-    }
-
-    .pl-bubble-tip {
-        display: none;
-        position: absolute;
-        top: 50%;
-        right: calc(100% + 8px);
-        transform: translateY(-50%);
-        background: #1a1a1a;
-        color: #fff;
-        font-size: 0.7rem;
-        font-weight: 400;
-        text-transform: none;
-        letter-spacing: 0;
-        padding: 8px 12px;
-        border-radius: 8px;
-        width: 170px;
-        line-height: 1.5;
-        z-index: 100;
-        pointer-events: none;
-        white-space: normal;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-    }
-
-    .pl-bubble-tip::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 100%;
-        transform: translateY(-50%);
-        border: 5px solid transparent;
-        border-left-color: #1a1a1a;
-    }
-
-    .spot-pl-bubble:hover .pl-bubble-tip,
-    .spot-pl-bubble:focus .pl-bubble-tip {
-        display: block;
-    }
-
-    .spot-pl-bubble::before {
-        content: 'P/L ';
-        opacity: 0.6;
     }
 }
 
