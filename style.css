@@ -1912,8 +1912,46 @@ section {
         text-transform: uppercase;
         padding: 3px 7px;
         border-radius: 6px;
+        pointer-events: auto;
+        cursor: help;
+        z-index: 2;
+    }
+
+    .pl-bubble-tip {
+        display: none;
+        position: absolute;
+        top: 50%;
+        right: calc(100% + 8px);
+        transform: translateY(-50%);
+        background: #1a1a1a;
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0;
+        padding: 8px 12px;
+        border-radius: 8px;
+        width: 170px;
+        line-height: 1.5;
+        z-index: 100;
         pointer-events: none;
-        z-index: 1;
+        white-space: normal;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    }
+
+    .pl-bubble-tip::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        transform: translateY(-50%);
+        border: 5px solid transparent;
+        border-left-color: #1a1a1a;
+    }
+
+    .spot-pl-bubble:hover .pl-bubble-tip,
+    .spot-pl-bubble:focus .pl-bubble-tip {
+        display: block;
     }
 
     .spot-pl-bubble::before {
@@ -1946,6 +1984,8 @@ section {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
     overflow: hidden;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .analytics-card-header {
@@ -1953,6 +1993,7 @@ section {
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 28px;
+    flex-shrink: 0;
 }
 
 .analytics-label {
@@ -1981,6 +2022,13 @@ section {
     padding: 6px 14px;
     border-radius: 6px;
     white-space: nowrap;
+}
+
+.analytics-description {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-weight: 400;
 }
 
 .analytics-badge--tooltip {
@@ -2027,6 +2075,8 @@ section {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    flex: 1;
+    justify-content: space-between;
 }
 
 .pl-row {
@@ -2191,6 +2241,8 @@ section {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
+    flex: 1;
+    align-content: stretch;
 }
 
 .award-tile {
@@ -2202,6 +2254,7 @@ section {
     border-radius: 12px;
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease;
+    justify-content: center;
 }
 
 .award-tile:hover {
@@ -2373,22 +2426,8 @@ section {
     }
 
     .pl-value {
-        position: absolute;
-        top: 0;
-        right: 0;
-        font-size: 0.6rem;
-        font-weight: 800;
-        min-width: unset;
-        text-align: unset;
-        background: var(--text-main);
-        color: var(--bg-main);
-        padding: 3px 7px;
-        border-radius: 6px;
-        letter-spacing: 0.3px;
-    }
-
-    .pl-bar-wrap {
-        padding-right: 0;
+        font-size: 0.72rem;
+        min-width: 40px;
     }
 
     .pl-rank {
