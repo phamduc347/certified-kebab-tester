@@ -1904,6 +1904,7 @@ section {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
+    width: 100%;
 }
 
 .analytics-card--wide {
@@ -1913,9 +1914,11 @@ section {
 .analytics-card {
     background: var(--bg-main);
     border: 1px solid var(--border-color);
-    border-radius: 24px;
+    border-radius: 16px;
     padding: 32px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+    min-width: 0;
 }
 
 .analytics-card-header {
@@ -2220,7 +2223,7 @@ section {
 .hm-header,
 .hm-row {
     display: grid;
-    grid-template-columns: 110px repeat(9, 1fr);
+    grid-template-columns: 110px repeat(4, 1fr);
     gap: 3px;
     align-items: center;
 }
@@ -2296,7 +2299,11 @@ section {
     flex: 1;
     height: 6px;
     border-radius: 100px;
-    background: linear-gradient(to right, hsl(0,0%,96%), hsl(0,0%,16%));
+    background: linear-gradient(to right, hsl(0,80%,42%), hsl(45,80%,42%));
+}
+
+.hm-legend-bar--upper {
+    background: linear-gradient(to right, hsl(45,80%,42%), hsl(120,80%,42%));
 }
 
 .hm-legend-label {
@@ -2374,15 +2381,13 @@ section {
     .heatmap-container {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        margin: 0 -16px;
-        padding: 0 16px;
     }
 
     .hm-header,
     .hm-row {
-        grid-template-columns: 72px repeat(9, minmax(28px, 1fr));
+        grid-template-columns: 72px repeat(4, minmax(40px, 1fr));
         gap: 2px;
-        min-width: 400px;
+        min-width: 0;
     }
 
     .hm-cell {

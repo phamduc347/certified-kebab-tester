@@ -770,28 +770,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 { key: 'gemuese', label: 'Gemüse'  },
                 { key: 'sosse',   label: 'Soße'    },
                 { key: 'brot',    label: 'Brot'    },
-                { key: 'balance', label: 'Balance' },
-                { key: 'auswahl', label: 'Auswahl' },
-                { key: 'portion', label: 'Portion' },
-                { key: 'hygiene', label: 'Hygiene' },
-                { key: 'service', label: 'Service' },
             ];
 
-            // Sort spots by overall score descending, limit to top 8 for readability
-            const spots = [...kebabData]
-                .sort((a, b) => parseVal(b.score) - parseVal(a.score))
-                .slice(0, 8);
+            // Sort spots by overall score descending, limit to top 5
+            // Hand-picked for maximum visual contrast:
+            // Yaprak=Fleisch-Spezialist, Hugoo Gemüse=Gemüse-Spezialist,
+            // Med Dürüm=Brot-Champion, Planet Bistro=ausgewogen stark,
+            // Mudi's=Mittelfeld, Kebab & Smash=schwache Soße → volle Farbskala
+            const heatmapIds = [2, 3, 4, 5, 13, 14];
+            const spots = kebabData
+                .filter(s => heatmapIds.includes(s.id))
+                .sort((a, b) => parseVal(b.score) - parseVal(a.score));
 
-            // Color: map value 7–10 to white→black
+            // Color: 5=red (hue 0), 7.5=yellow-orange (hue 45), 10=green (hue 120)
             const cellColor = (v) => {
-                const t = Math.max(0, Math.min(1, (v - 7) / 3)); // 7=white, 10=black
-                const l = Math.round(96 - t * 80); // 96% → 16%
-                return `hsl(0,0%,${l}%)`;
+                const t = Math.max(0, Math.min(1, (v - 5) / 5)); // 5→0, 10→1
+                const hue = Math.round(t * 120);
+                const sat = 80;
+                const lig = 42;
+                return `hsl(${hue},${sat}%,${lig}%)`;
             };
-            const textColor = (v) => {
-                const t = Math.max(0, Math.min(1, (v - 7) / 3));
-                return t > 0.55 ? '#fff' : '#000';
-            };
+            const textColor = () => '#fff';
 
             // Header row (category labels)
             const headerCells = cats.map(c =>
@@ -825,8 +824,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${dataRows}
                 </div>
                 <div class="hm-legend">
-                    <span class="hm-legend-label">7.0</span>
+                    <span class="hm-legend-label">5.0</span>
                     <div class="hm-legend-bar"></div>
+                    <span class="hm-legend-label">7.5</span>
+                    <div class="hm-legend-bar hm-legend-bar--upper"></div>
                     <span class="hm-legend-label">10.0</span>
                 </div>`;
 
