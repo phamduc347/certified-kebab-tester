@@ -405,13 +405,22 @@ body.lightbox-open {
 
     .header-nav {
         width: 100%;
-        max-width: 480px;
-        justify-content: space-between;
-        gap: 0;
-        padding: 0;
+        max-width: 100%;
+        justify-content: flex-start;
+        gap: 20px;
+        padding: 0 2px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
         opacity: 1;
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         transform: translateY(0);
+        mask-image: linear-gradient(to right, transparent 0%, black 28px, black calc(100% - 28px), transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 28px, black calc(100% - 28px), transparent 100%);
+    }
+
+    .header-nav::-webkit-scrollbar {
+        display: none; /* Chrome / Safari / Edge */
     }
     
     .header-link {
@@ -420,6 +429,7 @@ body.lightbox-open {
         letter-spacing: 0.5px;
         white-space: nowrap;
         padding: 4px 0;
+        flex-shrink: 0;
     }
 
     .header-link.active::after {
@@ -427,8 +437,6 @@ body.lightbox-open {
         bottom: -2px;
     }
 
-
-    
     .logo-main {
         font-size: 1.1rem;
         font-weight: 800;
@@ -439,9 +447,20 @@ body.lightbox-open {
         font-size: 0.5rem;
         padding: 1px 4px;
     }
+}
+
+@media (max-width: 400px) {
+    .header-nav {
+        gap: 16px;
+    }
 
     .header-link {
-        font-size: 0.65rem;
+        font-size: 0.62rem;
+        letter-spacing: 0.3px;
+    }
+
+    .logo-main {
+        font-size: 0.95rem;
     }
 }
 
