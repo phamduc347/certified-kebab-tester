@@ -1127,7 +1127,7 @@ section {
 
 .stars-outer {
     position: relative;
-    display: flex;
+    display: inline-flex;
     gap: 2px;
     font-size: 1.1rem;
     color: #e2e8f0; /* Gray for empty */
