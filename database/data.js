@@ -307,7 +307,7 @@ const kebabData = [
         preis: "6,50 €",
         plIndex: "12,60%",
         image: "pictures/wolfsburg_mudis_gemuese_doener.JPG",
-        kommentar: "Gute portion und schöne Anmutung. Geschmacklich leider eher mittelmaß. \nFleisch und Grillgemüse trieften in Öl. Wolfsburg ist somit nicht nur für schlechte Autos bekannt.",
+        kommentar: "Gute portion und schöne Anmutung. Geschmacklich leider eher mittelmaß. \nFleisch und Grillgemüse trieften in Öl. Wolfsburg ist somit nicht nur für mittelmäßige Autos bekannt.",
         date: "12.11.2025",
         besuche: 1
     },
@@ -331,7 +331,7 @@ const kebabData = [
         preis: "8,50 €",
         plIndex: "8,70%",
         image: "pictures/gamisch_kebab&smash.jpeg",
-        kommentar: "Bei google eine 4,9 aber vermutlich wurde da was erkauft.\nInsgesamt eine trockene Angelegenheit.\nService war jedoch nett und es gab Çay for free.",
+        kommentar: "Bei google eine 4,9 aber naja...\nInsgesamt eine trockene Angelegenheit.\nService war jedoch nett und es gab Çay for free.",
         date: "06.04.2026",
         besuche: 1
     }
