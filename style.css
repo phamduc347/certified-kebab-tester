@@ -1062,6 +1062,11 @@ section {
     cursor: pointer;
     animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
     contain: content;
+    position: relative;
+}
+
+.spot-pl-bubble {
+    display: none;
 }
 
 @keyframes fadeInUp {
@@ -1893,6 +1898,28 @@ section {
         font-size: 0.85rem;
         opacity: 0.7;
     }
+
+    .spot-pl-bubble {
+        display: block;
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        background: var(--text-main);
+        color: var(--bg-main);
+        font-size: 0.6rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        padding: 3px 7px;
+        border-radius: 6px;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .spot-pl-bubble::before {
+        content: 'P/L ';
+        opacity: 0.6;
+    }
 }
 
 /* ── Analytics Section ──────────────────────────────────────────────── */
@@ -2338,6 +2365,7 @@ section {
     .pl-row {
         grid-template-columns: 24px 1fr;
         gap: 10px;
+        position: relative;
     }
 
     .pl-meta {
@@ -2345,8 +2373,22 @@ section {
     }
 
     .pl-value {
-        font-size: 0.72rem;
-        min-width: 40px;
+        position: absolute;
+        top: 0;
+        right: 0;
+        font-size: 0.6rem;
+        font-weight: 800;
+        min-width: unset;
+        text-align: unset;
+        background: var(--text-main);
+        color: var(--bg-main);
+        padding: 3px 7px;
+        border-radius: 6px;
+        letter-spacing: 0.3px;
+    }
+
+    .pl-bar-wrap {
+        padding-right: 0;
     }
 
     .pl-rank {

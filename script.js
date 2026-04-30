@@ -441,6 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const displayRank = index + 1;
 
             card.innerHTML = `
+                <div class="spot-pl-bubble">${spot.plIndex}</div>
                 <div class="spot-card-header">
                     <div class="spot-rank">${displayRank}</div>
                     <div class="spot-header-text">
