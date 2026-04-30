@@ -398,6 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     activeCities.add(city);
                     btn.classList.add('active');
                 }
+                visibleCount = SPOTS_PER_PAGE;
                 renderGrid();
             });
             cityGroup.appendChild(btn);
@@ -415,11 +416,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     activeDishes.add(dish);
                     btn.classList.add('active');
                 }
+                visibleCount = SPOTS_PER_PAGE;
                 renderGrid();
             });
             dishGroup.appendChild(btn);
         });
     }
+
+    const SPOTS_PER_PAGE = 6;
+    let visibleCount = SPOTS_PER_PAGE;
 
     function renderGrid() {
         gridContainer.innerHTML = '';
@@ -430,7 +435,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return cityMatch && dishMatch;
         });
 
-        filteredData.forEach((spot, index) => {
+        const toShow = filteredData.slice(0, visibleCount);
+
+        toShow.forEach((spot, index) => {
             const card = document.createElement('div');
             card.className = 'spot-card';
             card.id = `spot-${spot.id}`;
@@ -516,13 +523,27 @@ document.addEventListener('DOMContentLoaded', () => {
             
             gridContainer.appendChild(card);
         });
+
+        // Load More button
+        if (visibleCount < filteredData.length) {
+            const remaining = filteredData.length - visibleCount;
+            const loadMoreBtn = document.createElement('button');
+            loadMoreBtn.className = 'load-more-btn';
+            loadMoreBtn.textContent = `${remaining} weitere anzeigen`;
+            loadMoreBtn.addEventListener('click', () => {
+                visibleCount += SPOTS_PER_PAGE;
+                renderGrid();
+            });
+            gridContainer.appendChild(loadMoreBtn);
+        }
     }
 
     function jumpToReview(spotId) {
         // 1. Reset filters to all active
         activeCities = new Set(cities);
         activeDishes = new Set(dishes);
-        populateFilters(); 
+        visibleCount = kebabData.length; // show all so target card is in DOM
+        populateFilters();
         renderGrid();
 
         // 2. Find the card
