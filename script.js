@@ -440,6 +440,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const cityMatch = activeCities.size === 0 || activeCities.has(spot.city);
             const dishMatch = activeDishes.size === 0 || activeDishes.has(spot.dish);
             return cityMatch && dishMatch;
+        }).sort((a, b) => {
+            const parseScore = s => parseFloat(String(s).replace(',', '.').replace('%', '')) || 0;
+            return parseScore(b.score) - parseScore(a.score);
         });
 
         const toShow = filteredData.slice(0, visibleCount);
