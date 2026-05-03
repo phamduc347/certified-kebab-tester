@@ -1287,7 +1287,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const renderItems = (items) => {
             return items.map(spot => `
-                <div class="next-up-item">
+                <div class="next-up-item" data-spot="${spot.name}" style="cursor: pointer;" title="Auf Karte zeigen">
                     <span class="next-up-name">${spot.name}</span>
                     <span class="next-up-city">${spot.city}</span>
                 </div>
@@ -1325,6 +1325,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).addTo(map);
 
         const markers = [];
+        const markerMap = {}; // Map spot names to Leaflet markers
 
         upcomingSpots.forEach(spot => {
             const pos = coords[spot.name];
@@ -1350,6 +1351,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             markers.push(marker);
+            markerMap[spot.name] = marker;
             marker.addTo(map);
         });
 
@@ -1374,6 +1376,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             map.addControl(new ResetControl());
+            
+            // Listen for clicks on ticker items to jump to marker
+            document.addEventListener('click', function(e) {
+                const item = e.target.closest('.next-up-item');
+                if (!item) return;
+                
+                const spotName = item.getAttribute('data-spot');
+                const targetMarker = markerMap[spotName];
+                
+                if (targetMarker) {
+                    // Smoothly fly to the location and open popup
+                    map.flyTo(targetMarker.getLatLng(), 15, {
+                        duration: 1.5
+                    });
+                    
+                    // Open popup after flying finishes
+                    map.once('moveend', function() {
+                        targetMarker.openPopup();
+                    });
+                }
+            });
         } else {
             map.setView([51.165, 10.451], 6); // Default Germany view
         }
