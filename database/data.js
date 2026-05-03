@@ -365,31 +365,26 @@ const upcomingSpots = [
     { 
         name: "Hans Kebab", 
         city: "München", 
-        description: "Craft Kebab mit 100% Kalbschichtfleisch.",
-        image: "pictures/muenchen_hans_kebab.png"
+        description: "Craft Kebab mit 100% Kalbschichtfleisch."
     },
     { 
         name: "Berlin'er Gemüse Döner", 
         city: "Dresden", 
-        description: "Berliner Style Gemüse-Kebab in der Neustadt.",
-        image: "pictures/dresden_berliner_gemuese_doener.png"
+        description: "Berliner Style Gemüse-Kebab in der Neustadt."
     },
     { 
         name: "Jami's Gemüse Kebab", 
         city: "Dresden", 
-        description: "Fokus auf gebratenes Gemüse & vegetarische Vielfalt.",
-        image: "pictures/dresden_jamis_gemuese_kebab.png"
+        description: "Fokus auf gebratenes Gemüse & vegetarische Vielfalt."
     },
     { 
         name: "Der Dicke Schmidt Neustadt", 
         city: "Dresden", 
-        description: "Legendärer Veganer Vöner aus Dresden.",
-        image: "pictures/dresden_der_dicke_schmidt_voener.png"
+        description: "Legendärer Veganer Vöner aus Dresden."
     },
     { 
         name: "Golt'z kebap", 
         city: "Berlin", 
-        description: "Spezialisiert auf 100% Rindfleisch-Kebab.",
-        image: "pictures/berlin_goltz_kebap_beef.png"
+        description: "Spezialisiert auf 100% Rindfleisch-Kebab."
     }
 ];
