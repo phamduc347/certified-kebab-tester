@@ -1299,4 +1299,83 @@ document.addEventListener('DOMContentLoaded', () => {
         const tickerContent = renderItems(upcomingSpots);
         ticker.innerHTML = tickerContent + tickerContent;
     })();
+
+    // ── Next Up Map ───────────────────────────────────────────────
+    (function initNextUpMap() {
+        const mapContainer = document.getElementById('next-up-map');
+        if (!mapContainer || typeof L === 'undefined') return;
+
+        // Approximate coordinates for the next up spots
+        const coords = {
+            "Hans Kebab": [48.163, 11.579], // Munich
+            "Berlin'er Gemüse Döner": [51.0655, 13.7483], // Dresden
+            "Jami's Gemüse Kebab": [51.054, 13.771], // Dresden
+            "Der Dicke Schmidt Neustadt": [51.0664, 13.7538], // Dresden
+            "Golt'z kebap": [52.490, 13.355] // Berlin
+        };
+
+        const map = L.map('next-up-map', {
+            scrollWheelZoom: false,
+            dragging: !L.Browser.mobile,
+            tap: !L.Browser.mobile
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        const markers = [];
+
+        upcomingSpots.forEach(spot => {
+            const pos = coords[spot.name];
+            if (!pos) return;
+
+            const icon = L.divIcon({
+                className: 'map-marker',
+                html: `<div class="marker-inner planned"></div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+
+            const popupContent = `
+                <div class="map-popup">
+                    <span class="map-popup-title">${spot.name}</span>
+                    <span class="map-popup-meta">${spot.city} · Geplant</span>
+                </div>
+            `;
+
+            const marker = L.marker(pos, { icon }).bindPopup(popupContent, {
+                className: 'map-popup',
+                offset: [0, -5]
+            });
+            
+            markers.push(marker);
+            marker.addTo(map);
+        });
+
+        if (markers.length > 0) {
+            const group = new L.featureGroup(markers);
+            const bounds = group.getBounds();
+            
+            // Fit bounds with some padding so markers aren't on the edge
+            map.fitBounds(bounds, { padding: [30, 30] });
+
+            // Add Reset View Button
+            const ResetControl = L.Control.extend({
+                options: { position: 'topleft' },
+                onAdd: function() {
+                    const btn = L.DomUtil.create('button', 'leaflet-bar map-reset-btn');
+                    btn.innerHTML = '&#8634;'; // Reset icon
+                    btn.title = 'Ansicht zurücksetzen';
+                    btn.onclick = function() {
+                        map.fitBounds(bounds, { padding: [30, 30] });
+                    };
+                    return btn;
+                }
+            });
+            map.addControl(new ResetControl());
+        } else {
+            map.setView([51.165, 10.451], 6); // Default Germany view
+        }
+    })();
 });
