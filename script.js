@@ -44,7 +44,14 @@ document.addEventListener('DOMContentLoaded', () => {
             W = canvas.width  = rect.width;
             H = canvas.height = rect.height;
         }
-        window.addEventListener('resize', resize);
+        
+        let lastWidth = window.innerWidth;
+        window.addEventListener('resize', () => {
+            if (window.innerWidth !== lastWidth) {
+                lastWidth = window.innerWidth;
+                resize();
+            }
+        });
         resize();
 
         // Draw original wrap silhouette (rounded rect + stripes + stick)

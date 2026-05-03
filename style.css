@@ -2459,6 +2459,7 @@ section {
 /* Contact Section */
 .contact-section {
     min-height: calc(100vh - 240px);
+    min-height: calc(100dvh - 240px);
     display: flex;
     flex-direction: column;
     padding-bottom: 40px;
@@ -2757,6 +2758,7 @@ body.modal-open {
 
 .contact-section {
     min-height: calc(100vh - 240px);
+    min-height: calc(100dvh - 240px);
     display: flex;
     flex-direction: column;
     padding-bottom: 0;
