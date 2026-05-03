@@ -1279,4 +1279,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         resize();
     })();
+
+    // ── Next up Ticker ───────────────────────────────────────────
+    (function initNextUp() {
+        const ticker = document.getElementById('next-up-ticker');
+        if (!ticker || typeof upcomingSpots === 'undefined') return;
+
+        const renderItems = (items) => {
+            return items.map(spot => `
+                <div class="next-up-item">
+                    <span class="next-up-name">${spot.name}</span>
+                    <span class="next-up-city">${spot.city}</span>
+                </div>
+                <span class="next-up-separator">/</span>
+            `).join('');
+        };
+
+        // Populate ticker twice to allow seamless infinite scroll
+        const tickerContent = renderItems(upcomingSpots);
+        ticker.innerHTML = tickerContent + tickerContent;
+    })();
 });

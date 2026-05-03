@@ -336,3 +336,11 @@ const kebabData = [
         besuche: 1
     }
 ];
+
+const upcomingSpots = [
+    { name: "Hans Kebab", city: "München" },
+    { name: "Berlin'er Gemüse Döner", city: "Dresden" },
+    { name: "Jami's Gemüse Kebab", city: "Dresden" },
+    { name: "Der Dicke Schmidt Neustadt", city: "Dresden" },
+    { name: "Golt'z kebap", city: "Berlin" }
+];

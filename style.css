@@ -2781,6 +2781,115 @@ body.modal-open {
     border-bottom-right-radius: 0 !important;
 }
 
+/* Next up Subsection - Ticker Version */
+.next-up-section {
+    margin-top: 60px;
+    padding-top: 30px;
+    border-top: 1px solid var(--border-color);
+}
+
+.next-up-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.next-up-badge {
+    background: #000;
+    color: #fff;
+    padding: 4px 10px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    border-radius: 4px;
+}
+
+.next-up-info {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.next-up-ticker-wrapper {
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px dashed var(--border-color);
+    padding: 12px 0;
+    border-radius: 12px;
+    position: relative;
+    white-space: nowrap;
+}
+
+/* Masking gradients for smooth entry/exit */
+.next-up-ticker-wrapper::before,
+.next-up-ticker-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.next-up-ticker-wrapper::before {
+    left: 0;
+    background: linear-gradient(to right, #fff, transparent);
+}
+
+.next-up-ticker-wrapper::after {
+    right: 0;
+    background: linear-gradient(to left, #fff, transparent);
+}
+
+.next-up-ticker {
+    display: inline-flex;
+    animation: ticker-scroll 30s linear infinite;
+    gap: 40px;
+    padding-left: 20px;
+}
+
+.next-up-item {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.next-up-name {
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+
+.next-up-city {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.next-up-separator {
+    color: var(--border-color);
+    font-weight: 300;
+}
+
+@keyframes ticker-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* Hover to pause for readability */
+.next-up-ticker-wrapper:hover .next-up-ticker {
+    animation-play-state: paused;
+}
+
+@media (max-width: 900px) {
+    .next-up-ticker {
+        animation-duration: 20s; /* Faster on mobile since less width to cover */
+    }
+}
+
 /* Accessibility: disable heavy animations for users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
     *,
