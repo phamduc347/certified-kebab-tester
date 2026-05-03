@@ -363,8 +363,19 @@ body.lightbox-open {
 }
 
 .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.1em;
     margin-bottom: 0;
     cursor: pointer;
+    font-size: 1.5rem;
+}
+
+.logo-img {
+    height: 1.8rem;
+    width: auto;
+    display: block;
+    transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .logo-prefix {
@@ -379,7 +390,7 @@ body.lightbox-open {
 }
 
 .logo-main {
-    font-size: 1.5rem;
+    font-size: inherit;
     font-weight: 800;
     letter-spacing: -1px;
     color: var(--text-main);
@@ -447,9 +458,17 @@ body.lightbox-open {
     }
 
     .logo-main {
-        font-size: 1.1rem;
+        font-size: inherit;
         font-weight: 800;
         letter-spacing: -0.5px;
+    }
+
+    .logo {
+        font-size: 1.1rem;
+    }
+
+    .logo-img {
+        height: 1.4rem;
     }
     
     .logo-prefix {
@@ -469,7 +488,15 @@ body.lightbox-open {
     }
 
     .logo-main {
+        font-size: inherit;
+    }
+
+    .logo {
         font-size: 0.95rem;
+    }
+
+    .logo-img {
+        height: 1.2rem;
     }
 }
 
