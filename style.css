@@ -2810,13 +2810,14 @@ body.modal-open {
 .next-up-ticker-bar {
     display: flex;
     align-items: center;
-    background: var(--bg-secondary);
+    background: var(--bg-main);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 12px;
+    height: 52px;
     overflow: hidden;
-    height: 48px;
     margin-top: 40px;
-    margin-bottom: 20px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .next-up-ticker-label {
@@ -2839,13 +2840,22 @@ body.modal-open {
     height: 6px;
     background: #4ade80;
     border-radius: 50%;
-    animation: pulse 2s infinite;
+    animation: pulse-breathing 1.5s infinite ease-in-out;
 }
 
-@keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4); }
-    70% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+@keyframes pulse-breathing {
+    0% {
+        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+        transform: scale(0.95);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(74, 222, 128, 0);
+        transform: scale(1.2);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+        transform: scale(0.95);
+    }
 }
 
 .next-up-ticker-wrapper {
@@ -2891,23 +2901,46 @@ body.modal-open {
 
 .next-up-item {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 8px;
+    padding: 0 10px;
     flex-shrink: 0;
 }
 
+.next-up-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.next-up-main {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
 .next-up-name {
-    font-weight: 700;
-    font-size: 0.85rem;
+    font-weight: 800;
+    font-size: 0.9rem;
     color: var(--text-main);
+    white-space: nowrap;
 }
 
 .next-up-city {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 1px;
-    font-weight: 600;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.next-up-desc {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-style: italic;
+    white-space: nowrap;
+    opacity: 0.8;
 }
 
 .next-up-separator {

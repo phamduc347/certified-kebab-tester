@@ -1298,8 +1298,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const renderItems = (items) => {
             return items.map(spot => `
                 <div class="next-up-item" data-spot="${spot.name}" style="cursor: pointer;" title="Auf Karte zeigen">
-                    <span class="next-up-name">${spot.name}</span>
-                    <span class="next-up-city">${spot.city}</span>
+                    <div class="next-up-info">
+                        <div class="next-up-main">
+                            <span class="next-up-name">${spot.name}</span>
+                            <span class="next-up-city">${spot.city}</span>
+                        </div>
+                        ${spot.description ? `<span class="next-up-desc">${spot.description}</span>` : ''}
+                    </div>
                 </div>
                 <span class="next-up-separator">/</span>
             `).join('');
