@@ -1330,7 +1330,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const map = L.map('next-up-map', {
-            scrollWheelZoom: false,
+            scrollWheelZoom: true,
             dragging: !L.Browser.mobile,
             tap: !L.Browser.mobile
         });
