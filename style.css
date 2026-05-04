@@ -2252,7 +2252,7 @@ section {
     border-radius: 12px;
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 .award-tile:hover {
