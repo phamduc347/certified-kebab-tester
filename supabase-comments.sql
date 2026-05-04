@@ -39,10 +39,4 @@ create policy "Public can insert review comments"
         and char_length(author) between 2 and 40
         and char_length(comment_text) between 3 and 500
         and comment_text !~* '(https?://|www\.)'
-        and (
-            select count(*)
-            from public.review_comments rc
-            where lower(rc.author) = lower(review_comments.author)
-              and rc.created_at > now() - interval '10 minutes'
-        ) < 4
     );

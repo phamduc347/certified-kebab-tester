@@ -490,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (submitButton) submitButton.disabled = false;
 
         if (error) {
-            if (status) status.textContent = 'Fehler beim Speichern.';
+            if (status) status.textContent = error.message ? `Fehler: ${error.message}` : 'Fehler beim Speichern.';
             return;
         }
 
