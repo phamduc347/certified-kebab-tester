@@ -193,35 +193,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const DEFAULT_SUPABASE_URL = 'https://ehmrxhrfbejcaocpxfed.supabase.co';
     const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVobXJ4aHJmYmVqY2FvY3B4ZmVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4ODc0NzAsImV4cCI6MjA5MzQ2MzQ3MH0.dBcRE6zF9Bnso3A4eDHuhlLX3Sd5pD9AQq71ScnVc1Y';
 
-    const supabaseConfig = window.SUPABASE_CONFIG || {};
-    const rawSupabaseUrl = typeof supabaseConfig.url === 'string'
-        ? supabaseConfig.url.trim()
-        : DEFAULT_SUPABASE_URL;
-    const normalizedSupabaseUrl = rawSupabaseUrl
-        .replace(/\/+$/, '')
-        .replace(/\/rest\/v1$/i, '');
+    function buildSupabaseConfig() {
+        const supabaseConfig = window.SUPABASE_CONFIG || {};
+        const rawSupabaseUrl = typeof supabaseConfig.url === 'string' && supabaseConfig.url.trim()
+            ? supabaseConfig.url.trim()
+            : DEFAULT_SUPABASE_URL;
 
-    let supabaseUrl = '';
-    try {
-        const parsed = new URL(normalizedSupabaseUrl);
-        supabaseUrl = `${parsed.protocol}//${parsed.host}`;
-    } catch (_) {
-        supabaseUrl = DEFAULT_SUPABASE_URL;
+        const normalizedSupabaseUrl = rawSupabaseUrl
+            .replace(/\/+$/, '')
+            .replace(/\/rest\/v1$/i, '');
+
+        let supabaseUrl = DEFAULT_SUPABASE_URL;
+        try {
+            const parsed = new URL(normalizedSupabaseUrl);
+            supabaseUrl = `${parsed.protocol}//${parsed.host}`;
+        } catch (_) {
+            supabaseUrl = DEFAULT_SUPABASE_URL;
+        }
+
+        const supabaseAnonKey = typeof supabaseConfig.anonKey === 'string' && supabaseConfig.anonKey.trim()
+            ? supabaseConfig.anonKey.trim()
+            : DEFAULT_SUPABASE_ANON_KEY;
+
+        return { supabaseUrl, supabaseAnonKey };
     }
 
-    const supabaseAnonKey = typeof supabaseConfig.anonKey === 'string' && supabaseConfig.anonKey.trim()
-        ? supabaseConfig.anonKey.trim()
-        : DEFAULT_SUPABASE_ANON_KEY;
-
     let supabaseClient = null;
-    if (window.supabase && supabaseUrl && supabaseAnonKey) {
+    function ensureSupabaseClient() {
+        if (supabaseClient) return supabaseClient;
+        if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+            return null;
+        }
+
+        const { supabaseUrl, supabaseAnonKey } = buildSupabaseConfig();
+        if (!supabaseUrl || !supabaseAnonKey) {
+            return null;
+        }
+
         try {
             supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+            return supabaseClient;
         } catch (err) {
             console.error('Supabase init failed:', err);
             supabaseClient = null;
+            return null;
         }
     }
+
+    supabaseClient = ensureSupabaseClient();
 
     const commentsBySpot = new Map();
     let commentsReady = !supabaseClient;
@@ -428,12 +447,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadReviewComments() {
-        if (!supabaseClient) return;
+        const client = ensureSupabaseClient();
+        if (!client) return;
 
         commentsReady = false;
         commentsLoadError = false;
 
-        const { data, error } = await supabaseClient
+        const { data, error } = await client
             .from('review_comments')
             .select('id, spot_id, author, comment_text, created_at')
             .eq('is_approved', true)
@@ -463,8 +483,6 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         event.stopPropagation();
 
-        if (!supabaseClient) return;
-
         const form = event.currentTarget;
         const spotId = Number(form.dataset.spotId);
         const authorInput = form.querySelector('input[name="author"]');
@@ -472,6 +490,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const websiteInput = form.querySelector('input[name="website"]');
         const submitButton = form.querySelector('button[type="submit"]');
         const status = form.querySelector('.comment-form-status');
+
+        const client = ensureSupabaseClient();
+        if (!client) {
+            if (status) status.textContent = 'Kommentarservice aktuell nicht verfuegbar.';
+            return;
+        }
 
         const authorValue = (authorInput?.value || '').trim() || 'Anonym';
         const commentValue = (commentInput?.value || '').trim();
@@ -502,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (submitButton) submitButton.disabled = true;
         if (status) status.textContent = 'Senden...';
 
-        const { error } = await supabaseClient
+        const { error } = await client
             .from('review_comments')
             .insert({
                 spot_id: spotId,
