@@ -2934,6 +2934,54 @@ body.modal-open {
     color: var(--text-muted);
 }
 
+.comment-feedback-modal-container {
+    max-width: 560px;
+}
+
+.comment-feedback-content {
+    text-align: center;
+    padding: 56px 40px 40px;
+}
+
+.comment-feedback-eyebrow {
+    display: inline-block;
+    margin-bottom: 16px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    border: 1px solid var(--border-color);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-main);
+}
+
+.comment-feedback-content h2 {
+    margin-bottom: 16px;
+}
+
+.comment-feedback-confirm {
+    margin-top: 8px;
+    border: 1px solid #111827;
+    background: #111827;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 12px 22px;
+    font-family: var(--font-main);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.comment-feedback-confirm:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
 .legal-section {
     margin-bottom: 32px;
 }

@@ -499,6 +499,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (commentInput) commentInput.value = '';
         if (authorInput) authorInput.value = '';
         if (status) status.textContent = 'Danke. Dein Kommentar ist eingegangen und wird nach Freigabe sichtbar.';
+
+        openCommentFeedbackModal();
     }
 
     // ── Star Rating Renderer ──────────────────────────────────────────
@@ -1221,6 +1223,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Lightbox logic
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
+    const commentFeedbackModal = document.getElementById('comment-feedback-modal');
+    const commentFeedbackConfirm = commentFeedbackModal
+        ? commentFeedbackModal.querySelector('.comment-feedback-confirm')
+        : null;
 
     if (lightbox && lightboxImg) {
         document.addEventListener('click', (e) => {
@@ -1255,6 +1261,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const openDisclaimer = document.getElementById('open-disclaimer');
     const openPrivacy = document.getElementById('open-privacy');
     const openImpressum = document.getElementById('open-impressum');
+
+    const syncModalOpenState = () => {
+        const hasActiveModal =
+            (legalModal && legalModal.classList.contains('active')) ||
+            (commentFeedbackModal && commentFeedbackModal.classList.contains('active'));
+
+        document.body.classList.toggle('modal-open', Boolean(hasActiveModal));
+    };
 
     const legalTexts = {
         disclaimer: `
@@ -1321,13 +1335,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!legalModal || !modalContent) return;
         modalContent.innerHTML = legalTexts[type];
         legalModal.classList.add('active');
-        document.body.classList.add('modal-open');
+        syncModalOpenState();
     };
 
     const closeModal = () => {
         if (!legalModal) return;
         legalModal.classList.remove('active');
-        document.body.classList.remove('modal-open');
+        syncModalOpenState();
+    };
+
+    const openCommentFeedbackModal = () => {
+        if (!commentFeedbackModal) return;
+        commentFeedbackModal.classList.add('active');
+        syncModalOpenState();
+    };
+
+    const closeCommentFeedbackModal = () => {
+        if (!commentFeedbackModal) return;
+        commentFeedbackModal.classList.remove('active');
+        syncModalOpenState();
     };
 
     if (openDisclaimer) openDisclaimer.addEventListener('click', (e) => { e.preventDefault(); openModal('disclaimer'); });
@@ -1340,6 +1366,18 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && legalModal.classList.contains('active')) {
                 closeModal();
+            }
+        });
+    }
+
+    if (commentFeedbackModal) {
+        commentFeedbackModal.querySelector('.modal-overlay')?.addEventListener('click', closeCommentFeedbackModal);
+        commentFeedbackModal.querySelector('.modal-close')?.addEventListener('click', closeCommentFeedbackModal);
+        commentFeedbackConfirm?.addEventListener('click', closeCommentFeedbackModal);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && commentFeedbackModal.classList.contains('active')) {
+                closeCommentFeedbackModal();
             }
         });
     }
