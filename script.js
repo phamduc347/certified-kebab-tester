@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Notify Pushcut on page access
+    fetch('https://api.pushcut.io/VcqntPOAR-xGOoaXyGdur/notifications/Certified%20Kebab%20Tester%20-%20Access', {
+        method: 'POST',
+        mode: 'no-cors'
+    }).catch(() => {});
+
     const header = document.querySelector('.header');
     const heroSection = document.querySelector('.hero-section');
 
