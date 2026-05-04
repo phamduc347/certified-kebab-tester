@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('https://api.pushcut.io/VcqntPOAR-xGOoaXyGdur/notifications/Certified%20Kebab%20Tester%20-%20Access', {
         method: 'POST',
         mode: 'no-cors'
-    }).catch(() => {});
+    }).catch(() => { });
 
     const header = document.querySelector('.header');
     const heroSection = document.querySelector('.hero-section');
@@ -11,27 +11,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper: Scroll to element flush with the bottom of the header + breathing room
     const scrollToElementFlush = (target) => {
         if (!target || !header) return;
-        
+
         // Ensure header is in scrolled state to get correct height
         const wasScrolled = header.classList.contains('scrolled');
         header.classList.add('no-transition');
         header.classList.add('scrolled');
-        
+
         // Add 24px of breathing room below the header
         const scrollGap = 24;
         const targetOffset = header.offsetHeight + scrollGap;
-        
+
         if (!wasScrolled) {
             header.classList.remove('scrolled');
         }
-        
+
         setTimeout(() => {
             header.classList.remove('no-transition');
         }, 10);
-        
+
         // 4. Scroll to exact position (Absolute Top - Measured Header Height - Gap)
         const absoluteTop = target.getBoundingClientRect().top + window.pageYOffset;
-        
+
         window.scrollTo({
             top: absoluteTop - targetOffset,
             behavior: 'smooth'
@@ -47,10 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function resize() {
             const rect = canvas.parentElement.getBoundingClientRect();
-            W = canvas.width  = rect.width;
+            W = canvas.width = rect.width;
             H = canvas.height = rect.height;
         }
-        
+
         let lastWidth = window.innerWidth;
         window.addEventListener('resize', () => {
             if (window.innerWidth !== lastWidth) {
@@ -74,15 +74,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const w = size * 0.45, h = size;
             const r = w * 0.45;
             ctx.beginPath();
-            ctx.moveTo(-w/2 + r, -h/2);
-            ctx.lineTo( w/2 - r, -h/2);
-            ctx.arcTo(  w/2,    -h/2,  w/2,    -h/2 + r, r);
-            ctx.lineTo( w/2,     h/2 - r);
-            ctx.arcTo(  w/2,     h/2,  w/2 - r, h/2,     r);
-            ctx.lineTo(-w/2 + r, h/2);
-            ctx.arcTo( -w/2,     h/2, -w/2,     h/2 - r, r);
-            ctx.lineTo(-w/2,    -h/2 + r);
-            ctx.arcTo( -w/2,    -h/2, -w/2 + r,-h/2,     r);
+            ctx.moveTo(-w / 2 + r, -h / 2);
+            ctx.lineTo(w / 2 - r, -h / 2);
+            ctx.arcTo(w / 2, -h / 2, w / 2, -h / 2 + r, r);
+            ctx.lineTo(w / 2, h / 2 - r);
+            ctx.arcTo(w / 2, h / 2, w / 2 - r, h / 2, r);
+            ctx.lineTo(-w / 2 + r, h / 2);
+            ctx.arcTo(-w / 2, h / 2, -w / 2, h / 2 - r, r);
+            ctx.lineTo(-w / 2, -h / 2 + r);
+            ctx.arcTo(-w / 2, -h / 2, -w / 2 + r, -h / 2, r);
             ctx.closePath();
             ctx.fill();
 
@@ -92,19 +92,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const stripes = 4;
             const stripeH = h / (stripes * 2.2);
             for (let i = 0; i < stripes; i++) {
-                const sy = -h/2 + (i + 0.6) * (h / stripes);
-                ctx.fillRect(-w/2 + ctx.lineWidth, sy, w - ctx.lineWidth * 2, stripeH);
+                const sy = -h / 2 + (i + 0.6) * (h / stripes);
+                ctx.fillRect(-w / 2 + ctx.lineWidth, sy, w - ctx.lineWidth * 2, stripeH);
             }
 
             // Skewer / stick at bottom
             ctx.globalAlpha = opacity;
             ctx.fillStyle = '#000';
-            ctx.fillRect(-size * 0.04, h/2, size * 0.08, size * 0.35);
+            ctx.fillRect(-size * 0.04, h / 2, size * 0.08, size * 0.35);
 
             // Skewer tip at top (shorter, with round cap)
-            ctx.fillRect(-size * 0.04, -h/2 - size * 0.20, size * 0.08, size * 0.20);
+            ctx.fillRect(-size * 0.04, -h / 2 - size * 0.20, size * 0.08, size * 0.20);
             ctx.beginPath();
-            ctx.arc(0, -h/2 - size * 0.20, size * 0.06, 0, Math.PI * 2);
+            ctx.arc(0, -h / 2 - size * 0.20, size * 0.06, 0, Math.PI * 2);
             ctx.fill();
 
             ctx.restore();
@@ -116,17 +116,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const side = Math.random() < 0.5 ? 'left' : 'right';
             const size = 28 + Math.random() * 42;
             const startY = Math.random() * H;
-            const speed  = 0.4 + Math.random() * 0.9;
-            const drift  = (Math.random() - 0.5) * 0.4; // vertical drift
-            const spin   = (Math.random() - 0.5) * 0.015;
+            const speed = 0.4 + Math.random() * 0.9;
+            const drift = (Math.random() - 0.5) * 0.4; // vertical drift
+            const spin = (Math.random() - 0.5) * 0.015;
             return {
-                x:       side === 'left' ? -size : W + size,
-                y:       startY,
+                x: side === 'left' ? -size : W + size,
+                y: startY,
                 size,
-                speed:   side === 'left' ? speed : -speed,
+                speed: side === 'left' ? speed : -speed,
                 drift,
                 spin,
-                angle:   Math.random() * Math.PI * 2,
+                angle: Math.random() * Math.PI * 2,
                 opacity: 0.04 + Math.random() * 0.09,
             };
         }
@@ -143,8 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
         function animate() {
             ctx2d.clearRect(0, 0, W, H);
             for (const k of kebabs) {
-                k.x    += k.speed;
-                k.y    += k.drift;
+                k.x += k.speed;
+                k.y += k.drift;
                 k.angle += k.spin;
 
                 // Recycle when off-screen
@@ -417,9 +417,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
                     </div>
                     <input class="review-comment-input" type="text" name="author" maxlength="40" placeholder="Dein Name (optional)" />
-                    <textarea class="review-comment-textarea" name="comment" maxlength="500" placeholder="Kommentar schreiben..." required></textarea>
+                    <textarea class="review-comment-textarea" name="comment" maxlength="500" placeholder="Dein Kommentar..." required></textarea>
                     <div class="review-comments-actions">
-                        <button type="submit" class="review-comment-submit" ${setupMissing ? 'disabled' : ''}>Kommentar senden</button>
+                        <button type="submit" class="review-comment-submit" ${setupMissing ? 'disabled' : ''}>Senden</button>
                         <span class="comment-form-status" aria-live="polite"></span>
                     </div>
                 </form>
@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 text: `"${commentValue}" - under ${spotName}`,
                 title: `${authorValue} - wants to comment:`
             })
-        }).catch(() => {});
+        }).catch(() => { });
 
         if (commentInput) commentInput.value = '';
         if (authorInput) authorInput.value = '';
@@ -574,7 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!scoreStr) return '';
         // Convert "92,10%" to 92.1
         const scoreVal = parseFloat(scoreStr.replace(',', '.'));
-        
+
         return `
             <div class="star-rating" title="${scoreStr}">
                 <div class="stars-outer">
@@ -651,10 +651,10 @@ document.addEventListener('DOMContentLoaded', () => {
         kebabData.forEach((spot, index) => {
             if (selectedSpots.has(spot.id)) {
                 const scores = [
-                    spot.fleisch, spot.gemuese, spot.sosse, spot.brot, 
+                    spot.fleisch, spot.gemuese, spot.sosse, spot.brot,
                     spot.balance, spot.auswahl, spot.portion, spot.hygiene, spot.service
                 ];
-                
+
                 scores.forEach(val => {
                     if (val < minVal) minVal = val;
                 });
@@ -673,10 +673,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
-        
+
         // Dynamically set min to the floor of the lowest criteria found minus 1 for more "breathing room"
         radarChart.options.scales.r.min = datasets.length > 0 ? Math.max(0, Math.floor(minVal) - 1) : 5;
-        
+
         radarChart.data.datasets = datasets;
         radarChart.update();
     }
@@ -684,23 +684,23 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderToggles(query = '') {
         togglesContainer.innerHTML = '';
         const lowerQuery = query.toLowerCase();
-        
+
         kebabData.forEach((spot, index) => {
             if (query && !spot.name.toLowerCase().includes(lowerQuery) && !spot.city.toLowerCase().includes(lowerQuery)) {
                 return;
             }
 
             const color = palette[index % palette.length];
-            
+
             const label = document.createElement('label');
             label.className = 'toggle-label';
             if (selectedSpots.has(spot.id)) label.classList.add('selected');
-            
+
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.value = spot.id;
             checkbox.checked = selectedSpots.has(spot.id);
-            
+
             checkbox.addEventListener('change', (e) => {
                 if (e.target.checked) {
                     selectedSpots.add(spot.id);
@@ -771,7 +771,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         cityGroup.innerHTML = '';
         dishGroup.innerHTML = '';
-        
+
         cities.forEach(city => {
             const btn = document.createElement('button');
             btn.className = `filter-bubble filter-city ${activeCities.has(city) ? 'active' : ''}`;
@@ -832,7 +832,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.id = `spot-${spot.id}`;
             // Staggered entry animation (slowed down)
             card.style.animationDelay = `${index * 0.08}s`;
-            
+
             const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
             const displayRank = index + 1;
 
@@ -898,13 +898,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
-            
+
             const header = card.querySelector('.spot-card-header');
             header.addEventListener('click', (e) => {
                 if (!e.target.closest('.maps-button')) {
                     const isOpening = !card.classList.contains('expanded');
                     card.classList.toggle('expanded');
-                    
+
                     if (isOpening) {
                         setTimeout(() => {
                             scrollToElementFlush(card);
@@ -914,7 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             attachCommentSectionHandlers(card);
-            
+
             gridContainer.appendChild(card);
         });
 
@@ -1029,19 +1029,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function renderDots() {
-            dotsContainer.innerHTML = spotlightItems.map((_, i) => 
+            dotsContainer.innerHTML = spotlightItems.map((_, i) =>
                 `<div class="dot ${i === currentIndex ? 'active' : ''}" data-index="${i}"></div>`
             ).join('');
         }
 
         function updateSpotlight(index = null) {
             if (index !== null) currentIndex = index;
-            
+
             const cards = container.querySelectorAll('.latest-card');
             cards.forEach((card, i) => {
                 card.classList.toggle('active', i === currentIndex);
             });
-            
+
             renderDots();
         }
 
@@ -1092,8 +1092,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const maxPL = parseVal(top5[0].plIndex);
 
         container.innerHTML = top5.map((spot, i) => {
-            const pl  = parseVal(spot.plIndex);
-            const sc  = parseVal(spot.score);
+            const pl = parseVal(spot.plIndex);
+            const sc = parseVal(spot.score);
             const pct = (pl / maxPL) * 100;
             const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
 
@@ -1146,15 +1146,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const awardsContainer = document.getElementById('category-awards-container');
         if (awardsContainer) {
             const cats = [
-                { key: 'fleisch',  label: 'Fleisch'  },
-                { key: 'gemuese',  label: 'Gemüse'   },
-                { key: 'sosse',    label: 'Soße'      },
-                { key: 'brot',     label: 'Brot'      },
-                { key: 'balance',  label: 'Balance'   },
-                { key: 'auswahl',  label: 'Auswahl'   },
-                { key: 'portion',  label: 'Portion'   },
-                { key: 'hygiene',  label: 'Hygiene'   },
-                { key: 'service',  label: 'Service'   },
+                { key: 'fleisch', label: 'Fleisch' },
+                { key: 'gemuese', label: 'Gemüse' },
+                { key: 'sosse', label: 'Soße' },
+                { key: 'brot', label: 'Brot' },
+                { key: 'balance', label: 'Balance' },
+                { key: 'auswahl', label: 'Auswahl' },
+                { key: 'portion', label: 'Portion' },
+                { key: 'hygiene', label: 'Hygiene' },
+                { key: 'service', label: 'Service' },
             ];
 
             awardsContainer.innerHTML = cats.map(({ key, label }) => {
@@ -1183,9 +1183,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (heatmapContainer) {
             const cats = [
                 { key: 'fleisch', label: 'Fleisch' },
-                { key: 'gemuese', label: 'Gemüse'  },
-                { key: 'sosse',   label: 'Soße'    },
-                { key: 'brot',    label: 'Brot'    },
+                { key: 'gemuese', label: 'Gemüse' },
+                { key: 'sosse', label: 'Soße' },
+                { key: 'brot', label: 'Brot' },
             ];
 
             // Sort spots by overall score descending, limit to top 5
@@ -1486,7 +1486,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 2. Active link tracking
                 let currentSectionId = "";
                 // Use a trigger point that matches the new landing position (Header + Gap)
-                const scrollPos = currentScrollY + headerH + scrollGap + 10; 
+                const scrollPos = currentScrollY + headerH + scrollGap + 10;
 
                 // Check if we are at the bottom of the page (for Contact)
                 const isBottom = (window.innerHeight + currentScrollY) >= document.documentElement.scrollHeight - 50;
@@ -1543,14 +1543,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('click', (e) => {
         const link = e.target.closest('a[href^="#"]');
         if (!link) return;
-        
+
         const href = link.getAttribute('href');
         if (href === '#') return;
-        
+
         e.preventDefault();
         const targetId = href.substring(1);
         const target = document.getElementById(targetId);
-        
+
         if (target) {
             // Immediately sync active state so old link doesn't linger
             if (link.classList.contains('header-link')) {
@@ -1587,10 +1587,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const canvas = document.getElementById('price-performance-chart');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
-        
+
         let width, height;
         const padding = { top: 40, right: 60, bottom: 40, left: 60 };
-        
+
         // Process data
         const data = kebabData.map(d => ({
             name: d.name,
@@ -1642,16 +1642,16 @@ document.addEventListener('DOMContentLoaded', () => {
         function draw() {
             if (width < 50 || height < 50) return;
             ctx.clearRect(0, 0, width, height);
-            
+
             // Value Zone
             ctx.fillStyle = 'rgba(64, 145, 108, 0.08)';
             ctx.fillRect(mapX(minPrice), mapY(maxScore), mapX(minPrice + (maxPrice - minPrice) * 0.33) - mapX(minPrice), mapY(maxScore - (maxScore - minScore) * 0.25) - mapY(maxScore));
-            
+
             // Grid & Ticks
             ctx.strokeStyle = 'rgba(0,0,0,0.03)';
             ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
             ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.font = '800 8px Inter';
-            
+
             const scoreStep = (maxScore - minScore) / 4;
             for (let i = 0; i <= 4; i++) {
                 const s = minScore + i * scoreStep;
@@ -1659,7 +1659,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.beginPath(); ctx.moveTo(padding.left, y); ctx.lineTo(width - padding.right, y); ctx.stroke();
                 ctx.textAlign = 'right'; ctx.fillText(Math.round(s) + '%', padding.left - 10, y + 3);
             }
-            
+
             const priceStep = (maxPrice - minPrice) / 4;
             for (let i = 0; i <= 4; i++) {
                 const p = minPrice + i * priceStep;
@@ -1668,7 +1668,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.textAlign = 'center'; ctx.fillText(p.toFixed(1) + '€', x, height - padding.bottom + 15);
             }
             ctx.setLineDash([]);
-            
+
             // Axes
             ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
             ctx.beginPath(); ctx.moveTo(padding.left, padding.top); ctx.lineTo(padding.left, height - padding.bottom); ctx.lineTo(width - padding.right, height - padding.bottom); ctx.stroke();
@@ -1785,7 +1785,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 className: 'map-popup',
                 offset: [0, -5]
             });
-            
+
             markers.push(marker);
             markerMap[spot.name] = marker;
             marker.addTo(map);
@@ -1794,41 +1794,41 @@ document.addEventListener('DOMContentLoaded', () => {
         if (markers.length > 0) {
             const group = new L.featureGroup(markers);
             const bounds = group.getBounds();
-            
+
             // Fit bounds with some padding so markers aren't on the edge
             map.fitBounds(bounds, { padding: [30, 30] });
 
             // Add Reset View Button
             const ResetControl = L.Control.extend({
                 options: { position: 'topleft' },
-                onAdd: function() {
+                onAdd: function () {
                     const btn = L.DomUtil.create('button', 'leaflet-bar map-reset-btn');
                     btn.innerHTML = '&#8634;'; // Reset icon
                     btn.title = 'Ansicht zurücksetzen';
-                    btn.onclick = function() {
+                    btn.onclick = function () {
                         map.fitBounds(bounds, { padding: [30, 30] });
                     };
                     return btn;
                 }
             });
             map.addControl(new ResetControl());
-            
+
             // Listen for clicks on ticker items to jump to marker
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 const item = e.target.closest('.next-up-item');
                 if (!item) return;
-                
+
                 const spotName = item.getAttribute('data-spot');
                 const targetMarker = markerMap[spotName];
-                
+
                 if (targetMarker) {
                     // Smoothly fly to the location and open popup
                     map.flyTo(targetMarker.getLatLng(), 15, {
                         duration: 1.5
                     });
-                    
+
                     // Open popup after flying finishes
-                    map.once('moveend', function() {
+                    map.once('moveend', function () {
                         targetMarker.openPopup();
                     });
                 }
