@@ -196,9 +196,16 @@ document.addEventListener('DOMContentLoaded', () => {
         .replace(/\/+$/, '')
         .replace(/\/rest\/v1$/i, '');
     const supabaseAnonKey = typeof supabaseConfig.anonKey === 'string' ? supabaseConfig.anonKey.trim() : '';
-    const supabaseClient = (window.supabase && supabaseUrl && supabaseAnonKey)
-        ? window.supabase.createClient(supabaseUrl, supabaseAnonKey)
-        : null;
+
+    let supabaseClient = null;
+    if (window.supabase && supabaseUrl && supabaseAnonKey) {
+        try {
+            supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+        } catch (err) {
+            console.error('Supabase init failed:', err);
+            supabaseClient = null;
+        }
+    }
 
     const commentsBySpot = new Map();
     let commentsReady = !supabaseClient;
