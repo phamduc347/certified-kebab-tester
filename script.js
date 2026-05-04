@@ -190,12 +190,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // Chart Configuration
     const categories = ['Fleisch', 'Gemüse', 'Soße', 'Brot', 'Balance', 'Auswahl', 'Portion', 'Hygiene', 'Service'];
 
+    const DEFAULT_SUPABASE_URL = 'https://ehmrxhrfbejcaocpxfed.supabase.co';
+    const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVobXJ4aHJmYmVqY2FvY3B4ZmVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4ODc0NzAsImV4cCI6MjA5MzQ2MzQ3MH0.dBcRE6zF9Bnso3A4eDHuhlLX3Sd5pD9AQq71ScnVc1Y';
+
     const supabaseConfig = window.SUPABASE_CONFIG || {};
-    const rawSupabaseUrl = typeof supabaseConfig.url === 'string' ? supabaseConfig.url.trim() : '';
-    const supabaseUrl = rawSupabaseUrl
+    const rawSupabaseUrl = typeof supabaseConfig.url === 'string'
+        ? supabaseConfig.url.trim()
+        : DEFAULT_SUPABASE_URL;
+    const normalizedSupabaseUrl = rawSupabaseUrl
         .replace(/\/+$/, '')
         .replace(/\/rest\/v1$/i, '');
-    const supabaseAnonKey = typeof supabaseConfig.anonKey === 'string' ? supabaseConfig.anonKey.trim() : '';
+
+    let supabaseUrl = '';
+    try {
+        const parsed = new URL(normalizedSupabaseUrl);
+        supabaseUrl = `${parsed.protocol}//${parsed.host}`;
+    } catch (_) {
+        supabaseUrl = DEFAULT_SUPABASE_URL;
+    }
+
+    const supabaseAnonKey = typeof supabaseConfig.anonKey === 'string' && supabaseConfig.anonKey.trim()
+        ? supabaseConfig.anonKey.trim()
+        : DEFAULT_SUPABASE_ANON_KEY;
 
     let supabaseClient = null;
     if (window.supabase && supabaseUrl && supabaseAnonKey) {
