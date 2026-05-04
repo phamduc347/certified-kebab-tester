@@ -190,6 +190,329 @@ document.addEventListener('DOMContentLoaded', () => {
     // Chart Configuration
     const categories = ['Fleisch', 'Gemüse', 'Soße', 'Brot', 'Balance', 'Auswahl', 'Portion', 'Hygiene', 'Service'];
 
+    const supabaseConfig = window.SUPABASE_CONFIG || {};
+    const rawSupabaseUrl = typeof supabaseConfig.url === 'string' ? supabaseConfig.url.trim() : '';
+    const supabaseUrl = rawSupabaseUrl
+        .replace(/\/+$/, '')
+        .replace(/\/rest\/v1$/i, '');
+    const supabaseAnonKey = typeof supabaseConfig.anonKey === 'string' ? supabaseConfig.anonKey.trim() : '';
+    const supabaseClient = (window.supabase && supabaseUrl && supabaseAnonKey)
+        ? window.supabase.createClient(supabaseUrl, supabaseAnonKey)
+        : null;
+
+    const commentsBySpot = new Map();
+    let commentsReady = !supabaseClient;
+    let commentsLoadError = false;
+
+    const COMMENT_LOCKS_STORAGE_KEY = 'ckt_comment_locks_v1';
+    const COMMENT_COOLDOWN_MS = 30 * 1000;
+    const COMMENT_RATE_WINDOW_MS = 10 * 60 * 1000;
+    const COMMENT_RATE_MAX = 4;
+    const COMMENT_BLOCK_MS = 15 * 60 * 1000;
+    const COMMENT_DUPLICATE_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+    function loadCommentLocks() {
+        try {
+            const raw = localStorage.getItem(COMMENT_LOCKS_STORAGE_KEY);
+            if (!raw) {
+                return { lastSubmitAt: 0, blockedUntil: 0, recent: [] };
+            }
+            const parsed = JSON.parse(raw);
+            return {
+                lastSubmitAt: Number(parsed.lastSubmitAt) || 0,
+                blockedUntil: Number(parsed.blockedUntil) || 0,
+                recent: Array.isArray(parsed.recent) ? parsed.recent : []
+            };
+        } catch (_) {
+            return { lastSubmitAt: 0, blockedUntil: 0, recent: [] };
+        }
+    }
+
+    function saveCommentLocks(state) {
+        try {
+            localStorage.setItem(COMMENT_LOCKS_STORAGE_KEY, JSON.stringify(state));
+        } catch (_) {
+            // ignore storage failures
+        }
+    }
+
+    function normalizeCommentText(value) {
+        return String(value || '')
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, ' ');
+    }
+
+    function getClientSpamBlockReason(spotId, commentValue) {
+        const now = Date.now();
+        const state = loadCommentLocks();
+        const recent = state.recent
+            .filter((entry) => now - Number(entry.at || 0) <= COMMENT_DUPLICATE_WINDOW_MS)
+            .map((entry) => ({
+                at: Number(entry.at) || 0,
+                spotId: Number(entry.spotId) || 0,
+                text: String(entry.text || '')
+            }));
+
+        if (state.blockedUntil > now) {
+            const waitSeconds = Math.ceil((state.blockedUntil - now) / 1000);
+            saveCommentLocks({ ...state, recent });
+            return `Zu viele Versuche. Bitte ${waitSeconds}s warten.`;
+        }
+
+        if (state.lastSubmitAt && now - state.lastSubmitAt < COMMENT_COOLDOWN_MS) {
+            const waitSeconds = Math.ceil((COMMENT_COOLDOWN_MS - (now - state.lastSubmitAt)) / 1000);
+            saveCommentLocks({ ...state, recent });
+            return `Bitte ${waitSeconds}s warten, bevor du erneut postest.`;
+        }
+
+        const attemptsInWindow = recent.filter((entry) => now - entry.at <= COMMENT_RATE_WINDOW_MS).length;
+        if (attemptsInWindow >= COMMENT_RATE_MAX) {
+            state.blockedUntil = now + COMMENT_BLOCK_MS;
+            saveCommentLocks({ ...state, recent });
+            return 'Temporäre Sperre aktiv. Bitte später erneut versuchen.';
+        }
+
+        const normalizedText = normalizeCommentText(commentValue);
+        const duplicate = recent.some((entry) =>
+            entry.spotId === Number(spotId) &&
+            entry.text === normalizedText &&
+            now - entry.at <= COMMENT_DUPLICATE_WINDOW_MS
+        );
+
+        saveCommentLocks({ ...state, recent });
+        if (duplicate) {
+            return 'Doppelter Kommentar erkannt. Bitte formuliere ihn neu.';
+        }
+
+        return '';
+    }
+
+    function markClientCommentSubmitted(spotId, commentValue) {
+        const now = Date.now();
+        const state = loadCommentLocks();
+        const normalizedText = normalizeCommentText(commentValue);
+        const recent = (Array.isArray(state.recent) ? state.recent : [])
+            .filter((entry) => now - Number(entry.at || 0) <= COMMENT_DUPLICATE_WINDOW_MS)
+            .concat([{ at: now, spotId: Number(spotId), text: normalizedText }]);
+
+        saveCommentLocks({
+            lastSubmitAt: now,
+            blockedUntil: Number(state.blockedUntil) || 0,
+            recent
+        });
+    }
+
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function formatCommentDate(dateStr) {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        if (Number.isNaN(date.getTime())) return '';
+        return date.toLocaleString('de-DE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function renderReviewCommentsSection(spotId) {
+        const comments = commentsBySpot.get(Number(spotId)) || [];
+        const setupMissing = !supabaseClient;
+        const loading = supabaseClient && !commentsReady;
+
+        let stateText = '';
+        if (setupMissing) {
+            stateText = 'Kommentare sind noch nicht aktiviert. Trage zuerst deine Supabase-Daten ein.';
+        } else if (loading) {
+            stateText = 'Kommentare werden geladen...';
+        } else if (commentsLoadError) {
+            stateText = 'Kommentare konnten nicht geladen werden. Bitte Supabase-Setup prüfen.';
+        }
+
+        const commentsHtml = comments.length > 0
+            ? comments.map((comment) => {
+                const author = escapeHtml(comment.author || 'Anonym');
+                const text = escapeHtml(comment.comment_text || '');
+                const createdAt = formatCommentDate(comment.created_at);
+                return `
+                    <article class="review-comment-item">
+                        <div class="review-comment-head">
+                            <span class="review-comment-author">${author}</span>
+                            ${createdAt ? `<span class="review-comment-date">${createdAt}</span>` : ''}
+                        </div>
+                        <p class="review-comment-text">${text}</p>
+                    </article>
+                `;
+            }).join('')
+            : '<p class="review-comments-empty">Noch keine Kommentare. Sei der Erste.</p>';
+
+        return `
+            <section class="review-comments" aria-label="Kommentare zum Review">
+                <div class="review-comments-header">
+                    <h4>Community-Kommentare</h4>
+                    <span class="review-comments-count">${comments.length}</span>
+                </div>
+                ${stateText ? `<p class="review-comments-state">${stateText}</p>` : ''}
+                <div class="review-comments-list">${commentsHtml}</div>
+                <form class="review-comments-form" data-spot-id="${spotId}">
+                    <div class="comment-honeypot" aria-hidden="true">
+                        <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+                    </div>
+                    <input class="review-comment-input" type="text" name="author" maxlength="40" placeholder="Dein Name (optional)" />
+                    <textarea class="review-comment-textarea" name="comment" maxlength="500" placeholder="Kommentar schreiben..." required></textarea>
+                    <div class="review-comments-actions">
+                        <button type="submit" class="review-comment-submit" ${setupMissing ? 'disabled' : ''}>Kommentar senden</button>
+                        <span class="comment-form-status" aria-live="polite"></span>
+                    </div>
+                </form>
+            </section>
+        `;
+    }
+
+    function attachCommentSectionHandlers(card) {
+        const commentsSection = card.querySelector('.review-comments');
+        const form = card.querySelector('.review-comments-form');
+
+        if (commentsSection) {
+            commentsSection.addEventListener('click', (event) => event.stopPropagation());
+            commentsSection.addEventListener('keydown', (event) => event.stopPropagation());
+        }
+
+        if (form) {
+            form.addEventListener('submit', handleCommentSubmit);
+        }
+    }
+
+    function refreshCommentsForSpot(spotId) {
+        const card = document.getElementById(`spot-${spotId}`);
+        if (!card) return;
+
+        const host = card.querySelector('.review-comments-host');
+        if (!host) return;
+
+        host.innerHTML = renderReviewCommentsSection(spotId);
+        attachCommentSectionHandlers(card);
+    }
+
+    async function loadReviewComments() {
+        if (!supabaseClient) return;
+
+        commentsReady = false;
+        commentsLoadError = false;
+
+        const { data, error } = await supabaseClient
+            .from('review_comments')
+            .select('id, spot_id, author, comment_text, created_at')
+            .eq('is_approved', true)
+            .order('created_at', { ascending: false });
+
+        commentsReady = true;
+
+        if (error) {
+            commentsLoadError = true;
+            renderGrid();
+            return;
+        }
+
+        commentsBySpot.clear();
+        (data || []).forEach((comment) => {
+            const spotId = Number(comment.spot_id);
+            if (!commentsBySpot.has(spotId)) {
+                commentsBySpot.set(spotId, []);
+            }
+            commentsBySpot.get(spotId).push(comment);
+        });
+
+        renderGrid();
+    }
+
+    async function handleCommentSubmit(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!supabaseClient) return;
+
+        const form = event.currentTarget;
+        const spotId = Number(form.dataset.spotId);
+        const authorInput = form.querySelector('input[name="author"]');
+        const commentInput = form.querySelector('textarea[name="comment"]');
+        const websiteInput = form.querySelector('input[name="website"]');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const status = form.querySelector('.comment-form-status');
+
+        const authorValue = (authorInput?.value || '').trim() || 'Anonym';
+        const commentValue = (commentInput?.value || '').trim();
+        const websiteValue = (websiteInput?.value || '').trim();
+
+        if (!commentValue) {
+            if (status) status.textContent = 'Bitte Kommentar eingeben.';
+            return;
+        }
+
+        if (commentValue.length < 3) {
+            if (status) status.textContent = 'Kommentar ist zu kurz.';
+            return;
+        }
+
+        if (websiteValue) {
+            if (status) status.textContent = 'Danke!';
+            form.reset();
+            return;
+        }
+
+        const blockReason = getClientSpamBlockReason(spotId, commentValue);
+        if (blockReason) {
+            if (status) status.textContent = blockReason;
+            return;
+        }
+
+        if (submitButton) submitButton.disabled = true;
+        if (status) status.textContent = 'Senden...';
+
+        const { data, error } = await supabaseClient
+            .from('review_comments')
+            .insert({
+                spot_id: spotId,
+                author: authorValue.slice(0, 40),
+                comment_text: commentValue.slice(0, 500)
+            })
+            .select('id, spot_id, author, comment_text, is_approved, created_at')
+            .single();
+
+        if (submitButton) submitButton.disabled = false;
+
+        if (error) {
+            if (status) status.textContent = 'Fehler beim Speichern.';
+            return;
+        }
+
+        markClientCommentSubmitted(spotId, commentValue);
+
+        if (commentInput) commentInput.value = '';
+        if (authorInput) authorInput.value = '';
+        if (status) status.textContent = 'Danke. Dein Kommentar ist eingegangen und wird nach Freigabe sichtbar.';
+
+        const isApproved = data && Object.prototype.hasOwnProperty.call(data, 'is_approved')
+            ? Boolean(data.is_approved)
+            : false;
+
+        if (isApproved) {
+            const existing = commentsBySpot.get(spotId) || [];
+            commentsBySpot.set(spotId, [data, ...existing]);
+            refreshCommentsForSpot(spotId);
+        }
+    }
+
     // ── Star Rating Renderer ──────────────────────────────────────────
     function renderStars(scoreStr) {
         if (!scoreStr) return '';
@@ -512,6 +835,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
 
                             ${spot.kommentar ? `<div class="spot-comment">"${spot.kommentar}"</div>` : ''}
+                            <div class="review-comments-host" data-spot-id="${spot.id}">
+                                ${renderReviewCommentsSection(spot.id)}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -530,6 +856,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
+
+            attachCommentSectionHandlers(card);
             
             gridContainer.appendChild(card);
         });
@@ -691,6 +1019,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGrid();
     initSpotlight();
     initAnalytics();
+    loadReviewComments();
 
     // ── Analytics Section ────────────────────────────────────────────
     function initAnalytics() {
