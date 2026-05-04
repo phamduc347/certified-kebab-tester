@@ -479,15 +479,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (submitButton) submitButton.disabled = true;
         if (status) status.textContent = 'Senden...';
 
-        const { data, error } = await supabaseClient
+        const { error } = await supabaseClient
             .from('review_comments')
             .insert({
                 spot_id: spotId,
                 author: authorValue.slice(0, 40),
                 comment_text: commentValue.slice(0, 500)
-            })
-            .select('id, spot_id, author, comment_text, is_approved, created_at')
-            .single();
+            });
 
         if (submitButton) submitButton.disabled = false;
 
@@ -501,16 +499,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (commentInput) commentInput.value = '';
         if (authorInput) authorInput.value = '';
         if (status) status.textContent = 'Danke. Dein Kommentar ist eingegangen und wird nach Freigabe sichtbar.';
-
-        const isApproved = data && Object.prototype.hasOwnProperty.call(data, 'is_approved')
-            ? Boolean(data.is_approved)
-            : false;
-
-        if (isApproved) {
-            const existing = commentsBySpot.get(spotId) || [];
-            commentsBySpot.set(spotId, [data, ...existing]);
-            refreshCommentsForSpot(spotId);
-        }
     }
 
     // ── Star Rating Renderer ──────────────────────────────────────────
