@@ -549,6 +549,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         markClientCommentSubmitted(spotId, commentValue);
 
+        const spot = kebabData.find(s => s.id === spotId);
+        const spotName = spot ? spot.name : `Spot #${spotId}`;
+
+        // Notify Pushcut on new comment
+        fetch('https://api.pushcut.io/VcqntPOAR-xGOoaXyGdur/notifications/Certified%20Kebab%20Tester%20-%20Comment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                text: `"${commentValue}" - under ${spotName}`,
+                title: `${authorValue} - wants to comment:`
+            })
+        }).catch(() => {});
+
         if (commentInput) commentInput.value = '';
         if (authorInput) authorInput.value = '';
         if (status) status.textContent = 'Danke. Dein Kommentar ist eingegangen und wird nach Freigabe sichtbar.';
