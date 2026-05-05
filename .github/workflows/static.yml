@@ -24,8 +24,8 @@ concurrency:
 jobs:
   # Single deploy job since we're just deploying
   deploy:
-    # Only run if commit message starts with feat: or deploy:, or if triggered manually
-    if: startsWith(github.event.head_commit.message, 'feat:') || startsWith(github.event.head_commit.message, 'deploy:') || github.event_name == 'workflow_dispatch'
+    # Only run if commit message starts with deploy:, or if triggered manually
+    if: startsWith(github.event.head_commit.message, 'deploy:') || github.event_name == 'workflow_dispatch'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

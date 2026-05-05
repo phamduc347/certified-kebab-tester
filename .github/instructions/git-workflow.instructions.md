@@ -7,7 +7,8 @@ applyTo: "**/*"
 # Git-Workflow-Regeln
 
 - Vor jedem Commit und push prüfe ob die Änderungen mit den getätigten Aufgaben übereinstimmen. Fall nicht gib dem User eine Rückmeldung. Ausnahme sind manuelle Änderungen des Users bezüglich strings und texte im Frontend. Diese dürfen vom LLM nicht zurückgeändert werden.
-- Nutze Commit-Praefixe wie feat:, fix:, docs:, chore:.
+- Nutze Commit-Praefixe wie feat:, fix:, docs:, chore:, deploy:.
+- Nutze das deploy: Präfix ausschließlich nach expliziter Aufforderung durch den User.
 - Halte Commits klein und fachlich fokussiert.
 - Schreibe Commit-Messages mit klarer Wirkung fuer den Nutzer.
 - Verlinke relevante Issues oder Tickets in PR-Beschreibungen.
