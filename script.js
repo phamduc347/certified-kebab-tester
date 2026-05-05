@@ -882,6 +882,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="spot-details">
                                 <span class="badge">${spot.dish}</span>
                                 ${spot.preis ? `<span class="badge">Preis: ${spot.preis}</span>` : ''}
+                                ${spot.verzehrort ? `<span class="badge">Verzehrort: ${spot.verzehrort}</span>` : ''}
                                 <span class="badge badge-tooltip">
                                     P/L: ${spot.plIndex}
                                     <span class="tooltip-text">Price-Leistungs-Index: Gesamtbewertung geteilt durch den Preis. Je höher, desto besser der Wert.</span>
