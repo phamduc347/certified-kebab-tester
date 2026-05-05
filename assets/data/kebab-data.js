@@ -19,7 +19,7 @@ const kebabData = [
         preis: "7,40 €",
         plIndex: "12,40%",
         verzehrort: "Take-away",
-        image: "pictures/berlin_rueyam.jpeg",
+        image: "assets/img/berlin_rueyam.jpeg",
         kommentar: "Döner wurde mitgenommen und nicht ein mal frisch verzehrt. \nWas für eine herausragende Leistung. Wow. ",
         date: "28.02.2026",
         besuche: 1
@@ -44,7 +44,7 @@ const kebabData = [
         preis: "7,50 €",
         plIndex: "12,10%",
         verzehrort: "Dine-in",
-        image: "pictures/dresden_med_dueruem.jpg",
+        image: "assets/img/dresden_med_dueruem.jpg",
         kommentar: "Bestes selbstgebackenes Brot in ganz Dresden. \nAbsoluter all-time favorite in DD - Mir egal was die Planet-Bistro Anhänger sagen",
         date: "26.07.2025",
         besuche: 1
@@ -69,7 +69,7 @@ const kebabData = [
         preis: "6,50 €",
         plIndex: "13,90%",
         verzehrort: "Dine-in",
-        image: "pictures/dresden_planet_bistro.jpg",
+        image: "assets/img/dresden_planet_bistro.jpg",
         kommentar: "Wahrscheinlich der Bekannteste Spot in Dresden. Insgesamt einfach solid.\nMir war lediglich die ersten Male das Brot zu knusprig bzw. trocken.",
         date: "02.05.2025",
         besuche: 1
@@ -94,7 +94,7 @@ const kebabData = [
         preis: "6,50 €",
         plIndex: "13,80%",
         verzehrort: "Dine-in",
-        image: "pictures/leipzig_hugoo_gemuese_doener.jpg",
+        image: "assets/img/leipzig_hugoo_gemuese_doener.jpg",
         kommentar: "Döner mit ausgezeichnetem Gemüse (geil sauer) und Balance. \nLeider ist die Portion etwas klein, dennoch bester Döner in Leipzig bisher. ",
         date: "12.01.2025",
         besuche: 1
@@ -119,7 +119,7 @@ const kebabData = [
         preis: "10,50 €",
         plIndex: "8,40%",
         verzehrort: "Dine-in",
-        image: "pictures/dresden_yaprak_doener_by_istanbul_market.jpg",
+        image: "assets/img/dresden_yaprak_doener_by_istanbul_market.jpg",
         kommentar: "Sehr netter Inhaber. Man bekommt an der Theke i.d.R. eine Kostprobe vom Fleisch. \nOriginal Yaprak Döner mit nur Petersilie und Tomaten muss man mögen.",
         date: "13.08.2025",
         besuche: 1
@@ -144,7 +144,7 @@ const kebabData = [
         preis: "7,00 €",
         plIndex: "12,50%",
         verzehrort: "Dine-in",
-        image: "pictures/dresden_hugoo_doener.JPG",
+        image: "assets/img/dresden_hugoo_doener.JPG",
         kommentar: "Sehr guter Döner aber mit Leistungsschwankungen (leider abh. von den Mitarbeitern).\nBesonders sind die frische Minze und der Spritzer Zitrus. Empfehlung ist raus!",
         date: "18.01.2025",
         besuche: 1
@@ -169,7 +169,7 @@ const kebabData = [
         preis: "10,50 €",
         plIndex: "8,30%",
         verzehrort: "Take-away",
-        image: "pictures/muenchen_sendlinger_spezial.jpeg",
+        image: "assets/img/muenchen_sendlinger_spezial.jpeg",
         kommentar: "Es ist tatsächlich eher ein \"Sandwich\".\nMir fehlte wie immer das eingelegtes Gemüse. Vielleicht hab ich falsch bestellt.",
         date: "11.04.2026",
         besuche: 1
@@ -194,7 +194,7 @@ const kebabData = [
         preis: "7,00 €",
         plIndex: "12,10%",
         verzehrort: "Dine-in",
-        image: "pictures/dresden_taksim_steak_kebab_haus.jpeg",
+        image: "assets/img/dresden_taksim_steak_kebab_haus.jpeg",
         kommentar: "Hervorragende Balance - bis zum Ende noch Gemüse im Brot.\nBrot war für meinen Geschmack etwas zu crunchy und dry.",
         date: "24.04.2026",
         besuche: 1
@@ -219,7 +219,7 @@ const kebabData = [
         preis: "9,00 €",
         plIndex: "9,30%",
         verzehrort: "Dine-in",
-        image: "pictures/dresden_bosporus.jpeg",
+        image: "assets/img/dresden_bosporus.jpeg",
         kommentar: "Gute portion aber geschmacklich nicht ganz harmonisch.\nDen normalen Döner würde ich hier bevorzugen. On God.",
         date: "21.03.2026",
         besuche: 1
@@ -244,7 +244,7 @@ const kebabData = [
         preis: "7,00 €",
         plIndex: "12,00%",
         verzehrort: "Dine-in",
-        image: "pictures/berlin_zagros_gemuesekebap.jpeg",
+        image: "assets/img/berlin_zagros_gemuesekebap.jpeg",
         kommentar: "Etwas overhyped in meinen Augen aber für den Preis dennoch sehr gut.\nMir fehlte ganz klar die Säure bei so viel fettigen Fleisch (Spritzer Zitrone ist nicht genug) und die Kräuter (Zumak o.Ä.).",
         date: "31.12.2025",
         besuche: 1
@@ -269,7 +269,7 @@ const kebabData = [
         preis: "7,50 €",
         plIndex: "11,10%",
         verzehrort: "Dine-in",
-        image: "pictures/dresden_royal_pizza.jpeg",
+        image: "assets/img/dresden_royal_pizza.jpeg",
         kommentar: "Überraschend gut. Sogar mit Basilikum garniert. \nIn total eine solide Performance. ",
         date: "18.04.2026",
         besuche: 1
@@ -294,7 +294,7 @@ const kebabData = [
         preis: "7,00 €",
         plIndex: "11,70%",
         verzehrort: "Dine-in",
-        image: "pictures/dresden_welat_doener.jpeg",
+        image: "assets/img/dresden_welat_doener.jpeg",
         kommentar: "Guter Standard-Döner der immer rein geht. Was soll ich sagen.\nManchmal zu viel Soße aber sonst i. O. - Freitag gibt es immer Yaprak Spieß.",
         date: "19.06.2025",
         besuche: 1
@@ -319,7 +319,7 @@ const kebabData = [
         preis: "8,50 €",
         plIndex: "9,40%",
         verzehrort: "Take-away",
-        image: "pictures/dresden_ibo_doener.png",
+        image: "assets/img/dresden_ibo_doener.png",
         kommentar: "Dieses mal leider bescheiden obwohl der Döner schnell geliefert wurde.\nDie Soße war gut aber leider zu wenig und schlecht verteilt. Gemüse war auch mittelmäßig. \nDa IBO mein Blockdöner ist, kenne ich den guten Service aber geschmacklich heute eher schlechter als sonst. Schade!",
         date: "05.05.2026",
         besuche: 1
@@ -344,7 +344,7 @@ const kebabData = [
         preis: "6,50 €",
         plIndex: "12,30%",
         verzehrort: "Dine-in",
-        image: "pictures/wolfsburg_mudis_gemuese_doener.JPG",
+        image: "assets/img/wolfsburg_mudis_gemuese_doener.JPG",
         kommentar: "Gute portion und schöne Anmutung. Geschmacklich leider eher mittelmaß. \nFleisch und Grillgemüse trieften in Öl. Wolfsburg ist somit nicht nur für mittelmäßige Autos bekannt.",
         date: "12.11.2025",
         besuche: 1
@@ -369,7 +369,7 @@ const kebabData = [
         preis: "8,50 €",
         plIndex: "8,40%",
         verzehrort: "Dine-in",
-        image: "pictures/gamisch_kebab&smash.jpeg",
+        image: "assets/img/gamisch_kebab&smash.jpeg",
         kommentar: "Bei google eine 4,9 aber naja...\nInsgesamt eine trockene Angelegenheit.\nService war jedoch nett und es gab Çay for free.",
         date: "06.04.2026",
         besuche: 1
@@ -394,7 +394,7 @@ const kebabData = [
         preis: "7,00 €",
         plIndex: "11,40%",
         verzehrort: "Take-away",
-        image: "pictures/dresden_doener_pizza_ecke.jpg",
+        image: "assets/img/dresden_doener_pizza_ecke.jpg",
         kommentar: "Mehr basic kann ein Döner in meinen Augen nicht sein. \nZum Service und der Hygiene Vorort kann ich leider nix sagen daher tröstliche 8,3 in diesen Kategorien. ",
         date: "30.04.2026",
         besuche: 1

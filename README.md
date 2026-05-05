@@ -14,7 +14,7 @@ Die Supabase-Anbindung ist bereits eingerichtet. Die Zugangsdaten (`url` und `an
 Falls du das Projekt neu aufsetzen oder in ein eigenes Supabase-Projekt migrieren möchtest:
 
 1. Lege in Supabase ein neues Projekt an.
-2. Führe das SQL aus [supabase-comments.sql](supabase-comments.sql) im SQL Editor aus.
+2. Führe das SQL aus [database/supabase-comments.sql](database/supabase-comments.sql) im SQL Editor aus.
 3. Trage in [index.html](index.html) bei `window.SUPABASE_CONFIG` deine Werte für `url` und `anonKey` ein.
 4. Stelle sicher, dass unter **Authentication → URL Configuration** deine Website-Domain als erlaubte Redirect-URL eingetragen ist.
 

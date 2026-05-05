@@ -12,7 +12,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export function loadKebabData() {
     // Read the raw file and wrap const declarations into globalThis assignments
     // so they survive the VM sandbox boundary.
-    const raw = readFileSync(join(__dirname, '../../data/kebab-data.js'), 'utf-8');
+    const raw = readFileSync(join(__dirname, '../../assets/data/kebab-data.js'), 'utf-8');
     const wrapped = raw
         .replace(/^const (kebabData|upcomingSpots)/gm, 'globalThis.$1');
 
