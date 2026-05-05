@@ -1,5 +1,4 @@
-<!--
-# Globale Agenten-Regeln (Beispiele - auskommentiert)
+# Globale Agenten-Regeln
 
 ## Geltungsbereich
 - Diese Regeln gelten fuer alle Agenten im Workspace (z. B. Copilot, Antigravity, Gemini, Claude).
@@ -24,4 +23,3 @@
 ## Kommunikation
 - Antworte praezise und umsetzungsorientiert.
 - Nenne betroffene Dateien und relevante Auswirkungen.
--->

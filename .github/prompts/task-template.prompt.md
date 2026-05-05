@@ -1,9 +1,9 @@
-<!--
+
 ---
 description: "Template fuer wiederkehrende Aufgaben"
 ---
 
-# Aufgaben-Template (Beispiele - auskommentiert)
+# Aufgaben-Template
 
 ## Ziel
 - [Kurzbeschreibung der gewuenschten Aenderung]
@@ -16,4 +16,3 @@ description: "Template fuer wiederkehrende Aufgaben"
 ## Erwartetes Ergebnis
 - [Welche Dateien sollen geaendert werden]
 - [Wie soll validiert/getestet werden]
--->
