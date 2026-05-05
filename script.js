@@ -1,8 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Notify Pushcut on page access
+    const visitorInfo = {
+        res: `${screen.width}x${screen.height}`,
+        ref: document.referrer || 'Direct',
+        lang: navigator.language
+    };
+
     fetch('https://api.pushcut.io/VcqntPOAR-xGOoaXyGdur/notifications/Certified%20Kebab%20Tester%20-%20Access', {
         method: 'POST',
-        mode: 'no-cors'
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            title: "New visit of certifiedkebabtester.com",
+            text: `Res: ${visitorInfo.res} | Ref: ${visitorInfo.ref} | Lang: ${visitorInfo.lang}`
+        })
     }).catch(() => { });
 
     const header = document.querySelector('.header');
