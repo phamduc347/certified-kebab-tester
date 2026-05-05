@@ -13,4 +13,5 @@ applyTo: "**/*"
 - Verlinke relevante Issues oder Tickets in PR-Beschreibungen.
 - Fuehre vor Merge einen kurzen Selbst-Review durch.
 - Gebe ausschließlich die Befehle für git add, git commit und git push aus (kopierbar als Einzeiler für den User).
+- Stelle sicher, dass alle technischen Änderungen (Dateien schreiben/ändern) abgeschlossen sind, bevor ein Commit-Befehl vorgeschlagen wird.
 
