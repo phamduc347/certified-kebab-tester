@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Notify Pushcut on page access
-    const visitorInfo = {
-        res: `${screen.width}x${screen.height}`,
-        ref: document.referrer || 'Direct',
-        lang: navigator.language
+    const getVisitorMetaString = () => {
+        const res = `${screen.width}x${screen.height}`;
+        const ref = document.referrer || 'Direct';
+        const lang = navigator.language;
+        return `Res: ${res} | Ref: ${ref} | Lang: ${lang}`;
     };
 
     fetch('https://api.pushcut.io/VcqntPOAR-xGOoaXyGdur/notifications/Certified%20Kebab%20Tester%20-%20Access', {
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             title: "New visit of certifiedkebabtester.com",
-            text: `Res: ${visitorInfo.res} | Ref: ${visitorInfo.ref} | Lang: ${visitorInfo.lang}`
+            text: getVisitorMetaString()
         })
     }).catch(() => { });
 
@@ -682,7 +682,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     title: `New like for review "${spotName}"`,
-                    text: 'Vote was logged in supabase.'
+                    text: `Vote logged. ${getVisitorMetaString()}`
                 })
             }).catch(() => { });
         }
