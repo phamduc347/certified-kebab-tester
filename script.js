@@ -663,6 +663,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        if (!error) {
+            const spot = kebabData.find((entry) => Number(entry.id) === spotId);
+            const spotName = spot ? spot.name : `Spot #${spotId}`;
+
+            fetch('https://api.pushcut.io/VcqntPOAR-xGOoaXyGdur/notifications/Certified%20Kebab%20Tester%20-%20Like', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: `New like for review "${spotName}"`,
+                    text: 'Vote was logged in supabase.'
+                })
+            }).catch(() => { });
+        }
+
         if (!reviewLikedByClient.has(spotId)) {
             reviewLikedByClient.add(spotId);
             reviewLikesBySpot.set(spotId, (reviewLikesBySpot.get(spotId) || 0) + 1);
