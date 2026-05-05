@@ -352,7 +352,7 @@ const kebabData = [
     {
         id: 15,
         name: "Kebab & Smash",
-        city: "Gamisch-Partenkirchen",
+        city: "Garmisch-Partenkirchen",
         dish: "Döner",
         fleisch: 7.4,
         gemuese: 7.0,

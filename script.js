@@ -853,7 +853,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const nameSpan = document.createElement('span');
             nameSpan.className = 'toggle-name';
-            nameSpan.innerHTML = `<strong>${spot.name}</strong> <small>${spot.city}</small>`;
+            // fix: use textContent to prevent XSS via spot.name / spot.city
+            const strong = document.createElement('strong');
+            strong.textContent = spot.name;
+            const small = document.createElement('small');
+            small.textContent = spot.city;
+            nameSpan.appendChild(strong);
+            nameSpan.appendChild(document.createTextNode(' '));
+            nameSpan.appendChild(small);
 
             label.appendChild(checkbox);
             label.appendChild(indicator);
@@ -872,9 +879,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getColorForScore(score) {
         const value = parseFloat(score);
-        if (isNaN(value)) return 'inherit';
-        let hue = ((value - 1) / 9) * 120;
-        hue = Math.max(0, Math.min(120, hue));
+        // fix: guard against NaN and out-of-range values (negative or >10)
+        if (isNaN(value) || value < 0) return 'inherit';
+        const clamped = Math.max(1, Math.min(10, value));
+        const hue = Math.round(((clamped - 1) / 9) * 120);
         return `hsl(${hue}, 80%, 40%)`;
     }
 
@@ -1111,26 +1119,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const dotsContainer = document.getElementById('spotlight-dots');
         if (!container || !dotsContainer) return;
 
-        // Helper to parse scores
-        const parseScore = (s) => parseFloat(s.replace(',', '.').replace('%', ''));
+        // Helper to parse scores — fix: guard against null/undefined input
+        const parseScore = (s) => {
+            if (!s) return 0;
+            return parseFloat(String(s).replace(',', '.').replace('%', '')) || 0;
+        };
 
+        // fix: null-safe date parsing — fall back to epoch if date is missing/malformed
         const sortedByDate = [...kebabData].sort((a, b) => {
-            const dateA = a.date.split('.').reverse().join('-');
-            const dateB = b.date.split('.').reverse().join('-');
-            return new Date(dateB) - new Date(dateA);
+            const parseDate = (d) => {
+                if (!d || typeof d !== 'string') return new Date(0);
+                const parts = d.split('.');
+                return parts.length === 3 ? new Date(`${parts[2]}-${parts[1]}-${parts[0]}`) : new Date(0);
+            };
+            return parseDate(b.date) - parseDate(a.date);
         });
 
         const sortedByScore = [...kebabData].sort((a, b) => parseScore(b.score) - parseScore(a.score));
         const sortedByPL = [...kebabData].sort((a, b) => parseScore(b.plIndex) - parseScore(a.plIndex));
-        const bestDresden = [...kebabData].filter(s => s.city === 'Dresden').sort((a, b) => parseScore(b.score) - parseScore(a.score))[0];
 
+        // fix: guard against empty Dresden filter result
+        const dresdenSpots = [...kebabData].filter(s => s.city === 'Dresden').sort((a, b) => parseScore(b.score) - parseScore(a.score));
+        const bestDresden = dresdenSpots[0] || sortedByScore[0];
+
+        // fix: filter out any undefined spots before rendering
         const spotlightItems = [
             { spot: sortedByDate[0], label: "LATEST TEST", tag: "NEWEST ADDITION" },
             { spot: sortedByScore[0], label: "ALL-TIME BEST", tag: "THE BENCHMARK" },
             { spot: sortedByPL[0], label: "VALUE CHAMPION", tag: "BEST PRICE-PERFORMANCE" },
             { spot: bestDresden, label: "DRESDEN'S HERO", tag: "TOP LOCAL CHOICE" },
             { spot: sortedByScore[sortedByScore.length - 1], label: "BOTTOM RANK", tag: "ROOM FOR IMPROVEMENT" }
-        ];
+        ].filter(item => item.spot != null);
 
         let currentIndex = 0;
         let rotationTimer;
@@ -1237,12 +1256,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const parseVal = (s) => parseFloat(String(s).replace(',', '.').replace('%', '').replace(' €', '')) || 0;
 
+        // fix: guard against empty kebabData
+        if (!kebabData || kebabData.length === 0) return;
+
         // Sort by P/L-Index descending, take top 5
         const top5 = [...kebabData]
             .sort((a, b) => parseVal(b.plIndex) - parseVal(a.plIndex))
             .slice(0, 5);
 
-        const maxPL = parseVal(top5[0].plIndex);
+        // fix: guard against empty top5 result
+        if (top5.length === 0) return;
+        const maxPL = parseVal(top5[0].plIndex) || 1; // avoid division by zero
 
         container.innerHTML = top5.map((spot, i) => {
             const pl = parseVal(spot.plIndex);
@@ -1745,10 +1769,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const padding = { top: 40, right: 60, bottom: 40, left: 60 };
 
         // Process data
+        // fix: null-safe parsing for preis and score fields
         const data = kebabData.map(d => ({
             name: d.name,
-            price: parseFloat(d.preis.replace(',', '.').replace(' €', '')) || 0,
-            score: parseFloat(d.score.replace(',', '.').replace('%', '')) || 0,
+            price: parseFloat(String(d.preis || '0').replace(',', '.').replace(' €', '')) || 0,
+            score: parseFloat(String(d.score || '0').replace(',', '.').replace('%', '')) || 0,
             rank: d.rank
         }));
 
