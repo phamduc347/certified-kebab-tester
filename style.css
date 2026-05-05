@@ -1504,6 +1504,53 @@ section {
     border-left: 4px solid var(--border-color);
 }
 
+.review-feedback-row {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.review-helpful-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    color: #374151;
+    border-radius: 999px;
+    padding: 6px 11px;
+    font-size: 0.73rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.review-helpful-btn:hover {
+    border-color: #111827;
+    color: #111827;
+}
+
+.review-helpful-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.review-helpful-btn.is-liked {
+    border-color: #b91c1c;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.review-helpful-icon {
+    font-size: 0.78rem;
+    line-height: 1;
+}
+
+.review-helpful-count {
+    min-width: 16px;
+    text-align: center;
+}
+
 .review-comments {
     margin-top: 16px;
     border: 1px solid var(--border-color);

@@ -249,6 +249,8 @@ document.addEventListener('DOMContentLoaded', () => {
     supabaseClient = ensureSupabaseClient();
 
     const commentsBySpot = new Map();
+    const reviewLikesBySpot = new Map();
+    const reviewLikedByClient = new Set();
     let commentsReady = !supabaseClient;
     let commentsLoadError = false;
 
@@ -258,6 +260,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const COMMENT_RATE_MAX = 4;
     const COMMENT_BLOCK_MS = 15 * 60 * 1000;
     const COMMENT_DUPLICATE_WINDOW_MS = 24 * 60 * 60 * 1000;
+    const COMMENT_VOTER_STORAGE_KEY = 'ckt_comment_voter_id_v1';
+
+    function getCommentVoterFingerprint() {
+        try {
+            const existing = localStorage.getItem(COMMENT_VOTER_STORAGE_KEY);
+            if (existing && existing.length >= 12) {
+                return existing;
+            }
+
+            const generated = (window.crypto && typeof window.crypto.randomUUID === 'function')
+                ? window.crypto.randomUUID()
+                : `voter-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+
+            localStorage.setItem(COMMENT_VOTER_STORAGE_KEY, generated);
+            return generated;
+        } catch (_) {
+            return `voter-fallback-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        }
+    }
 
     function loadCommentLocks() {
         try {
@@ -405,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
             : '<p class="review-comments-empty">Noch keine Kommentare. Sei der Erste.</p>';
 
         return `
-            <section class="review-comments" aria-label="Kommentare zum Review">
+            <section class="review-comments" aria-label="Kommentare zum Review" data-spot-id="${spotId}">
                 <div class="review-comments-header">
                     <h4>Community-Kommentare</h4>
                     <span class="review-comments-count">${comments.length}</span>
@@ -430,6 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function attachCommentSectionHandlers(card) {
         const commentsSection = card.querySelector('.review-comments');
         const form = card.querySelector('.review-comments-form');
+        const reviewHelpfulButton = card.querySelector('.review-helpful-btn');
 
         if (commentsSection) {
             commentsSection.addEventListener('click', (event) => event.stopPropagation());
@@ -438,6 +460,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (form) {
             form.addEventListener('submit', handleCommentSubmit);
+        }
+
+        if (reviewHelpfulButton) {
+            reviewHelpfulButton.addEventListener('click', handleReviewHelpfulClick);
         }
     }
 
@@ -473,9 +499,33 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const spotIds = kebabData.map((spot) => Number(spot.id)).filter((id) => Number.isFinite(id));
+        const voterFingerprint = getCommentVoterFingerprint();
+
+        reviewLikesBySpot.clear();
+        reviewLikedByClient.clear();
+
+        if (spotIds.length > 0) {
+            const { data: likesData, error: likesError } = await client
+                .from('review_spot_likes')
+                .select('spot_id, voter_fingerprint')
+                .in('spot_id', spotIds);
+
+            if (!likesError && Array.isArray(likesData)) {
+                likesData.forEach((like) => {
+                    const likedSpotId = Number(like.spot_id);
+                    reviewLikesBySpot.set(likedSpotId, (reviewLikesBySpot.get(likedSpotId) || 0) + 1);
+                    if (String(like.voter_fingerprint || '') === voterFingerprint) {
+                        reviewLikedByClient.add(likedSpotId);
+                    }
+                });
+            }
+        }
+
         commentsBySpot.clear();
         (data || []).forEach((comment) => {
             const spotId = Number(comment.spot_id);
+
             if (!commentsBySpot.has(spotId)) {
                 commentsBySpot.set(spotId, []);
             }
@@ -567,6 +617,67 @@ document.addEventListener('DOMContentLoaded', () => {
         if (status) status.textContent = 'Danke. Dein Kommentar ist eingegangen und wird nach Freigabe sichtbar.';
 
         openCommentFeedbackModal();
+    }
+
+    async function handleReviewHelpfulClick(event) {
+        const likeButton = event.currentTarget;
+        if (!likeButton) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (likeButton.disabled || likeButton.dataset.pending === 'true') {
+            return;
+        }
+
+        const alreadyLiked = likeButton.dataset.liked === 'true';
+        if (alreadyLiked) {
+            return;
+        }
+
+        const spotId = Number(likeButton.dataset.spotId);
+        if (!Number.isFinite(spotId)) {
+            return;
+        }
+
+        const client = ensureSupabaseClient();
+        if (!client) {
+            return;
+        }
+
+        likeButton.dataset.pending = 'true';
+        likeButton.disabled = true;
+
+        const voterFingerprint = getCommentVoterFingerprint();
+        const { error } = await client
+            .from('review_spot_likes')
+            .insert({
+                spot_id: spotId,
+                voter_fingerprint: voterFingerprint
+            });
+
+        const duplicateVote = Boolean(error && (error.code === '23505' || /duplicate/i.test(error.message || '')));
+        if (error && !duplicateVote) {
+            likeButton.dataset.pending = 'false';
+            likeButton.disabled = false;
+            return;
+        }
+
+        if (!reviewLikedByClient.has(spotId)) {
+            reviewLikedByClient.add(spotId);
+            reviewLikesBySpot.set(spotId, (reviewLikesBySpot.get(spotId) || 0) + 1);
+        }
+
+        const nextCount = reviewLikesBySpot.get(spotId) || 0;
+        likeButton.dataset.liked = 'true';
+        likeButton.dataset.pending = 'false';
+        likeButton.classList.add('is-liked');
+        likeButton.disabled = false;
+
+        const countEl = likeButton.querySelector('.review-helpful-count');
+        if (countEl) {
+            countEl.textContent = String(nextCount);
+        }
     }
 
     // ── Star Rating Renderer ──────────────────────────────────────────
@@ -835,6 +946,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
             const displayRank = index + 1;
+            const reviewLikeCount = reviewLikesBySpot.get(spot.id) || 0;
+            const reviewLiked = reviewLikedByClient.has(spot.id);
+            const setupMissing = !supabaseClient;
 
             card.innerHTML = `
                 <div class="spot-card-header">
@@ -892,6 +1006,20 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
 
                             ${spot.kommentar ? `<div class="spot-comment">"${spot.kommentar}"</div>` : ''}
+                            <div class="review-feedback-row">
+                                <button
+                                    type="button"
+                                    class="review-helpful-btn ${reviewLiked ? 'is-liked' : ''}"
+                                    data-spot-id="${spot.id}"
+                                    data-liked="${reviewLiked ? 'true' : 'false'}"
+                                    ${setupMissing ? 'disabled' : ''}
+                                    aria-label="Review als hilfreich markieren"
+                                >
+                                    <span class="review-helpful-icon" aria-hidden="true">&#9829;</span>
+                                    <span class="review-helpful-label">Hilfreich</span>
+                                    <span class="review-helpful-count">${reviewLikeCount}</span>
+                                </button>
+                            </div>
                             <div class="review-comments-host" data-spot-id="${spot.id}">
                                 ${renderReviewCommentsSection(spot.id)}
                             </div>
