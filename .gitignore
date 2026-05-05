@@ -1,8 +1,7 @@
 # Git Ignore File
 
-# Database folder (contains sensitive CSV data and JS database)
-# NOTE: Ignoring this will break the site on GitHub Pages as data.js will be missing!
-database/
+# Database folder (contains sensitive CSV exports)
+database/*.csv
 
 # OS generated files
 .DS_Store
