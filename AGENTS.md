@@ -16,12 +16,13 @@
 - Verwende Commit-Praefixe wie feat:, fix:, docs:, chore:, deploy:.
 - Nutze das deploy: Präfix ausschließlich nach expliziter Aufforderung.
 - Halte Commits klein und fachlich fokussiert.
-- Führe git add, git commit und git push niemals gemeinsam aus.
-- Workflow: git add -> git status -> (Prüfen) -> git commit -> git push.
+- Führe git add, git commit und git push gemeinsam aus, sofern die Tests bestanden wurden.
+- Workflow: ./run_tests.sh -> git add -> git status -> git commit -> git push.
 
 ## Tests
 - Aendere produktiven Code nur mit passender Validierung.
 - Führe vor jedem Commit zwingend die run_tests.sh aus.
+- Priorisiere das Aktualisieren von Tests gegenüber dem Löschen. Ziel ist eine hohe Test-Coverage.
 - Dokumentiere bekannte Risiken kurz im PR/Commit.
 
 ## Kommunikation
