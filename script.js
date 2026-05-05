@@ -882,12 +882,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="spot-details">
                                 <span class="badge">${spot.dish}</span>
                                 ${spot.preis ? `<span class="badge">Preis: ${spot.preis}</span>` : ''}
-                                ${spot.verzehrort ? `<span class="badge">Verzehrort: ${spot.verzehrort}</span>` : ''}
+                                ${spot.verzehrort ? `<span class="badge badge-tooltip">${spot.verzehrort}<span class="tooltip-text">Verzehrort: Döner wurde vor Ort gegessen (Dine-in) oder mitgenommen/geliefert (Take-away).</span></span>` : ''}
                                 <span class="badge badge-tooltip">
                                     P/L: ${spot.plIndex}
-                                    <span class="tooltip-text">Price-Leistungs-Index: Gesamtbewertung geteilt durch den Preis. Je höher, desto besser der Wert.</span>
+                                    <span class="tooltip-text">Price-Leistungs-Index: Gesamtbewertung geteilt durch den Preis. Je höher der Wert, desto besser die Preis-Leistung.</span>
                                 </span>
-                                <span class="badge">Besuche: ${spot.besuche || 1}</span>
+                                <span class="badge badge-tooltip">Besuche: ${spot.besuche || 1}<span class="tooltip-text">Die finale Bewertung basiert auf dem Durchschnitt der Bewertungen über alle Besuche.</span></span>
                                 ${spot.date ? `<span class="badge">Letzter Besuch: ${spot.date}</span>` : ''}
                             </div>
 
