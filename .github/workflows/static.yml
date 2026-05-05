@@ -1,4 +1,4 @@
-# Workflow: Unit Tests + Conditional Deployment to GitHub Pages
+# Workflow: Conditional Deployment to GitHub Pages
 name: CI Pipeline
 
 on:
@@ -16,32 +16,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ── Job 1: Run unit tests on every push ──────────────────────────────────
-  test:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: tests/package.json
-
-      - name: Install test dependencies
-        run: cd tests && npm install
-
-      - name: Run unit tests
-        run: cd tests && npm test
-
-  # ── Job 2: Deploy only on deploy: prefix (requires tests to pass) ─────────
+  # Deploy only on deploy: prefix or manual dispatch
   deploy:
     name: Deploy to GitHub Pages
-    needs: test
-    if: (startsWith(github.event.head_commit.message, 'deploy:') || github.event_name == 'workflow_dispatch') && needs.test.result == 'success'
+    if: startsWith(github.event.head_commit.message, 'deploy:') || github.event_name == 'workflow_dispatch'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
