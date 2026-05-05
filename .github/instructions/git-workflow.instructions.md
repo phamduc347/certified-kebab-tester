@@ -12,3 +12,5 @@ applyTo: "**/*"
 - Schreibe Commit-Messages mit klarer Wirkung fuer den Nutzer.
 - Verlinke relevante Issues oder Tickets in PR-Beschreibungen.
 - Fuehre vor Merge einen kurzen Selbst-Review durch.
+- Gebe ausschließlich die Befehle für git add, git commit und git push aus (kopierbar als Einzeiler für den User).
+
