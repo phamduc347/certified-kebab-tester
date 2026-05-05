@@ -1,4 +1,4 @@
-# Pham Certified Kebab Tester
+# Certified Kebab Tester
 
 Ein datengetriebener, minimalistischer und interaktiver Döner-Vergleich, basierend auf strengen Bewertungskriterien.
 
