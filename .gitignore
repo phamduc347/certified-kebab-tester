@@ -17,3 +17,9 @@ Thumbs.db
 
 # Local Guidelines
 design_guidelines.md
+
+# Node.js
+node_modules/
+dist/
+.npm/
+.vitest-results/
