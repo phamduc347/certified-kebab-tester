@@ -1058,6 +1058,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             form.reset();
             if (communityReviewStatus) communityReviewStatus.textContent = 'Danke! Dein Review wurde eingereicht und wartet auf Freigabe.';
+            openCommentFeedbackModal();
         } catch (error) {
             const message = error && error.message ? error.message : 'Fehler beim Einreichen des Reviews.';
             if (communityReviewStatus) communityReviewStatus.textContent = `Fehler: ${message}`;
