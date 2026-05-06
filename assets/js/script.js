@@ -195,6 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = document.getElementById('radarChart').getContext('2d');
     const togglesContainer = document.getElementById('spot-toggles');
     const gridContainer = document.getElementById('spots-grid');
+    const communityReviewForm = document.getElementById('community-review-form');
+    const communityReviewStatus = document.getElementById('community-review-status');
+    const communityReviewsList = document.getElementById('community-reviews-list');
+    const communityReviewCount = document.getElementById('community-review-count');
     const btnGrid = document.getElementById('btn-grid');
     const btnList = document.getElementById('btn-list');
 
@@ -271,6 +275,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const COMMENT_BLOCK_MS = 15 * 60 * 1000;
     const COMMENT_DUPLICATE_WINDOW_MS = 24 * 60 * 60 * 1000;
     const COMMENT_VOTER_STORAGE_KEY = 'ckt_comment_voter_id_v1';
+    const COMMUNITY_REVIEW_BUCKET = 'community-review-images';
+    const COMMUNITY_REVIEW_MAX_IMAGE_MB = 6;
+    let communityReviewsReady = !supabaseClient;
+    let communityReviewsLoadError = false;
 
     function getCommentVoterFingerprint() {
         try {
@@ -702,6 +710,315 @@ document.addEventListener('DOMContentLoaded', () => {
         if (countEl) {
             countEl.textContent = String(nextCount);
         }
+    }
+
+    function parseScoreInput(value) {
+        const raw = String(value || '').trim();
+        if (!/^(?:10(?:[.,]0)?|[1-9](?:[.,]\d)?)$/.test(raw)) {
+            return NaN;
+        }
+        const parsed = Number.parseFloat(raw.replace(',', '.'));
+        if (!Number.isFinite(parsed)) return NaN;
+        return Math.round(parsed * 10) / 10;
+    }
+
+    function validateCommunityScoreInput(input) {
+        if (!input) return true;
+        const raw = String(input.value || '').trim();
+
+        if (!raw) {
+            input.setCustomValidity('Bitte einen Wert eingeben.');
+            input.classList.add('invalid-score');
+            return false;
+        }
+
+        const validFormat = /^(?:10(?:[.,]0)?|[1-9](?:[.,]\d)?)$/.test(raw);
+        if (!validFormat) {
+            input.setCustomValidity('Erlaubt sind Werte von 1 bis 10 mit maximal einer Dezimalstelle.');
+            input.classList.add('invalid-score');
+            return false;
+        }
+
+        input.setCustomValidity('');
+        input.classList.remove('invalid-score');
+        return true;
+    }
+
+    function validateCommunityScoreInputs(form, showNativeMessage = false) {
+        const scoreInputs = form ? form.querySelectorAll('.community-score-grid input') : [];
+        let valid = true;
+
+        scoreInputs.forEach((input) => {
+            const inputValid = validateCommunityScoreInput(input);
+            if (!inputValid && valid) {
+                valid = false;
+                if (showNativeMessage && typeof input.reportValidity === 'function') {
+                    input.reportValidity();
+                }
+            }
+        });
+
+        return valid;
+    }
+
+    function buildCommunityAverage(review) {
+        const keys = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
+        const values = keys.map((key) => Number(review[key])).filter((value) => Number.isFinite(value));
+        if (values.length === 0) return '0.0';
+        const avg = values.reduce((acc, value) => acc + value, 0) / values.length;
+        return avg.toFixed(1);
+    }
+
+    function formatVisitDate(dateStr) {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        if (Number.isNaN(date.getTime())) return '';
+        return date.toLocaleDateString('de-DE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    }
+
+    function renderCommunityReviewItem(review) {
+        const reviewer = escapeHtml(review.reviewer_name || 'Anonym');
+        const spotName = escapeHtml(review.spot_name || 'Unbekannter Spot');
+        const city = escapeHtml(review.city || '-');
+        const dish = escapeHtml(review.dish || '-');
+        const comment = escapeHtml(review.comment_text || '');
+        const imageUrl = escapeHtml(review.image_url || '');
+        const visitDate = formatVisitDate(review.visit_date);
+        const createdAt = formatCommentDate(review.created_at);
+        const avgScore = buildCommunityAverage(review);
+
+        return `
+            <article class="community-review-item">
+                ${imageUrl ? `<img src="${imageUrl}" alt="Community Review zu ${spotName}" class="community-review-image" loading="lazy">` : ''}
+                <div class="community-review-body">
+                    <div class="community-review-head">
+                        <div>
+                            <h4>${spotName}</h4>
+                            <p>${city} · ${dish}</p>
+                        </div>
+                        <span class="community-review-score">Avg ${avgScore}/10</span>
+                    </div>
+                    <p class="community-review-meta">von ${reviewer}${visitDate ? ` · Besuch: ${visitDate}` : ''}${createdAt ? ` · Eingereicht: ${createdAt}` : ''}</p>
+                    <p class="community-review-text">${comment}</p>
+                </div>
+            </article>
+        `;
+    }
+
+    function renderCommunityReviewListState(message) {
+        if (!communityReviewsList) return;
+        communityReviewsList.innerHTML = `<p class="community-reviews-state">${escapeHtml(message)}</p>`;
+    }
+
+    async function loadCommunityReviews() {
+        const client = ensureSupabaseClient();
+        if (!communityReviewsList) return;
+
+        if (!client) {
+            communityReviewsReady = true;
+            renderCommunityReviewListState('Community Reviews sind nicht verfügbar. Bitte Supabase-Setup prüfen.');
+            if (communityReviewCount) communityReviewCount.textContent = '0';
+            return;
+        }
+
+        communityReviewsReady = false;
+        communityReviewsLoadError = false;
+        renderCommunityReviewListState('Community Reviews werden geladen...');
+
+        const { data, error } = await client
+            .from('community_reviews')
+            .select('id, reviewer_name, spot_name, city, dish, visit_date, fleisch, gemuese, sosse, brot, balance, auswahl, portion, hygiene, service, comment_text, image_url, created_at')
+            .eq('is_approved', true)
+            .order('created_at', { ascending: false })
+            .limit(24);
+
+        communityReviewsReady = true;
+
+        if (error) {
+            communityReviewsLoadError = true;
+            renderCommunityReviewListState('Community Reviews konnten nicht geladen werden.');
+            if (communityReviewCount) communityReviewCount.textContent = '0';
+            return;
+        }
+
+        const items = Array.isArray(data) ? data : [];
+        if (communityReviewCount) communityReviewCount.textContent = String(items.length);
+
+        if (items.length === 0) {
+            renderCommunityReviewListState('Noch keine freigegebenen Community Reviews.');
+            return;
+        }
+
+        communityReviewsList.innerHTML = items.map(renderCommunityReviewItem).join('');
+    }
+
+    async function uploadCommunityReviewImage(client, file) {
+        const extension = String(file.name || 'jpg').split('.').pop().toLowerCase();
+        const safeExt = extension.replace(/[^a-z0-9]/g, '') || 'jpg';
+        const filePath = `public/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${safeExt}`;
+
+        const { error: uploadError } = await client
+            .storage
+            .from(COMMUNITY_REVIEW_BUCKET)
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: false,
+                contentType: file.type || 'image/jpeg'
+            });
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+        const { data: publicData } = client
+            .storage
+            .from(COMMUNITY_REVIEW_BUCKET)
+            .getPublicUrl(filePath);
+
+        if (!publicData || !publicData.publicUrl) {
+            throw new Error('Bild-URL konnte nicht erstellt werden.');
+        }
+
+        return publicData.publicUrl;
+    }
+
+    async function handleCommunityReviewSubmit(event) {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const submitButton = form.querySelector('#community-review-submit');
+        const fileInput = form.querySelector('input[name="visit_image"]');
+        const client = ensureSupabaseClient();
+
+        if (!client) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Review-Service aktuell nicht verfügbar.';
+            return;
+        }
+
+        const formData = new FormData(form);
+        const reviewerName = String(formData.get('reviewer_name') || '').trim();
+        const spotName = String(formData.get('spot_name') || '').trim();
+        const city = String(formData.get('city') || '').trim();
+        const dish = String(formData.get('dish') || '').trim();
+        const visitDate = String(formData.get('visit_date') || '').trim();
+        const commentText = String(formData.get('comment_text') || '').trim();
+        const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+
+        const scores = {
+            fleisch: parseScoreInput(formData.get('fleisch')),
+            gemuese: parseScoreInput(formData.get('gemuese')),
+            sosse: parseScoreInput(formData.get('sosse')),
+            brot: parseScoreInput(formData.get('brot')),
+            balance: parseScoreInput(formData.get('balance')),
+            auswahl: parseScoreInput(formData.get('auswahl')),
+            portion: parseScoreInput(formData.get('portion')),
+            hygiene: parseScoreInput(formData.get('hygiene')),
+            service: parseScoreInput(formData.get('service'))
+        };
+
+        if (!reviewerName || !spotName || !city || !dish || !visitDate || !commentText) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte alle Pflichtfelder ausfüllen.';
+            return;
+        }
+
+        if (commentText.length < 15) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte mindestens 15 Zeichen beim Kommentar eingeben.';
+            return;
+        }
+
+        const validScores = validateCommunityScoreInputs(form, true);
+        if (!validScores) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte korrigiere die Bewertungsfelder (1-10, max. eine Dezimalstelle).';
+            return;
+        }
+
+        if (!file) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte genau ein Bild hochladen.';
+            return;
+        }
+
+        if (!String(file.type || '').startsWith('image/')) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Nur Bilddateien sind erlaubt.';
+            return;
+        }
+
+        const maxBytes = COMMUNITY_REVIEW_MAX_IMAGE_MB * 1024 * 1024;
+        if (file.size > maxBytes) {
+            if (communityReviewStatus) communityReviewStatus.textContent = `Das Bild ist zu groß. Maximal ${COMMUNITY_REVIEW_MAX_IMAGE_MB} MB.`;
+            return;
+        }
+
+        if (submitButton) submitButton.disabled = true;
+        if (communityReviewStatus) communityReviewStatus.textContent = 'Upload und Speicherung laufen...';
+
+        try {
+            const imageUrl = await uploadCommunityReviewImage(client, file);
+
+            const { error } = await client
+                .from('community_reviews')
+                .insert({
+                    reviewer_name: reviewerName.slice(0, 40),
+                    spot_name: spotName.slice(0, 80),
+                    city: city.slice(0, 60),
+                    dish: dish.slice(0, 60),
+                    visit_date: visitDate,
+                    comment_text: commentText.slice(0, 1000),
+                    image_url: imageUrl,
+                    fleisch: scores.fleisch,
+                    gemuese: scores.gemuese,
+                    sosse: scores.sosse,
+                    brot: scores.brot,
+                    balance: scores.balance,
+                    auswahl: scores.auswahl,
+                    portion: scores.portion,
+                    hygiene: scores.hygiene,
+                    service: scores.service
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            fetch('https://api.pushcut.io/VcqntPOAR-xGOoaXyGdur/notifications/Certified%20Kebab%20Tester%20-%20Community%20Review', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: `${reviewerName} hat ein Community Review eingereicht`,
+                    text: `${spotName} in ${city}`
+                })
+            }).catch(() => { });
+
+            form.reset();
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Danke! Dein Review wurde eingereicht und wartet auf Freigabe.';
+        } catch (error) {
+            const message = error && error.message ? error.message : 'Fehler beim Einreichen des Reviews.';
+            if (communityReviewStatus) communityReviewStatus.textContent = `Fehler: ${message}`;
+        } finally {
+            if (submitButton) submitButton.disabled = false;
+        }
+    }
+
+    function initCommunityReviews() {
+        if (communityReviewForm) {
+            communityReviewForm.addEventListener('submit', handleCommunityReviewSubmit);
+            const scoreInputs = communityReviewForm.querySelectorAll('.community-score-grid input');
+            scoreInputs.forEach((input) => {
+                input.addEventListener('input', () => {
+                    validateCommunityScoreInput(input);
+                    if (communityReviewStatus) {
+                        communityReviewStatus.textContent = '';
+                    }
+                });
+                input.addEventListener('blur', () => {
+                    validateCommunityScoreInput(input);
+                });
+            });
+        }
+        loadCommunityReviews();
     }
 
     // ── Star Rating Renderer ──────────────────────────────────────────
@@ -1248,6 +1565,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSpotlight();
     initAnalytics();
     loadReviewComments();
+    initCommunityReviews();
 
     // ── Analytics Section ────────────────────────────────────────────
     function initAnalytics() {

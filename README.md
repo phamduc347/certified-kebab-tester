@@ -43,6 +43,29 @@ WHERE is_approved = false
 ORDER BY created_at DESC;
 ```
 
+### Community Reviews mit Bild-Upload (neu)
+- Nutzer koennen einen kompletten Review-Beitrag mit Bewertungskriterien und genau einem Bild einreichen.
+- Neue Beitraege landen mit `is_approved = false` in `public.community_reviews`.
+- Bilder werden im Bucket `community-review-images` gespeichert.
+- Sichtbar auf der Website sind nur freigegebene Beitraege (`is_approved = true`).
+
+Freigabe von Community Reviews im Supabase SQL Editor:
+
+```sql
+UPDATE public.community_reviews
+SET is_approved = true
+WHERE id = <review_id>;
+```
+
+Wartende Community Reviews anzeigen:
+
+```sql
+SELECT id, reviewer_name, spot_name, city, created_at
+FROM public.community_reviews
+WHERE is_approved = false
+ORDER BY created_at DESC;
+```
+
 ## Deployment via GitHub Pages
 Diese Website wird als statische Seite über GitHub Pages gehostet. Um sie zu deployen:
 

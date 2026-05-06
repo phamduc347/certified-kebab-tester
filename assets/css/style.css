@@ -1706,6 +1706,313 @@ section {
     color: var(--text-muted);
 }
 
+.community-reviews-section {
+    margin-bottom: var(--section-gap);
+}
+
+.community-reviews-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.community-reviews-card {
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: #ffffff;
+    padding: 20px;
+}
+
+.community-reviews-card h3 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.community-reviews-hint {
+    margin: 0 0 14px;
+    color: var(--text-muted);
+    font-size: 0.86rem;
+}
+
+.community-review-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.community-review-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.community-review-grid.two-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.community-review-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.community-review-form input,
+.community-review-form textarea {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    color: var(--text-main);
+    background: #ffffff;
+}
+
+.community-review-form input:focus,
+.community-review-form textarea:focus {
+    outline: none;
+    border-color: #111827;
+    box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+}
+
+.community-review-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.community-score-panel {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 8px 10px 10px;
+    background: #fcfcfc;
+}
+
+.community-score-panel summary {
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #111827;
+    list-style: none;
+}
+
+.community-score-panel summary::-webkit-details-marker {
+    display: none;
+}
+
+.community-score-panel summary::after {
+    content: '▼';
+    float: right;
+    font-size: 0.68rem;
+    margin-top: 2px;
+}
+
+.community-score-panel[open] summary::after {
+    content: '▲';
+}
+
+.community-score-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.community-score-grid label {
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+    background: #ffffff;
+    padding: 7px 8px;
+    display: grid;
+    grid-template-columns: 1fr 72px;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.76rem;
+}
+
+.community-score-grid label input {
+    text-align: center;
+    padding: 6px 8px;
+    font-size: 0.8rem;
+}
+
+.community-score-hint {
+    margin: -2px 0 2px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.community-review-form input.invalid-score {
+    border-color: #b91c1c;
+    box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.08);
+}
+
+.community-review-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 2px;
+}
+
+.community-review-actions button {
+    border: 1px solid #111827;
+    background: #111827;
+    color: #ffffff;
+    border-radius: 9px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    font-weight: 700;
+    padding: 10px 16px;
+    cursor: pointer;
+}
+
+.community-review-actions button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+#community-review-status,
+.community-reviews-state {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.community-reviews-list-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+#community-review-count {
+    min-width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: #111827;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.community-reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 860px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.community-review-item {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f9fafb;
+}
+
+.community-review-image {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    display: block;
+}
+
+.community-review-body {
+    padding: 12px;
+}
+
+.community-review-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.community-review-head h4 {
+    margin: 0;
+    font-size: 0.96rem;
+}
+
+.community-review-head p {
+    margin: 2px 0 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.community-review-score {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 9px;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    font-size: 0.74rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.community-review-meta {
+    margin: 8px 0 6px;
+    font-size: 0.77rem;
+    color: var(--text-muted);
+}
+
+.community-review-text {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: #1f2937;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+@media (max-width: 680px) {
+    .community-review-grid.two-cols,
+    .community-score-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .community-reviews-card {
+        padding: 16px;
+    }
+
+    .community-review-form {
+        gap: 10px;
+    }
+
+    .community-review-form textarea {
+        min-height: 92px;
+    }
+
+    .community-score-grid label {
+        grid-template-columns: 1fr 64px;
+        padding: 6px 7px;
+    }
+
+    .community-score-panel {
+        padding: 7px 8px 8px;
+    }
+
+    .community-review-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 420px) {
+    .community-review-grid.two-cols,
+    .community-score-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Weightings & Footer & Responsive Reset */
 .weightings-content {
     display: flex;
