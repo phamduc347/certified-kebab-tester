@@ -111,6 +111,95 @@
             </div>
         </section>
 
+        <section class="community-reviews-section" id="community">
+            <div class="section-header">
+                <h2>Community Reviews</h2>
+                <p>Teile deinen Besuch nach dem CKT-Bewertungssystem. Jeder Beitrag wird manuell geprüft.</p>
+            </div>
+
+            <div class="community-reviews-layout">
+                <article class="community-reviews-card">
+                    <div class="community-reviews-list-head">
+                        <h3>Freigegebene Community-Beiträge</h3>
+                        <span id="community-review-count">0</span>
+                    </div>
+                    <p class="community-reviews-hint">Nur geprüfte und bestätigte Reviews werden hier angezeigt.</p>
+                    <div id="community-reviews-list" class="spots-container community-reviews-list"></div>
+                </article>
+
+                <article class="community-reviews-card">
+                    <h3>Deinen Dönerbesuch einreichen</h3>
+                    <p class="community-reviews-hint">Ein Bild ist erforderlich. Dein Beitrag wird erst nach Freigabe öffentlich angezeigt.</p>
+                    <form id="community-review-form" class="community-review-form">
+                        <div class="community-review-grid two-cols">
+                            <label>Dein Name
+                                <input type="text" name="reviewer_name" maxlength="40" required>
+                            </label>
+                            <label>Besuchsdatum
+                                <input type="date" name="visit_date" required>
+                            </label>
+                        </div>
+
+                        <div class="community-review-grid two-cols">
+                            <label>Spot-Name
+                                <input type="text" name="spot_name" maxlength="80" required>
+                            </label>
+                            <label>Stadt
+                                <input type="text" name="city" maxlength="60" required>
+                            </label>
+                        </div>
+
+                        <label>Gericht
+                            <input type="text" name="dish" maxlength="60" placeholder="z. B. Döner Kalb, Halloumi Döner" required>
+                        </label>
+
+                        <div class="community-review-grid two-cols">
+                            <label>Preis
+                                <input type="text" name="preis" maxlength="20" placeholder="z. B. 4,50 € oder 4.50" required>
+                            </label>
+                            <label>Verzehrort
+                                <select name="verzehrort" required>
+                                    <option value="">-- Wählen --</option>
+                                    <option value="Dine-in">Dine-in (vor Ort)</option>
+                                    <option value="Take-away">Take-away (mitgenommen)</option>
+                                    <option value="Lieferung">Lieferung</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <details class="community-score-panel">
+                            <summary>Bewertungen (9 Kriterien)</summary>
+                            <div class="community-score-grid">
+                                <label>Fleisch <input type="number" name="fleisch" min="1" max="10" step="0.1" required></label>
+                                <label>Gemüse <input type="number" name="gemuese" min="1" max="10" step="0.1" required></label>
+                                <label>Soße <input type="number" name="sosse" min="1" max="10" step="0.1" required></label>
+                                <label>Brot <input type="number" name="brot" min="1" max="10" step="0.1" required></label>
+                                <label>Balance <input type="number" name="balance" min="1" max="10" step="0.1" required></label>
+                                <label>Auswahl <input type="number" name="auswahl" min="1" max="10" step="0.1" required></label>
+                                <label>Portion <input type="number" name="portion" min="1" max="10" step="0.1" required></label>
+                                <label>Hygiene <input type="number" name="hygiene" min="1" max="10" step="0.1" required></label>
+                                <label>Service <input type="number" name="service" min="1" max="10" step="0.1" required></label>
+                            </div>
+                            <p class="community-score-hint">Bitte Werte von 1 bis 10 mit maximal einer Dezimalstelle eingeben (z. B. 8 oder 8.5).</p>
+                        </details>
+
+                        <label>Kommentar
+                            <textarea name="comment_text" maxlength="1000" placeholder="Wie war dein Besuch?" required></textarea>
+                        </label>
+
+                        <label>1 Bild vom Besuch
+                            <input type="file" name="visit_image" accept="image/*" required>
+                        </label>
+
+                        <div class="community-review-actions">
+                            <button type="submit" id="community-review-submit">Review einreichen</button>
+                            <span id="community-review-status" aria-live="polite"></span>
+                        </div>
+                    </form>
+                </article>
+            </div>
+        </section>
+
         <!-- Analytics Section -->
         <section class="analytics-section" id="analytics">
             <div class="section-header">
@@ -331,81 +420,6 @@
                         – als das, was er im besten Fall ist: ein perfekt komponiertes Gesamterlebnis.</p>
                 </div>
 
-            </div>
-        </section>
-
-        <section class="community-reviews-section" id="community">
-            <div class="section-header">
-                <h2>Community Reviews</h2>
-                <p>Teile deinen Besuch nach dem CKT-Bewertungssystem. Jeder Beitrag wird manuell geprüft.</p>
-            </div>
-
-            <div class="community-reviews-layout">
-                <article class="community-reviews-card">
-                    <div class="community-reviews-list-head">
-                        <h3>Freigegebene Community-Beiträge</h3>
-                        <span id="community-review-count">0</span>
-                    </div>
-                    <p class="community-reviews-hint">Nur geprüfte und bestätigte Reviews werden hier angezeigt.</p>
-                    <div id="community-reviews-list" class="community-reviews-list"></div>
-                </article>
-
-                <article class="community-reviews-card">
-                    <h3>Deinen Dönerbesuch einreichen</h3>
-                    <p class="community-reviews-hint">Ein Bild ist erforderlich. Dein Beitrag wird erst nach Freigabe öffentlich angezeigt.</p>
-                    <form id="community-review-form" class="community-review-form">
-                        <div class="community-review-grid two-cols">
-                            <label>Dein Name
-                                <input type="text" name="reviewer_name" maxlength="40" required>
-                            </label>
-                            <label>Besuchsdatum
-                                <input type="date" name="visit_date" required>
-                            </label>
-                        </div>
-
-                        <div class="community-review-grid two-cols">
-                            <label>Spot-Name
-                                <input type="text" name="spot_name" maxlength="80" required>
-                            </label>
-                            <label>Stadt
-                                <input type="text" name="city" maxlength="60" required>
-                            </label>
-                        </div>
-
-                        <label>Gericht
-                            <input type="text" name="dish" maxlength="60" placeholder="z. B. Döner Kalb, Halloumi Döner" required>
-                        </label>
-
-                        <details class="community-score-panel">
-                            <summary>Bewertungen (9 Kriterien)</summary>
-                            <div class="community-score-grid">
-                                <label>Fleisch <input type="number" name="fleisch" min="1" max="10" step="0.1" required></label>
-                                <label>Gemüse <input type="number" name="gemuese" min="1" max="10" step="0.1" required></label>
-                                <label>Soße <input type="number" name="sosse" min="1" max="10" step="0.1" required></label>
-                                <label>Brot <input type="number" name="brot" min="1" max="10" step="0.1" required></label>
-                                <label>Balance <input type="number" name="balance" min="1" max="10" step="0.1" required></label>
-                                <label>Auswahl <input type="number" name="auswahl" min="1" max="10" step="0.1" required></label>
-                                <label>Portion <input type="number" name="portion" min="1" max="10" step="0.1" required></label>
-                                <label>Hygiene <input type="number" name="hygiene" min="1" max="10" step="0.1" required></label>
-                                <label>Service <input type="number" name="service" min="1" max="10" step="0.1" required></label>
-                            </div>
-                            <p class="community-score-hint">Bitte Werte von 1 bis 10 mit maximal einer Dezimalstelle eingeben (z. B. 8 oder 8.5).</p>
-                        </details>
-
-                        <label>Kommentar
-                            <textarea name="comment_text" maxlength="1000" placeholder="Wie war dein Besuch?" required></textarea>
-                        </label>
-
-                        <label>1 Bild vom Besuch
-                            <input type="file" name="visit_image" accept="image/*" required>
-                        </label>
-
-                        <div class="community-review-actions">
-                            <button type="submit" id="community-review-submit">Review einreichen</button>
-                            <span id="community-review-status" aria-live="polite"></span>
-                        </div>
-                    </form>
-                </article>
             </div>
         </section>
 

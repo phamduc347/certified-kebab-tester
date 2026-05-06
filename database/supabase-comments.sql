@@ -115,6 +115,13 @@ create table if not exists public.community_reviews (
 create index if not exists community_reviews_approved_created_idx
     on public.community_reviews (is_approved, created_at desc);
 
+-- Add new columns if they don't exist
+alter table public.community_reviews
+    add column if not exists preis text;
+
+alter table public.community_reviews
+    add column if not exists verzehrort text;
+
 alter table public.community_reviews enable row level security;
 
 drop policy if exists "Public can read approved community reviews" on public.community_reviews;

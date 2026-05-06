@@ -771,33 +771,64 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renderCommunityReviewItem(review) {
-        const reviewer = escapeHtml(review.reviewer_name || 'Anonym');
-        const spotName = escapeHtml(review.spot_name || 'Unbekannter Spot');
-        const city = escapeHtml(review.city || '-');
-        const dish = escapeHtml(review.dish || '-');
-        const comment = escapeHtml(review.comment_text || '');
-        const imageUrl = escapeHtml(review.image_url || '');
-        const visitDate = formatVisitDate(review.visit_date);
-        const createdAt = formatCommentDate(review.created_at);
-        const avgScore = buildCommunityAverage(review);
+    function toCommunitySpot(review) {
+        const avgScore = Number(buildCommunityAverage(review));
+        const scorePercent = Number.isFinite(avgScore) ? Math.min(100, Math.max(0, avgScore * 10)) : 0;
+        const scoreDisplay = `${scorePercent.toFixed(2).replace('.', ',')}%`;
+        const createdAtDisplay = formatCommentDate(review.created_at);
+        const baseSpotName = String(review.spot_name || 'Unbekannter Spot').trim();
+        const reviewerName = String(review.reviewer_name || '').trim();
+        const communityTitle = reviewerName
+            ? `${baseSpotName} reviewed by ${reviewerName}`
+            : baseSpotName;
 
-        return `
-            <article class="community-review-item">
-                ${imageUrl ? `<img src="${imageUrl}" alt="Community Review zu ${spotName}" class="community-review-image" loading="lazy">` : ''}
-                <div class="community-review-body">
-                    <div class="community-review-head">
-                        <div>
-                            <h4>${spotName}</h4>
-                            <p>${city} · ${dish}</p>
-                        </div>
-                        <span class="community-review-score">Avg ${avgScore}/10</span>
-                    </div>
-                    <p class="community-review-meta">von ${reviewer}${visitDate ? ` · Besuch: ${visitDate}` : ''}${createdAt ? ` · Eingereicht: ${createdAt}` : ''}</p>
-                    <p class="community-review-text">${comment}</p>
-                </div>
-            </article>
-        `;
+        // Calculate P/L Index (score % / preis €)
+        const preisStr = String(review.preis || '').replace(',', '.').replace(' €', '').trim();
+        const preisNum = Number.parseFloat(preisStr) || 0;
+        const scoreNum = Number.parseFloat(scoreDisplay.replace(',', '.').replace('%', '')) || 0;
+        const plIndex = preisNum > 0 ? (scoreNum / preisNum).toFixed(2).replace('.', ',') + '%' : '-';
+
+        return {
+            id: Number(review.id),
+            name: communityTitle,
+            city: review.city || '-',
+            dish: review.dish || '-',
+            fleisch: Number(review.fleisch) || 0,
+            gemuese: Number(review.gemuese) || 0,
+            sosse: Number(review.sosse) || 0,
+            brot: Number(review.brot) || 0,
+            balance: Number(review.balance) || 0,
+            auswahl: Number(review.auswahl) || 0,
+            portion: Number(review.portion) || 0,
+            hygiene: Number(review.hygiene) || 0,
+            service: Number(review.service) || 0,
+            score: scoreDisplay,
+            preis: preisStr ? `${preisStr} €` : '-',
+            plIndex: plIndex,
+            besuche: 1,
+            date: formatVisitDate(review.visit_date),
+            verzehrort: review.verzehrort || '-',
+            kommentar: `${review.comment_text || ''}${createdAtDisplay ? `\n\nEingereicht am: ${createdAtDisplay}` : ''}`,
+            image: review.image_url || 'kebab_spot_demo.png'
+        };
+    }
+
+    function renderCommunityReviewCards(reviews) {
+        if (!communityReviewsList) return;
+
+        communityReviewsList.innerHTML = '';
+        reviews.forEach((review, index) => {
+            const spot = toCommunitySpot(review);
+            const card = createReviewCardElement(spot, index, {
+                cardIdPrefix: 'community-spot',
+                includeEngagement: false,
+                includePL: true,
+                includeVisits: false,
+                includePrice: true,
+                includeVerzehrort: true
+            });
+            communityReviewsList.appendChild(card);
+        });
     }
 
     function renderCommunityReviewListState(message) {
@@ -822,7 +853,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const { data, error } = await client
             .from('community_reviews')
-            .select('id, reviewer_name, spot_name, city, dish, visit_date, fleisch, gemuese, sosse, brot, balance, auswahl, portion, hygiene, service, comment_text, image_url, created_at')
+            .select('id, reviewer_name, spot_name, city, dish, preis, verzehrort, visit_date, fleisch, gemuese, sosse, brot, balance, auswahl, portion, hygiene, service, comment_text, image_url, created_at')
             .eq('is_approved', true)
             .order('created_at', { ascending: false })
             .limit(24);
@@ -844,7 +875,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        communityReviewsList.innerHTML = items.map(renderCommunityReviewItem).join('');
+        renderCommunityReviewCards(items);
     }
 
     async function uploadCommunityReviewImage(client, file) {
@@ -897,6 +928,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const dish = String(formData.get('dish') || '').trim();
         const visitDate = String(formData.get('visit_date') || '').trim();
         const commentText = String(formData.get('comment_text') || '').trim();
+        const preis = String(formData.get('preis') || '').trim();
+        const verzehrort = String(formData.get('verzehrort') || '').trim();
         const file = fileInput && fileInput.files ? fileInput.files[0] : null;
 
         const scores = {
@@ -911,7 +944,7 @@ document.addEventListener('DOMContentLoaded', () => {
             service: parseScoreInput(formData.get('service'))
         };
 
-        if (!reviewerName || !spotName || !city || !dish || !visitDate || !commentText) {
+        if (!reviewerName || !spotName || !city || !dish || !visitDate || !commentText || !preis || !verzehrort) {
             if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte alle Pflichtfelder ausfüllen.';
             return;
         }
@@ -956,6 +989,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     spot_name: spotName.slice(0, 80),
                     city: city.slice(0, 60),
                     dish: dish.slice(0, 60),
+                    preis: preis.slice(0, 20),
+                    verzehrort: verzehrort.slice(0, 60),
                     visit_date: visitDate,
                     comment_text: commentText.slice(0, 1000),
                     image_url: imageUrl,
@@ -1272,89 +1307,78 @@ document.addEventListener('DOMContentLoaded', () => {
     const SPOTS_PER_PAGE = 6;
     let visibleCount = SPOTS_PER_PAGE;
 
-    function renderGrid() {
-        gridContainer.innerHTML = '';
+    function createReviewCardElement(spot, index, options = {}) {
+        const card = document.createElement('div');
+        card.className = 'spot-card';
+        const cardIdPrefix = options.cardIdPrefix || 'spot';
+        card.id = `${cardIdPrefix}-${spot.id}`;
+        card.style.animationDelay = `${index * 0.08}s`;
 
-        const filteredData = kebabData.filter(spot => {
-            const cityMatch = activeCities.size === 0 || activeCities.has(spot.city);
-            const dishMatch = activeDishes.size === 0 || activeDishes.has(spot.dish);
-            return cityMatch && dishMatch;
-        }).sort((a, b) => {
-            const parseScore = s => parseFloat(String(s).replace(',', '.').replace('%', '')) || 0;
-            return parseScore(b.score) - parseScore(a.score);
-        });
+        const displayRank = Number.isFinite(options.displayRank) ? options.displayRank : index + 1;
+        const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
+        const includeEngagement = options.includeEngagement !== false;
+        const includePrice = options.includePrice !== false;
+        const includePL = options.includePL !== false;
+        const includeVisits = options.includeVisits !== false;
+        const includeVerzehrort = options.includeVerzehrort !== false;
+        const reviewLikeCount = reviewLikesBySpot.get(spot.id) || 0;
+        const reviewLiked = reviewLikedByClient.has(spot.id);
+        const setupMissing = !supabaseClient;
 
-        const toShow = filteredData.slice(0, visibleCount);
-
-        toShow.forEach((spot, index) => {
-            const card = document.createElement('div');
-            card.className = 'spot-card';
-            card.id = `spot-${spot.id}`;
-            // Staggered entry animation (slowed down)
-            card.style.animationDelay = `${index * 0.08}s`;
-
-            const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
-            const displayRank = index + 1;
-            const reviewLikeCount = reviewLikesBySpot.get(spot.id) || 0;
-            const reviewLiked = reviewLikedByClient.has(spot.id);
-            const setupMissing = !supabaseClient;
-
-            card.innerHTML = `
-                <div class="spot-card-header">
-                    <div class="spot-rank">${displayRank}</div>
-                    <div class="spot-header-text">
-                        <div class="spot-title-row">
-                            <h3>${spot.name}</h3>
-                            ${renderStars(spot.score)}
-                        </div>
-                        <div class="spot-city">
-                            ${spot.city}${spot.date ? `<span class="spot-header-date"> · ${spot.date}</span>` : ''}${spot.preis ? `<span class="spot-mobile-price"> · ${spot.preis}</span>` : ''}
-                        </div>
+        card.innerHTML = `
+            <div class="spot-card-header">
+                <div class="spot-rank">${displayRank}</div>
+                <div class="spot-header-text">
+                    <div class="spot-title-row">
+                        <h3>${spot.name}</h3>
+                        ${renderStars(spot.score)}
                     </div>
-                    <div class="spot-header-actions">
-                        <a href="${mapsLink}" target="_blank" class="maps-button">
-                            <span>Google Maps</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                        </a>
-                        <div class="spot-score-pill">
-                            <span class="label">SCORE</span>
-                            <span class="value">${spot.score}</span>
-                        </div>
-                        <span class="expand-icon">▼</span>
+                    <div class="spot-city">
+                        ${spot.city}${spot.date ? `<span class="spot-header-date"> · ${spot.date}</span>` : ''}${spot.preis ? `<span class="spot-mobile-price"> · ${spot.preis}</span>` : ''}
                     </div>
                 </div>
-                
-                <div class="spot-main-content">
-                    <div class="spot-top-content">
-                        <div class="spot-image-container">
-                            <img src="${spot.image || 'kebab_spot_demo.png'}" alt="Bild von ${spot.name}" class="spot-image" loading="lazy" />
-                        </div>
-                        <div class="spot-content">
-                            <div class="spot-categories">
-                                ${renderCriteriaBar('Fleisch', spot.fleisch)}
-                                ${renderCriteriaBar('Gemüse', spot.gemuese)}
-                                ${renderCriteriaBar('Soße', spot.sosse)}
-                                ${renderCriteriaBar('Brot', spot.brot)}
-                                ${renderCriteriaBar('Balance', spot.balance)}
-                                ${renderCriteriaBar('Auswahl', spot.auswahl)}
-                                ${renderCriteriaBar('Portion', spot.portion)}
-                                ${renderCriteriaBar('Hygiene', spot.hygiene)}
-                                ${renderCriteriaBar('Service', spot.service)}
-                            </div>
-                            
-                            <div class="spot-details">
-                                <span class="badge">${spot.dish}</span>
-                                ${spot.preis ? `<span class="badge">Preis: ${spot.preis}</span>` : ''}
-                                ${spot.verzehrort ? `<span class="badge badge-tooltip">${spot.verzehrort}<span class="tooltip-text">Verzehrort: Döner wurde vor Ort gegessen (Dine-in) oder mitgenommen/geliefert (Take-away).</span></span>` : ''}
-                                <span class="badge badge-tooltip">
-                                    P/L: ${spot.plIndex}
-                                    <span class="tooltip-text">Price-Leistungs-Index: Gesamtbewertung geteilt durch den Preis. Je höher der Wert, desto besser die Preis-Leistung.</span>
-                                </span>
-                                <span class="badge badge-tooltip">Besuche: ${spot.besuche || 1}<span class="tooltip-text">Die finale Bewertung basiert auf dem Durchschnitt der Bewertungen über alle Besuche.</span></span>
-                                ${spot.date ? `<span class="badge">Letzter Besuch: ${spot.date}</span>` : ''}
-                            </div>
+                <div class="spot-header-actions">
+                    <a href="${mapsLink}" target="_blank" class="maps-button">
+                        <span>Google Maps</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                    <div class="spot-score-pill">
+                        <span class="label">SCORE</span>
+                        <span class="value">${spot.score}</span>
+                    </div>
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
 
-                            ${spot.kommentar ? `<div class="spot-comment">"${spot.kommentar}"</div>` : ''}
+            <div class="spot-main-content">
+                <div class="spot-top-content">
+                    <div class="spot-image-container">
+                        <img src="${spot.image || 'kebab_spot_demo.png'}" alt="Bild von ${spot.name}" class="spot-image" loading="lazy" />
+                    </div>
+                    <div class="spot-content">
+                        <div class="spot-categories">
+                            ${renderCriteriaBar('Fleisch', spot.fleisch)}
+                            ${renderCriteriaBar('Gemüse', spot.gemuese)}
+                            ${renderCriteriaBar('Soße', spot.sosse)}
+                            ${renderCriteriaBar('Brot', spot.brot)}
+                            ${renderCriteriaBar('Balance', spot.balance)}
+                            ${renderCriteriaBar('Auswahl', spot.auswahl)}
+                            ${renderCriteriaBar('Portion', spot.portion)}
+                            ${renderCriteriaBar('Hygiene', spot.hygiene)}
+                            ${renderCriteriaBar('Service', spot.service)}
+                        </div>
+
+                        <div class="spot-details">
+                            <span class="badge">${spot.dish}</span>
+                            ${includePrice && spot.preis ? `<span class="badge">Preis: ${spot.preis}</span>` : ''}
+                            ${includeVerzehrort && spot.verzehrort ? `<span class="badge badge-tooltip">${spot.verzehrort}<span class="tooltip-text">Verzehrort: Döner wurde vor Ort gegessen (Dine-in) oder mitgenommen/geliefert (Take-away).</span></span>` : ''}
+                            ${includePL ? `<span class="badge badge-tooltip">P/L: ${spot.plIndex}<span class="tooltip-text">Price-Leistungs-Index: Gesamtbewertung geteilt durch den Preis. Je höher der Wert, desto besser die Preis-Leistung.</span></span>` : ''}
+                            ${includeVisits ? `<span class="badge badge-tooltip">Besuche: ${spot.besuche || 1}<span class="tooltip-text">Die finale Bewertung basiert auf dem Durchschnitt der Bewertungen über alle Besuche.</span></span>` : ''}
+                            ${spot.date ? `<span class="badge">Letzter Besuch: ${spot.date}</span>` : ''}
+                        </div>
+
+                        ${spot.kommentar ? `<div class="spot-comment">"${spot.kommentar}"</div>` : ''}
+                        ${includeEngagement ? `
                             <div class="review-feedback-row">
                                 <button
                                     type="button"
@@ -1372,27 +1396,57 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="review-comments-host" data-spot-id="${spot.id}">
                                 ${renderReviewCommentsSection(spot.id)}
                             </div>
-                        </div>
+                        ` : ''}
                     </div>
                 </div>
-            `;
+            </div>
+        `;
 
-            const header = card.querySelector('.spot-card-header');
-            header.addEventListener('click', (e) => {
-                if (!e.target.closest('.maps-button')) {
-                    const isOpening = !card.classList.contains('expanded');
-                    card.classList.toggle('expanded');
+        const header = card.querySelector('.spot-card-header');
+        header.addEventListener('click', (e) => {
+            if (!e.target.closest('.maps-button')) {
+                const isOpening = !card.classList.contains('expanded');
+                card.classList.toggle('expanded');
 
-                    if (isOpening) {
-                        setTimeout(() => {
-                            scrollToElementFlush(card);
-                        }, 50);
-                    }
+                if (isOpening) {
+                    setTimeout(() => {
+                        scrollToElementFlush(card);
+                    }, 50);
                 }
-            });
+            }
+        });
 
+        if (includeEngagement) {
             attachCommentSectionHandlers(card);
+        }
 
+        return card;
+    }
+
+    function renderGrid() {
+        gridContainer.innerHTML = '';
+
+        const filteredData = kebabData.filter(spot => {
+            const cityMatch = activeCities.size === 0 || activeCities.has(spot.city);
+            const dishMatch = activeDishes.size === 0 || activeDishes.has(spot.dish);
+            return cityMatch && dishMatch;
+        }).sort((a, b) => {
+            const parseScore = s => parseFloat(String(s).replace(',', '.').replace('%', '')) || 0;
+            return parseScore(b.score) - parseScore(a.score);
+        });
+
+        const toShow = filteredData.slice(0, visibleCount);
+
+        toShow.forEach((spot, index) => {
+            const card = createReviewCardElement(spot, index, {
+                cardIdPrefix: 'spot',
+                includeEngagement: true,
+                includePL: true,
+                includeVisits: true,
+                includePrice: true,
+                includeVerzehrort: true,
+                displayRank: index + 1
+            });
             gridContainer.appendChild(card);
         });
 

@@ -1196,6 +1196,7 @@ section {
     font-size: 1.2rem;
     line-height: 1.1;
     margin-bottom: 0;
+    text-transform: none;
 }
 
 .spot-card.expanded .spot-header-text h3 {
@@ -1903,12 +1904,9 @@ section {
 }
 
 .community-reviews-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-height: 860px;
-    overflow-y: auto;
-    padding-right: 4px;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
 }
 
 .community-review-item {
