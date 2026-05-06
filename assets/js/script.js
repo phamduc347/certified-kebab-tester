@@ -944,8 +944,37 @@ document.addEventListener('DOMContentLoaded', () => {
             service: parseScoreInput(formData.get('service'))
         };
 
-        if (!reviewerName || !spotName || !city || !dish || !visitDate || !commentText || !preis || !verzehrort) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte alle Pflichtfelder ausfüllen.';
+        // Spezifische Validierung für jedes Feld
+        if (!reviewerName) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie Ihren Namen ein.';
+            return;
+        }
+        if (!spotName) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie den Spot-Namen ein.';
+            return;
+        }
+        if (!city) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie die Stadt ein.';
+            return;
+        }
+        if (!dish) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie das Gericht ein.';
+            return;
+        }
+        if (!preis) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie den Preis ein.';
+            return;
+        }
+        if (!verzehrort) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte wählen Sie den Verzehrort aus.';
+            return;
+        }
+        if (!visitDate) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie das Besuchsdatum ein.';
+            return;
+        }
+        if (!commentText) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie einen Kommentar ein.';
             return;
         }
 
