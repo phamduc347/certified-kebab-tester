@@ -52,3 +52,9 @@ Diese Website wird als statische Seite über GitHub Pages gehostet. Um sie zu de
 
 ## Lokale Entwicklung
 Um die Website lokal zu testen, öffne einfach die `index.html` Datei in einem beliebigen Webbrowser. Es wird kein lokaler Server benötigt.
+
+## Tests ausführen
+- Windows (PowerShell): `./run_tests.ps1`
+- macOS/Linux (Bash): `./run_tests.sh`
+
+Beide Skripte führen die Unit-Tests im `tests`-Ordner aus und nutzen einen stabilen Reporter, damit die Ausgabe in verschiedenen Terminaltypen zuverlässig sichtbar ist.
