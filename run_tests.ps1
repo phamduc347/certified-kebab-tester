@@ -18,6 +18,13 @@ if (-not $npm) {
 
 Push-Location $testsDir
 try {
+    if (-not (Test-Path 'node_modules')) {
+        Write-Host "📦 node_modules nicht gefunden. Installiere Abhängigkeiten..."
+        npm install
+        Write-Host "✅ Installation abgeschlossen."
+        Write-Host ""
+    }
+
     # Force stable output across terminals/CI by disabling dynamic color/TTY output.
     npm test
 }

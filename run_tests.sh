@@ -38,5 +38,12 @@ fi
 
 cd "$TEST_DIR"
 
+if [ ! -d "node_modules" ]; then
+    echo "📦 node_modules nicht gefunden. Installiere Abhängigkeiten..."
+    "$NPM_CMD" install
+    echo "✅ Installation abgeschlossen."
+    echo ""
+fi
+
 # Force a stable, non-TTY reporter so output is visible in all terminals.
 "$NPM_CMD" test
