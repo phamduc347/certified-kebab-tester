@@ -713,6 +713,49 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.round(parsed * 10) / 10;
     }
 
+    function getTodayIsoDate() {
+        const now = new Date();
+        const year = String(now.getFullYear());
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function validateCommunityVisitDateInput(input, showNativeMessage = false) {
+        if (!input) return true;
+
+        const raw = String(input.value || '').trim();
+        const today = getTodayIsoDate();
+        input.max = today;
+
+        if (!raw) {
+            input.setCustomValidity('Bitte geben Sie das Besuchsdatum ein.');
+            if (showNativeMessage && typeof input.reportValidity === 'function') {
+                input.reportValidity();
+            }
+            return false;
+        }
+
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+            input.setCustomValidity('Bitte geben Sie ein gueltiges Besuchsdatum ein.');
+            if (showNativeMessage && typeof input.reportValidity === 'function') {
+                input.reportValidity();
+            }
+            return false;
+        }
+
+        if (raw > today) {
+            input.setCustomValidity('Besuchsdaten in der Zukunft sind nicht erlaubt.');
+            if (showNativeMessage && typeof input.reportValidity === 'function') {
+                input.reportValidity();
+            }
+            return false;
+        }
+
+        input.setCustomValidity('');
+        return true;
+    }
+
     function validateCommunityScoreInput(input) {
         if (!input) return true;
         const raw = String(input.value || '').trim();
@@ -973,6 +1016,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie das Besuchsdatum ein.';
             return;
         }
+        const visitDateInput = form ? form.querySelector('input[name="visit_date"]') : null;
+        const validVisitDate = validateCommunityVisitDateInput(visitDateInput, true);
+        if (!validVisitDate) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Besuchsdaten in der Zukunft koennen nicht eingereicht werden.';
+            return;
+        }
         if (!commentText) {
             if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie einen Kommentar ein.';
             return;
@@ -1070,6 +1119,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function initCommunityReviews() {
         if (communityReviewForm) {
             communityReviewForm.addEventListener('submit', handleCommunityReviewSubmit);
+            const visitDateInput = communityReviewForm.querySelector('input[name="visit_date"]');
+            if (visitDateInput) {
+                validateCommunityVisitDateInput(visitDateInput);
+                visitDateInput.addEventListener('input', () => {
+                    validateCommunityVisitDateInput(visitDateInput);
+                    if (communityReviewStatus) {
+                        communityReviewStatus.textContent = '';
+                    }
+                });
+                visitDateInput.addEventListener('blur', () => {
+                    validateCommunityVisitDateInput(visitDateInput);
+                });
+            }
             const scoreInputs = communityReviewForm.querySelectorAll('.community-score-grid input');
             scoreInputs.forEach((input) => {
                 input.addEventListener('input', () => {
