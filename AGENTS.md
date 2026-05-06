@@ -32,3 +32,4 @@
 
 ## Tool-Interaktion
 - Probiere stets die Terminalausführung über `run_command` aus, auch wenn es zuvor technische Fehler gab.
+- Falls Standardbefehle (wie git) fehlschlagen, nutze `which <befehl>`, um den absoluten Pfad zu ermitteln und verwende diesen für weitere Versuche.
