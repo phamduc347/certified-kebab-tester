@@ -6,15 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return `Res: ${res} | Ref: ${ref} | Lang: ${lang}`;
     };
 
-    fetch('https://api.pushcut.io/VcqntPOAR-xGOoaXyGdur/notifications/Certified%20Kebab%20Tester%20-%20Access', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            title: "New visit of certifiedkebabtester.com",
-            text: getVisitorMetaString()
-        })
-    }).catch(() => { });
-
     const header = document.querySelector('.header');
     const heroSection = document.querySelector('.hero-section');
 
@@ -989,6 +980,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     title: `${reviewerName} hat ein Community Review eingereicht`,
                     text: `${spotName} in ${city}`
+                })
+            }).catch(() => { });
+
+            fetch('https://api.pushcut.io/VcqntPOAR-xGOoaXyGdur/notifications/Certified%20Kebab%20Tester%20-%20Access', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: 'Community Review eingereicht',
+                    text: `${reviewerName}: ${spotName} in ${city} | ${getVisitorMetaString()}`
                 })
             }).catch(() => { });
 
