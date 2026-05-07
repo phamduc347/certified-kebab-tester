@@ -1283,6 +1283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         communitySubmitPanel.hidden = false;
         if (openCommunityReviewFormBtn) {
             openCommunityReviewFormBtn.setAttribute('aria-expanded', 'true');
+            openCommunityReviewFormBtn.blur();
         }
         const firstField = communityReviewForm ? communityReviewForm.querySelector('input[name="reviewer_name"]') : null;
         if (firstField) {
