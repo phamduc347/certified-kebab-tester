@@ -1463,13 +1463,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 const color = palette[index % palette.length];
+                const pointColors = scores.map(s => getColorForScore(s));
+                
                 datasets.push({
                     label: spot.name,
                     data: scores,
                     backgroundColor: color.replace('0.9', '0.15'),
                     borderColor: color,
-                    pointBackgroundColor: color,
-                    pointBorderColor: '#000',
+                    pointBackgroundColor: pointColors,
+                    pointBorderColor: pointColors,
                     pointHoverBackgroundColor: '#fff',
                     pointHoverBorderColor: color,
                     borderWidth: 2
@@ -1547,11 +1549,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getColorForScore(score) {
         const value = parseFloat(score);
-        // fix: guard against NaN and out-of-range values (negative or >10)
         if (isNaN(value) || value < 0) return 'inherit';
         const clamped = Math.max(1, Math.min(10, value));
-        const hue = Math.round(((clamped - 1) / 9) * 120);
-        return `hsl(${hue}, 80%, 40%)`;
+        
+        let hue;
+        if (clamped <= 5) {
+            // Scale 1 to 5: Purple (280) to Red (360)
+            const t = (clamped - 1) / 4;
+            hue = 280 + t * 80;
+        } else {
+            // Scale 5 to 10: Red (0) to Green (120)
+            const t = (clamped - 5) / 5;
+            hue = t * 120;
+        }
+        
+        return `hsl(${Math.round(hue)}, 80%, 40%)`;
     }
 
     function renderCriteriaBar(label, value) {
