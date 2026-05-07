@@ -188,8 +188,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.getElementById('spots-grid');
     const communityReviewForm = document.getElementById('community-review-form');
     const communityReviewStatus = document.getElementById('community-review-status');
-    const communityReviewsList = document.getElementById('community-reviews-list');
-    const communityReviewCount = document.getElementById('community-review-count');
+    const communitySubmitPanel = document.getElementById('community-submit-panel');
+    const openCommunityReviewFormBtn = document.getElementById('open-community-review-form-btn');
+    const spotEntryModeSelect = document.getElementById('spot-entry-mode');
+    const existingSpotSelect = document.getElementById('existing-spot-select');
+    const existingSpotWrapper = document.getElementById('existing-spot-wrapper');
+    const communitySpotNameInput = document.getElementById('community-spot-name');
+    const communityCityInput = document.getElementById('community-city');
     const btnGrid = document.getElementById('btn-grid');
     const btnList = document.getElementById('btn-list');
 
@@ -270,6 +275,135 @@ document.addEventListener('DOMContentLoaded', () => {
     const COMMUNITY_REVIEW_MAX_IMAGE_MB = 6;
     let communityReviewsReady = !supabaseClient;
     let communityReviewsLoadError = false;
+
+    const baseKebabData = kebabData.map((spot) => ({ ...spot }));
+    const baseSpotById = new Map(baseKebabData.map((spot) => [Number(spot.id), spot]));
+    const approvedCommunityReviewsBySpotId = new Map();
+    let nextGeneratedSpotId = baseKebabData.reduce((maxId, spot) => Math.max(maxId, Number(spot.id) || 0), 0) + 1;
+
+    function parsePercentNumber(value) {
+        return Number.parseFloat(String(value || '').replace(',', '.').replace('%', '')) || 0;
+    }
+
+    function parseEuroNumber(value) {
+        return Number.parseFloat(String(value || '').replace(',', '.').replace('€', '').replace(/\s/g, '')) || 0;
+    }
+
+    function formatPercentNumber(value) {
+        return `${Number(value || 0).toFixed(2).replace('.', ',')}%`;
+    }
+
+    function formatEuroNumber(value) {
+        return `${Number(value || 0).toFixed(2).replace('.', ',')} €`;
+    }
+
+    function buildSpotKey(name, city) {
+        return `${String(name || '').trim().toLowerCase()}|${String(city || '').trim().toLowerCase()}`;
+    }
+
+    function computeSpotFromBaseAndCommunity(baseSpot, reviews) {
+        const criteria = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
+        const merged = { ...baseSpot };
+        const totalCount = 1 + reviews.length;
+
+        criteria.forEach((key) => {
+            const baseVal = Number(baseSpot[key]) || 0;
+            const sumCommunity = reviews.reduce((sum, review) => sum + (Number(review[key]) || 0), 0);
+            merged[key] = Number(((baseVal + sumCommunity) / totalCount).toFixed(1));
+        });
+
+        const avgAcrossCriteria = criteria.reduce((sum, key) => sum + (Number(merged[key]) || 0), 0) / criteria.length;
+        merged.score = formatPercentNumber(avgAcrossCriteria * 10);
+        merged.besuche = totalCount;
+
+        const priceValue = parseEuroNumber(merged.preis);
+        merged.plIndex = priceValue > 0
+            ? formatPercentNumber((parsePercentNumber(merged.score) / priceValue))
+            : '-';
+
+        return merged;
+    }
+
+    function computeCommunityOnlySpot(reviews) {
+        const criteria = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
+        const first = reviews[0] || {};
+        const generatedId = nextGeneratedSpotId;
+        nextGeneratedSpotId += 1;
+
+        const generated = {
+            id: generatedId,
+            name: String(first.spot_name || 'Neuer Spot').trim() || 'Neuer Spot',
+            city: String(first.city || '-').trim() || '-',
+            dish: String(first.dish || '-').trim() || '-',
+            preis: '-',
+            plIndex: '-',
+            score: '0,00%',
+            rank: 0,
+            stars: '☆☆☆☆☆',
+            verzehrort: String(first.verzehrort || '-').trim() || '-',
+            image: String(first.image_url || 'kebab_spot_demo.png').trim() || 'kebab_spot_demo.png',
+            kommentar: String(first.comment_text || '').trim(),
+            date: formatVisitDate(first.visit_date),
+            besuche: reviews.length
+        };
+
+        criteria.forEach((key) => {
+            const avg = reviews.reduce((sum, review) => sum + (Number(review[key]) || 0), 0) / reviews.length;
+            generated[key] = Number(avg.toFixed(1));
+        });
+
+        const avgAcrossCriteria = criteria.reduce((sum, key) => sum + (Number(generated[key]) || 0), 0) / criteria.length;
+        generated.score = formatPercentNumber(avgAcrossCriteria * 10);
+
+        const avgPrice = reviews.reduce((sum, review) => sum + parseEuroNumber(review.preis), 0) / reviews.length;
+        if (Number.isFinite(avgPrice) && avgPrice > 0) {
+            generated.preis = formatEuroNumber(avgPrice);
+            generated.plIndex = formatPercentNumber(parsePercentNumber(generated.score) / avgPrice);
+        }
+
+        return generated;
+    }
+
+    function applyCommunityReviewsToData(approvedReviews) {
+        const reviews = Array.isArray(approvedReviews) ? approvedReviews : [];
+        const groupedByKey = new Map();
+
+        reviews.forEach((review) => {
+            const key = buildSpotKey(review.spot_name, review.city);
+            if (!groupedByKey.has(key)) {
+                groupedByKey.set(key, []);
+            }
+            groupedByKey.get(key).push(review);
+        });
+
+        const mergedSpots = baseKebabData.map((baseSpot) => {
+            const key = buildSpotKey(baseSpot.name, baseSpot.city);
+            const reviewsForSpot = groupedByKey.get(key) || [];
+            return reviewsForSpot.length > 0
+                ? computeSpotFromBaseAndCommunity(baseSpot, reviewsForSpot)
+                : { ...baseSpot, besuche: Number(baseSpot.besuche) || 1 };
+        });
+
+        groupedByKey.forEach((spotReviews, key) => {
+            const existsInBase = baseKebabData.some((spot) => buildSpotKey(spot.name, spot.city) === key);
+            if (!existsInBase && spotReviews.length > 0) {
+                mergedSpots.push(computeCommunityOnlySpot(spotReviews));
+            }
+        });
+
+        mergedSpots.sort((a, b) => parsePercentNumber(b.score) - parsePercentNumber(a.score));
+        mergedSpots.forEach((spot, index) => {
+            spot.rank = index + 1;
+        });
+
+        approvedCommunityReviewsBySpotId.clear();
+        mergedSpots.forEach((spot) => {
+            const key = buildSpotKey(spot.name, spot.city);
+            approvedCommunityReviewsBySpotId.set(Number(spot.id), groupedByKey.get(key) || []);
+        });
+
+        kebabData.splice(0, kebabData.length, ...mergedSpots);
+    }
 
     function getCommentVoterFingerprint() {
         try {
@@ -856,69 +990,38 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    function renderCommunityReviewCards(reviews) {
-        if (!communityReviewsList) return;
-
-        communityReviewsList.innerHTML = '';
-        reviews.forEach((review, index) => {
-            const spot = toCommunitySpot(review);
-            const card = createReviewCardElement(spot, index, {
-                cardIdPrefix: 'community-spot',
-                includeEngagement: false,
-                includePL: true,
-                includeVisits: false,
-                includePrice: true,
-                includeVerzehrort: true
-            });
-            communityReviewsList.appendChild(card);
-        });
-    }
-
-    function renderCommunityReviewListState(message) {
-        if (!communityReviewsList) return;
-        communityReviewsList.innerHTML = `<p class="community-reviews-state">${escapeHtml(message)}</p>`;
-    }
-
     async function loadCommunityReviews() {
         const client = ensureSupabaseClient();
-        if (!communityReviewsList) return;
-
         if (!client) {
             communityReviewsReady = true;
-            renderCommunityReviewListState('Community Reviews sind nicht verfügbar. Bitte Supabase-Setup prüfen.');
-            if (communityReviewCount) communityReviewCount.textContent = '0';
+            communityReviewsLoadError = true;
+            applyCommunityReviewsToData([]);
+            refreshDataViews();
             return;
         }
 
         communityReviewsReady = false;
         communityReviewsLoadError = false;
-        renderCommunityReviewListState('Community Reviews werden geladen...');
 
         const { data, error } = await client
             .from('community_reviews')
             .select('id, reviewer_name, spot_name, city, dish, preis, verzehrort, visit_date, fleisch, gemuese, sosse, brot, balance, auswahl, portion, hygiene, service, comment_text, image_url, created_at')
             .eq('is_approved', true)
             .order('created_at', { ascending: false })
-            .limit(24);
+            .limit(300);
 
         communityReviewsReady = true;
 
         if (error) {
             communityReviewsLoadError = true;
-            renderCommunityReviewListState('Community Reviews konnten nicht geladen werden.');
-            if (communityReviewCount) communityReviewCount.textContent = '0';
+            applyCommunityReviewsToData([]);
+            refreshDataViews();
             return;
         }
 
         const items = Array.isArray(data) ? data : [];
-        if (communityReviewCount) communityReviewCount.textContent = String(items.length);
-
-        if (items.length === 0) {
-            renderCommunityReviewListState('Noch keine freigegebenen Community Reviews.');
-            return;
-        }
-
-        renderCommunityReviewCards(items);
+        applyCommunityReviewsToData(items);
+        refreshDataViews();
     }
 
     async function uploadCommunityReviewImage(client, file) {
@@ -965,9 +1068,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const formData = new FormData(form);
+        const entryMode = String(formData.get('spot_entry_mode') || 'existing');
+        const existingSpotId = Number(formData.get('existing_spot_id'));
+        const selectedBaseSpot = baseSpotById.get(existingSpotId);
         const reviewerName = String(formData.get('reviewer_name') || '').trim();
-        const spotName = String(formData.get('spot_name') || '').trim();
-        const city = String(formData.get('city') || '').trim();
+        const spotName = entryMode === 'existing'
+            ? String(selectedBaseSpot ? selectedBaseSpot.name : '').trim()
+            : String(formData.get('spot_name') || '').trim();
+        const city = entryMode === 'existing'
+            ? String(selectedBaseSpot ? selectedBaseSpot.city : '').trim()
+            : String(formData.get('city') || '').trim();
         const dish = String(formData.get('dish') || '').trim();
         const visitDate = String(formData.get('visit_date') || '').trim();
         const commentText = String(formData.get('comment_text') || '').trim();
@@ -990,6 +1100,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Spezifische Validierung für jedes Feld
         if (!reviewerName) {
             if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie Ihren Namen ein.';
+            return;
+        }
+        if (entryMode === 'existing' && !selectedBaseSpot) {
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte einen bestehenden Spot aus der Liste auswählen.';
             return;
         }
         if (!spotName) {
@@ -1106,6 +1220,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }).catch(() => { });
 
             form.reset();
+            syncCommunitySpotInputsFromSelection();
             if (communityReviewStatus) communityReviewStatus.textContent = 'Danke! Dein Review wurde eingereicht und wartet auf Freigabe.';
             openCommentFeedbackModal();
         } catch (error) {
@@ -1116,7 +1231,96 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function populateExistingSpotSelectOptions() {
+        if (!existingSpotSelect) return;
+
+        const sortedBaseSpots = [...baseKebabData].sort((a, b) => a.name.localeCompare(b.name, 'de'));
+        existingSpotSelect.innerHTML = sortedBaseSpots.map((spot) => (
+            `<option value="${spot.id}">${escapeHtml(spot.name)} (${escapeHtml(spot.city)})</option>`
+        )).join('');
+    }
+
+    function syncCommunitySpotInputsFromSelection() {
+        if (!spotEntryModeSelect || !communitySpotNameInput || !communityCityInput) return;
+
+        const mode = spotEntryModeSelect.value;
+        const existingSpotId = Number(existingSpotSelect ? existingSpotSelect.value : NaN);
+        const selectedSpot = baseSpotById.get(existingSpotId);
+
+        if (mode === 'existing') {
+            if (existingSpotWrapper) {
+                existingSpotWrapper.style.display = '';
+            }
+            if (existingSpotSelect) {
+                existingSpotSelect.required = true;
+            }
+
+            if (selectedSpot) {
+                communitySpotNameInput.value = selectedSpot.name;
+                communityCityInput.value = selectedSpot.city;
+            }
+
+            communitySpotNameInput.readOnly = true;
+            communityCityInput.readOnly = true;
+        } else {
+            if (existingSpotWrapper) {
+                existingSpotWrapper.style.display = 'none';
+            }
+            if (existingSpotSelect) {
+                existingSpotSelect.required = false;
+            }
+
+            communitySpotNameInput.readOnly = false;
+            communityCityInput.readOnly = false;
+            communitySpotNameInput.value = '';
+            communityCityInput.value = '';
+        }
+    }
+
+    function openCommunitySubmitPanel() {
+        if (!communitySubmitPanel) return;
+        communitySubmitPanel.hidden = false;
+        if (openCommunityReviewFormBtn) {
+            openCommunityReviewFormBtn.setAttribute('aria-expanded', 'true');
+        }
+        const firstField = communityReviewForm ? communityReviewForm.querySelector('input[name="reviewer_name"]') : null;
+        if (firstField) {
+            firstField.focus({ preventScroll: true });
+        }
+        scrollToElementFlush(communitySubmitPanel);
+    }
+
     function initCommunityReviews() {
+        populateExistingSpotSelectOptions();
+        syncCommunitySpotInputsFromSelection();
+
+        if (communitySubmitPanel) {
+            communitySubmitPanel.hidden = true;
+        }
+
+        if (openCommunityReviewFormBtn) {
+            openCommunityReviewFormBtn.setAttribute('aria-expanded', 'false');
+            openCommunityReviewFormBtn.addEventListener('click', openCommunitySubmitPanel);
+        }
+
+        if (spotEntryModeSelect) {
+            spotEntryModeSelect.addEventListener('change', () => {
+                syncCommunitySpotInputsFromSelection();
+                if (communityReviewStatus) {
+                    communityReviewStatus.textContent = '';
+                }
+            });
+        }
+
+        if (existingSpotSelect) {
+            existingSpotSelect.addEventListener('change', () => {
+                syncCommunitySpotInputsFromSelection();
+                if (communityReviewStatus) {
+                    communityReviewStatus.textContent = '';
+                }
+            });
+        }
+
         if (communityReviewForm) {
             communityReviewForm.addEventListener('submit', handleCommunityReviewSubmit);
             const visitDateInput = communityReviewForm.querySelector('input[name="visit_date"]');
@@ -1145,6 +1349,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
         }
+
         loadCommunityReviews();
     }
 
@@ -1346,10 +1551,87 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    const cities = [...new Set(kebabData.map(spot => spot.city))].sort();
-    const dishes = [...new Set(kebabData.map(spot => spot.dish))].sort();
-    let activeCities = new Set(cities);
-    let activeDishes = new Set(dishes);
+    function renderCommunityReviewsPanelForSpot(spotId) {
+        const reviews = approvedCommunityReviewsBySpotId.get(Number(spotId)) || [];
+
+        if (reviews.length === 0) {
+            return `
+                <details class="review-community-panel" data-spot-id="${spotId}">
+                    <summary>Bestätigte Community Reviews (0)</summary>
+                    <p class="review-community-empty">Noch keine bestätigten Community Reviews zu diesem Spot.</p>
+                </details>
+            `;
+        }
+
+        const items = reviews.map((review) => {
+            const reviewer = escapeHtml(review.reviewer_name || 'Anonym');
+            const visitDate = formatVisitDate(review.visit_date);
+            const submittedAt = formatCommentDate(review.created_at);
+            const reviewText = escapeHtml(review.comment_text || '');
+            const dish = escapeHtml(review.dish || '-');
+            const preis = escapeHtml(review.preis || '-');
+            const verzehrort = escapeHtml(review.verzehrort || '-');
+            const imageUrl = String(review.image_url || '').trim();
+
+            return `
+                <article class="review-community-item">
+                    <div class="review-community-head">
+                        <strong>${reviewer}</strong>
+                        <span>${visitDate || submittedAt || ''}</span>
+                    </div>
+                    <p class="review-community-meta">${dish} · ${preis} · ${verzehrort}</p>
+                    ${imageUrl ? `<img src="${imageUrl}" alt="Community Review Bild" class="review-community-image" loading="lazy" />` : ''}
+                    <p class="review-community-text">${reviewText || 'Kein Kommentar angegeben.'}</p>
+                </article>
+            `;
+        }).join('');
+
+        return `
+            <details class="review-community-panel" data-spot-id="${spotId}">
+                <summary>Bestätigte Community Reviews (${reviews.length})</summary>
+                <div class="review-community-list">${items}</div>
+            </details>
+        `;
+    }
+
+    function attachReviewCardHandlers(card) {
+        const reviewHelpfulButton = card.querySelector('.review-helpful-btn');
+        const communityPanel = card.querySelector('.review-community-panel');
+
+        if (reviewHelpfulButton) {
+            reviewHelpfulButton.addEventListener('click', handleReviewHelpfulClick);
+        }
+
+        if (communityPanel) {
+            communityPanel.addEventListener('click', (event) => event.stopPropagation());
+            communityPanel.addEventListener('keydown', (event) => event.stopPropagation());
+        }
+    }
+
+    let cities = [];
+    let dishes = [];
+    let activeCities = new Set();
+    let activeDishes = new Set();
+
+    function refreshFilterOptions(preserveSelection = true) {
+        const previousCities = new Set(activeCities);
+        const previousDishes = new Set(activeDishes);
+
+        cities = [...new Set(kebabData.map((spot) => spot.city).filter(Boolean))].sort();
+        dishes = [...new Set(kebabData.map((spot) => spot.dish).filter(Boolean))].sort();
+
+        if (preserveSelection) {
+            activeCities = new Set(cities.filter((city) => previousCities.has(city)));
+            activeDishes = new Set(dishes.filter((dish) => previousDishes.has(dish)));
+            if (activeCities.size === 0) activeCities = new Set(cities);
+            if (activeDishes.size === 0) activeDishes = new Set(dishes);
+        } else {
+            activeCities = new Set(cities);
+            activeDishes = new Set(dishes);
+        }
+
+        populateFilters();
+    }
 
     function populateFilters() {
         const cityGroup = document.getElementById('filter-city-group');
@@ -1485,9 +1767,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <span class="review-helpful-count">${reviewLikeCount}</span>
                                 </button>
                             </div>
-                            <div class="review-comments-host" data-spot-id="${spot.id}">
-                                ${renderReviewCommentsSection(spot.id)}
-                            </div>
+                            ${renderCommunityReviewsPanelForSpot(spot.id)}
                         ` : ''}
                     </div>
                 </div>
@@ -1509,7 +1789,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (includeEngagement) {
-            attachCommentSectionHandlers(card);
+            attachReviewCardHandlers(card);
         }
 
         return card;
@@ -1554,6 +1834,29 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             gridContainer.appendChild(loadMoreBtn);
         }
+    }
+
+    function refreshDataViews() {
+        const validSpotIds = new Set(kebabData.map((spot) => Number(spot.id)));
+
+        [...selectedSpots].forEach((spotId) => {
+            if (!validSpotIds.has(Number(spotId))) {
+                selectedSpots.delete(spotId);
+            }
+        });
+
+        if (selectedSpots.size === 0 && kebabData.length > 0) {
+            selectedSpots.add(kebabData[0].id);
+            if (kebabData[1]) {
+                selectedSpots.add(kebabData[1].id);
+            }
+        }
+
+        refreshFilterOptions(true);
+        renderGrid();
+        renderToggles(searchInput ? searchInput.value : '');
+        updateChart();
+        initAnalytics();
     }
 
     function jumpToReview(spotId) {
@@ -1704,13 +2007,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialization
     initChart();
+    refreshFilterOptions(false);
+    renderGrid();
     renderToggles();
     updateChart();
-    populateFilters();
-    renderGrid();
     initSpotlight();
     initAnalytics();
-    loadReviewComments();
     initCommunityReviews();
 
     // ── Analytics Section ────────────────────────────────────────────
