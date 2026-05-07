@@ -1464,7 +1464,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const color = palette[index % palette.length];
                 const pointColors = scores.map(s => getColorForScore(s));
-                
+
                 datasets.push({
                     label: spot.name,
                     data: scores,
@@ -1551,7 +1551,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const value = parseFloat(score);
         if (isNaN(value) || value < 0) return 'inherit';
         const clamped = Math.max(1, Math.min(10, value));
-        
+
         let hue;
         if (clamped <= 5) {
             // Scale 1 to 5: Purple (280) to Red (360)
@@ -1562,7 +1562,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const t = (clamped - 5) / 5;
             hue = t * 120;
         }
-        
+
         return `hsl(${Math.round(hue)}, 80%, 40%)`;
     }
 
@@ -1810,6 +1810,83 @@ document.addEventListener('DOMContentLoaded', () => {
     const SPOTS_PER_PAGE = 6;
     let visibleCount = SPOTS_PER_PAGE;
 
+    function buildSlidesForSpot(spot) {
+        const slides = [];
+        slides.push({
+            imageUrl: spot.image || 'kebab_spot_demo.png',
+            comment: spot.kommentar || null,
+            author: 'Hauptreview'
+        });
+        const reviews = approvedCommunityReviewsBySpotId.get(Number(spot.id)) || [];
+        reviews.forEach(review => {
+            slides.push({
+                imageUrl: String(review.image_url || '').trim() || 'kebab_spot_demo.png',
+                comment: review.comment_text || null,
+                author: escapeHtml(review.reviewer_name || 'Anonym')
+            });
+        });
+        return slides;
+    }
+
+    function initSlideshow(card, slides) {
+        const imageContainer = card.querySelector('.spot-image-container');
+        const commentArea = card.querySelector('.spot-comment-area');
+        if (!imageContainer) return;
+
+        let currentIndex = 0;
+        const images = imageContainer.querySelectorAll('.slide-image');
+        const commentItems = commentArea ? commentArea.querySelectorAll('.slide-comment-item') : [];
+        const dots = imageContainer.querySelectorAll('.slide-dot');
+        const prevBtn = imageContainer.querySelector('.slide-nav-btn.prev');
+        const nextBtn = imageContainer.querySelector('.slide-nav-btn.next');
+        let interval;
+
+        function showSlide(index) {
+            images[currentIndex].classList.remove('active');
+            if (commentItems[currentIndex]) commentItems[currentIndex].classList.remove('active');
+            if (dots[currentIndex]) dots[currentIndex].classList.remove('active');
+
+            currentIndex = (index + slides.length) % slides.length;
+
+            images[currentIndex].classList.add('active');
+            if (commentItems[currentIndex]) commentItems[currentIndex].classList.add('active');
+            if (dots[currentIndex]) dots[currentIndex].classList.add('active');
+        }
+
+        function startAutoplay() {
+            stopAutoplay();
+            interval = setInterval(() => showSlide(currentIndex + 1), 5000);
+        }
+
+        function stopAutoplay() {
+            if (interval) clearInterval(interval);
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showSlide(currentIndex - 1);
+                startAutoplay();
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showSlide(currentIndex + 1);
+                startAutoplay();
+            });
+        }
+        dots.forEach((dot, idx) => {
+            dot.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showSlide(idx);
+                startAutoplay();
+            });
+        });
+
+        startAutoplay();
+    }
+
     function createReviewCardElement(spot, index, options = {}) {
         const card = document.createElement('div');
         card.className = 'spot-card';
@@ -1830,6 +1907,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const reviewLikeCount = reviewLikesBySpot.get(spot.id) || 0;
         const reviewLiked = reviewLikedByClient.has(spot.id);
         const setupMissing = !supabaseClient;
+
+        const slides = buildSlidesForSpot(spot);
+        const hasSlideshow = slides.length >= 2;
 
         card.innerHTML = `
             <div class="spot-card-header">
@@ -1859,7 +1939,16 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="spot-main-content">
                 <div class="spot-top-content">
                     <div class="spot-image-container">
-                        <img src="${spot.image || 'kebab_spot_demo.png'}" alt="Bild von ${spot.name}" class="spot-image" loading="lazy" />
+                        ${hasSlideshow ? `
+                            ${slides.map((s, i) => `<img src="${s.imageUrl}" alt="Slide ${i + 1}" class="slide-image ${i === 0 ? 'active' : ''}" loading="lazy" />`).join('')}
+                            <button class="slide-nav-btn prev" aria-label="Vorheriges Bild">&#10094;</button>
+                            <button class="slide-nav-btn next" aria-label="Nächstes Bild">&#10095;</button>
+                            <div class="slide-dots">
+                                ${slides.map((_, i) => `<button class="slide-dot ${i === 0 ? 'active' : ''}" aria-label="Slide ${i + 1}"></button>`).join('')}
+                            </div>
+                        ` : `
+                            <img src="${spot.image || 'kebab_spot_demo.png'}" alt="Bild von ${spot.name}" class="spot-image" loading="lazy" />
+                        `}
                     </div>
                     <div class="spot-content">
                         <div class="spot-categories">
@@ -1883,9 +1972,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${spot.date ? `<span class="badge">Letzter Besuch: ${spot.date}</span>` : ''}
                         </div>
 
-                        ${(spot.kommentar || includeEngagement) ? `
+                        ${(spot.kommentar || hasSlideshow || includeEngagement) ? `
                             <div class="spot-comment-area">
-                                ${spot.kommentar ? `<div class="spot-comment">"${spot.kommentar}"</div>` : ''}
+                                ${hasSlideshow ? `
+                                    ${slides.map((s, i) => `
+                                        <div class="slide-comment-item ${i === 0 ? 'active' : ''}">
+                                            <div class="spot-comment">"${s.comment}"</div>
+                                            <div class="slide-author-info">— ${s.author}</div>
+                                        </div>
+                                    `).join('')}
+                                ` : spot.kommentar ? `
+                                    <div class="spot-comment">"${spot.kommentar}"</div>
+                                ` : ''}
                                 ${includeEngagement ? renderCommunityReviewsPanelForSpot(spot.id) : ''}
                             </div>
                         ` : ''}
@@ -1909,6 +2007,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
+
+        if (hasSlideshow) {
+            initSlideshow(card, slides);
+        }
 
         const header = card.querySelector('.spot-card-header');
         header.addEventListener('click', (e) => {
