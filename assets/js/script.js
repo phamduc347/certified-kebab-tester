@@ -1220,6 +1220,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }).catch(() => { });
 
             form.reset();
+            if (submitButton) submitButton.blur();
             syncCommunitySpotInputsFromSelection();
             if (communityReviewStatus) communityReviewStatus.textContent = 'Danke! Dein Review wurde eingereicht und wartet auf Freigabe.';
             openCommentFeedbackModal();
