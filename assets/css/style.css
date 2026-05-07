@@ -2170,6 +2170,26 @@ section {
 }
 
 @media (max-width: 680px) {
+    /* Mobile tuning: keep compact form text, but switch to 16px on focus to avoid iOS auto-zoom. */
+    .community-review-form input,
+    .community-review-form textarea,
+    .community-review-form select,
+    .review-comments-form input,
+    .review-comments-form textarea,
+    .review-comments-form select {
+        font-size: 15px;
+        line-height: 1.35;
+    }
+
+    .community-review-form input:focus,
+    .community-review-form textarea:focus,
+    .community-review-form select:focus,
+    .review-comments-form input:focus,
+    .review-comments-form textarea:focus,
+    .review-comments-form select:focus {
+        font-size: 16px;
+    }
+
     .filter-utilities {
         justify-content: flex-start;
         flex-direction: column;
