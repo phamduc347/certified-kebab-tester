@@ -1561,7 +1561,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return `
                 <details class="review-community-panel" data-spot-id="${spotId}">
                     <summary>Weitere Reviews (0)</summary>
-                    <p class="review-community-empty">Noch keine bestätigten Community Reviews zu diesem Spot.</p>
+                    <p class="review-community-empty">Noch keine bestätigten Reviews zu diesem Spot.</p>
                 </details>
             `;
         }
@@ -1573,25 +1573,76 @@ document.addEventListener('DOMContentLoaded', () => {
             const reviewText = escapeHtml(review.comment_text || '');
             const dish = escapeHtml(review.dish || '-');
             const preis = escapeHtml(review.preis || '-');
+            const preisWithUnit = (preis === '-' || preis.includes('€')) ? preis : `${preis} €`;
             const verzehrort = escapeHtml(review.verzehrort || '-');
             const imageUrl = String(review.image_url || '').trim();
+            const headerDate = visitDate || submittedAt || '-';
+            const criteriaValues = {
+                fleisch: Number(review.fleisch) || 0,
+                gemuese: Number(review.gemuese) || 0,
+                sosse: Number(review.sosse) || 0,
+                brot: Number(review.brot) || 0,
+                balance: Number(review.balance) || 0,
+                auswahl: Number(review.auswahl) || 0,
+                portion: Number(review.portion) || 0,
+                hygiene: Number(review.hygiene) || 0,
+                service: Number(review.service) || 0
+            };
+            const averageScore = (
+                criteriaValues.fleisch +
+                criteriaValues.gemuese +
+                criteriaValues.sosse +
+                criteriaValues.brot +
+                criteriaValues.balance +
+                criteriaValues.auswahl +
+                criteriaValues.portion +
+                criteriaValues.hygiene +
+                criteriaValues.service
+            ) / 9;
+            const scoreDisplay = `${(averageScore * 10).toFixed(2).replace('.', ',')}%`;
 
             return `
-                <article class="review-community-item">
-                    <div class="review-community-head">
-                        <strong>${reviewer}</strong>
-                        <span>${visitDate || submittedAt || ''}</span>
+                <details class="review-community-item">
+                    <summary>
+                        <span class="review-community-pattern-line review-community-pattern-line--summary" aria-label="Review Kopfzeile">
+                            ${renderStars(scoreDisplay)}
+                            <span class="review-community-pattern-author">Review von ${reviewer}</span>
+                            <span class="review-community-pattern-date">· ${headerDate}</span>
+                        </span>
+                    </summary>
+                    <div class="review-community-item-body">
+                        <div class="spot-top-content review-community-top-content">
+                            <div class="spot-image-container review-community-image-container">
+                                ${imageUrl ? `<img src="${imageUrl}" alt="Review Bild" class="spot-image review-community-image" loading="lazy" />` : `<img src="kebab_spot_demo.png" alt="Review Bild" class="spot-image review-community-image" loading="lazy" />`}
+                            </div>
+                            <div class="spot-content">
+                                <div class="spot-categories">
+                                    ${renderCriteriaBar('Fleisch', criteriaValues.fleisch)}
+                                    ${renderCriteriaBar('Gemüse', criteriaValues.gemuese)}
+                                    ${renderCriteriaBar('Soße', criteriaValues.sosse)}
+                                    ${renderCriteriaBar('Brot', criteriaValues.brot)}
+                                    ${renderCriteriaBar('Balance', criteriaValues.balance)}
+                                    ${renderCriteriaBar('Auswahl', criteriaValues.auswahl)}
+                                    ${renderCriteriaBar('Portion', criteriaValues.portion)}
+                                    ${renderCriteriaBar('Hygiene', criteriaValues.hygiene)}
+                                    ${renderCriteriaBar('Service', criteriaValues.service)}
+                                </div>
+                                <div class="spot-details">
+                                    <span class="badge">${dish}</span>
+                                    <span class="badge">Preis: ${preisWithUnit}</span>
+                                    <span class="badge">${verzehrort}</span>
+                                </div>
+                                <div class="spot-comment">"${reviewText || 'Kein Kommentar angegeben.'}"</div>
+                            </div>
+                        </div>
                     </div>
-                    <p class="review-community-meta">${dish} · ${preis} · ${verzehrort}</p>
-                    ${imageUrl ? `<img src="${imageUrl}" alt="Community Review Bild" class="review-community-image" loading="lazy" />` : ''}
-                    <p class="review-community-text">${reviewText || 'Kein Kommentar angegeben.'}</p>
-                </article>
+                </details>
             `;
         }).join('');
 
         return `
             <details class="review-community-panel" data-spot-id="${spotId}">
-                <summary>Bestätigte Community Reviews (${reviews.length})</summary>
+                <summary>Bestätigte Reviews (${reviews.length})</summary>
                 <div class="review-community-list">${items}</div>
             </details>
         `;
@@ -1606,9 +1657,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (communityPanel) {
-            communityPanel.addEventListener('click', (event) => event.stopPropagation());
+            communityPanel.addEventListener('click', (event) => {
+                // Let image clicks bubble so delegated lightbox handling can open zoom.
+                if (event.target && event.target.closest('.spot-image')) {
+                    return;
+                }
+                event.stopPropagation();
+            });
             communityPanel.addEventListener('keydown', (event) => event.stopPropagation());
         }
+    }
+
+    function syncConfirmedReviewsPanelState(card, shouldOpenPanel) {
+        if (!card) return;
+
+        const panel = card.querySelector('.review-community-panel');
+        if (!panel) return;
+
+        panel.open = Boolean(shouldOpenPanel);
+
+        // Keep nested review entries collapsed by default.
+        const nestedReviews = panel.querySelectorAll('.review-community-item');
+        nestedReviews.forEach((item) => {
+            item.open = false;
+        });
     }
 
     // Festgelegte Gericht-Optionen
@@ -1777,7 +1849,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${spot.date ? `<span class="badge">Letzter Besuch: ${spot.date}</span>` : ''}
                         </div>
 
-                        ${spot.kommentar ? `<div class="spot-comment">"${spot.kommentar}"</div>` : ''}
+                        ${(spot.kommentar || includeEngagement) ? `
+                            <div class="spot-comment-area">
+                                ${spot.kommentar ? `<div class="spot-comment">"${spot.kommentar}"</div>` : ''}
+                                ${includeEngagement ? renderCommunityReviewsPanelForSpot(spot.id) : ''}
+                            </div>
+                        ` : ''}
                         ${includeEngagement ? `
                             <div class="review-feedback-row">
                                 <button
@@ -1793,7 +1870,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <span class="review-helpful-count">${reviewLikeCount}</span>
                                 </button>
                             </div>
-                            ${renderCommunityReviewsPanelForSpot(spot.id)}
                         ` : ''}
                     </div>
                 </div>
@@ -1805,6 +1881,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!e.target.closest('.maps-button')) {
                 const isOpening = !card.classList.contains('expanded');
                 card.classList.toggle('expanded');
+                syncConfirmedReviewsPanelState(card, isOpening);
 
                 if (isOpening) {
                     setTimeout(() => {
@@ -1912,6 +1989,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 4. Expand it after a short delay
             setTimeout(() => {
                 card.classList.add('expanded');
+                syncConfirmedReviewsPanelState(card, true);
             }, 600);
         }
     }
@@ -2255,8 +2333,10 @@ document.addEventListener('DOMContentLoaded', () => {
             cards.forEach(card => {
                 if (allExpanded) {
                     card.classList.add('expanded');
+                    syncConfirmedReviewsPanelState(card, true);
                 } else {
                     card.classList.remove('expanded');
+                    syncConfirmedReviewsPanelState(card, false);
                 }
             });
             toggleAllLabel.textContent = allExpanded ? 'Alle einklappen' : 'Alle ausklappen';
