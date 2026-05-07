@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node node_modules/vitest/vitest.mjs run --reporter=verbose --no-color",
+    "test": "node node_modules/vitest/vitest.mjs run --reporter=verbose --no-color --pool=forks",
     "test:watch": "vitest"
   },
   "devDependencies": {

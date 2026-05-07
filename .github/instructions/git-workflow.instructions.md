@@ -11,9 +11,6 @@ applyTo: "**/*"
 - Nutze das deploy: Präfix ausschließlich nach expliziter Aufforderung durch den User.
 - Halte Commits klein und fachlich fokussiert.
 - Schreibe Commit-Messages mit klarer Wirkung fuer den Nutzer.
-- Verlinke relevante Issues oder Tickets in PR-Beschreibungen.
 - Fuehre vor Merge einen kurzen Selbst-Review durch.
-- Gebe ausschließlich die Befehle für git add, git commit und git push aus (kopierbar als Einzeiler für den User).
+- Git-Befehler können als Einzeiler oder im Batch gegeben werden.
 - Stelle sicher, dass alle technischen Änderungen (Dateien schreiben/ändern) abgeschlossen sind, bevor ein Commit-Befehl vorgeschlagen wird.
-- Führe vor jedem commit nochmal alle relevanten Tests aus und überprüfe ob alle Tests bestanden wurden. Falls nicht behebe die Fehler. (run_tests.sh) Führe anschließend noch mal ein git status durch und gehe sicher dass alle relevanten neuen oder geänderten Dateien für den commit auch gestaged sind.
-- Priorisiere bei Änderungen (Deprecations/Refactoring) das Aktualisieren von Test-Erwartungen gegenüber dem Löschen von Testfällen, um eine hohe Coverage zu erhalten.
