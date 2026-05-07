@@ -146,7 +146,14 @@
                     </div>
 
                     <label>Gericht
-                        <input type="text" name="dish" maxlength="60" placeholder="z. B. Döner Kalb, Halloumi Döner" required>
+                        <select name="dish" id="community-dish-select" required>
+                            <option value="">-- Wählen --</option>
+                            <option value="Döner">Döner</option>
+                            <option value="Gemüse-Döner">Gemüse-Döner</option>
+                            <option value="Steak-Döner">Steak-Döner</option>
+                            <option value="Veggie-Döner">Veggie-Döner</option>
+                            <option value="Vegan-Döner">Vegan-Döner</option>
+                        </select>
                     </label>
 
                     <div class="community-review-grid two-cols">

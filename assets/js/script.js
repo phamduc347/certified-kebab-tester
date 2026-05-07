@@ -1609,6 +1609,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Festgelegte Gericht-Optionen
+    const FIXED_DISHES = ['Döner', 'Gemüse-Döner', 'Steak-Döner', 'Veggie-Döner', 'Vegan-Döner'];
+
     let cities = [];
     let dishes = [];
     let activeCities = new Set();
@@ -1638,11 +1641,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         cities = [...new Set(kebabData.map((spot) => spot.city).filter(Boolean))].sort();
 
-        const dishValues = new Set();
-        kebabData.forEach((spot) => {
-            getSpotDishVariants(spot).forEach((dish) => dishValues.add(dish));
-        });
-        dishes = [...dishValues].sort((a, b) => a.localeCompare(b, 'de'));
+        // Verwende die festgelegten Gerichte-Optionen statt dynamisch extrahiert
+        dishes = [...FIXED_DISHES];
 
         if (preserveSelection) {
             activeCities = new Set(cities.filter((city) => previousCities.has(city)));
