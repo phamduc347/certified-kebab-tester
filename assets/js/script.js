@@ -1614,12 +1614,35 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeCities = new Set();
     let activeDishes = new Set();
 
+    function getSpotDishVariants(spot) {
+        const variants = new Set();
+        const baseDish = String(spot && spot.dish ? spot.dish : '').trim();
+        if (baseDish) {
+            variants.add(baseDish);
+        }
+
+        const reviews = approvedCommunityReviewsBySpotId.get(Number(spot && spot.id)) || [];
+        reviews.forEach((review) => {
+            const reviewDish = String(review && review.dish ? review.dish : '').trim();
+            if (reviewDish) {
+                variants.add(reviewDish);
+            }
+        });
+
+        return variants;
+    }
+
     function refreshFilterOptions(preserveSelection = true) {
         const previousCities = new Set(activeCities);
         const previousDishes = new Set(activeDishes);
 
         cities = [...new Set(kebabData.map((spot) => spot.city).filter(Boolean))].sort();
-        dishes = [...new Set(kebabData.map((spot) => spot.dish).filter(Boolean))].sort();
+
+        const dishValues = new Set();
+        kebabData.forEach((spot) => {
+            getSpotDishVariants(spot).forEach((dish) => dishValues.add(dish));
+        });
+        dishes = [...dishValues].sort((a, b) => a.localeCompare(b, 'de'));
 
         if (preserveSelection) {
             activeCities = new Set(cities.filter((city) => previousCities.has(city)));
@@ -1801,7 +1824,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const filteredData = kebabData.filter(spot => {
             const cityMatch = activeCities.size === 0 || activeCities.has(spot.city);
-            const dishMatch = activeDishes.size === 0 || activeDishes.has(spot.dish);
+            const spotDishVariants = getSpotDishVariants(spot);
+            let dishMatch = activeDishes.size === 0;
+            if (!dishMatch) {
+                for (const dish of spotDishVariants) {
+                    if (activeDishes.has(dish)) {
+                        dishMatch = true;
+                        break;
+                    }
+                }
+            }
             return cityMatch && dishMatch;
         }).sort((a, b) => {
             const parseScore = s => parseFloat(String(s).replace(',', '.').replace('%', '')) || 0;
