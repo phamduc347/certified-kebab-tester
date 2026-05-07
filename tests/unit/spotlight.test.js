@@ -8,17 +8,10 @@ import { loadKebabData } from '../helpers/load-data.js';
 
 const { kebabData } = loadKebabData();
 
-// ── Replicated spotlight logic (from script.js) ──────────────────────────────
-function parseScore(s) {
-    if (!s) return 0;
-    return parseFloat(String(s).replace(',', '.').replace('%', '')) || 0;
-}
-
-function parseDate(d) {
-    if (!d || typeof d !== 'string') return new Date(0);
-    const parts = d.split('.');
-    return parts.length === 3 ? new Date(`${parts[2]}-${parts[1]}-${parts[0]}`) : new Date(0);
-}
+import {
+    parseVal as parseScore,
+    parseDateDDMMYYYY as parseDate
+} from '../../assets/js/utils.js';
 
 function buildSpotlightItems(data) {
     if (!data || data.length === 0) return [];

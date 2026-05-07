@@ -45,5 +45,8 @@ if [ ! -d "node_modules" ]; then
     echo ""
 fi
 
+echo "🔄 Synchronisiere Utilities aus script.js..."
+node helpers/sync-utils.cjs
+
 # Force a stable, non-TTY reporter so output is visible in all terminals.
 "$NPM_CMD" test
