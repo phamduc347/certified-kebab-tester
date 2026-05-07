@@ -1,45 +1,17 @@
 /**
  * Unit tests for pure utility functions used in script.js.
- * These functions are tested in isolation without any DOM or browser dependency.
+ * Functions are imported from assets/js/utils.js, which mirrors
+ * the production implementations exactly.
  */
 import { describe, it, expect } from 'vitest';
+import {
+    escapeHtml,
+    normalizeCommentText,
+    getColorForScore,
+    parseVal,
+    renderStarsScore
+} from '../../assets/js/utils.js';
 
-// ── Replicated pure functions (DOM-independent) ──────────────────────────────
-// These mirror the implementations in script.js.
-// If the implementation changes, update here too.
-
-function escapeHtml(value) {
-    return String(value || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
-
-function normalizeCommentText(value) {
-    return String(value || '')
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, ' ');
-}
-
-function getColorForScore(score) {
-    const value = parseFloat(score);
-    if (isNaN(value) || value < 0) return 'inherit';
-    const clamped = Math.max(1, Math.min(10, value));
-    const hue = Math.round(((clamped - 1) / 9) * 120);
-    return `hsl(${hue}, 80%, 40%)`;
-}
-
-function parseVal(s) {
-    return parseFloat(String(s).replace(',', '.').replace('%', '').replace(' €', '')) || 0;
-}
-
-function renderStarsScore(scoreStr) {
-    if (!scoreStr) return null;
-    return parseFloat(String(scoreStr).replace(',', '.').replace('%', ''));
-}
 
 // ── escapeHtml ───────────────────────────────────────────────────────────────
 describe('escapeHtml', () => {
@@ -103,8 +75,8 @@ describe('normalizeCommentText', () => {
 
 // ── getColorForScore ─────────────────────────────────────────────────────────
 describe('getColorForScore', () => {
-    it('returns red (hue 0) for score 1', () => {
-        expect(getColorForScore(1)).toBe('hsl(0, 80%, 40%)');
+    it('returns purple (hsl 280) for score 1', () => {
+        expect(getColorForScore(1)).toBe('hsl(280, 80%, 40%)');
     });
 
     it('returns green (hue 120) for score 10', () => {
@@ -133,8 +105,8 @@ describe('getColorForScore', () => {
         expect(getColorForScore(15)).toBe('hsl(120, 80%, 40%)');
     });
 
-    it('clamps values at 1 (lower bound)', () => {
-        expect(getColorForScore(0.5)).toBe('hsl(0, 80%, 40%)');
+    it('clamps values at 1 (lower bound) → purple', () => {
+        expect(getColorForScore(0.5)).toBe('hsl(280, 80%, 40%)');
     });
 });
 

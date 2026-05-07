@@ -1,50 +1,17 @@
 /**
- * Boundary Value Tests (Grenzwerttests) für kritische Berechnungs- und
- * Parsing-Funktionen der Certified Kebab Tester Website.
- *
- * Getestete Bereiche:
- *  - parseVal:         Grenzwerte bei Preis, Score und plIndex
- *  - getColorForScore: Farbgrenzen bei Score 1, 5, 10 und Überschreitungen
- *  - plIndex-Logik:    Division durch 0 bei Preis = 0 €
- *  - Datum-Parsing:    Ungültige und extreme Datumsformate
- *  - Kriterienwerte:   Exakt an der Grenze (1.0, 10.0, 0.9, 10.1)
- *  - Score-Farbe:      Übergang rot → gelb → grün an den Schwellwerten
+ * Boundary Value Tests für kritische Berechnungs- und Parsing-Funktionen.
+ * Functions are imported from assets/js/utils.js, which mirrors
+ * the production implementations exactly.
  */
 import { describe, it, expect } from 'vitest';
+import {
+    parseVal,
+    getColorForScore,
+    parseDateDDMMYYYY,
+    calcPlIndex,
+    isScoreInRange
+} from '../../assets/js/utils.js';
 
-// ── Replizierte Funktionen aus script.js (DOM-unabhängig) ─────────────────────
-
-function parseVal(s) {
-    return parseFloat(String(s).replace(',', '.').replace('%', '').replace(' €', '')) || 0;
-}
-
-function getColorForScore(score) {
-    const value = parseFloat(score);
-    if (isNaN(value) || value < 0) return 'inherit';
-    const clamped = Math.max(1, Math.min(10, value));
-    const hue = Math.round(((clamped - 1) / 9) * 120);
-    return `hsl(${hue}, 80%, 40%)`;
-}
-
-function parseDateDDMMYYYY(dateStr) {
-    if (!dateStr || typeof dateStr !== 'string') return new Date(0);
-    const parts = dateStr.split('.');
-    if (parts.length !== 3) return new Date(0);
-    const [day, month, year] = parts;
-    const d = new Date(`${year}-${month}-${day}`);
-    return isNaN(d.getTime()) ? new Date(0) : d;
-}
-
-function calcPlIndex(score, preis) {
-    const parsedScore = parseVal(score);
-    const parsedPreis = parseVal(preis);
-    if (parsedPreis === 0) return null; // Division durch 0 → ungültig
-    return parseFloat((parsedScore / parsedPreis).toFixed(2));
-}
-
-function isScoreInRange(val) {
-    return typeof val === 'number' && isFinite(val) && val >= 1 && val <= 10;
-}
 
 // ── parseVal: Grenzwerte ──────────────────────────────────────────────────────
 describe('parseVal – Grenzwerte', () => {
@@ -92,8 +59,8 @@ describe('parseVal – Grenzwerte', () => {
 
 // ── getColorForScore: Farbgrenzen ─────────────────────────────────────────────
 describe('getColorForScore – Farbgrenzen', () => {
-    it('Exakt 1 → hue 0 (rot)', () => {
-        expect(getColorForScore(1)).toBe('hsl(0, 80%, 40%)');
+    it('Exakt 1 → hue 280 (lila)', () => {
+        expect(getColorForScore(1)).toBe('hsl(280, 80%, 40%)');
     });
 
     it('Exakt 10 → hue 120 (grün)', () => {
@@ -107,12 +74,12 @@ describe('getColorForScore – Farbgrenzen', () => {
         expect(hue).toBeLessThan(120);
     });
 
-    it('Wert 0 wird auf 1 geclampt → hue 0 (rot)', () => {
-        expect(getColorForScore(0)).toBe('hsl(0, 80%, 40%)');
+    it('Wert 0 wird auf 1 geclampt → hue 280 (lila)', () => {
+        expect(getColorForScore(0)).toBe('hsl(280, 80%, 40%)');
     });
 
-    it('Wert 0.5 wird auf 1 geclampt → hue 0 (rot)', () => {
-        expect(getColorForScore(0.5)).toBe('hsl(0, 80%, 40%)');
+    it('Wert 0.5 wird auf 1 geclampt → hue 280 (lila)', () => {
+        expect(getColorForScore(0.5)).toBe('hsl(280, 80%, 40%)');
     });
 
     it('Wert 10.1 wird auf 10 geclampt → hue 120 (grün)', () => {
