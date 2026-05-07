@@ -703,8 +703,8 @@ section {
 }
 
 .community-submit-trigger {
-    border: 1px solid #111827;
-    background: #111827;
+    border: 1px solid #1d4ed8;
+    background: #1d4ed8;
     color: #ffffff;
     border-radius: 999px;
     font-size: 0.72rem;
@@ -713,18 +713,27 @@ section {
     font-weight: 700;
     padding: 9px 14px;
     cursor: pointer;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     order: -1;
 }
 
 .community-submit-trigger:hover {
-    opacity: 0.92;
+    background: #1e40af;
+    border-color: #1e40af;
+    opacity: 1;
     transform: translateY(-1px);
 }
 
 .community-submit-trigger[aria-expanded="true"] {
-    background: #ffffff;
-    color: #111827;
+    background: #dbeafe;
+    border-color: #93c5fd;
+    color: #1e3a8a;
+}
+
+.community-submit-trigger:focus-visible {
+    outline: 2px solid #60a5fa;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.28);
 }
 
 .toggle-all-btn:hover {
