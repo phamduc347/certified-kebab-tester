@@ -1558,7 +1558,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (reviews.length === 0) {
             return `
                 <details class="review-community-panel" data-spot-id="${spotId}">
-                    <summary>Bestätigte Community Reviews (0)</summary>
+                    <summary>Weitere Reviews (0)</summary>
                     <p class="review-community-empty">Noch keine bestätigten Community Reviews zu diesem Spot.</p>
                 </details>
             `;
