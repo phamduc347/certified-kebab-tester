@@ -293,6 +293,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${Number(value || 0).toFixed(2).replace('.', ',')}%`;
     }
 
+    function normalizeSpotScoreDisplay(value) {
+        let score = parsePercentNumber(value);
+        // Handle unexpected 10-point score inputs from external data.
+        if (score > 0 && score <= 10) {
+            score *= 10;
+        }
+        return formatPercentNumber(score);
+    }
+
+    function buildMapsSearchLink(spot) {
+        const name = String(spot && spot.name ? spot.name : '').trim();
+        const city = String(spot && spot.city ? spot.city : '').trim();
+        const query = `${name} ${city}`.trim() || 'Doener';
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    }
+
     function formatEuroNumber(value) {
         return `${Number(value || 0).toFixed(2).replace('.', ',')} €`;
     }
@@ -1710,6 +1726,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function refreshFilterOptions(preserveSelection = true) {
+        const previousAvailableCities = new Set(cities);
+        const previousAvailableDishes = new Set(dishes);
         const previousCities = new Set(activeCities);
         const previousDishes = new Set(activeDishes);
 
@@ -1719,8 +1737,9 @@ document.addEventListener('DOMContentLoaded', () => {
         dishes = [...FIXED_DISHES];
 
         if (preserveSelection) {
-            activeCities = new Set(cities.filter((city) => previousCities.has(city)));
-            activeDishes = new Set(dishes.filter((dish) => previousDishes.has(dish)));
+            // Keep prior user choices, but auto-enable newly introduced options.
+            activeCities = new Set(cities.filter((city) => previousCities.has(city) || !previousAvailableCities.has(city)));
+            activeDishes = new Set(dishes.filter((dish) => previousDishes.has(dish) || !previousAvailableDishes.has(dish)));
             if (activeCities.size === 0) activeCities = new Set(cities);
             if (activeDishes.size === 0) activeDishes = new Set(dishes);
         } else {
@@ -1787,7 +1806,10 @@ document.addEventListener('DOMContentLoaded', () => {
         card.style.animationDelay = `${index * 0.08}s`;
 
         const displayRank = Number.isFinite(options.displayRank) ? options.displayRank : index + 1;
-        const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
+        const mapsLink = buildMapsSearchLink(spot);
+        const scoreDisplay = normalizeSpotScoreDisplay(spot.score);
+        const safeSpotName = escapeHtml(spot.name);
+        const safeSpotCity = escapeHtml(spot.city);
         const includeEngagement = options.includeEngagement !== false;
         const includePrice = options.includePrice !== false;
         const includePL = options.includePL !== false;
@@ -1802,11 +1824,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="spot-rank">${displayRank}</div>
                 <div class="spot-header-text">
                     <div class="spot-title-row">
-                        <h3>${spot.name}</h3>
-                        ${renderStars(spot.score)}
+                        <h3>${safeSpotName}</h3>
+                        ${renderStars(scoreDisplay)}
                     </div>
                     <div class="spot-city">
-                        ${spot.city}${spot.date ? `<span class="spot-header-date"> · ${spot.date}</span>` : ''}${spot.preis ? `<span class="spot-mobile-price"> · ${spot.preis}</span>` : ''}
+                        ${safeSpotCity}${spot.date ? `<span class="spot-header-date"> · ${spot.date}</span>` : ''}${spot.preis ? `<span class="spot-mobile-price"> · ${spot.preis}</span>` : ''}
                     </div>
                 </div>
                 <div class="spot-header-actions">
@@ -1816,7 +1838,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </a>
                     <div class="spot-score-pill">
                         <span class="label">SCORE</span>
-                        <span class="value">${spot.score}</span>
+                        <span class="value">${scoreDisplay}</span>
                     </div>
                     <span class="expand-icon">▼</span>
                 </div>
@@ -2037,7 +2059,8 @@ document.addEventListener('DOMContentLoaded', () => {
         function renderSpotlightItems() {
             container.innerHTML = spotlightItems.map((item, i) => {
                 const spot = item.spot;
-                const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
+                const mapsLink = buildMapsSearchLink(spot);
+                const scoreDisplay = normalizeSpotScoreDisplay(spot.score);
                 return `
                     <div class="latest-card ${i === 0 ? 'active' : ''}" data-index="${i}">
                         <div class="latest-image-wrapper">
@@ -2049,12 +2072,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div class="latest-info">
                                     <span class="latest-label">${item.tag}</span>
                                     <h3 class="latest-title" data-id="${spot.id}">${spot.name}</h3>
-                                    ${renderStars(spot.score)}
+                                    ${renderStars(scoreDisplay)}
                                     <div class="latest-meta">${spot.city} • ${spot.date}</div>
                                 </div>
                                 <div class="latest-score-block">
                                     <div class="latest-score-label">SCORE</div>
-                                    <div class="latest-score-value">${spot.score}</div>
+                                    <div class="latest-score-value">${scoreDisplay}</div>
                                 </div>
                             </div>
                             <div class="latest-body">
@@ -2150,9 +2173,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         container.innerHTML = top5.map((spot, i) => {
             const pl = parseVal(spot.plIndex);
-            const sc = parseVal(spot.score);
             const pct = (pl / maxPL) * 100;
-            const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.city)}`;
+            const mapsLink = buildMapsSearchLink(spot);
+            const scoreDisplay = normalizeSpotScoreDisplay(spot.score);
 
             return `
             <div class="pl-row" style="--pl-delay: ${i * 0.1}s">
@@ -2172,7 +2195,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="pl-meta">
                     <div class="pl-meta-score">
                         <span class="pl-meta-label">SCORE</span>
-                        <span class="pl-meta-val">${spot.score}</span>
+                        <span class="pl-meta-val">${scoreDisplay}</span>
                     </div>
                     <div class="pl-meta-price">
                         <span class="pl-meta-label">PREIS</span>
