@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
 Write-Host "--------------------------------------"
-Write-Host "🚀 Certified Kebab Tester - Unit Tests"
+Write-Host "Certified Kebab Tester - Unit Tests"
 Write-Host "--------------------------------------"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -19,9 +19,9 @@ if (-not $npm) {
 Push-Location $testsDir
 try {
     if (-not (Test-Path 'node_modules')) {
-        Write-Host "📦 node_modules nicht gefunden. Installiere Abhängigkeiten..."
+        Write-Host "node_modules nicht gefunden. Installiere Abhaengigkeiten..."
         npm install
-        Write-Host "✅ Installation abgeschlossen."
+        Write-Host "Installation abgeschlossen."
         Write-Host ""
     }
 

@@ -1351,6 +1351,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         loadCommunityReviews();
+        loadReviewComments();
     }
 
     // ── Star Rating Renderer ──────────────────────────────────────────
