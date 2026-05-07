@@ -1890,6 +1890,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderToggles(searchInput ? searchInput.value : '');
         updateChart();
         initAnalytics();
+        initSpotlight();
     }
 
     function jumpToReview(spotId) {
@@ -2164,15 +2165,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 { key: 'brot', label: 'Brot' },
             ];
 
-            // Sort spots by overall score descending, limit to top 5
-            // Hand-picked for maximum visual contrast:
-            // Yaprak=Fleisch-Spezialist, Hugoo Gemüse=Gemüse-Spezialist,
-            // Med Dürüm=Brot-Champion, Planet Bistro=ausgewogen stark,
-            // Mudi's=Mittelfeld, Kebab & Smash=schwache Soße → volle Farbskala
-            const heatmapIds = [2, 3, 4, 5, 13, 14];
-            const spots = kebabData
-                .filter(s => heatmapIds.includes(s.id))
-                .sort((a, b) => parseVal(b.score) - parseVal(a.score));
+            // Build heatmap from current live ranking (includes approved community influence).
+            const HEATMAP_SPOT_LIMIT = 6;
+            const spots = [...kebabData]
+                .sort((a, b) => parseVal(b.score) - parseVal(a.score))
+                .slice(0, HEATMAP_SPOT_LIMIT);
+
+            if (spots.length === 0) {
+                heatmapContainer.innerHTML = '';
+                return;
+            }
 
             // Color: 5=red (hue 0), 7.5=yellow-orange (hue 45), 10=green (hue 120)
             const cellColor = (v) => {
