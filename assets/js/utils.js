@@ -125,6 +125,124 @@ export function buildCommunityAverage(review) {
         return avg.toFixed(1);
     }
 
+export function parseScoreInput(value) {
+        const raw = String(value || '').trim();
+        if (!/^(?:10(?:[.,]0)?|[1-9](?:[.,]\d)?)$/.test(raw)) {
+            return NaN;
+        }
+        const parsed = Number.parseFloat(raw.replace(',', '.'));
+        if (!Number.isFinite(parsed)) return NaN;
+        return Math.round(parsed * 10) / 10;
+    }
+
+export function getClientSpamBlockReason(spotId, commentValue) {
+        const now = Date.now();
+        const state = loadCommentLocks();
+        const recent = state.recent
+            .filter((entry) => now - Number(entry.at || 0) <= COMMENT_DUPLICATE_WINDOW_MS)
+            .map((entry) => ({
+                at: Number(entry.at) || 0,
+                spotId: Number(entry.spotId) || 0,
+                text: String(entry.text || '')
+            }));
+
+        if (state.blockedUntil > now) {
+            const waitSeconds = Math.ceil((state.blockedUntil - now) / 1000);
+            saveCommentLocks({ ...state, recent });
+            return `Zu viele Versuche. Bitte ${waitSeconds}s warten.`;
+        }
+
+        if (state.lastSubmitAt && now - state.lastSubmitAt < COMMENT_COOLDOWN_MS) {
+            const waitSeconds = Math.ceil((COMMENT_COOLDOWN_MS - (now - state.lastSubmitAt)) / 1000);
+            saveCommentLocks({ ...state, recent });
+            return `Bitte ${waitSeconds}s warten, bevor du erneut postest.`;
+        }
+
+        const attemptsInWindow = recent.filter((entry) => now - entry.at <= COMMENT_RATE_WINDOW_MS).length;
+        if (attemptsInWindow >= COMMENT_RATE_MAX) {
+            state.blockedUntil = now + COMMENT_BLOCK_MS;
+            saveCommentLocks({ ...state, recent });
+            return 'Temporäre Sperre aktiv. Bitte später erneut versuchen.';
+        }
+
+        const normalizedText = normalizeCommentText(commentValue);
+        const duplicate = recent.some((entry) =>
+            entry.spotId === Number(spotId) &&
+            entry.text === normalizedText &&
+            now - entry.at <= COMMENT_DUPLICATE_WINDOW_MS
+        );
+
+        saveCommentLocks({ ...state, recent });
+        if (duplicate) {
+            return 'Doppelter Kommentar erkannt. Bitte formuliere ihn neu.';
+        }
+
+        return '';
+    }
+
+export function computeSpotFromBaseAndCommunity(baseSpot, reviews) {
+        const criteria = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
+        const merged = { ...baseSpot };
+        const totalCount = 1 + reviews.length;
+
+        criteria.forEach((key) => {
+            const baseVal = Number(baseSpot[key]) || 0;
+            const sumCommunity = reviews.reduce((sum, review) => sum + (Number(review[key]) || 0), 0);
+            merged[key] = Number(((baseVal + sumCommunity) / totalCount).toFixed(1));
+        });
+
+        const avgAcrossCriteria = criteria.reduce((sum, key) => sum + (Number(merged[key]) || 0), 0) / criteria.length;
+        merged.score = formatPercentNumber(avgAcrossCriteria * 10);
+        merged.besuche = totalCount;
+
+        const priceValue = parseEuroNumber(merged.preis);
+        merged.plIndex = priceValue > 0
+            ? formatPercentNumber((parsePercentNumber(merged.score) / priceValue))
+            : '-';
+
+        return merged;
+    }
+
+export function computeCommunityOnlySpot(reviews) {
+        const criteria = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
+        const first = reviews[0] || {};
+        const generatedId = nextGeneratedSpotId;
+        nextGeneratedSpotId += 1;
+
+        const generated = {
+            id: generatedId,
+            name: String(first.spot_name || 'Neuer Spot').trim() || 'Neuer Spot',
+            city: String(first.city || '-').trim() || '-',
+            dish: String(first.dish || '-').trim() || '-',
+            preis: '-',
+            plIndex: '-',
+            score: '0,00%',
+            rank: 0,
+            stars: '☆☆☆☆☆',
+            verzehrort: String(first.verzehrort || '-').trim() || '-',
+            image: String(first.image_url || 'kebab_spot_demo.png').trim() || 'kebab_spot_demo.png',
+            kommentar: String(first.comment_text || '').trim(),
+            date: formatVisitDate(first.visit_date),
+            besuche: reviews.length
+        };
+
+        criteria.forEach((key) => {
+            const avg = reviews.reduce((sum, review) => sum + (Number(review[key]) || 0), 0) / reviews.length;
+            generated[key] = Number(avg.toFixed(1));
+        });
+
+        const avgAcrossCriteria = criteria.reduce((sum, key) => sum + (Number(generated[key]) || 0), 0) / criteria.length;
+        generated.score = formatPercentNumber(avgAcrossCriteria * 10);
+
+        const avgPrice = reviews.reduce((sum, review) => sum + parseEuroNumber(review.preis), 0) / reviews.length;
+        if (Number.isFinite(avgPrice) && avgPrice > 0) {
+            generated.preis = formatEuroNumber(avgPrice);
+            generated.plIndex = formatPercentNumber(parsePercentNumber(generated.score) / avgPrice);
+        }
+
+        return generated;
+    }
+
 export const parseVal = (s) => parseFloat(String(s).replace(',', '.').replace('%', '').replace(' €', '')) || 0;
 
 /**

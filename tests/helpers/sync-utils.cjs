@@ -18,7 +18,11 @@ const FUNCTIONS_TO_EXTRACT = [
     'buildSpotKey',
     'formatVisitDate',
     'getTodayIsoDate',
-    'buildCommunityAverage'
+    'buildCommunityAverage',
+    'parseScoreInput',
+    'getClientSpamBlockReason',
+    'computeSpotFromBaseAndCommunity',
+    'computeCommunityOnlySpot'
 ];
 
 // Special regex for simple one-liners like parseVal
