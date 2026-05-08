@@ -25,6 +25,10 @@ try {
         Write-Host ""
     }
 
+    Write-Host "🔄 Synchronisiere Utilities aus script.js..."
+    node helpers/sync-utils.cjs
+    Write-Host ""
+
     # Force stable output across terminals/CI by disabling dynamic color/TTY output.
     npm test
 }
