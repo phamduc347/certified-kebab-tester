@@ -69,6 +69,62 @@ export function renderStars(scoreStr) {
         `;
     }
 
+export function parsePercentNumber(value) {
+        return Number.parseFloat(String(value || '').replace(',', '.').replace('%', '')) || 0;
+    }
+
+export function parseEuroNumber(value) {
+        return Number.parseFloat(String(value || '').replace(',', '.').replace('€', '').replace(/\s/g, '')) || 0;
+    }
+
+export function formatPercentNumber(value) {
+        return `${Number(value || 0).toFixed(2).replace('.', ',')}%`;
+    }
+
+export function formatEuroNumber(value) {
+        return `${Number(value || 0).toFixed(2).replace('.', ',')} €`;
+    }
+
+export function normalizeSpotScoreDisplay(value) {
+        let score = parsePercentNumber(value);
+        // Handle unexpected 10-point score inputs from external data.
+        if (score > 0 && score <= 10) {
+            score *= 10;
+        }
+        return formatPercentNumber(score);
+    }
+
+export function buildSpotKey(name, city) {
+        return `${String(name || '').trim().toLowerCase()}|${String(city || '').trim().toLowerCase()}`;
+    }
+
+export function formatVisitDate(dateStr) {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        if (Number.isNaN(date.getTime())) return '';
+        return date.toLocaleDateString('de-DE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    }
+
+export function getTodayIsoDate() {
+        const now = new Date();
+        const year = String(now.getFullYear());
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+export function buildCommunityAverage(review) {
+        const keys = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
+        const values = keys.map((key) => Number(review[key])).filter((value) => Number.isFinite(value));
+        if (values.length === 0) return '0.0';
+        const avg = values.reduce((acc, value) => acc + value, 0) / values.length;
+        return avg.toFixed(1);
+    }
+
 export const parseVal = (s) => parseFloat(String(s).replace(',', '.').replace('%', '').replace(' €', '')) || 0;
 
 /**

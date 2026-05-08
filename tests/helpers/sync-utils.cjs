@@ -9,7 +9,16 @@ const FUNCTIONS_TO_EXTRACT = [
     'escapeHtml',
     'normalizeCommentText',
     'formatCommentDate',
-    'renderStars'
+    'renderStars',
+    'parsePercentNumber',
+    'parseEuroNumber',
+    'formatPercentNumber',
+    'formatEuroNumber',
+    'normalizeSpotScoreDisplay',
+    'buildSpotKey',
+    'formatVisitDate',
+    'getTodayIsoDate',
+    'buildCommunityAverage'
 ];
 
 // Special regex for simple one-liners like parseVal
