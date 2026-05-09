@@ -2702,9 +2702,9 @@ section {
 
     .spot-header-reviews,
     .latest-meta-reviews {
-        display: block;
-        margin-left: 0;
-        margin-top: 4px;
+        display: inline-block;
+        margin-left: 6px;
+        margin-top: 0;
     }
 }
 
