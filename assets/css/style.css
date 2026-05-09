@@ -19,7 +19,7 @@
 }
 
 :root {
-    --header-h: 80px;
+    --header-h: 94px;
 }
 
 html {
@@ -301,7 +301,7 @@ body.lightbox-open {
     top: 0;
     left: 0;
     width: 100%;
-    padding: 8px 0;
+    padding: 24px 0;
     z-index: 2000;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(16px);
@@ -456,16 +456,20 @@ body.menu-open {
 }
 
 @media (max-width: 768px) {
+    :root {
+        --header-h: 80px;
+    }
+
     html {
-        scroll-padding-top: 60px;
+        scroll-padding-top: var(--header-h);
     }
 
     section {
-        scroll-margin-top: 60px;
+        scroll-margin-top: var(--header-h);
     }
 
     .header {
-        padding: 4px 0;
+        padding: 20px 0;
         backdrop-filter: blur(4px);
     }
 
