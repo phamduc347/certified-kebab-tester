@@ -1920,7 +1920,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${renderStars(scoreDisplay)}
                     </div>
                     <div class="spot-city">
-                        ${safeSpotCity}${spot.date ? `<span class="spot-header-date"> · ${spot.date}</span>` : ''}${spot.preis ? `<span class="spot-mobile-price"> · ${spot.preis}</span>` : ''}
+                        ${safeSpotCity}${spot.date ? `<span class="spot-header-date"> · ${spot.date}</span>` : ''}<span class="spot-header-reviews">(${spot.besuche || 1} ${spot.besuche === 1 ? 'Review' : 'Reviews'})</span>${spot.preis ? `<span class="spot-mobile-price"> · ${spot.preis}</span>` : ''}
                     </div>
                 </div>
                 <div class="spot-header-actions">
@@ -2187,7 +2187,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <span class="latest-label">${item.tag}</span>
                                     <h3 class="latest-title" data-id="${spot.id}">${spot.name}</h3>
                                     ${renderStars(scoreDisplay)}
-                                    <div class="latest-meta">${spot.city} • ${spot.date}</div>
+                                    <div class="latest-meta">${spot.city} • ${spot.date} <span class="latest-meta-reviews">(${spot.besuche || 1} ${spot.besuche === 1 ? 'Review' : 'Reviews'})</span></div>
                                 </div>
                                 <div class="latest-score-block">
                                     <div class="latest-score-label">SCORE</div>

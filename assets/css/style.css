@@ -1277,9 +1277,14 @@ section {
     color: var(--text-muted);
 }
 
-.spot-header-date {
+.spot-header-date,
+.spot-header-reviews {
     font-size: 0.85rem;
     opacity: 0.7;
+}
+
+.spot-header-reviews {
+    margin-left: 6px;
 }
 
 .spot-mobile-price {
@@ -2633,6 +2638,13 @@ section {
 
     .latest-comment {
         -webkit-line-clamp: 4;
+    }
+
+    .spot-header-reviews,
+    .latest-meta-reviews {
+        display: block;
+        margin-left: 0;
+        margin-top: 4px;
     }
 }
 
