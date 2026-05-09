@@ -45,6 +45,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Close menu when clicking the background (white space) outside of links
+    headerNav.addEventListener('click', (e) => {
+        if (e.target === headerNav) {
+            toggleMenu(true);
+        }
+    });
+
     // Close menu on resize if screen becomes desktop
     window.addEventListener('resize', () => {
         if (window.innerWidth > 768 && headerNav.classList.contains('is-active')) {
