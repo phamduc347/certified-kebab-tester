@@ -2934,6 +2934,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ticker.innerHTML = tickerContent + tickerContent;
     })();
 
+    /*
     // ── Next Up Map ───────────────────────────────────────────────
     (function initNextUpMap() {
         const mapContainer = document.getElementById('next-up-map');
@@ -3035,4 +3036,5 @@ document.addEventListener('DOMContentLoaded', () => {
             map.setView([51.165, 10.451], 6); // Default Germany view
         }
     })();
+    */
 });

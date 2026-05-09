@@ -3748,6 +3748,7 @@ body.modal-open {
     animation-play-state: paused;
 }
 
+/*
 /* Next Up Map */
 .next-up-map-container {
     margin-top: 20px;
@@ -3846,6 +3847,7 @@ body.modal-open {
         height: 300px;
     }
 }
+*/
 
 /* Accessibility: disable heavy animations for users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
