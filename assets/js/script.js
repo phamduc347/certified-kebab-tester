@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedSpots = new Set([kebabData[0].id, kebabData[1].id]); // Select top 2 by default
 
     // Chart Configuration
-    const categories = ['Fleisch', 'Gemüse', 'Soße', 'Brot', 'Balance', 'Auswahl', 'Portion', 'Hygiene', 'Service'];
+    const categories = ['🥩 Fleisch', '🥬 Gemüse', '🍶 Soße', '🥖 Brot', '⚖️ Balance', '📋 Auswahl', '🍽️ Portion', '✨ Hygiene', '👨‍🍳 Service'];
 
     const DEFAULT_SUPABASE_URL = 'https://ehmrxhrfbejcaocpxfed.supabase.co';
     const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVobXJ4aHJmYmVqY2FvY3B4ZmVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4ODc0NzAsImV4cCI6MjA5MzQ2MzQ3MH0.dBcRE6zF9Bnso3A4eDHuhlLX3Sd5pD9AQq71ScnVc1Y';
@@ -1567,12 +1567,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderCriteriaBar(label, value) {
+        const emojis = {
+            'Fleisch': '🥩',
+            'Gemüse': '🥬',
+            'Soße': '🍶',
+            'Brot': '🥖',
+            'Balance': '⚖️',
+            'Auswahl': '📋',
+            'Portion': '🍽️',
+            'Hygiene': '✨',
+            'Service': '👨‍🍳'
+        };
+        const emoji = emojis[label] || '';
+        const displayLabel = emoji ? `${emoji} ${label}` : label;
         const percentage = (parseFloat(value) / 10) * 100;
         const color = getColorForScore(value);
         return `
             <div class="cat-item-bar">
                 <div class="cat-info">
-                    <span>${label}</span>
+                    <span>${displayLabel}</span>
                     <span style="color: ${color}">${value}</span>
                 </div>
                 <div class="bar-bg">
@@ -2340,15 +2353,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const awardsContainer = document.getElementById('category-awards-container');
         if (awardsContainer) {
             const cats = [
-                { key: 'fleisch', label: 'Fleisch' },
-                { key: 'gemuese', label: 'Gemüse' },
-                { key: 'sosse', label: 'Soße' },
-                { key: 'brot', label: 'Brot' },
-                { key: 'balance', label: 'Balance' },
-                { key: 'auswahl', label: 'Auswahl' },
-                { key: 'portion', label: 'Portion' },
-                { key: 'hygiene', label: 'Hygiene' },
-                { key: 'service', label: 'Service' },
+                { key: 'fleisch', label: '🥩 Fleisch' },
+                { key: 'gemuese', label: '🥬 Gemüse' },
+                { key: 'sosse', label: '🍶 Soße' },
+                { key: 'brot', label: '🥖 Brot' },
+                { key: 'balance', label: '⚖️ Balance' },
+                { key: 'auswahl', label: '📋 Auswahl' },
+                { key: 'portion', label: '🍽️ Portion' },
+                { key: 'hygiene', label: '✨ Hygiene' },
+                { key: 'service', label: '👨‍🍳 Service' },
             ];
 
             awardsContainer.innerHTML = cats.map(({ key, label }) => {
@@ -2425,8 +2438,16 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             const textColor = () => '#fff';
 
+            // Category configuration with emojis
+            const heatmapCats = [
+                { key: 'fleisch', label: '🥩 Fleisch' },
+                { key: 'gemuese', label: '🥬 Gemüse' },
+                { key: 'sosse', label: '🍶 Soße' },
+                { key: 'brot', label: '🥖 Brot' },
+            ];
+
             // Header row (category labels)
-            const headerCells = cats.map(c =>
+            const headerCells = heatmapCats.map(c =>
                 `<div class="hm-col-label">${c.label}</div>`
             ).join('');
 
@@ -2435,7 +2456,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const shortName = spot.name.length > 16
                     ? spot.name.slice(0, 15).trimEnd() + '…'
                     : spot.name;
-                const cells = cats.map(c => {
+                const cells = heatmapCats.map(c => {
                     const v = spot[c.key];
                     const bg = cellColor(v);
                     const fg = textColor(v);
