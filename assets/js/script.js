@@ -1965,7 +1965,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${renderStars(scoreDisplay)}
                     </div>
                     <div class="spot-city">
-                        ${safeSpotCity}${spot.date ? `<span class="spot-header-date"> · ${spot.date}</span>` : ''}<span class="spot-header-reviews">(${spot.besuche || 1} ${spot.besuche === 1 ? 'Review' : 'Reviews'})</span>${spot.preis ? `<span class="spot-mobile-price"> · ${spot.preis}</span>` : ''}
+                        ${safeSpotCity}${spot.date ? `<span class="spot-header-date"> · ${spot.date}</span>` : ''}<span class="spot-header-reviews">(${spot.besuche || 1} ${spot.besuche === 1 ? 'Review' : 'Reviews'})</span>
                     </div>
                 </div>
                 <div class="spot-header-actions">
