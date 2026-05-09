@@ -119,10 +119,12 @@ describe('getTodayIsoDate', () => {
 
     it('returns current date (approximately)', () => {
         const result = getTodayIsoDate();
-        const today = new Date();
-        const todayIso = today.toISOString().split('T')[0];
-        // Allow 1 second difference for execution time
-        expect(result).toBe(todayIso);
+        const now = new Date();
+        const year = String(now.getFullYear());
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const expected = `${year}-${month}-${day}`;
+        expect(result).toBe(expected);
     });
 
     it('returns date with proper padding (e.g., 01 not 1)', () => {

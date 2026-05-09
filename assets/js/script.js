@@ -14,6 +14,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const header = document.querySelector('.header');
     const heroSection = document.querySelector('.hero-section');
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const headerNav = document.querySelector('.header-nav');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+    const toggleMenu = (forceClose = false) => {
+        const isOpen = forceClose ? false : !headerNav.classList.contains('is-active');
+        
+        hamburgerBtn.classList.toggle('is-active', isOpen);
+        headerNav.classList.toggle('is-active', isOpen);
+        sidebarOverlay.classList.toggle('is-active', isOpen);
+        document.body.classList.toggle('menu-open', isOpen);
+        hamburgerBtn.setAttribute('aria-expanded', isOpen);
+    };
+
+    if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', () => toggleMenu());
+    }
+
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => toggleMenu(true));
+    }
+
+    // Close menu when clicking a link
+    headerNav.querySelectorAll('.header-link').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                toggleMenu(true);
+            }
+        });
+    });
+
+    // Close menu on resize if screen becomes desktop
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768 && headerNav.classList.contains('is-active')) {
+            toggleMenu(true);
+        }
+    });
 
     // Helper: Scroll to element flush with the bottom of the header + breathing room
     const scrollToElementFlush = (target) => {
