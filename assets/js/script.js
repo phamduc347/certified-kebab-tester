@@ -1632,10 +1632,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (reviews.length === 0) {
             return `
-                <details class="review-community-panel" data-spot-id="${spotId}">
-                    <summary>Weitere Reviews (0)</summary>
-                    <p class="review-community-empty">Noch keine bestätigten Reviews zu diesem Spot.</p>
-                </details>
+                <div class="review-community-panel collapsible-panel" data-spot-id="${spotId}">
+                    <div class="review-community-panel-header collapsible-trigger">
+                        <span>Weitere Reviews (0)</span>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="collapsible-inner">
+                            <p class="review-community-empty">Noch keine weiteren bestätigten Reviews.</p>
+                        </div>
+                    </div>
+                </div>
             `;
         }
 
@@ -1721,7 +1728,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             <div class="review-community-panel collapsible-panel" data-spot-id="${spotId}">
                 <div class="review-community-panel-header collapsible-trigger">
-                    <span>Bestätigte Reviews (${reviews.length})</span>
+                    <span>Weitere Reviews (${reviews.length})</span>
                     <span class="expand-icon">▼</span>
                 </div>
                 <div class="collapsible-content">
