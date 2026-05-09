@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let radarChart;
-    const selectedSpots = new Set(getDefaultSpotSelection(kebabData));
+    const selectedSpots = new Set([kebabData[0].id, kebabData[1].id]);
     let currentSortMode = 'score-desc';
 
     // Chart Configuration
