@@ -1339,12 +1339,14 @@ section {
 }
 
 .expand-icon {
+    display: inline-block;
     font-size: 0.7rem;
     opacity: 0.3;
     transition: transform 0.3s ease;
 }
 
-.spot-card.expanded .expand-icon {
+/* Specific rotation for the main Spot Card header icon */
+.spot-card.expanded > .spot-card-header .expand-icon {
     transform: rotate(180deg);
     opacity: 0.8;
 }
@@ -1431,8 +1433,15 @@ section {
     transition: transform 0.3s ease;
 }
 
+/* Specific rotation for collapsible panel headers (Community Reviews) */
 .collapsible-panel.expanded > .collapsible-trigger .expand-icon {
-    transform: rotate(180deg);
+    transform: rotate(180deg) !important;
+    opacity: 0.8;
+}
+
+/* Ensure icons are hidden when the panel is closed (if browser behavior varies) */
+.collapsible-panel:not(.expanded) > .collapsible-trigger .expand-icon {
+    transform: rotate(0deg) !important;
 }
 
 

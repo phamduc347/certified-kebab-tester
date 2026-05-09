@@ -1887,7 +1887,7 @@ document.addEventListener('DOMContentLoaded', () => {
         slides.push({
             imageUrl: spot.image || 'kebab_spot_demo.png',
             comment: spot.kommentar || null,
-            author: 'Hauptreview'
+            author: '👑 Pham (CKT)'
         });
         const reviews = approvedCommunityReviewsBySpotId.get(Number(spot.id)) || [];
         reviews.forEach(review => {
