@@ -3954,11 +3954,14 @@ body.modal-open {
     border-radius: 16px;
     border: 1px solid var(--border-color);
     opacity: 0;
+    pointer-events: none;
     transition: opacity 0.6s ease-in-out;
 }
 
 .spot-image-container .slide-image.active {
     opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
 }
 
 /* Nav buttons overlay the image container */
