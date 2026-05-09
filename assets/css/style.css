@@ -1406,6 +1406,35 @@ section {
     grid-template-rows: 1fr;
 }
 
+/* Generic Collapsible Logic (Matches Spot Card Animation) */
+.collapsible-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    overflow: hidden;
+}
+
+.collapsible-panel.expanded > .collapsible-content {
+    grid-template-rows: 1fr;
+}
+
+.collapsible-inner {
+    min-height: 0;
+}
+
+.collapsible-trigger {
+    cursor: pointer;
+    user-select: none;
+}
+
+.collapsible-trigger .expand-icon {
+    transition: transform 0.3s ease;
+}
+
+.collapsible-panel.expanded > .collapsible-trigger .expand-icon {
+    transform: rotate(180deg);
+}
+
 
 
 .spot-top-content {
@@ -1785,7 +1814,10 @@ section {
     padding: 10px 12px;
 }
 
-.review-community-panel summary {
+.review-community-panel .review-community-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     cursor: pointer;
     font-size: 0.8rem;
     font-weight: 700;
@@ -1799,8 +1831,6 @@ section {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    max-height: 320px;
-    overflow-y: auto;
 }
 
 .review-community-item {
@@ -1810,20 +1840,16 @@ section {
     padding: 8px 10px;
 }
 
-.review-community-item summary {
+.review-community-item .review-community-item-header {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     gap: 10px;
     cursor: pointer;
-    list-style: none;
     padding: 2px 0;
     font-size: 0.78rem;
 }
 
-.review-community-item summary::-webkit-details-marker {
-    display: none;
-}
 
 .review-community-meta,
 .review-community-empty {

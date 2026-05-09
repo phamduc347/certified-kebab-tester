@@ -1675,49 +1675,61 @@ document.addEventListener('DOMContentLoaded', () => {
             const scoreDisplay = `${(averageScore * 10).toFixed(2).replace('.', ',')}%`;
 
             return `
-                <details class="review-community-item">
-                    <summary>
+                <div class="review-community-item collapsible-panel">
+                    <div class="review-community-item-header collapsible-trigger">
                         <span class="review-community-pattern-line review-community-pattern-line--summary" aria-label="Review Kopfzeile">
                             ${renderStars(scoreDisplay)}
                             <span class="review-community-pattern-author">Review von ${reviewer}</span>
                             <span class="review-community-pattern-date">· ${headerDate}</span>
                         </span>
-                    </summary>
-                    <div class="review-community-item-body">
-                        <div class="spot-top-content review-community-top-content">
-                            <div class="spot-image-container review-community-image-container">
-                                ${imageUrl ? `<img src="${imageUrl}" alt="Review Bild" class="spot-image review-community-image" loading="lazy" />` : `<img src="kebab_spot_demo.png" alt="Review Bild" class="spot-image review-community-image" loading="lazy" />`}
-                            </div>
-                            <div class="spot-content">
-                                <div class="spot-categories">
-                                    ${renderCriteriaBar('Fleisch', criteriaValues.fleisch)}
-                                    ${renderCriteriaBar('Gemüse', criteriaValues.gemuese)}
-                                    ${renderCriteriaBar('Soße', criteriaValues.sosse)}
-                                    ${renderCriteriaBar('Brot', criteriaValues.brot)}
-                                    ${renderCriteriaBar('Balance', criteriaValues.balance)}
-                                    ${renderCriteriaBar('Auswahl', criteriaValues.auswahl)}
-                                    ${renderCriteriaBar('Portion', criteriaValues.portion)}
-                                    ${renderCriteriaBar('Hygiene', criteriaValues.hygiene)}
-                                    ${renderCriteriaBar('Service', criteriaValues.service)}
+                        <span class="expand-icon">▼</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="collapsible-inner">
+                            <div class="review-community-item-body">
+                                <div class="spot-top-content review-community-top-content">
+                                    <div class="spot-image-container review-community-image-container">
+                                        ${imageUrl ? `<img src="${imageUrl}" alt="Review Bild" class="spot-image review-community-image" loading="lazy" />` : `<img src="kebab_spot_demo.png" alt="Review Bild" class="spot-image review-community-image" loading="lazy" />`}
+                                    </div>
+                                    <div class="spot-content">
+                                        <div class="spot-categories">
+                                            ${renderCriteriaBar('Fleisch', criteriaValues.fleisch)}
+                                            ${renderCriteriaBar('Gemüse', criteriaValues.gemuese)}
+                                            ${renderCriteriaBar('Soße', criteriaValues.sosse)}
+                                            ${renderCriteriaBar('Brot', criteriaValues.brot)}
+                                            ${renderCriteriaBar('Balance', criteriaValues.balance)}
+                                            ${renderCriteriaBar('Auswahl', criteriaValues.auswahl)}
+                                            ${renderCriteriaBar('Portion', criteriaValues.portion)}
+                                            ${renderCriteriaBar('Hygiene', criteriaValues.hygiene)}
+                                            ${renderCriteriaBar('Service', criteriaValues.service)}
+                                        </div>
+                                        <div class="spot-details">
+                                            <span class="badge">${dish}</span>
+                                            <span class="badge">Preis: ${preisWithUnit}</span>
+                                            <span class="badge">${verzehrort}</span>
+                                        </div>
+                                        <div class="spot-comment">"${reviewText || 'Kein Kommentar angegeben.'}"</div>
+                                    </div>
                                 </div>
-                                <div class="spot-details">
-                                    <span class="badge">${dish}</span>
-                                    <span class="badge">Preis: ${preisWithUnit}</span>
-                                    <span class="badge">${verzehrort}</span>
-                                </div>
-                                <div class="spot-comment">"${reviewText || 'Kein Kommentar angegeben.'}"</div>
                             </div>
                         </div>
                     </div>
-                </details>
+                </div>
             `;
         }).join('');
 
         return `
-            <details class="review-community-panel" data-spot-id="${spotId}">
-                <summary>Bestätigte Reviews (${reviews.length})</summary>
-                <div class="review-community-list">${items}</div>
-            </details>
+            <div class="review-community-panel collapsible-panel" data-spot-id="${spotId}">
+                <div class="review-community-panel-header collapsible-trigger">
+                    <span>Bestätigte Reviews (${reviews.length})</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="collapsible-inner">
+                        <div class="review-community-list">${items}</div>
+                    </div>
+                </div>
+            </div>
         `;
     }
 
@@ -1730,7 +1742,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (communityPanel) {
+            // Listen for clicks on collapsible triggers (Panel header or individual Item headers)
             communityPanel.addEventListener('click', (event) => {
+                const trigger = event.target.closest('.collapsible-trigger');
+                if (trigger) {
+                    const panel = trigger.closest('.collapsible-panel');
+                    if (panel) {
+                        panel.classList.toggle('expanded');
+                        event.stopPropagation();
+                    }
+                    return;
+                }
+
                 // Let image clicks bubble so delegated lightbox handling can open zoom.
                 if (event.target && event.target.closest('.spot-image')) {
                     return;
@@ -1747,12 +1770,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const panel = card.querySelector('.review-community-panel');
         if (!panel) return;
 
-        panel.open = Boolean(shouldOpenPanel);
+        if (shouldOpenPanel) {
+            panel.classList.add('expanded');
+        } else {
+            panel.classList.remove('expanded');
+        }
 
         // Keep nested review entries collapsed by default.
         const nestedReviews = panel.querySelectorAll('.review-community-item');
         nestedReviews.forEach((item) => {
-            item.open = false;
+            item.classList.remove('expanded');
         });
     }
 
