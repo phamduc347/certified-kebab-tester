@@ -2383,10 +2383,32 @@ document.addEventListener('DOMContentLoaded', () => {
             ];
 
             // Build heatmap from current live ranking (includes approved community influence).
-            const HEATMAP_SPOT_LIMIT = 6;
-            const spots = [...kebabData]
-                .sort((a, b) => parseVal(b.score) - parseVal(a.score))
-                .slice(0, HEATMAP_SPOT_LIMIT);
+            const sorted = [...kebabData].sort((a, b) => parseVal(b.score) - parseVal(a.score));
+            const selectedIndices = new Set();
+            const len = sorted.length;
+
+            if (len > 0) {
+                // Top 2
+                selectedIndices.add(0);
+                if (len > 1) selectedIndices.add(1);
+
+                // Bottom 2
+                if (len > 2) selectedIndices.add(len - 1);
+                if (len > 3) selectedIndices.add(len - 2);
+
+                // Middle 2
+                if (len > 4) {
+                    const mid = Math.floor(len / 2);
+                    selectedIndices.add(mid);
+                    if (len > 5) {
+                        selectedIndices.add(mid - 1);
+                    }
+                }
+            }
+
+            const spots = [...selectedIndices]
+                .sort((a, b) => a - b) // Keep rank order
+                .map(idx => sorted[idx]);
 
             if (spots.length === 0) {
                 heatmapContainer.innerHTML = '';
