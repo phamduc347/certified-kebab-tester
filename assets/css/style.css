@@ -379,7 +379,7 @@ body.lightbox-open {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100dvh;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(4px);
     z-index: 999;
@@ -493,7 +493,7 @@ body.menu-open {
         width: 100%;
         max-width: none;
         height: 100vh;
-        height: 100svh;
+        height: 100dvh;
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
