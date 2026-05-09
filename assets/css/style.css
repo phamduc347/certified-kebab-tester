@@ -61,7 +61,7 @@ body.lightbox-open {
 .hero-section {
     position: relative;
     height: calc(100vh - 80px);
-    height: calc(100dvh - 80px);
+    height: calc(100svh - 80px);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -252,7 +252,7 @@ body.lightbox-open {
 @media (max-width: 768px) {
     .hero-section {
         height: calc(100vh - 120px);
-        height: calc(100dvh - 120px);
+        height: calc(100svh - 120px);
         border-radius: 0;
         border-left: none;
         border-right: none;
@@ -3295,7 +3295,7 @@ section {
 /* Contact Section */
 .contact-section {
     min-height: calc(100vh - 240px);
-    min-height: calc(100dvh - 240px);
+    min-height: calc(100svh - 240px);
     display: flex;
     flex-direction: column;
     padding-bottom: 40px;
@@ -3642,7 +3642,7 @@ body.modal-open {
 
 .contact-section {
     min-height: calc(100vh - 240px);
-    min-height: calc(100dvh - 240px);
+    min-height: calc(100svh - 240px);
     display: flex;
     flex-direction: column;
     padding-bottom: 0;
