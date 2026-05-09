@@ -200,8 +200,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Side menu logic removed - using top header nav now
 
+    function getDefaultSpotSelection(data) {
+        if (!data || data.length === 0) return [];
+
+        const sorted = [...data].sort((a, b) => {
+            const parseScore = (s) => parseFloat(String(s).replace(',', '.').replace('%', '')) || 0;
+            return parseScore(b.score) - parseScore(a.score);
+        });
+
+        const selection = new Set();
+        const len = sorted.length;
+
+        // Top 2
+        if (len > 0) selection.add(sorted[0].id);
+        if (len > 1) selection.add(sorted[1].id);
+
+        // Bottom 2
+        if (len > 2) selection.add(sorted[len - 1].id);
+        if (len > 3) selection.add(sorted[len - 2].id);
+
+        // Middle 2
+        if (len > 4) {
+            const mid = Math.floor(len / 2);
+            selection.add(sorted[mid].id);
+            if (len > 5) {
+                selection.add(sorted[mid - 1].id);
+            }
+        }
+
+        return [...selection];
+    }
+
     let radarChart;
-    const selectedSpots = new Set([kebabData[0].id, kebabData[1].id]); // Select top 2 by default
+    const selectedSpots = new Set(getDefaultSpotSelection(kebabData));
+    let currentSortMode = 'score-desc';
 
     // Chart Configuration
     const categories = ['🥩 Fleisch', '🥬 Gemüse', '🍶 Soße', '🥖 Brot', '⚖️ Balance', '📋 Auswahl', '🍽️ Portion', '✨ Hygiene', '👨‍🍳 Service'];
@@ -2065,7 +2097,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return cityMatch && dishMatch;
         }).sort((a, b) => {
             const parseScore = s => parseFloat(String(s).replace(',', '.').replace('%', '')) || 0;
-            return parseScore(b.score) - parseScore(a.score);
+            const parseDate = s => {
+                if (!s) return 0;
+                const parts = s.split('.');
+                return new Date(parts[2], parts[1] - 1, parts[0]).getTime();
+            };
+
+            if (currentSortMode === 'score-asc') {
+                return parseScore(a.score) - parseScore(b.score);
+            } else if (currentSortMode === 'pl-index') {
+                return parseScore(b.plIndex) - parseScore(a.plIndex);
+            } else if (currentSortMode === 'newest') {
+                return parseDate(b.date) - parseDate(a.date);
+            } else {
+                // Default: score-desc
+                return parseScore(b.score) - parseScore(a.score);
+            }
         });
 
         const toShow = filteredData.slice(0, visibleCount);
@@ -2278,6 +2325,14 @@ document.addEventListener('DOMContentLoaded', () => {
     initSpotlight();
     initAnalytics();
     initCommunityReviews();
+
+    const sortSelect = document.getElementById('review-sort-select');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', (e) => {
+            currentSortMode = e.target.value;
+            renderGrid();
+        });
+    }
 
     // ── Analytics Section ────────────────────────────────────────────
     function initAnalytics() {
