@@ -1,3 +1,9 @@
+// Force scroll to top on reload
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
+
 document.addEventListener('DOMContentLoaded', () => {
     const getVisitorMetaString = () => {
         const res = `${screen.width}x${screen.height}`;
