@@ -2591,7 +2591,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (lightbox && lightboxImg) {
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('spot-image')) {
+            if (e.target.classList.contains('spot-image') || e.target.classList.contains('slide-image')) {
                 lightboxImg.src = e.target.src;
                 lightbox.classList.add('active');
                 document.body.classList.add('lightbox-open');
