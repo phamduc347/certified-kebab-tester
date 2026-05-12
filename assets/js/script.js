@@ -2553,8 +2553,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function startRotation() {
-            clearInterval(rotationTimer);
-            // Auto-rotation disabled by user request
+            stopRotation();
+            rotationTimer = setInterval(() => {
+                currentIndex = (currentIndex + 1) % spotlightItems.length;
+                updateSpotlight();
+            }, 5000);
+        }
+
+        function stopRotation() {
+            if (rotationTimer) clearInterval(rotationTimer);
         }
 
         dotsContainer.addEventListener('click', (e) => {
@@ -2578,6 +2585,7 @@ document.addEventListener('DOMContentLoaded', () => {
             swipeStartY = e.clientY;
             isDragging = false;
             suppressNextClick = false;
+            stopRotation();
         });
 
         container.addEventListener('pointermove', (e) => {
@@ -2623,6 +2631,7 @@ document.addEventListener('DOMContentLoaded', () => {
             suppressNextClick = didHorizontalSwipe;
             if (!didHorizontalSwipe) {
                 updateSpotlight();
+                startRotation();
                 return;
             }
 
@@ -2644,6 +2653,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isDragging = false;
             suppressNextClick = false;
             updateSpotlight();
+            startRotation();
         });
 
         // Prevent click on buttons/links when a drag occurred
