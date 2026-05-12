@@ -1360,10 +1360,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateExistingSpotSelectOptions() {
         if (!existingSpotSelect) return;
 
-        const sortedBaseSpots = [...baseKebabData].sort((a, b) => a.name.localeCompare(b.name, 'de'));
-        existingSpotSelect.innerHTML = sortedBaseSpots.map((spot) => (
+        const currentValue = existingSpotSelect.value;
+        const sortedSpots = [...kebabData].sort((a, b) => a.name.localeCompare(b.name, 'de'));
+        existingSpotSelect.innerHTML = sortedSpots.map((spot) => (
             `<option value="${spot.id}">${escapeHtml(spot.name)} (${escapeHtml(spot.city)})</option>`
         )).join('');
+
+        if (currentValue) {
+            existingSpotSelect.value = currentValue;
+        }
     }
 
     function syncCommunitySpotInputsFromSelection() {
@@ -1371,7 +1376,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const mode = spotEntryModeSelect.value;
         const existingSpotId = Number(existingSpotSelect ? existingSpotSelect.value : NaN);
-        const selectedSpot = baseSpotById.get(existingSpotId);
+        const selectedSpot = kebabData.find(s => Number(s.id) === existingSpotId);
 
         if (mode === 'existing') {
             if (existingSpotWrapper) {
@@ -2277,6 +2282,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateChart();
         initAnalytics();
         initSpotlight();
+        populateExistingSpotSelectOptions();
     }
 
     function jumpToReview(spotId) {
