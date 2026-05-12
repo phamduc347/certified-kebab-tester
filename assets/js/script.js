@@ -459,6 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function computeCommunityOnlySpot(reviews) {
         const criteria = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
         const first = reviews[0] || {};
+        // Hash-based stable ID - consistent with how review_spot_likes stores spot_id
         const generatedId = generateStableSpotId(first.spot_name, first.city);
 
         const generated = {
@@ -773,7 +774,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const spotIds = kebabData.map((spot) => Number(spot.id)).filter((id) => Number.isFinite(id));
+        // Include both base-data IDs and community review IDs from the DB
+        const spotIds = [...new Set(kebabData.map((spot) => Number(spot.id)).filter((id) => Number.isFinite(id)))];
         const voterFingerprint = getCommentVoterFingerprint();
 
         reviewLikesBySpot.clear();
@@ -1488,8 +1490,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        loadCommunityReviews();
-        loadReviewComments();
+        // Fix: loadReviewComments must run AFTER loadCommunityReviews finishes,
+        // so that kebabData is populated with correct hash IDs before likes are fetched.
+        loadCommunityReviews().then(() => loadReviewComments());
     }
 
     // ── Star Rating Renderer ──────────────────────────────────────────
