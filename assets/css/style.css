@@ -4582,7 +4582,7 @@ body.modal-open {
 
 .loader-logo {
     margin-bottom: 24px;
-    animation: loaderPulse 2s infinite ease-in-out;
+    animation: loaderPulse 1.5s infinite ease-in-out;
 }
 
 .loader-logo img {
@@ -4592,7 +4592,7 @@ body.modal-open {
 
 @keyframes loaderPulse {
     0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.05); opacity: 0.8; }
+    50% { transform: scale(1.15); opacity: 0.5; }
 }
 
 .loader-status {
