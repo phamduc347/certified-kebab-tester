@@ -8,6 +8,8 @@ on:
 jobs:
   backup:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Wichtig für den automatischen Push
 
     steps:
       - name: Checkout Repository
