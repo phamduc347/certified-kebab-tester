@@ -5,6 +5,23 @@ if ('scrollRestoration' in history) {
 window.scrollTo(0, 0);
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ── Dark Mode ──────────────────────────────────────────────────────
+    const darkmodeBtn = document.getElementById('darkmode-btn');
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark');
+    }
+    // Remove the init class from <html> that was used to prevent flash
+    document.documentElement.classList.remove('dark-init');
+
+    if (darkmodeBtn) {
+        darkmodeBtn.addEventListener('click', () => {
+            const isDark = document.body.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    }
+    // ── End Dark Mode ──────────────────────────────────────────────────
+
     const getVisitorMetaString = () => {
         const res = `${screen.width}x${screen.height}`;
         const ref = document.referrer || 'Direct';

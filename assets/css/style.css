@@ -1,3 +1,8 @@
+body.dark .logo-img,
+html.dark-init body .logo-img {
+    filter: invert(1) hue-rotate(180deg) brightness(1.1) contrast(1.1);
+    transition: filter 0.3s;
+}
 :root {
     --bg-main: #ffffff;
     --bg-secondary: #f9fafb;
@@ -16,6 +21,163 @@
     --card-padding: 32px;
     --card-padding-mobile: 20px;
     --card-gap: 24px;
+}
+
+body.dark {
+    --bg-main: #0a0a0a;
+    --bg-secondary: #111111;
+    --bg-card: #111111;
+    --border-color: #2a2a2a;
+    --text-main: #ffffff;
+    --text-muted: #9ca3af;
+    --accent: #ffffff;
+}
+
+html.dark-init body {
+    --bg-main: #0a0a0a;
+    --bg-secondary: #111111;
+    --bg-card: #111111;
+    --border-color: #2a2a2a;
+    --text-main: #ffffff;
+    --text-muted: #9ca3af;
+    --accent: #ffffff;
+    background-color: #0a0a0a;
+    color: #ffffff;
+}
+
+/* Dark mode overrides for hardcoded colors */
+body.dark .hero-section {
+    background-color: #0a0a0a;
+    background-image:
+        linear-gradient(var(--border-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border-color) 1px, transparent 1px),
+        radial-gradient(var(--border-color) 1px, transparent 1px);
+}
+body.dark .contact-icon svg,
+html.dark-init body .contact-icon svg {
+    filter: invert(1) hue-rotate(180deg) brightness(1.1) contrast(1.1);
+    transition: filter 0.3s;
+}
+body.dark .hero-canvas,
+html.dark-init body .hero-canvas {
+    filter: invert(1) hue-rotate(180deg) brightness(1.1) contrast(1.1);
+}
+body.dark .hero-overlay {
+    background: radial-gradient(circle at center, transparent 20%, rgba(10,10,10,0.85) 75%);
+}
+body.dark .header {
+    background: rgba(10, 10, 10, 0.95);
+}
+body.dark .header-nav {
+    background: rgba(10, 10, 10, 0.95);
+}
+body.dark .hero-btn.secondary {
+    background: rgba(0, 0, 0, 0.05);
+}
+body.dark .latest-content {
+    background: linear-gradient(to right, #111111, #0f0f0f);
+}
+body.dark .latest-comment {
+    color: #d1d5db;
+}
+body.dark .chart-wrapper {
+    background: #111111;
+}
+body.dark #radarChart,
+html.dark-init body #radarChart {
+    filter: invert(1) hue-rotate(180deg) brightness(1.1) contrast(1.1);
+}
+body.dark .toggle-label {
+    background: #111111;
+}
+body.dark .toggle-label:hover {
+    background: #1a1a1a;
+}
+body.dark .toggle-label.selected {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+}
+body.dark .toggle-label.selected .toggle-name small {
+    color: rgba(0, 0, 0, 0.6);
+}
+body.dark .spot-search-input {
+    background: #1a1a1a;
+    color: var(--text-main);
+}
+body.dark .spot-search-input:focus {
+    background: #222222;
+    border-color: #ffffff;
+}
+body.dark .review-sort-select {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+body.dark .review-sort-select:hover {
+    background-color: #1a1a1a;
+}
+body.dark .badge {
+    background: #1a1a1a;
+}
+body.dark .bar-bg {
+    background: #2a2a2a;
+}
+body.dark .spot-comment {
+    background: #111111;
+    color: #d1d5db;
+    border-left-color: #3a3a3a;
+}
+body.dark .review-comment-item,
+body.dark .review-community-item,
+body.dark .community-review-item {
+    background: #111111;
+}
+body.dark .review-community-panel,
+body.dark .community-reviews-card {
+    background: #111111;
+}
+body.dark .review-comment-input,
+body.dark .review-comment-textarea,
+body.dark .community-review-form input,
+body.dark .community-review-form textarea,
+body.dark .community-review-form select {
+    background: #1a1a1a;
+    color: var(--text-main);
+    border-color: var(--border-color);
+}
+body.dark .community-review-form input[readonly] {
+    background: #222222;
+    color: #9ca3af;
+}
+body.dark .community-score-panel {
+    background: #151515;
+}
+body.dark .community-score-grid label {
+    background: #1a1a1a;
+    border-color: #2a2a2a;
+}
+body.dark .review-comment-text,
+body.dark .review-community-text,
+body.dark .community-review-text {
+    color: #d1d5db;
+}
+body.dark .contact-card {
+    background: linear-gradient(145deg, #111111, #0f0f0f);
+}
+body.dark .review-helpful-btn {
+    background: #1a1a1a;
+    color: #d1d5db;
+    border-color: #2a2a2a;
+}
+body.dark .review-helpful-btn.is-liked {
+    background: #2d1515;
+}
+body.dark .review-comments {
+    background: #111111;
+}
+body.dark .sidebar-overlay {
+    background: rgba(0, 0, 0, 0.7);
 }
 
 :root {
@@ -343,6 +505,49 @@ body.lightbox-open {
     position: relative;
     padding: 8px 0;
 }
+
+/* Dark Mode Toggle */
+
+.header-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.darkmode-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: var(--transition);
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.darkmode-btn:hover {
+    background: var(--bg-secondary);
+    border-color: var(--text-main);
+}
+
+.darkmode-btn svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+/* Show sun in dark mode, moon in light mode */
+.darkmode-btn .icon-moon { display: block; }
+.darkmode-btn .icon-sun  { display: none; }
+body.dark .darkmode-btn .icon-moon { display: none; }
+body.dark .darkmode-btn .icon-sun  { display: block; }
 
 /* Hamburger Button */
 .hamburger-btn {
