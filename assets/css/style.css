@@ -4590,6 +4590,11 @@ body.modal-open {
     width: auto;
 }
 
+@keyframes loaderPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+}
+
 .loader-status {
     font-family: var(--font-main);
     font-size: 14px;
@@ -4617,11 +4622,6 @@ body.modal-open {
     width: 40%;
     background: var(--text-main);
     animation: loaderProgress 2s infinite ease-in-out;
-}
-
-@keyframes loaderPulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.05); opacity: 0.8; }
 }
 
 @keyframes loaderProgress {
