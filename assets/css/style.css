@@ -2319,7 +2319,8 @@ section {
 }
 
 .community-review-form input,
-.community-review-form textarea {
+.community-review-form textarea,
+.community-review-form select {
     width: 100%;
     border: 1px solid var(--border-color);
     border-radius: 10px;
@@ -2336,7 +2337,8 @@ section {
 }
 
 .community-review-form input:focus,
-.community-review-form textarea:focus {
+.community-review-form textarea:focus,
+.community-review-form select:focus {
     outline: none;
     border-color: #111827;
     box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
