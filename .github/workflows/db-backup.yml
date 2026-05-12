@@ -1,0 +1,43 @@
+name: Database Backup
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Täglich um Mitternacht
+  workflow_dispatch: # Erlaubt manuelles Ausführen
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: scripts
+        run: npm install
+
+      - name: Run Backup Script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/backup-db.js
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/data/db-backup.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: automatic database backup $(date +'%Y-%m-%d')"
+            git push
+          fi
