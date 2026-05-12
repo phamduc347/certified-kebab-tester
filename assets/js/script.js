@@ -2573,75 +2573,86 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Swipe / drag navigation (touch + mouse)
+        // Swipe / drag navigation — snap-to-nearest + axis-lock
         let swipeStartX = null;
         let swipeStartY = null;
+        let swipeAxisLocked = null; // 'horizontal' | 'vertical' | null
         let isDragging = false;
         let suppressNextClick = false;
-        let movePending = false;
 
         container.addEventListener('pointerdown', (e) => {
+            // Only handle primary button (left click / single touch)
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
             swipeStartX = e.clientX;
             swipeStartY = e.clientY;
+            swipeAxisLocked = null;
             isDragging = false;
             suppressNextClick = false;
             stopRotation();
+            container.setPointerCapture(e.pointerId);
         });
 
         container.addEventListener('pointermove', (e) => {
             if (swipeStartX === null) return;
-            if (movePending) return;
-            movePending = true;
-            requestAnimationFrame(() => {
-                const deltaX = e.clientX - swipeStartX;
-                if (Math.abs(deltaX) > 8) {
-                    isDragging = true;
-                    container.style.cursor = 'grabbing';
 
-                    const track = container.querySelector('.spotlight-track');
-                    if (track) {
-                        const containerWidth = container.offsetWidth || 1;
-                        const percentage = (deltaX / containerWidth) * 100;
-                        const baseTranslate = -currentIndex * 100;
-                        track.style.transition = 'none';
-                        track.style.transform = `translateX(${baseTranslate + percentage}%)`;
-                    }
-                }
-                movePending = false;
-            });
+            const deltaX = e.clientX - swipeStartX;
+            const deltaY = e.clientY - swipeStartY;
+
+            // Determine axis on first meaningful movement
+            if (swipeAxisLocked === null) {
+                const absX = Math.abs(deltaX);
+                const absY = Math.abs(deltaY);
+                if (absX < 4 && absY < 4) return; // not moved enough yet
+                swipeAxisLocked = absX >= absY ? 'horizontal' : 'vertical';
+            }
+
+            if (swipeAxisLocked !== 'horizontal') return;
+
+            // Horizontal drag — move the track
+            isDragging = true;
+            container.style.cursor = 'grabbing';
+
+            const track = container.querySelector('.spotlight-track');
+            if (track) {
+                const containerWidth = container.offsetWidth || 1;
+                const percentage = (deltaX / containerWidth) * 100;
+                const baseTranslate = -currentIndex * 100;
+                track.style.transition = 'none';
+                track.style.transform = `translateX(${baseTranslate + percentage}%)`;
+            }
         });
 
         container.addEventListener('pointerup', (e) => {
             container.style.cursor = '';
             if (swipeStartX === null) return;
+
             const deltaX = e.clientX - swipeStartX;
-            const deltaY = e.clientY - swipeStartY;
             swipeStartX = null;
             swipeStartY = null;
 
-            const didHorizontalSwipe =
-                isDragging &&
-                Math.abs(deltaX) >= 50 &&
-                Math.abs(deltaX) > Math.abs(deltaY);
-
-            // Reset drag state so regular clicks keep working.
-            isDragging = false;
-
-            // Only suppress click when a real swipe happened.
-            suppressNextClick = didHorizontalSwipe;
-            if (!didHorizontalSwipe) {
+            if (!isDragging || swipeAxisLocked !== 'horizontal') {
+                isDragging = false;
+                swipeAxisLocked = null;
                 updateSpotlight();
                 startRotation();
                 return;
             }
 
-            if (deltaX < 0) {
-                // Swipe left → next
+            isDragging = false;
+            swipeAxisLocked = null;
+            suppressNextClick = Math.abs(deltaX) >= 10;
+
+            // Snap-to-nearest: >20% of container width triggers page change
+            const containerWidth = container.offsetWidth || 1;
+            const threshold = containerWidth * 0.20;
+
+            if (deltaX < -threshold) {
                 currentIndex = (currentIndex + 1) % spotlightItems.length;
-            } else {
-                // Swipe right → prev
+            } else if (deltaX > threshold) {
                 currentIndex = (currentIndex - 1 + spotlightItems.length) % spotlightItems.length;
             }
+            // else: snap back to current — updateSpotlight handles it
+
             updateSpotlight();
             startRotation();
         });
@@ -2651,6 +2662,7 @@ document.addEventListener('DOMContentLoaded', () => {
             swipeStartX = null;
             swipeStartY = null;
             isDragging = false;
+            swipeAxisLocked = null;
             suppressNextClick = false;
             updateSpotlight();
             startRotation();
