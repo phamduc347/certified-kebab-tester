@@ -4,6 +4,18 @@ if ('scrollRestoration' in history) {
 }
 window.scrollTo(0, 0);
 
+// Global Loader Management
+window.loaderStartTime = Date.now();
+window.fadeOutLoader = () => {
+    const loader = document.getElementById('page-loader');
+    if (loader && !loader.classList.contains('fade-out')) {
+        loader.classList.add('fade-out');
+        setTimeout(() => loader.remove(), 600);
+    }
+};
+// Global Safety Timeout: Ensure loader disappears even if scripts crash
+setTimeout(window.fadeOutLoader, 5000);
+
 document.addEventListener('DOMContentLoaded', () => {
     // ── Dark Mode ──────────────────────────────────────────────────────
     const darkmodeBtn = document.getElementById('darkmode-btn');
@@ -1490,27 +1502,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        const loaderStartTime = Date.now();
-        const minLoaderDuration = 1200; // 1.2 seconds for a smooth feel
-
-        const fadeOutLoader = () => {
-            const loader = document.getElementById('page-loader');
-            if (loader && !loader.classList.contains('fade-out')) {
-                loader.classList.add('fade-out');
-                setTimeout(() => loader.remove(), 600);
-            }
-        };
-
-        // Safety timeout: Hide loader after 5 seconds regardless of data status
-        setTimeout(fadeOutLoader, 5000);
-
         // Fetch data and handle loader removal
         loadCommunityReviews()
             .then(() => loadReviewComments())
+            .catch(err => console.error("Loader Data Error:", err))
             .finally(() => {
-                const elapsed = Date.now() - loaderStartTime;
-                const remaining = Math.max(0, minLoaderDuration - elapsed);
-                setTimeout(fadeOutLoader, remaining);
+                const elapsed = Date.now() - (window.loaderStartTime || Date.now());
+                const remaining = Math.max(0, 1200 - elapsed);
+                setTimeout(() => window.fadeOutLoader && window.fadeOutLoader(), remaining);
             });
     }
 
