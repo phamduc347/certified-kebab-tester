@@ -2479,42 +2479,45 @@ document.addEventListener('DOMContentLoaded', () => {
         let rotationTimer;
 
         function renderSpotlightItems() {
-            container.innerHTML = spotlightItems.map((item, i) => {
-                const spot = item.spot;
-                const mapsLink = buildMapsSearchLink(spot);
-                const scoreDisplay = normalizeSpotScoreDisplay(spot.score);
-                return `
-                    <div class="latest-card ${i === 0 ? 'active' : ''}" data-index="${i}">
-                        <div class="latest-image-wrapper">
-                            <img src="${spot.image || 'kebab_spot_demo.png'}" alt="${spot.name}" class="latest-image spot-image">
-                            <div class="latest-badge">${item.label}</div>
-                        </div>
-                        <div class="latest-content">
-                            <div class="latest-header">
-                                <div class="latest-info">
-                                    <span class="latest-label">${item.tag}</span>
-                                    <h3 class="latest-title" data-id="${spot.id}">${spot.name}</h3>
-                                    ${renderStars(scoreDisplay)}
-                                    <div class="latest-meta">${spot.city} • ${spot.date} <span class="latest-meta-reviews">(${spot.besuche || 1} ${spot.besuche === 1 ? 'Review' : 'Reviews'})</span></div>
+            container.innerHTML = `
+                <div class="spotlight-track">
+                    ${spotlightItems.map((item, i) => {
+                        const spot = item.spot;
+                        const scoreDisplay = normalizeSpotScoreDisplay(spot.score);
+                        return `
+                            <div class="latest-card ${i === 0 ? 'active' : ''}" data-index="${i}">
+                                <div class="latest-image-wrapper">
+                                    <img src="${spot.image || 'kebab_spot_demo.png'}" alt="${spot.name}" class="latest-image spot-image">
+                                    <div class="latest-badge">${item.label}</div>
                                 </div>
-                                <div class="latest-score-block">
-                                    <div class="latest-score-label">SCORE</div>
-                                    <div class="latest-score-value">${scoreDisplay}</div>
+                                <div class="latest-content">
+                                    <div class="latest-header">
+                                        <div class="latest-info">
+                                            <span class="latest-label">${item.tag}</span>
+                                            <h3 class="latest-title" data-id="${spot.id}">${spot.name}</h3>
+                                            ${renderStars(scoreDisplay)}
+                                            <div class="latest-meta">${spot.city} • ${spot.date} <span class="latest-meta-reviews">(${spot.besuche || 1} ${spot.besuche === 1 ? 'Review' : 'Reviews'})</span></div>
+                                        </div>
+                                        <div class="latest-score-block">
+                                            <div class="latest-score-label">SCORE</div>
+                                            <div class="latest-score-value">${scoreDisplay}</div>
+                                        </div>
+                                    </div>
+                                    <div class="latest-body">
+                                        <div class="latest-details">
+                                            <span class="badge">${spot.dish}</span>
+                                        </div>
+                                        <button class="spotlight-jump-btn" data-id="${spot.id}">
+                                            <span>Full Review</span>
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="latest-body">
-                                <div class="latest-details">
-                                    <span class="badge">${spot.dish}</span>
-                                </div>
-                                <button class="spotlight-jump-btn" data-id="${spot.id}">
-                                    <span>Full Review</span>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+                        `;
+                    }).join('')}
+                </div>
+            `;
 
             // Attach event listeners after rendering
             container.querySelectorAll('.spotlight-jump-btn, .latest-title').forEach(el => {
@@ -2534,7 +2537,14 @@ document.addEventListener('DOMContentLoaded', () => {
         function updateSpotlight(index = null) {
             if (index !== null) currentIndex = index;
 
+            const track = container.querySelector('.spotlight-track');
             const cards = container.querySelectorAll('.latest-card');
+            
+            if (track) {
+                track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            }
+
             cards.forEach((card, i) => {
                 card.classList.toggle('active', i === currentIndex);
             });
@@ -2575,9 +2585,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (movePending) return;
             movePending = true;
             requestAnimationFrame(() => {
-                if (Math.abs(e.clientX - swipeStartX) > 8) {
+                const deltaX = e.clientX - swipeStartX;
+                if (Math.abs(deltaX) > 8) {
                     isDragging = true;
                     container.style.cursor = 'grabbing';
+
+                    const track = container.querySelector('.spotlight-track');
+                    if (track) {
+                        const containerWidth = container.offsetWidth || 1;
+                        const percentage = (deltaX / containerWidth) * 100;
+                        const baseTranslate = -currentIndex * 100;
+                        track.style.transition = 'none';
+                        track.style.transform = `translateX(${baseTranslate + percentage}%)`;
+                    }
                 }
                 movePending = false;
             });
@@ -2601,7 +2621,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Only suppress click when a real swipe happened.
             suppressNextClick = didHorizontalSwipe;
-            if (!didHorizontalSwipe) return;
+            if (!didHorizontalSwipe) {
+                updateSpotlight();
+                return;
+            }
 
             if (deltaX < 0) {
                 // Swipe left → next
@@ -2620,6 +2643,7 @@ document.addEventListener('DOMContentLoaded', () => {
             swipeStartY = null;
             isDragging = false;
             suppressNextClick = false;
+            updateSpotlight();
         });
 
         // Prevent click on buttons/links when a drag occurred
