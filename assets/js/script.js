@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const toggleMenu = (forceClose = false) => {
         const isOpen = forceClose ? false : !headerNav.classList.contains('is-active');
-        
+
         hamburgerBtn.classList.toggle('is-active', isOpen);
         headerNav.classList.toggle('is-active', isOpen);
         sidebarOverlay.classList.toggle('is-active', isOpen);
@@ -2001,85 +2001,78 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initSlideshow(card, slides) {
+        // --- Image Carousel Logic ---
         const imageContainer = card.querySelector('.spot-image-container');
-        const commentArea = card.querySelector('.spot-comment-area');
-        if (!imageContainer) return;
+        if (imageContainer) {
+            let imgIndex = 0;
+            const images = imageContainer.querySelectorAll('.slide-image');
+            const imgDots = imageContainer.querySelectorAll('.slide-dot');
+            const prevBtn = imageContainer.querySelector('.slide-nav-btn.prev');
+            const nextBtn = imageContainer.querySelector('.slide-nav-btn.next');
 
-        let currentIndex = 0;
-        const images = imageContainer.querySelectorAll('.slide-image');
-        const commentItems = commentArea ? commentArea.querySelectorAll('.slide-comment-item') : [];
-        const dots = card.querySelectorAll('.slide-dot');
-        const prevBtn = imageContainer.querySelector('.slide-nav-btn.prev');
-        const nextBtn = imageContainer.querySelector('.slide-nav-btn.next');
-        let interval;
-
-        function showSlide(index) {
-            images[currentIndex].classList.remove('active');
-            if (commentItems[currentIndex]) commentItems[currentIndex].classList.remove('active');
-
-            currentIndex = (index + slides.length) % slides.length;
-
-            images[currentIndex].classList.add('active');
-            if (commentItems[currentIndex]) commentItems[currentIndex].classList.add('active');
-
-            const track = commentArea ? commentArea.querySelector('.slide-comment-track') : null;
-            if (track) {
-                track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            function showImg(index) {
+                images[imgIndex].classList.remove('active');
+                if (imgDots[imgIndex]) imgDots[imgIndex].classList.remove('active');
+                imgIndex = (index + slides.length) % slides.length;
+                images[imgIndex].classList.add('active');
+                if (imgDots[imgIndex]) imgDots[imgIndex].classList.add('active');
             }
 
-            // Sync all dots in both containers
-            const allDots = card.querySelectorAll('.slide-dot');
-            allDots.forEach(dot => dot.classList.remove('active'));
-
-            const imageDots = imageContainer.querySelectorAll('.slide-dot');
-            const commentDots = commentArea ? commentArea.querySelectorAll('.slide-dot') : [];
-
-            if (imageDots[currentIndex]) imageDots[currentIndex].classList.add('active');
-            if (commentDots[currentIndex]) commentDots[currentIndex].classList.add('active');
-        }
-
-        function startAutoplay() {
-            stopAutoplay();
-            // Autoplay disabled by user request
-        }
-
-        function stopAutoplay() {
-            if (interval) clearInterval(interval);
-        }
-
-        if (prevBtn) {
-            prevBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                showSlide(currentIndex - 1);
-                startAutoplay();
+            if (prevBtn) {
+                prevBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showImg(imgIndex - 1);
+                });
+            }
+            if (nextBtn) {
+                nextBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showImg(imgIndex + 1);
+                });
+            }
+            imgDots.forEach((dot, idx) => {
+                dot.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showImg(idx);
+                });
             });
         }
-        if (nextBtn) {
-            nextBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                showSlide(currentIndex + 1);
-                startAutoplay();
-            });
-        }
-        dots.forEach((dot, idx) => {
-            dot.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // We need to map the dot index to the slide index
-                // Since dots can be in two containers, we use modulo
-                showSlide(idx % slides.length);
-                startAutoplay();
-            });
-        });
 
-        // Swipe logic for comment area
+        // --- Comment Carousel Logic ---
+        const commentArea = card.querySelector('.spot-comment-area');
         if (commentArea && slides.length > 1) {
-            let startX = 0;
-            let isDragging = false;
+            let commentIndex = 0;
+            const commentItems = commentArea.querySelectorAll('.slide-comment-item');
+            const commentDots = commentArea.querySelectorAll('.slide-dot');
             const track = commentArea.querySelector('.slide-comment-track');
 
+            function showComment(index) {
+                if (commentItems[commentIndex]) commentItems[commentIndex].classList.remove('active');
+                if (commentDots[commentIndex]) commentDots[commentIndex].classList.remove('active');
+                
+                commentIndex = (index + slides.length) % slides.length;
+                
+                if (commentItems[commentIndex]) commentItems[commentIndex].classList.add('active');
+                if (commentDots[commentIndex]) commentDots[commentIndex].classList.add('active');
+                
+                if (track) {
+                    track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    track.style.transform = `translateX(-${commentIndex * 100}%)`;
+                }
+            }
+
+            commentDots.forEach((dot, idx) => {
+                dot.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showComment(idx);
+                });
+            });
+
+            // Swipe logic for comment area
+            let startX = 0;
+            let isDragging = false;
+
             commentArea.addEventListener('pointerdown', (e) => {
-                // Prevent bubbling to spotlight swipe logic
                 e.stopPropagation();
                 startX = e.clientX;
                 isDragging = true;
@@ -2092,8 +2085,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const diff = e.clientX - startX;
                 const containerWidth = commentArea.offsetWidth || 1;
                 const percentage = (diff / containerWidth) * 100;
-                
-                const baseTranslate = -currentIndex * 100;
+
+                const baseTranslate = -commentIndex * 100;
                 track.style.transform = `translateX(${baseTranslate + percentage}%)`;
             });
 
@@ -2106,22 +2099,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 const threshold = 40; // pixels
 
                 if (diff > threshold) {
-                    showSlide(currentIndex - 1);
+                    showComment(commentIndex - 1);
                 } else if (diff < -threshold) {
-                    showSlide(currentIndex + 1);
+                    showComment(commentIndex + 1);
                 } else {
-                    showSlide(currentIndex);
+                    showComment(commentIndex);
                 }
             });
 
             commentArea.addEventListener('pointercancel', () => {
                 if (!isDragging) return;
                 isDragging = false;
-                showSlide(currentIndex);
+                showComment(commentIndex);
             });
         }
-
-        startAutoplay();
     }
 
     function createReviewCardElement(spot, index, options = {}) {
