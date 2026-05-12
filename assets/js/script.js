@@ -2634,15 +2634,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const awardsContainer = document.getElementById('category-awards-container');
         if (awardsContainer && kebabData.length > 0) {
             const cats = [
-                { key: 'fleisch', label: '🥩 Fleisch' },
-                { key: 'gemuese', label: '🥬 Gemüse' },
-                { key: 'sosse', label: '🍶 Soße' },
-                { key: 'brot', label: '🥖 Brot' },
-                { key: 'balance', label: '⚖️ Balance' },
-                { key: 'auswahl', label: '📋 Auswahl' },
-                { key: 'portion', label: '🍽️ Portion' },
-                { key: 'hygiene', label: '✨ Hygiene' },
-                { key: 'service', label: '👨‍🍳 Service' },
+                { key: 'fleisch', label: '🥩 Bestes Fleisch' },
+                { key: 'gemuese', label: '🥬 Bestes Gemüse' },
+                { key: 'sosse', label: '🍶 Beste Soße' },
+                { key: 'brot', label: '🥖 Bestes Brot' },
+                { key: 'balance', label: '⚖️ Beste Balance' },
+                { key: 'auswahl', label: '📋 Beste Auswahl' },
+                { key: 'portion', label: '🍽️ Beste Portion' },
+                { key: 'hygiene', label: '✨ Beste Hygiene' },
+                { key: 'service', label: '👨‍🍳 Bester Service' },
             ];
 
             awardsContainer.innerHTML = cats.map(({ key, label }) => {
@@ -2657,7 +2657,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="award-tile" data-id="${winner.id}">
                     <span class="award-cat">${label}</span>
                     <span class="award-name">${shortName}</span>
-                    <span class="award-val">${val.toFixed(1)}</span>
+                    <span class="award-val" style="color: ${getColorForScore(val)}">${val.toFixed(1)}</span>
                 </div>`;
             }).join('');
 
