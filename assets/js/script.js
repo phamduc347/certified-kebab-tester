@@ -2418,14 +2418,14 @@ document.addEventListener('DOMContentLoaded', () => {
         let swipeStartX = null;
         let swipeStartY = null;
         let isDragging = false;
+        let suppressNextClick = false;
         let movePending = false;
 
         container.addEventListener('pointerdown', (e) => {
             swipeStartX = e.clientX;
             swipeStartY = e.clientY;
             isDragging = false;
-            container.setPointerCapture(e.pointerId);
-            container.style.cursor = 'grabbing';
+            suppressNextClick = false;
         });
 
         container.addEventListener('pointermove', (e) => {
@@ -2433,7 +2433,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (movePending) return;
             movePending = true;
             requestAnimationFrame(() => {
-                if (Math.abs(e.clientX - swipeStartX) > 8) isDragging = true;
+                if (Math.abs(e.clientX - swipeStartX) > 8) {
+                    isDragging = true;
+                    container.style.cursor = 'grabbing';
+                }
                 movePending = false;
             });
         });
@@ -2446,9 +2449,17 @@ document.addEventListener('DOMContentLoaded', () => {
             swipeStartX = null;
             swipeStartY = null;
 
-            // Only trigger if horizontal movement dominates and exceeds threshold
-            if (!isDragging) return;
-            if (Math.abs(deltaX) < 50 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+            const didHorizontalSwipe =
+                isDragging &&
+                Math.abs(deltaX) >= 50 &&
+                Math.abs(deltaX) > Math.abs(deltaY);
+
+            // Reset drag state so regular clicks keep working.
+            isDragging = false;
+
+            // Only suppress click when a real swipe happened.
+            suppressNextClick = didHorizontalSwipe;
+            if (!didHorizontalSwipe) return;
 
             if (deltaX < 0) {
                 // Swipe left → next
@@ -2466,14 +2477,15 @@ document.addEventListener('DOMContentLoaded', () => {
             swipeStartX = null;
             swipeStartY = null;
             isDragging = false;
+            suppressNextClick = false;
         });
 
         // Prevent click on buttons/links when a drag occurred
         container.addEventListener('click', (e) => {
-            if (isDragging) {
+            if (suppressNextClick) {
                 e.preventDefault();
                 e.stopPropagation();
-                isDragging = false;
+                suppressNextClick = false;
             }
         }, true);
 
