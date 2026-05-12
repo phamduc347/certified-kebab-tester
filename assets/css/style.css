@@ -4482,20 +4482,31 @@ body.modal-open {
     margin-bottom: 8px;
 }
 
+.slide-dots--comments .slide-dot {
+    background: var(--text-muted);
+    opacity: 0.3;
+}
+
+.slide-dots--comments .slide-dot.active {
+    background: var(--text-main);
+    opacity: 1;
+}
+
 .slide-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.45);
     cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     padding: 0;
 }
 
 .slide-dot.active {
     background: #fff;
-    transform: scale(1.2);
+    width: 24px;
+    border-radius: 4px;
 }
 
 .spot-comment-area {
