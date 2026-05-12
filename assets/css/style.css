@@ -2859,6 +2859,7 @@ section {
         border-radius: 4px;
         font-weight: 700;
         pointer-events: none;
+        z-index: 15;
     }
 
     .spot-categories {
