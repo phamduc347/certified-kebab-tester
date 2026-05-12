@@ -5,7 +5,8 @@ import { describe, it, expect } from 'vitest';
 import {
     buildSpotKey,
     formatVisitDate,
-    getTodayIsoDate
+    getTodayIsoDate,
+    generateStableSpotId
 } from '../../assets/js/utils.js';
 
 // ── buildSpotKey ────────────────────────────────────────────────────────────
@@ -133,5 +134,38 @@ describe('getTodayIsoDate', () => {
         expect(parts[0].length).toBe(4); // year
         expect(parts[1].length).toBe(2); // month
         expect(parts[2].length).toBe(2); // day
+    });
+});
+
+// ── generateStableSpotId ────────────────────────────────────────────────────
+describe('generateStableSpotId', () => {
+    it('returns a positive integer >= 100000', () => {
+        const id = generateStableSpotId('Test Spot', 'Berlin');
+        expect(Number.isInteger(id)).toBe(true);
+        expect(id).toBeGreaterThanOrEqual(100000);
+    });
+
+    it('returns the same ID for the same spot', () => {
+        const id1 = generateStableSpotId('Döner King', 'München');
+        const id2 = generateStableSpotId('Döner King', 'München');
+        expect(id1).toBe(id2);
+    });
+
+    it('returns different IDs for different spots', () => {
+        const id1 = generateStableSpotId('Döner King', 'München');
+        const id2 = generateStableSpotId('Kebab House', 'München');
+        expect(id1).not.toBe(id2);
+    });
+
+    it('is case-insensitive', () => {
+        const id1 = generateStableSpotId('döner king', 'münchen');
+        const id2 = generateStableSpotId('DÖNER KING', 'MÜNCHEN');
+        expect(id1).toBe(id2);
+    });
+
+    it('ignores leading/trailing whitespace', () => {
+        const id1 = generateStableSpotId('Döner King', 'Berlin');
+        const id2 = generateStableSpotId('  Döner King  ', '  Berlin  ');
+        expect(id1).toBe(id2);
     });
 });

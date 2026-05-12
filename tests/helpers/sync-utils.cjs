@@ -22,7 +22,8 @@ const FUNCTIONS_TO_EXTRACT = [
     'parseScoreInput',
     'getClientSpamBlockReason',
     'computeSpotFromBaseAndCommunity',
-    'computeCommunityOnlySpot'
+    'computeCommunityOnlySpot',
+    'generateStableSpotId'
 ];
 
 // Special regex for simple one-liners like parseVal

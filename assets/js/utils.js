@@ -206,8 +206,7 @@ export function computeSpotFromBaseAndCommunity(baseSpot, reviews) {
 export function computeCommunityOnlySpot(reviews) {
         const criteria = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
         const first = reviews[0] || {};
-        const generatedId = nextGeneratedSpotId;
-        nextGeneratedSpotId += 1;
+        const generatedId = generateStableSpotId(first.spot_name, first.city);
 
         const generated = {
             id: generatedId,
@@ -241,6 +240,17 @@ export function computeCommunityOnlySpot(reviews) {
         }
 
         return generated;
+    }
+
+export function generateStableSpotId(name, city) {
+        const str = `${String(name || '').trim().toLowerCase()}|${String(city || '').trim().toLowerCase()}`;
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return Math.abs(hash) + 100000;
     }
 
 export const parseVal = (s) => parseFloat(String(s).replace(',', '.').replace('%', '').replace(' €', '')) || 0;
