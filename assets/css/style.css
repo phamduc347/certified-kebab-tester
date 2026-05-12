@@ -146,6 +146,10 @@ body.dark .community-review-form input[readonly] {
 body.dark .community-score-panel {
     background: #151515;
 }
+body.dark .community-review-form label,
+body.dark .community-score-panel summary {
+    color: var(--text-main);
+}
 body.dark .community-score-grid label {
     background: #1a1a1a;
     border-color: #2a2a2a;
