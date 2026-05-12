@@ -1195,13 +1195,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
         const entryMode = String(formData.get('spot_entry_mode') || 'existing');
         const existingSpotId = Number(formData.get('existing_spot_id'));
-        const selectedBaseSpot = baseSpotById.get(existingSpotId);
+        const selectedSpot = kebabData.find(s => Number(s.id) === existingSpotId);
         const reviewerName = String(formData.get('reviewer_name') || '').trim();
         const spotName = entryMode === 'existing'
-            ? String(selectedBaseSpot ? selectedBaseSpot.name : '').trim()
+            ? String(selectedSpot ? selectedSpot.name : '').trim()
             : String(formData.get('spot_name') || '').trim();
         const city = entryMode === 'existing'
-            ? String(selectedBaseSpot ? selectedBaseSpot.city : '').trim()
+            ? String(selectedSpot ? selectedSpot.city : '').trim()
             : String(formData.get('city') || '').trim();
         const dish = String(formData.get('dish') || '').trim();
         const visitDate = String(formData.get('visit_date') || '').trim();
@@ -1227,7 +1227,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie Ihren Namen ein.';
             return;
         }
-        if (entryMode === 'existing' && !selectedBaseSpot) {
+        if (entryMode === 'existing' && !selectedSpot) {
             if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte einen bestehenden Spot aus der Liste auswählen.';
             return;
         }
