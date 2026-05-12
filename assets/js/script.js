@@ -2007,35 +2007,76 @@ document.addEventListener('DOMContentLoaded', () => {
             let imgIndex = 0;
             const images = imageContainer.querySelectorAll('.slide-image');
             const imgDots = imageContainer.querySelectorAll('.slide-dot');
-            const prevBtn = imageContainer.querySelector('.slide-nav-btn.prev');
-            const nextBtn = imageContainer.querySelector('.slide-nav-btn.next');
+            const track = imageContainer.querySelector('.slide-image-track');
 
             function showImg(index) {
-                images[imgIndex].classList.remove('active');
+                if (images[imgIndex]) images[imgIndex].classList.remove('active');
                 if (imgDots[imgIndex]) imgDots[imgIndex].classList.remove('active');
+                
                 imgIndex = (index + slides.length) % slides.length;
-                images[imgIndex].classList.add('active');
+                
+                if (images[imgIndex]) images[imgIndex].classList.add('active');
                 if (imgDots[imgIndex]) imgDots[imgIndex].classList.add('active');
+                
+                if (track) {
+                    track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    track.style.transform = `translateX(-${imgIndex * 100}%)`;
+                }
             }
 
-            if (prevBtn) {
-                prevBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    showImg(imgIndex - 1);
-                });
-            }
-            if (nextBtn) {
-                nextBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    showImg(imgIndex + 1);
-                });
-            }
             imgDots.forEach((dot, idx) => {
                 dot.addEventListener('click', (e) => {
                     e.stopPropagation();
                     showImg(idx);
                 });
             });
+
+            // Swipe logic for image area
+            if (slides.length > 1) {
+                let startX = 0;
+                let isDragging = false;
+
+                imageContainer.addEventListener('pointerdown', (e) => {
+                    e.stopPropagation();
+                    startX = e.clientX;
+                    isDragging = true;
+                    if (track) track.style.transition = 'none';
+                    imageContainer.setPointerCapture(e.pointerId);
+                });
+
+                imageContainer.addEventListener('pointermove', (e) => {
+                    if (!isDragging || !track) return;
+                    const diff = e.clientX - startX;
+                    const containerWidth = imageContainer.offsetWidth || 1;
+                    const percentage = (diff / containerWidth) * 100;
+
+                    const baseTranslate = -imgIndex * 100;
+                    track.style.transform = `translateX(${baseTranslate + percentage}%)`;
+                });
+
+                imageContainer.addEventListener('pointerup', (e) => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    imageContainer.releasePointerCapture(e.pointerId);
+
+                    const diff = e.clientX - startX;
+                    const threshold = 40; // pixels
+
+                    if (diff > threshold) {
+                        showImg(imgIndex - 1);
+                    } else if (diff < -threshold) {
+                        showImg(imgIndex + 1);
+                    } else {
+                        showImg(imgIndex);
+                    }
+                });
+
+                imageContainer.addEventListener('pointercancel', () => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    showImg(imgIndex);
+                });
+            }
         }
 
         // --- Comment Carousel Logic ---
@@ -2168,9 +2209,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="spot-top-content">
                     <div class="spot-image-container">
                         ${hasSlideshow ? `
-                            ${slides.map((s, i) => `<img src="${s.imageUrl}" alt="Slide ${i + 1}" class="slide-image ${i === 0 ? 'active' : ''}" loading="lazy" />`).join('')}
-                            <button class="slide-nav-btn prev" aria-label="Vorheriges Bild">&#10094;</button>
-                            <button class="slide-nav-btn next" aria-label="Nächstes Bild">&#10095;</button>
+                            <div class="slide-image-track">
+                                ${slides.map((s, i) => `<img src="${s.imageUrl}" alt="Slide ${i + 1}" class="slide-image ${i === 0 ? 'active' : ''}" loading="lazy" />`).join('')}
+                            </div>
                             <div class="slide-dots">
                                 ${slides.map((_, i) => `<button class="slide-dot ${i === 0 ? 'active' : ''}" aria-label="Slide ${i + 1}"></button>`).join('')}
                             </div>
