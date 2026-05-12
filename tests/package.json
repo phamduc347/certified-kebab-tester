@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "pretest": "node helpers/sync-utils.cjs",
-    "test": "node node_modules/vitest/vitest.mjs run --reporter=verbose --no-color --pool=forks",
+    "test": "NODE_OPTIONS='--experimental-require-module' node node_modules/vitest/vitest.mjs run --reporter=verbose --no-color --pool=forks",
     "test:watch": "vitest"
   },
   "devDependencies": {

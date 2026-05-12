@@ -1,17 +1,16 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { JSDOM } from 'jsdom';
 import fs from 'fs';
 import path from 'path';
+
+/** @vitest-environment jsdom */
 
 const HTML_PATH = path.resolve(process.cwd(), '../index.html');
 
 describe('DOM Elements Presence', () => {
-    let document;
 
     beforeAll(() => {
         const html = fs.readFileSync(HTML_PATH, 'utf-8');
-        const dom = new JSDOM(html);
-        document = dom.window.document;
+        document.documentElement.innerHTML = html;
     });
 
     it('should have the main header and logo', () => {
@@ -50,7 +49,7 @@ describe('DOM Elements Presence', () => {
     });
 
     it('should have the modals', () => {
-        expect(document.getElementById('lightbox-modal')).not.toBeNull();
+        expect(document.getElementById('lightbox')).not.toBeNull();
         expect(document.getElementById('legal-modal')).not.toBeNull();
         expect(document.getElementById('comment-feedback-modal')).not.toBeNull();
     });
