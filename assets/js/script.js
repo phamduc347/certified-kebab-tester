@@ -2412,6 +2412,83 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Swipe / drag navigation (touch + mouse)
+        let swipeStartX = null;
+        let swipeStartY = null;
+        let isDragging = false;
+
+        container.addEventListener('pointerdown', (e) => {
+            swipeStartX = e.clientX;
+            swipeStartY = e.clientY;
+            isDragging = false;
+            container.setPointerCapture(e.pointerId);
+            container.style.cursor = 'grabbing';
+        });
+
+        container.addEventListener('pointermove', (e) => {
+            if (swipeStartX === null) return;
+            if (Math.abs(e.clientX - swipeStartX) > 8) isDragging = true;
+        });
+
+        container.addEventListener('pointerup', (e) => {
+            container.style.cursor = '';
+            if (swipeStartX === null) return;
+            const deltaX = e.clientX - swipeStartX;
+            const deltaY = e.clientY - swipeStartY;
+            swipeStartX = null;
+            swipeStartY = null;
+
+            // Only trigger if horizontal movement dominates and exceeds threshold
+            if (!isDragging) return;
+            if (Math.abs(deltaX) < 50 || Math.abs(deltaX) < Math.abs(deltaY)) return;
+
+            if (deltaX < 0) {
+                // Swipe left → next
+                currentIndex = (currentIndex + 1) % spotlightItems.length;
+            } else {
+                // Swipe right → prev
+                currentIndex = (currentIndex - 1 + spotlightItems.length) % spotlightItems.length;
+            }
+            updateSpotlight();
+            startRotation();
+        });
+
+        container.addEventListener('pointercancel', () => {
+            container.style.cursor = '';
+            swipeStartX = null;
+            swipeStartY = null;
+            isDragging = false;
+        });
+
+        // Prevent click on buttons/links when a drag occurred
+        container.addEventListener('click', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                e.stopPropagation();
+                isDragging = false;
+            }
+        }, true);
+
+        // Horizontal wheel scroll navigation
+        container.addEventListener('wheel', (e) => {
+            const deltaX = e.deltaX || (e.shiftKey ? e.deltaY : 0);
+            
+            // Only react if horizontal scrolling is detected (higher threshold)
+            if (Math.abs(deltaX) < 40) return;
+            
+            e.preventDefault();
+            
+            if (deltaX > 0) {
+                // Wheel right → next
+                currentIndex = (currentIndex + 1) % spotlightItems.length;
+            } else {
+                // Wheel left → prev
+                currentIndex = (currentIndex - 1 + spotlightItems.length) % spotlightItems.length;
+            }
+            updateSpotlight();
+            startRotation();
+        }, { passive: false });
+
         renderSpotlightItems();
         updateSpotlight();
         startRotation();
