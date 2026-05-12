@@ -127,11 +127,6 @@ body.dark .spot-comment {
     border-left-color: #3a3a3a;
 }
 body.dark .review-comment-item,
-body.dark .review-community-item,
-body.dark .community-review-item {
-    background: #111111;
-}
-body.dark .review-community-panel,
 body.dark .community-reviews-card {
     background: #111111;
 }
@@ -2118,7 +2113,7 @@ section {
     margin-top: 12px;
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    background: #ffffff;
+    background: var(--bg-card);
     padding: 10px 12px;
 }
 
@@ -2131,7 +2126,7 @@ section {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: #111827;
+    color: var(--text-main);
 }
 
 .review-community-list {
@@ -2144,7 +2139,7 @@ section {
 .review-community-item {
     border: 1px solid var(--border-color);
     border-radius: 10px;
-    background: #f9fafb;
+    background: var(--bg-card);
     padding: 8px 10px;
 }
 
