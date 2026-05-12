@@ -2534,6 +2534,12 @@ document.addEventListener('DOMContentLoaded', () => {
             ).join('');
         }
 
+        function updateDots() {
+            dotsContainer.querySelectorAll('.dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentIndex);
+            });
+        }
+
         function updateSpotlight(index = null) {
             if (index !== null) currentIndex = index;
 
@@ -2549,7 +2555,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.classList.toggle('active', i === currentIndex);
             });
 
-            renderDots();
+            updateDots();
         }
 
         function startRotation() {
@@ -2703,6 +2709,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { passive: false });
 
         renderSpotlightItems();
+        renderDots();
         updateSpotlight();
         startRotation();
     }
