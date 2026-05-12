@@ -2008,6 +2008,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const images = imageContainer.querySelectorAll('.slide-image');
             const imgDots = imageContainer.querySelectorAll('.slide-dot');
             const track = imageContainer.querySelector('.slide-image-track');
+            let interval;
 
             function showImg(index) {
                 if (images[imgIndex]) images[imgIndex].classList.remove('active');
@@ -2024,10 +2025,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            function startAutoplay() {
+                stopAutoplay();
+                if (slides.length > 1) {
+                    interval = setInterval(() => {
+                        showImg(imgIndex + 1);
+                    }, 6000);
+                }
+            }
+
+            function stopAutoplay() {
+                if (interval) clearInterval(interval);
+            }
+
             imgDots.forEach((dot, idx) => {
                 dot.addEventListener('click', (e) => {
                     e.stopPropagation();
                     showImg(idx);
+                    startAutoplay();
                 });
             });
 
@@ -2038,6 +2053,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 imageContainer.addEventListener('pointerdown', (e) => {
                     e.stopPropagation();
+                    stopAutoplay();
                     startX = e.clientX;
                     isDragging = true;
                     if (track) track.style.transition = 'none';
@@ -2069,13 +2085,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         showImg(imgIndex);
                     }
+                    startAutoplay();
                 });
 
                 imageContainer.addEventListener('pointercancel', () => {
                     if (!isDragging) return;
                     isDragging = false;
                     showImg(imgIndex);
+                    startAutoplay();
                 });
+
+                startAutoplay();
             }
         }
 
