@@ -1,4 +1,4 @@
-name: Database Backup
+name: "[CI/CD][DB]: Supabase Data Backup"
 
 on:
   schedule:

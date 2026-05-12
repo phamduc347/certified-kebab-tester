@@ -1,4 +1,4 @@
-name: Security Checks
+name: "[CI/CD][SEC]: Vulnerability Scanning"
 
 on:
   push:

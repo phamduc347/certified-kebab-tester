@@ -1,5 +1,5 @@
 # Workflow: Conditional Deployment to GitHub Pages
-name: CI Pipeline
+name: "[CI/CD][Pages]: Website Deployment"
 
 on:
   push:
