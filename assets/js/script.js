@@ -1490,9 +1490,28 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Fix: loadReviewComments must run AFTER loadCommunityReviews finishes,
-        // so that kebabData is populated with correct hash IDs before likes are fetched.
-        loadCommunityReviews().then(() => loadReviewComments());
+        const loaderStartTime = Date.now();
+        const minLoaderDuration = 1200; // 1.2 seconds for a smooth feel
+
+        const fadeOutLoader = () => {
+            const loader = document.getElementById('page-loader');
+            if (loader && !loader.classList.contains('fade-out')) {
+                loader.classList.add('fade-out');
+                setTimeout(() => loader.remove(), 600);
+            }
+        };
+
+        // Safety timeout: Hide loader after 5 seconds regardless of data status
+        setTimeout(fadeOutLoader, 5000);
+
+        // Fetch data and handle loader removal
+        loadCommunityReviews()
+            .then(() => loadReviewComments())
+            .finally(() => {
+                const elapsed = Date.now() - loaderStartTime;
+                const remaining = Math.max(0, minLoaderDuration - elapsed);
+                setTimeout(fadeOutLoader, remaining);
+            });
     }
 
     // ── Star Rating Renderer ──────────────────────────────────────────
