@@ -1,4 +1,4 @@
-# Workflow: Conditional Deployment to GitHub Pages
+# Workflow: Automated Deployment to GitHub Pages
 name: "[CI/CD][Pages]: Website Deployment"
 
 on:
@@ -40,7 +40,6 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: test
-    if: startsWith(github.event.head_commit.message, 'deploy:') || github.event_name == 'workflow_dispatch'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
