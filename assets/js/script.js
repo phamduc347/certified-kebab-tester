@@ -2027,7 +2027,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function startAutoplay() {
             stopAutoplay();
-            interval = setInterval(() => showSlide(currentIndex + 1), 5000);
+            // Autoplay disabled by user request
         }
 
         function stopAutoplay() {
@@ -2422,10 +2422,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function startRotation() {
             clearInterval(rotationTimer);
-            rotationTimer = setInterval(() => {
-                currentIndex = (currentIndex + 1) % spotlightItems.length;
-                updateSpotlight();
-            }, 8000);
+            // Auto-rotation disabled by user request
         }
 
         dotsContainer.addEventListener('click', (e) => {
