@@ -1,0 +1,16 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    - cron: '0 4 * * 0,4' # Runs at 04:00 UTC on Sunday and Thursday (twice a week)
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  keep_alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase Database
+        run: |
+          curl -f -X GET "https://ehmrxhrfbejcaocpxfed.supabase.co/rest/v1/review_comments?select=id&limit=1" \
+          -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVobXJ4aHJmYmVqY2FvY3B4ZmVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4ODc0NzAsImV4cCI6MjA5MzQ2MzQ3MH0.dBcRE6zF9Bnso3A4eDHuhlLX3Sd5pD9AQq71ScnVc1Y" \
+          -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVobXJ4aHJmYmVqY2FvY3B4ZmVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4ODc0NzAsImV4cCI6MjA5MzQ2MzQ3MH0.dBcRE6zF9Bnso3A4eDHuhlLX3Sd5pD9AQq71ScnVc1Y"
