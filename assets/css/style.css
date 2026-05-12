@@ -1551,6 +1551,18 @@ section {
     text-transform: none;
 }
 
+.spot-card:nth-child(1) .spot-header-text h3 {
+    color: #D4AF37;
+}
+
+.spot-card:nth-child(2) .spot-header-text h3 {
+    color: #A8A8A8;
+}
+
+.spot-card:nth-child(3) .spot-header-text h3 {
+    color: #B08D57;
+}
+
 .spot-card.expanded .spot-header-text h3 {
     font-size: 1.5rem;
 }
@@ -3225,6 +3237,18 @@ section {
     overflow: hidden;
     text-overflow: ellipsis;
     transition: opacity 0.2s ease;
+}
+
+.pl-row:nth-child(1) .pl-name {
+    color: #D4AF37;
+}
+
+.pl-row:nth-child(2) .pl-name {
+    color: #A8A8A8;
+}
+
+.pl-row:nth-child(3) .pl-name {
+    color: #B08D57;
 }
 
 .pl-name:hover {

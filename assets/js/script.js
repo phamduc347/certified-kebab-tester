@@ -2061,7 +2061,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         card.innerHTML = `
             <div class="spot-card-header">
-                <div class="spot-rank">${displayRank}</div>
+                <div class="spot-rank">#${displayRank}</div>
                 <div class="spot-header-text">
                     <div class="spot-title-row">
                         <h3>${safeSpotName}</h3>
@@ -2552,7 +2552,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return `
             <div class="pl-row" style="--pl-delay: ${i * 0.1}s">
-                <div class="pl-rank">${i + 1}</div>
+                <div class="pl-rank">#${i + 1}</div>
                 <div class="pl-info">
                     <div class="pl-name-row">
                         <span class="pl-name" data-id="${spot.id}">${spot.name}</span>
