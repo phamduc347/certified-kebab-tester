@@ -1973,11 +1973,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function buildSlidesForSpot(spot) {
         const slides = [];
-        slides.push({
-            imageUrl: spot.image || 'kebab_spot_demo.png',
-            comment: spot.kommentar || null,
-            author: '👑 Pham (CKT)'
-        });
+        if (baseSpotById.has(Number(spot.id))) {
+            slides.push({
+                imageUrl: spot.image || 'kebab_spot_demo.png',
+                comment: spot.kommentar || null,
+                author: '👑 Pham (CKT)'
+            });
+        }
         const reviews = approvedCommunityReviewsBySpotId.get(Number(spot.id)) || [];
         reviews.forEach(review => {
             slides.push({
