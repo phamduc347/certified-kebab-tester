@@ -1764,6 +1764,22 @@ section {
     position: relative;
 }
 
+/* Hint for zoom */
+.spot-image-container::after {
+    content: "TAP TO ZOOM";
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 0.6rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    pointer-events: none;
+    z-index: 15;
+}
+
 .spot-image {
     width: 100%;
     height: 100%;
@@ -2846,21 +2862,6 @@ section {
         font-size: 0.9rem;
     }
 
-    /* Hint for zoom */
-    .spot-image-container::after {
-        content: "TAP TO ZOOM";
-        position: absolute;
-        bottom: 8px;
-        right: 8px;
-        background: rgba(0,0,0,0.6);
-        color: #fff;
-        font-size: 0.6rem;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-weight: 700;
-        pointer-events: none;
-        z-index: 15;
-    }
 
     .spot-categories {
         grid-template-columns: repeat(2, 1fr);
