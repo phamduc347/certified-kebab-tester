@@ -4,9 +4,14 @@
  * and the Dresden fallback for the bestDresden spotlight item.
  */
 import { describe, it, expect } from 'vitest';
-import { loadKebabData } from '../helpers/load-data.js';
-
-const { kebabData } = loadKebabData();
+// Using a mock array since kebabData is now loaded dynamically from Supabase
+const kebabData = [
+    { id: 1, name: 'Spot A', city: 'Berlin', date: '01.01.2025', score: '80,00%', plIndex: '10,00%' },
+    { id: 2, name: 'Spot B', city: 'Dresden', date: '02.01.2025', score: '90,00%', plIndex: '12,00%' },
+    { id: 3, name: 'Spot C', city: 'München', date: '03.01.2025', score: '70,00%', plIndex: '8,00%' },
+    { id: 4, name: 'Spot D', city: 'Leipzig', date: '04.01.2025', score: '85,00%', plIndex: '15,00%' },
+    { id: 5, name: 'Spot E', city: 'Dresden', date: '05.01.2025', score: '95,00%', plIndex: '14,00%' }
+];
 
 import {
     parseVal as parseScore,

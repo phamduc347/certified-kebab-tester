@@ -301,7 +301,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let radarChart;
-    const selectedSpots = new Set([kebabData[0].id, kebabData[1].id]);
+    const selectedSpots = new Set();
+    if (kebabData.length >= 2) {
+        selectedSpots.add(kebabData[0].id);
+        selectedSpots.add(kebabData[1].id);
+    } else if (kebabData.length === 1) {
+        selectedSpots.add(kebabData[0].id);
+    }
     let currentSortMode = 'score-desc';
 
     // Chart Configuration
@@ -2272,10 +2278,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (selectedSpots.size === 0 && kebabData.length > 0) {
-            selectedSpots.add(kebabData[0].id);
-            if (kebabData[1]) {
-                selectedSpots.add(kebabData[1].id);
-            }
+            if (kebabData[0]) selectedSpots.add(kebabData[0].id);
+            if (kebabData[1]) selectedSpots.add(kebabData[1].id);
         }
 
         refreshFilterOptions(true);
@@ -2625,7 +2629,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // ── Kategorie-Awards ─────────────────────────────────────────
         const awardsContainer = document.getElementById('category-awards-container');
-        if (awardsContainer) {
+        if (awardsContainer && kebabData.length > 0) {
             const cats = [
                 { key: 'fleisch', label: '🥩 Fleisch' },
                 { key: 'gemuese', label: '🥬 Gemüse' },
