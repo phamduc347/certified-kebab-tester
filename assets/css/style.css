@@ -3268,6 +3268,19 @@ section {
     width: var(--pl-width);
 }
 
+/* Rank 1-3 bar colors: Gold, Silver, Bronze */
+.pl-row:nth-child(1) .pl-bar-fill {
+    background: #D4AF37;
+}
+
+.pl-row:nth-child(2) .pl-bar-fill {
+    background: #A8A8A8;
+}
+
+.pl-row:nth-child(3) .pl-bar-fill {
+    background: #B08D57;
+}
+
 .pl-value {
     font-size: 0.8rem;
     font-weight: 800;
@@ -3275,6 +3288,19 @@ section {
     white-space: nowrap;
     min-width: 52px;
     text-align: right;
+}
+
+/* Rank 1-3 value colors: Gold, Silver, Bronze */
+.pl-row:nth-child(1) .pl-value {
+    color: #D4AF37;
+}
+
+.pl-row:nth-child(2) .pl-value {
+    color: #A8A8A8;
+}
+
+.pl-row:nth-child(3) .pl-value {
+    color: #B08D57;
 }
 
 .pl-meta {
