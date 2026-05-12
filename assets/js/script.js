@@ -2008,7 +2008,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentIndex = 0;
         const images = imageContainer.querySelectorAll('.slide-image');
         const commentItems = commentArea ? commentArea.querySelectorAll('.slide-comment-item') : [];
-        const dots = imageContainer.querySelectorAll('.slide-dot');
+        const dots = card.querySelectorAll('.slide-dot');
         const prevBtn = imageContainer.querySelector('.slide-nav-btn.prev');
         const nextBtn = imageContainer.querySelector('.slide-nav-btn.next');
         let interval;
@@ -2016,13 +2016,27 @@ document.addEventListener('DOMContentLoaded', () => {
         function showSlide(index) {
             images[currentIndex].classList.remove('active');
             if (commentItems[currentIndex]) commentItems[currentIndex].classList.remove('active');
-            if (dots[currentIndex]) dots[currentIndex].classList.remove('active');
 
             currentIndex = (index + slides.length) % slides.length;
 
             images[currentIndex].classList.add('active');
             if (commentItems[currentIndex]) commentItems[currentIndex].classList.add('active');
-            if (dots[currentIndex]) dots[currentIndex].classList.add('active');
+
+            const track = commentArea ? commentArea.querySelector('.slide-comment-track') : null;
+            if (track) {
+                track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            }
+
+            // Sync all dots in both containers
+            const allDots = card.querySelectorAll('.slide-dot');
+            allDots.forEach(dot => dot.classList.remove('active'));
+
+            const imageDots = imageContainer.querySelectorAll('.slide-dot');
+            const commentDots = commentArea ? commentArea.querySelectorAll('.slide-dot') : [];
+
+            if (imageDots[currentIndex]) imageDots[currentIndex].classList.add('active');
+            if (commentDots[currentIndex]) commentDots[currentIndex].classList.add('active');
         }
 
         function startAutoplay() {
@@ -2051,10 +2065,61 @@ document.addEventListener('DOMContentLoaded', () => {
         dots.forEach((dot, idx) => {
             dot.addEventListener('click', (e) => {
                 e.stopPropagation();
-                showSlide(idx);
+                // We need to map the dot index to the slide index
+                // Since dots can be in two containers, we use modulo
+                showSlide(idx % slides.length);
                 startAutoplay();
             });
         });
+
+        // Swipe logic for comment area
+        if (commentArea && slides.length > 1) {
+            let startX = 0;
+            let isDragging = false;
+            const track = commentArea.querySelector('.slide-comment-track');
+
+            commentArea.addEventListener('pointerdown', (e) => {
+                // Prevent bubbling to spotlight swipe logic
+                e.stopPropagation();
+                startX = e.clientX;
+                isDragging = true;
+                if (track) track.style.transition = 'none';
+                commentArea.setPointerCapture(e.pointerId);
+            });
+
+            commentArea.addEventListener('pointermove', (e) => {
+                if (!isDragging || !track) return;
+                const diff = e.clientX - startX;
+                const containerWidth = commentArea.offsetWidth || 1;
+                const percentage = (diff / containerWidth) * 100;
+                
+                const baseTranslate = -currentIndex * 100;
+                track.style.transform = `translateX(${baseTranslate + percentage}%)`;
+            });
+
+            commentArea.addEventListener('pointerup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                commentArea.releasePointerCapture(e.pointerId);
+
+                const diff = e.clientX - startX;
+                const threshold = 40; // pixels
+
+                if (diff > threshold) {
+                    showSlide(currentIndex - 1);
+                } else if (diff < -threshold) {
+                    showSlide(currentIndex + 1);
+                } else {
+                    showSlide(currentIndex);
+                }
+            });
+
+            commentArea.addEventListener('pointercancel', () => {
+                if (!isDragging) return;
+                isDragging = false;
+                showSlide(currentIndex);
+            });
+        }
 
         startAutoplay();
     }
@@ -2147,12 +2212,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${(spot.kommentar || hasSlideshow || includeEngagement) ? `
                             <div class="spot-comment-area">
                                 ${hasSlideshow ? `
-                                    ${slides.map((s, i) => `
-                                        <div class="slide-comment-item ${i === 0 ? 'active' : ''}">
-                                            <div class="spot-comment">"${s.comment}"</div>
-                                            <div class="slide-author-info">— ${s.author}</div>
-                                        </div>
-                                    `).join('')}
+                                    <div class="slide-comment-track">
+                                        ${slides.map((s, i) => `
+                                            <div class="slide-comment-item ${i === 0 ? 'active' : ''}">
+                                                <div class="spot-comment">"${s.comment}"</div>
+                                                <div class="slide-author-info">— ${s.author}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    <div class="slide-dots slide-dots--comments">
+                                        ${slides.map((_, i) => `<button class="slide-dot ${i === 0 ? 'active' : ''}" aria-label="Comment Slide ${i + 1}"></button>`).join('')}
+                                    </div>
                                 ` : spot.kommentar ? `
                                     <div class="spot-comment">"${spot.kommentar}"</div>
                                 ` : ''}

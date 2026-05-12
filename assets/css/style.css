@@ -4349,6 +4349,16 @@ body.modal-open {
     z-index: 10;
 }
 
+.slide-dots--comments {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    justify-content: center;
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
 .slide-dot {
     width: 7px;
     height: 7px;
@@ -4365,14 +4375,34 @@ body.modal-open {
     transform: scale(1.2);
 }
 
-/* Comment fade: each item uses spot-comment style, only active is shown */
+.spot-comment-area {
+    position: relative;
+    overflow: hidden;
+    margin-top: 12px;
+    touch-action: pan-y;
+    user-select: none;
+}
+
+.slide-comment-track {
+    display: flex;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    width: 100%;
+}
+
+/* Comment fade/slide: each item uses spot-comment style */
 .slide-comment-item {
-    display: none;
-    animation: fadeIn 0.4s ease;
+    flex: 0 0 100%;
+    width: 100%;
+    opacity: 0.4;
+    transform: scale(0.95);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
 }
 
 .slide-comment-item.active {
-    display: block;
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
 }
 
 .slide-author-info {
