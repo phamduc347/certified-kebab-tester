@@ -58,10 +58,7 @@ html.dark-init body .contact-icon svg {
     filter: invert(1) hue-rotate(180deg) brightness(1.1) contrast(1.1);
     transition: filter 0.3s;
 }
-body.dark .hero-canvas,
-html.dark-init body .hero-canvas {
-    filter: invert(1) hue-rotate(180deg) brightness(1.1) contrast(1.1);
-}
+/* hero-canvas inversion handled in JS via drawKebab fill color */
 body.dark .hero-overlay {
     background: radial-gradient(circle at center, transparent 20%, rgba(10,10,10,0.85) 75%);
 }
@@ -86,6 +83,7 @@ body.dark .chart-wrapper {
 body.dark #radarChart,
 html.dark-init body #radarChart {
     filter: invert(1) hue-rotate(180deg) brightness(1.1) contrast(1.1);
+    will-change: filter;
 }
 body.dark .toggle-label {
     background: #111111;

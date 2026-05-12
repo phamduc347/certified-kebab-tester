@@ -130,12 +130,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Draw original wrap silhouette (rounded rect + stripes + stick)
         function drawKebab(ctx, x, y, size, opacity, angle) {
+            const isDark = document.body.classList.contains('dark');
+            const color = isDark ? '#fff' : '#000';
             ctx.save();
             ctx.translate(x, y);
             ctx.rotate(angle);
             ctx.globalAlpha = opacity;
-            ctx.fillStyle = '#000';
-            ctx.strokeStyle = '#000';
+            ctx.fillStyle = color;
+            ctx.strokeStyle = color;
             ctx.lineWidth = size * 0.04;
 
             // Wrap / bread body (rounded rectangle)
@@ -166,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Skewer / stick at bottom
             ctx.globalAlpha = opacity;
-            ctx.fillStyle = '#000';
+            ctx.fillStyle = color;
             ctx.fillRect(-size * 0.04, h / 2, size * 0.08, size * 0.35);
 
             // Skewer tip at top (shorter, with round cap)
@@ -2416,6 +2418,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let swipeStartX = null;
         let swipeStartY = null;
         let isDragging = false;
+        let movePending = false;
 
         container.addEventListener('pointerdown', (e) => {
             swipeStartX = e.clientX;
@@ -2427,7 +2430,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         container.addEventListener('pointermove', (e) => {
             if (swipeStartX === null) return;
-            if (Math.abs(e.clientX - swipeStartX) > 8) isDragging = true;
+            if (movePending) return;
+            movePending = true;
+            requestAnimationFrame(() => {
+                if (Math.abs(e.clientX - swipeStartX) > 8) isDragging = true;
+                movePending = false;
+            });
         });
 
         container.addEventListener('pointerup', (e) => {
@@ -2469,15 +2477,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, true);
 
-        // Horizontal wheel scroll navigation
+        // Horizontal wheel scroll navigation with cooldown to limit redraws
+        let wheelCooldown = false;
         container.addEventListener('wheel', (e) => {
             const deltaX = e.deltaX || (e.shiftKey ? e.deltaY : 0);
-            
+
             // Only react if horizontal scrolling is detected (higher threshold)
             if (Math.abs(deltaX) < 40) return;
-            
+
             e.preventDefault();
-            
+            if (wheelCooldown) return;
+
+            wheelCooldown = true;
+            setTimeout(() => { wheelCooldown = false; }, 800);
+
             if (deltaX > 0) {
                 // Wheel right → next
                 currentIndex = (currentIndex + 1) % spotlightItems.length;
