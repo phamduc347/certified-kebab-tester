@@ -1727,7 +1727,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="cat-item-bar">
                 <div class="cat-info">
                     <span>${displayLabel}</span>
-                    <span style="color: ${color}">${value}</span>
+                    <span style="color: ${color}">Ø ${value}</span>
                 </div>
                 <div class="bar-bg">
                     <div class="bar-fill" style="--target-width: ${percentage}%; background-color: ${color}"></div>
@@ -2276,7 +2276,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </a>
                     <div class="spot-score-pill">
                         <span class="label">SCORE</span>
-                        <span class="value">${scoreDisplay}</span>
+                        <span class="value">Ø ${scoreDisplay}</span>
                     </div>
                     <span class="expand-icon">▼</span>
                 </div>
