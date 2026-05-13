@@ -2585,6 +2585,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                             <div class="latest-score-value">${scoreDisplay}</div>
                                         </div>
                                     </div>
+                                    ${spot.kommentar ? `<div class="latest-snippet">"${escapeHtml(spot.kommentar.length > 130 ? spot.kommentar.substring(0, 127) + '...' : spot.kommentar)}"</div>` : ''}
                                     <div class="latest-body">
                                         <div class="latest-details">
                                             <span class="badge">${spot.dish}</span>

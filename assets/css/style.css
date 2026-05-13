@@ -1299,6 +1299,26 @@ section {
     flex-wrap: wrap;
 }
 
+.latest-snippet {
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-top: 4px;
+    margin-bottom: auto; /* Pushes the latest-body to the bottom */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-width: 95%;
+}
+
+@media (max-width: 768px) {
+    .latest-snippet {
+        display: none;
+    }
+}
+
 .latest-comment {
     font-size: 1rem;
     font-style: italic;
