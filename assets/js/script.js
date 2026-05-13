@@ -1755,7 +1755,21 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
 
-        const items = reviews.map((review) => {
+        const sortedReviews = [...reviews].sort((a, b) => {
+            const getTimestamp = (review) => {
+                const visitTs = review && review.visit_date ? new Date(review.visit_date).getTime() : Number.NaN;
+                if (!Number.isNaN(visitTs)) return visitTs;
+
+                const createdTs = review && review.created_at ? new Date(review.created_at).getTime() : Number.NaN;
+                if (!Number.isNaN(createdTs)) return createdTs;
+
+                return 0;
+            };
+
+            return getTimestamp(b) - getTimestamp(a);
+        });
+
+        const items = sortedReviews.map((review) => {
             const reviewer = escapeHtml(review.reviewer_name || 'Anonym');
             const visitDate = formatVisitDate(review.visit_date);
             const submittedAt = formatCommentDate(review.created_at);
