@@ -2113,6 +2113,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     startAutoplay();
                 });
 
+                let imgWheelCooldown = false;
+                imageContainer.addEventListener('wheel', (e) => {
+                    const deltaX = e.deltaX || (e.shiftKey ? e.deltaY : 0);
+                    if (Math.abs(deltaX) < 40) return;
+
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (imgWheelCooldown) return;
+
+                    imgWheelCooldown = true;
+                    setTimeout(() => { imgWheelCooldown = false; }, 800);
+
+                    if (deltaX > 0) {
+                        showImg(imgIndex + 1);
+                    } else {
+                        showImg(imgIndex - 1);
+                    }
+                    startAutoplay();
+                }, { passive: false });
+
                 startAutoplay();
             }
         }
@@ -2191,6 +2211,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 isDragging = false;
                 showComment(commentIndex);
             });
+
+            let commentWheelCooldown = false;
+            commentArea.addEventListener('wheel', (e) => {
+                const deltaX = e.deltaX || (e.shiftKey ? e.deltaY : 0);
+                if (Math.abs(deltaX) < 40) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+                if (commentWheelCooldown) return;
+
+                commentWheelCooldown = true;
+                setTimeout(() => { commentWheelCooldown = false; }, 800);
+
+                if (deltaX > 0) {
+                    showComment(commentIndex + 1);
+                } else {
+                    showComment(commentIndex - 1);
+                }
+            }, { passive: false });
         }
     }
 
