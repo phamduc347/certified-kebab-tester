@@ -1,6 +1,6 @@
 {
   "info": {
-    "timestamp": "2026-05-12T20:18:40.937Z",
+    "timestamp": "2026-05-13T10:02:16.318Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
@@ -446,126 +446,6 @@
     ],
     "review_spot_likes": [
       {
-        "id": 1,
-        "spot_id": 1,
-        "voter_fingerprint": "f99bc9c2-fc58-4b37-8b0e-da454f472c2f",
-        "created_at": "2026-05-05T14:27:42.003582+00:00"
-      },
-      {
-        "id": 2,
-        "spot_id": 1,
-        "voter_fingerprint": "d2ffa2eb-5bf4-445a-8232-d0fb086a6796",
-        "created_at": "2026-05-05T16:51:50.636039+00:00"
-      },
-      {
-        "id": 3,
-        "spot_id": 2,
-        "voter_fingerprint": "d2ffa2eb-5bf4-445a-8232-d0fb086a6796",
-        "created_at": "2026-05-05T16:51:59.910186+00:00"
-      },
-      {
-        "id": 4,
-        "spot_id": 4,
-        "voter_fingerprint": "71c4fc5c-2969-400d-9696-f6b0e0507a3e",
-        "created_at": "2026-05-05T17:00:39.915538+00:00"
-      },
-      {
-        "id": 5,
-        "spot_id": 13,
-        "voter_fingerprint": "f36953da-d8fd-41f3-9926-2cc2d879f704",
-        "created_at": "2026-05-05T17:19:44.263921+00:00"
-      },
-      {
-        "id": 6,
-        "spot_id": 1,
-        "voter_fingerprint": "f36953da-d8fd-41f3-9926-2cc2d879f704",
-        "created_at": "2026-05-05T20:24:34.834647+00:00"
-      },
-      {
-        "id": 7,
-        "spot_id": 1,
-        "voter_fingerprint": "b2b1bd02-e3e3-4e49-b73f-a844935db779",
-        "created_at": "2026-05-07T07:18:07.429059+00:00"
-      },
-      {
-        "id": 8,
-        "spot_id": 2,
-        "voter_fingerprint": "b2b1bd02-e3e3-4e49-b73f-a844935db779",
-        "created_at": "2026-05-07T07:18:13.340651+00:00"
-      },
-      {
-        "id": 9,
-        "spot_id": 3,
-        "voter_fingerprint": "b2b1bd02-e3e3-4e49-b73f-a844935db779",
-        "created_at": "2026-05-07T07:18:16.886182+00:00"
-      },
-      {
-        "id": 10,
-        "spot_id": 4,
-        "voter_fingerprint": "b2b1bd02-e3e3-4e49-b73f-a844935db779",
-        "created_at": "2026-05-07T07:18:20.207367+00:00"
-      },
-      {
-        "id": 11,
-        "spot_id": 5,
-        "voter_fingerprint": "b2b1bd02-e3e3-4e49-b73f-a844935db779",
-        "created_at": "2026-05-07T07:18:23.803793+00:00"
-      },
-      {
-        "id": 12,
-        "spot_id": 6,
-        "voter_fingerprint": "b2b1bd02-e3e3-4e49-b73f-a844935db779",
-        "created_at": "2026-05-07T07:18:26.759062+00:00"
-      },
-      {
-        "id": 13,
-        "spot_id": 1,
-        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
-        "created_at": "2026-05-07T07:43:47.656689+00:00"
-      },
-      {
-        "id": 14,
-        "spot_id": 8,
-        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
-        "created_at": "2026-05-07T12:33:18.818658+00:00"
-      },
-      {
-        "id": 15,
-        "spot_id": 3,
-        "voter_fingerprint": "d2ffa2eb-5bf4-445a-8232-d0fb086a6796",
-        "created_at": "2026-05-07T20:26:51.671515+00:00"
-      },
-      {
-        "id": 16,
-        "spot_id": 13,
-        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
-        "created_at": "2026-05-09T17:08:39.311164+00:00"
-      },
-      {
-        "id": 17,
-        "spot_id": 17,
-        "voter_fingerprint": "71c4fc5c-2969-400d-9696-f6b0e0507a3e",
-        "created_at": "2026-05-12T17:48:00.672729+00:00"
-      },
-      {
-        "id": 18,
-        "spot_id": 17,
-        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
-        "created_at": "2026-05-12T17:52:54.793549+00:00"
-      },
-      {
-        "id": 19,
-        "spot_id": 2,
-        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
-        "created_at": "2026-05-12T17:53:19.034594+00:00"
-      },
-      {
-        "id": 22,
-        "spot_id": 2,
-        "voter_fingerprint": "e464aad6-9092-43f6-9fd8-c17525a624db",
-        "created_at": "2026-05-12T18:15:30.17544+00:00"
-      },
-      {
         "id": 21,
         "spot_id": 1448334456,
         "voter_fingerprint": "5bba1e55-e7e4-4004-9588-e298602a4496",
@@ -578,22 +458,52 @@
         "created_at": "2026-05-12T17:58:33.979893+00:00"
       },
       {
-        "id": 23,
-        "spot_id": 1,
-        "voter_fingerprint": "5bba1e55-e7e4-4004-9588-e298602a4496",
-        "created_at": "2026-05-12T18:16:50.297631+00:00"
-      },
-      {
         "id": 25,
         "spot_id": 1448334456,
         "voter_fingerprint": "d2ffa2eb-5bf4-445a-8232-d0fb086a6796",
         "created_at": "2026-05-12T18:49:40.90344+00:00"
       },
       {
-        "id": 26,
-        "spot_id": 1,
-        "voter_fingerprint": "30e63be2-e4d2-433e-86e4-2b8ae0ae7c25",
-        "created_at": "2026-05-12T18:49:48.463123+00:00"
+        "id": 27,
+        "spot_id": 709238275,
+        "voter_fingerprint": "d2ffa2eb-5bf4-445a-8232-d0fb086a6796",
+        "created_at": "2026-05-12T20:33:11.050933+00:00"
+      },
+      {
+        "id": 28,
+        "spot_id": 351420396,
+        "voter_fingerprint": "d2ffa2eb-5bf4-445a-8232-d0fb086a6796",
+        "created_at": "2026-05-12T20:33:13.733977+00:00"
+      },
+      {
+        "id": 29,
+        "spot_id": 709238275,
+        "voter_fingerprint": "29f2ebdb-0755-4060-a594-20494a3c11a5",
+        "created_at": "2026-05-12T20:35:10.701012+00:00"
+      },
+      {
+        "id": 30,
+        "spot_id": 1530485738,
+        "voter_fingerprint": "f36953da-d8fd-41f3-9926-2cc2d879f704",
+        "created_at": "2026-05-12T20:45:07.7559+00:00"
+      },
+      {
+        "id": 31,
+        "spot_id": 256181790,
+        "voter_fingerprint": "f36953da-d8fd-41f3-9926-2cc2d879f704",
+        "created_at": "2026-05-12T20:45:10.872335+00:00"
+      },
+      {
+        "id": 32,
+        "spot_id": 351420396,
+        "voter_fingerprint": "f36953da-d8fd-41f3-9926-2cc2d879f704",
+        "created_at": "2026-05-12T20:45:16.127958+00:00"
+      },
+      {
+        "id": 33,
+        "spot_id": 709238275,
+        "voter_fingerprint": "f36953da-d8fd-41f3-9926-2cc2d879f704",
+        "created_at": "2026-05-12T20:45:19.07942+00:00"
       }
     ],
     "review_comments": [
