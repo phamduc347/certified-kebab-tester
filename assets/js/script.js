@@ -2557,17 +2557,27 @@ document.addEventListener('DOMContentLoaded', () => {
             { spot: sortedByScore[sortedByScore.length - 1], label: "BOTTOM RANK", tag: "ROOM FOR IMPROVEMENT" }
         ].filter(item => item.spot != null);
 
-        let currentIndex = 0;
+        let currentIndex = 1; // 1-based index for infinite scroll
+        const totalItems = spotlightItems.length;
         let rotationTimer;
 
         function renderSpotlightItems() {
+            if (totalItems === 0) return;
+
+            // Create infinite loop wrapper by adding clones to ends
+            const itemsToRender = [
+                { ...spotlightItems[totalItems - 1], isClone: true, dataIndex: totalItems - 1 },
+                ...spotlightItems.map((item, i) => ({ ...item, isClone: false, dataIndex: i })),
+                { ...spotlightItems[0], isClone: true, dataIndex: 0 }
+            ];
+
             container.innerHTML = `
                 <div class="spotlight-track">
-                    ${spotlightItems.map((item, i) => {
+                    ${itemsToRender.map((item, i) => {
                         const spot = item.spot;
                         const scoreDisplay = normalizeSpotScoreDisplay(spot.score);
                         return `
-                            <div class="latest-card ${i === 0 ? 'active' : ''}" data-index="${i}">
+                            <div class="latest-card ${i === currentIndex ? 'active' : ''}" data-index="${item.dataIndex}">
                                 <div class="latest-image-wrapper">
                                     <img src="${spot.image || 'kebab_spot_demo.png'}" alt="${spot.name}" class="latest-image spot-image">
                                     <div class="latest-badge">${item.label}</div>
@@ -2613,13 +2623,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function renderDots() {
             dotsContainer.innerHTML = spotlightItems.map((_, i) =>
-                `<div class="dot ${i === currentIndex ? 'active' : ''}" data-index="${i}"></div>`
+                `<div class="dot ${i === 0 ? 'active' : ''}" data-index="${i}"></div>`
             ).join('');
         }
 
         function updateDots() {
+            let dotIndex = currentIndex - 1;
+            if (dotIndex === -1) dotIndex = totalItems - 1;
+            if (dotIndex === totalItems) dotIndex = 0;
+
             dotsContainer.querySelectorAll('.dot').forEach((dot, i) => {
-                dot.classList.toggle('active', i === currentIndex);
+                dot.classList.toggle('active', i === dotIndex);
             });
         }
 
@@ -2632,6 +2646,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (track) {
                 track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                 track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+                // Handle infinite jump after transition
+                if (currentIndex === 0 || currentIndex === totalItems + 1) {
+                    setTimeout(() => {
+                        track.style.transition = 'none';
+                        if (currentIndex === 0) {
+                            currentIndex = totalItems;
+                        } else if (currentIndex === totalItems + 1) {
+                            currentIndex = 1;
+                        }
+                        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                        
+                        cards.forEach((card, i) => {
+                            card.classList.toggle('active', i === currentIndex);
+                        });
+                    }, 600); // 0.6s matching the CSS transition duration
+                }
             }
 
             cards.forEach((card, i) => {
@@ -2644,7 +2675,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function startRotation() {
             stopRotation();
             rotationTimer = setInterval(() => {
-                currentIndex = (currentIndex + 1) % spotlightItems.length;
+                currentIndex++;
                 updateSpotlight();
             }, 5000);
         }
@@ -2655,7 +2686,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         dotsContainer.addEventListener('click', (e) => {
             if (e.target.classList.contains('dot')) {
-                const index = parseInt(e.target.dataset.index);
+                const index = parseInt(e.target.dataset.index) + 1; // Map dot index to real index
                 if (index === currentIndex) return;
                 updateSpotlight(index);
                 startRotation();
@@ -2678,7 +2709,6 @@ document.addEventListener('DOMContentLoaded', () => {
             isDragging = false;
             suppressNextClick = false;
             stopRotation();
-            // REMOVED: setPointerCapture here blocks normal clicks on Desktop
         });
 
         container.addEventListener('pointermove', (e) => {
@@ -2741,11 +2771,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const threshold = containerWidth * 0.20;
 
             if (deltaX < -threshold) {
-                currentIndex = (currentIndex + 1) % spotlightItems.length;
+                currentIndex++;
             } else if (deltaX > threshold) {
-                currentIndex = (currentIndex - 1 + spotlightItems.length) % spotlightItems.length;
+                currentIndex--;
             }
-            // else: snap back to current — updateSpotlight handles it
 
             updateSpotlight();
             startRotation();
@@ -2787,10 +2816,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (deltaX > 0) {
                 // Wheel right → next
-                currentIndex = (currentIndex + 1) % spotlightItems.length;
+                currentIndex++;
             } else {
                 // Wheel left → prev
-                currentIndex = (currentIndex - 1 + spotlightItems.length) % spotlightItems.length;
+                currentIndex--;
             }
             updateSpotlight();
             startRotation();
