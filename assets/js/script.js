@@ -1959,9 +1959,19 @@ document.addEventListener('DOMContentLoaded', () => {
         dishGroup.innerHTML = '';
 
         cities.forEach(city => {
+            const cityCount = kebabData.filter((spot) => {
+                if (spot.city !== city) return false;
+                if (activeDishes.size === 0) return true;
+
+                const variants = getSpotDishVariants(spot);
+                for (const dish of variants) {
+                    if (activeDishes.has(dish)) return true;
+                }
+                return false;
+            }).length;
             const btn = document.createElement('button');
             btn.className = `filter-bubble filter-city ${activeCities.has(city) ? 'active' : ''}`;
-            btn.innerHTML = `${city} <span class="filter-x">×</span>`;
+            btn.innerHTML = `${city} <span class="filter-count">${cityCount}</span> <span class="filter-x">×</span>`;
             btn.addEventListener('click', () => {
                 if (activeCities.has(city)) {
                     activeCities.delete(city);
@@ -1977,9 +1987,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         dishes.forEach(dish => {
+            const dishCount = kebabData.filter((spot) => {
+                const cityMatch = activeCities.size === 0 || activeCities.has(spot.city);
+                if (!cityMatch) return false;
+                return getSpotDishVariants(spot).has(dish);
+            }).length;
             const btn = document.createElement('button');
             btn.className = `filter-bubble filter-dish ${activeDishes.has(dish) ? 'active' : ''}`;
-            btn.innerHTML = `${dish} <span class="filter-x">×</span>`;
+            btn.innerHTML = `${dish} <span class="filter-count">${dishCount}</span> <span class="filter-x">×</span>`;
             btn.addEventListener('click', () => {
                 if (activeDishes.has(dish)) {
                     activeDishes.delete(dish);

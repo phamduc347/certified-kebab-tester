@@ -951,6 +951,18 @@ section {
     gap: 6px;
 }
 
+.filter-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    padding: 1px 5px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    font-size: 0.62rem;
+    line-height: 1.2;
+}
+
 .filter-city {
     border-radius: 4px;
 }
