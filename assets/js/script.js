@@ -2073,14 +2073,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     e.stopPropagation();
                     stopAutoplay();
                     startX = e.clientX;
-                    isDragging = true;
+                    isDragging = false; // Wait for move
                     if (track) track.style.transition = 'none';
-                    imageContainer.setPointerCapture(e.pointerId);
                 });
 
                 imageContainer.addEventListener('pointermove', (e) => {
-                    if (!isDragging || !track) return;
+                    if (startX === 0 || !track) return;
                     const diff = e.clientX - startX;
+
+                    if (!isDragging) {
+                        if (Math.abs(diff) < 5) return;
+                        isDragging = true;
+                        imageContainer.setPointerCapture(e.pointerId);
+                    }
+
                     const containerWidth = imageContainer.offsetWidth || 1;
                     const percentage = (diff / containerWidth) * 100;
 
@@ -2089,28 +2095,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 imageContainer.addEventListener('pointerup', (e) => {
-                    if (!isDragging) return;
-                    isDragging = false;
-                    imageContainer.releasePointerCapture(e.pointerId);
+                    if (isDragging) {
+                        isDragging = false;
+                        imageContainer.releasePointerCapture(e.pointerId);
 
-                    const diff = e.clientX - startX;
-                    const threshold = 40; // pixels
+                        const diff = e.clientX - startX;
+                        const threshold = 40; // pixels
 
-                    if (diff > threshold) {
-                        showImg(imgIndex - 1);
-                    } else if (diff < -threshold) {
-                        showImg(imgIndex + 1);
-                    } else {
-                        showImg(imgIndex);
+                        if (diff > threshold) {
+                            showImg(imgIndex - 1);
+                        } else if (diff < -threshold) {
+                            showImg(imgIndex + 1);
+                        } else {
+                            showImg(imgIndex);
+                        }
+                        startAutoplay();
                     }
-                    startAutoplay();
+                    startX = 0;
                 });
 
                 imageContainer.addEventListener('pointercancel', () => {
-                    if (!isDragging) return;
-                    isDragging = false;
-                    showImg(imgIndex);
-                    startAutoplay();
+                    if (isDragging) {
+                        isDragging = false;
+                        showImg(imgIndex);
+                        startAutoplay();
+                    }
+                    startX = 0;
                 });
 
                 let imgWheelCooldown = false;
@@ -2172,16 +2182,27 @@ document.addEventListener('DOMContentLoaded', () => {
             let isDragging = false;
 
             commentArea.addEventListener('pointerdown', (e) => {
+                // Ignore if clicking on community reviews panel to prevent carousel dragging
+                if (e.target.closest('.review-community-panel')) {
+                    startX = 0;
+                    return;
+                }
                 e.stopPropagation();
                 startX = e.clientX;
-                isDragging = true;
+                isDragging = false; // Wait for move
                 if (track) track.style.transition = 'none';
-                commentArea.setPointerCapture(e.pointerId);
             });
 
             commentArea.addEventListener('pointermove', (e) => {
-                if (!isDragging || !track) return;
+                if (startX === 0 || !track) return;
                 const diff = e.clientX - startX;
+
+                if (!isDragging) {
+                    if (Math.abs(diff) < 5) return;
+                    isDragging = true;
+                    commentArea.setPointerCapture(e.pointerId);
+                }
+
                 const containerWidth = commentArea.offsetWidth || 1;
                 const percentage = (diff / containerWidth) * 100;
 
@@ -2190,26 +2211,30 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             commentArea.addEventListener('pointerup', (e) => {
-                if (!isDragging) return;
-                isDragging = false;
-                commentArea.releasePointerCapture(e.pointerId);
+                if (isDragging) {
+                    isDragging = false;
+                    commentArea.releasePointerCapture(e.pointerId);
 
-                const diff = e.clientX - startX;
-                const threshold = 40; // pixels
+                    const diff = e.clientX - startX;
+                    const threshold = 40; // pixels
 
-                if (diff > threshold) {
-                    showComment(commentIndex - 1);
-                } else if (diff < -threshold) {
-                    showComment(commentIndex + 1);
-                } else {
-                    showComment(commentIndex);
+                    if (diff > threshold) {
+                        showComment(commentIndex - 1);
+                    } else if (diff < -threshold) {
+                        showComment(commentIndex + 1);
+                    } else {
+                        showComment(commentIndex);
+                    }
                 }
+                startX = 0;
             });
 
             commentArea.addEventListener('pointercancel', () => {
-                if (!isDragging) return;
-                isDragging = false;
-                showComment(commentIndex);
+                if (isDragging) {
+                    isDragging = false;
+                    showComment(commentIndex);
+                }
+                startX = 0;
             });
 
             let commentWheelCooldown = false;
