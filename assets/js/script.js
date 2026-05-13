@@ -2613,7 +2613,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isDragging = false;
             suppressNextClick = false;
             stopRotation();
-            container.setPointerCapture(e.pointerId);
+            // REMOVED: setPointerCapture here blocks normal clicks on Desktop
         });
 
         container.addEventListener('pointermove', (e) => {
@@ -2626,8 +2626,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (swipeAxisLocked === null) {
                 const absX = Math.abs(deltaX);
                 const absY = Math.abs(deltaY);
-                if (absX < 4 && absY < 4) return; // not moved enough yet
+                if (absX < 5 && absY < 5) return; // not moved enough yet
                 swipeAxisLocked = absX >= absY ? 'horizontal' : 'vertical';
+                
+                // If it's a horizontal swipe, capture the pointer now
+                if (swipeAxisLocked === 'horizontal') {
+                    container.setPointerCapture(e.pointerId);
+                }
             }
 
             if (swipeAxisLocked !== 'horizontal') return;
