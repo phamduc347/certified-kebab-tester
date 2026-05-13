@@ -1743,7 +1743,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return `
                 <div class="review-community-panel collapsible-panel" data-spot-id="${spotId}">
                     <div class="review-community-panel-header collapsible-trigger">
-                        <span>Weitere Reviews (0)</span>
+                        <span>Alle Reviews (0)</span>
                         <span class="expand-icon">▼</span>
                     </div>
                     <div class="collapsible-content">
@@ -1837,7 +1837,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             <div class="review-community-panel collapsible-panel" data-spot-id="${spotId}">
                 <div class="review-community-panel-header collapsible-trigger">
-                    <span>Weitere Reviews (${reviews.length})</span>
+                    <span>Alle Reviews (${reviews.length})</span>
                     <span class="expand-icon">▼</span>
                 </div>
                 <div class="collapsible-content">
