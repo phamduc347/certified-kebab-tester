@@ -23,48 +23,13 @@ Falls du das Projekt neu aufsetzen oder in ein eigenes Supabase-Projekt migriere
 - Clientseitig: Honeypot-Feld gegen einfache Bot-Formular-Fills.
 - Supabase-seitig: Mindestlänge für Autor/Kommentar, Link-Block (`http`, `https`, `www`) und max. 3 Inserts pro Autor in 10 Minuten.
 
-### Moderation (aktiv)
-- Neue Kommentare werden mit `is_approved = false` gespeichert.
-- Öffentlich angezeigt werden nur Kommentare mit `is_approved = true`.
-- Freigabe im Supabase SQL Editor:
-
-```sql
-UPDATE public.review_comments
-SET is_approved = true
-WHERE id = <kommentar_id>;
-```
-
-- Alle wartenden Kommentare anzeigen:
-
-```sql
-SELECT id, spot_id, author, comment_text, created_at
-FROM public.review_comments
-WHERE is_approved = false
-ORDER BY created_at DESC;
-```
+### Moderation (automatisch)
+- Neue Beiträge und Kommentare werden sofort veröffentlicht (`is_approved = true`).
+- Der Betreiber behält sich vor, unpassende Inhalte nachträglich zu entfernen.
 
 ### Community Reviews mit Bild-Upload (neu)
 - Nutzer koennen einen kompletten Review-Beitrag mit Bewertungskriterien und genau einem Bild einreichen.
-- Neue Beitraege landen mit `is_approved = false` in `public.community_reviews`.
 - Bilder werden im Bucket `community-review-images` gespeichert.
-- Sichtbar auf der Website sind nur freigegebene Beitraege (`is_approved = true`).
-
-Freigabe von Community Reviews im Supabase SQL Editor:
-
-```sql
-UPDATE public.community_reviews
-SET is_approved = true
-WHERE id = <review_id>;
-```
-
-Wartende Community Reviews anzeigen:
-
-```sql
-SELECT id, reviewer_name, spot_name, city, created_at
-FROM public.community_reviews
-WHERE is_approved = false
-ORDER BY created_at DESC;
-```
 
 ## Deployment via GitHub Pages
 Diese Website wird als statische Seite über GitHub Pages gehostet. Um sie zu deployen:

@@ -3,7 +3,7 @@ create table if not exists public.review_comments (
     spot_id integer not null,
     author text not null default 'Anonym',
     comment_text text not null,
-    is_approved boolean not null default false,
+    is_approved boolean not null default true,
     created_at timestamptz not null default now(),
     constraint review_comments_comment_text_len check (char_length(comment_text) between 3 and 500),
     constraint review_comments_author_len check (char_length(author) between 2 and 40),
@@ -11,7 +11,7 @@ create table if not exists public.review_comments (
 );
 
 alter table public.review_comments
-    add column if not exists is_approved boolean not null default false;
+    add column if not exists is_approved boolean not null default true;
 
 create index if not exists review_comments_spot_id_created_at_idx
     on public.review_comments (spot_id, created_at desc);
@@ -92,7 +92,7 @@ create table if not exists public.community_reviews (
     service numeric(3,1) not null,
     comment_text text not null,
     image_url text not null,
-    is_approved boolean not null default false,
+    is_approved boolean not null default true,
     created_at timestamptz not null default now(),
     constraint community_reviews_name_len check (char_length(reviewer_name) between 2 and 40),
     constraint community_reviews_spot_len check (char_length(spot_name) between 2 and 80),

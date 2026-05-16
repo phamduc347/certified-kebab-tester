@@ -902,7 +902,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (commentInput) commentInput.value = '';
         if (authorInput) authorInput.value = '';
-        if (status) status.textContent = 'Danke. Dein Kommentar ist eingegangen und wird nach Freigabe sichtbar.';
+        if (status) status.textContent = 'Danke. Dein Kommentar wurde veröffentlicht.';
 
         openCommentFeedbackModal();
     }
@@ -1367,7 +1367,7 @@ document.addEventListener('DOMContentLoaded', () => {
             form.reset();
             if (submitButton) submitButton.blur();
             syncCommunitySpotInputsFromSelection();
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Danke! Dein Review wurde eingereicht und wartet auf Freigabe.';
+            if (communityReviewStatus) communityReviewStatus.textContent = 'Danke! Dein Review wurde veröffentlicht.';
             openCommentFeedbackModal();
         } catch (error) {
             const message = error && error.message ? error.message : 'Fehler beim Einreichen des Reviews.';
