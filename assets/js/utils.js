@@ -206,6 +206,7 @@ export function computeSpotFromBaseAndCommunity(baseSpot, reviews) {
 export function computeCommunityOnlySpot(reviews) {
         const criteria = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
         const first = reviews[0] || {};
+        // Hash-based stable ID - consistent with how review_spot_likes stores spot_id
         const generatedId = generateStableSpotId(first.spot_name, first.city);
 
         const generated = {
