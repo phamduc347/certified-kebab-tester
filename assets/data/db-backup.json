@@ -1,6 +1,6 @@
 {
   "info": {
-    "timestamp": "2026-05-16T07:32:49.611Z",
+    "timestamp": "2026-05-17T08:35:26.561Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
@@ -504,6 +504,12 @@
         "spot_id": 709238275,
         "voter_fingerprint": "f36953da-d8fd-41f3-9926-2cc2d879f704",
         "created_at": "2026-05-12T20:45:19.07942+00:00"
+      },
+      {
+        "id": 34,
+        "spot_id": 351420396,
+        "voter_fingerprint": "687d4344-ec75-435a-80dd-82876085c770",
+        "created_at": "2026-05-16T19:44:37.950577+00:00"
       }
     ],
     "review_comments": [
