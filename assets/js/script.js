@@ -1884,7 +1884,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                                 aria-label="Review als hilfreich markieren"
                                             >
                                                 <span class="review-helpful-icon" aria-hidden="true">&#9829;</span>
-                                                <span class="review-helpful-label">Hilfreich</span>
+                                                <span class="review-helpful-label">Gefällt mir</span>
                                                 <span class="review-helpful-count">${reviewLikeCount}</span>
                                             </button>
                                         </div>
@@ -2462,7 +2462,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     aria-label="Review als hilfreich markieren"
                                 >
                                     <span class="review-helpful-icon" aria-hidden="true">&#9829;</span>
-                                    <span class="review-helpful-label">Hilfreich</span>
+                                    <span class="review-helpful-label">Gefällt mir</span>
                                     <span class="review-helpful-count">${reviewLikeCount}</span>
                                 </button>
                             </div>
