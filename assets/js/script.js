@@ -1707,7 +1707,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return `hsl(${Math.round(hue)}, 80%, 40%)`;
     }
 
-    function renderCriteriaBar(label, value) {
+    function renderCriteriaBar(label, value, options = {}) {
+        const showAverageSymbol = options.showAverageSymbol !== false;
         const emojis = {
             'Fleisch': '🥩',
             'Gemüse': '🥬',
@@ -1727,7 +1728,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="cat-item-bar">
                 <div class="cat-info">
                     <span>${displayLabel}</span>
-                    <span style="color: ${color}">Ø ${value}</span>
+                    <span style="color: ${color}">${showAverageSymbol ? 'Ø ' : ''}${value}</span>
                 </div>
                 <div class="bar-bg">
                     <div class="bar-fill" style="--target-width: ${percentage}%; background-color: ${color}"></div>
@@ -1809,6 +1810,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="review-community-item-header collapsible-trigger">
                         <span class="review-community-pattern-line review-community-pattern-line--summary" aria-label="Review Kopfzeile">
                             ${renderStars(scoreDisplay)}
+                            <span class="review-community-pattern-score">Score: ${scoreDisplay}</span>
                             <span class="review-community-pattern-author">Review von ${reviewer}</span>
                             <span class="review-community-pattern-date">· ${headerDate}</span>
                         </span>
@@ -1823,15 +1825,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                     </div>
                                     <div class="spot-content">
                                         <div class="spot-categories">
-                                            ${renderCriteriaBar('Fleisch', criteriaValues.fleisch)}
-                                            ${renderCriteriaBar('Gemüse', criteriaValues.gemuese)}
-                                            ${renderCriteriaBar('Soße', criteriaValues.sosse)}
-                                            ${renderCriteriaBar('Brot', criteriaValues.brot)}
-                                            ${renderCriteriaBar('Balance', criteriaValues.balance)}
-                                            ${renderCriteriaBar('Auswahl', criteriaValues.auswahl)}
-                                            ${renderCriteriaBar('Portion', criteriaValues.portion)}
-                                            ${renderCriteriaBar('Hygiene', criteriaValues.hygiene)}
-                                            ${renderCriteriaBar('Service', criteriaValues.service)}
+                                            ${renderCriteriaBar('Fleisch', criteriaValues.fleisch, { showAverageSymbol: false })}
+                                            ${renderCriteriaBar('Gemüse', criteriaValues.gemuese, { showAverageSymbol: false })}
+                                            ${renderCriteriaBar('Soße', criteriaValues.sosse, { showAverageSymbol: false })}
+                                            ${renderCriteriaBar('Brot', criteriaValues.brot, { showAverageSymbol: false })}
+                                            ${renderCriteriaBar('Balance', criteriaValues.balance, { showAverageSymbol: false })}
+                                            ${renderCriteriaBar('Auswahl', criteriaValues.auswahl, { showAverageSymbol: false })}
+                                            ${renderCriteriaBar('Portion', criteriaValues.portion, { showAverageSymbol: false })}
+                                            ${renderCriteriaBar('Hygiene', criteriaValues.hygiene, { showAverageSymbol: false })}
+                                            ${renderCriteriaBar('Service', criteriaValues.service, { showAverageSymbol: false })}
                                         </div>
                                         <div class="spot-details">
                                             <span class="badge">${dish}</span>
