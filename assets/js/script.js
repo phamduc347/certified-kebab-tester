@@ -1880,7 +1880,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (trigger) {
                     const panel = trigger.closest('.collapsible-panel');
                     if (panel) {
+                        const isOpening = !panel.classList.contains('expanded');
                         panel.classList.toggle('expanded');
+
+                        // Match the main-card behavior: when opening a single review, align it flush below header.
+                        if (isOpening && panel.classList.contains('review-community-item')) {
+                            setTimeout(() => {
+                                scrollToElementFlush(panel);
+                            }, 50);
+                        }
+
                         event.stopPropagation();
                     }
                     return;
