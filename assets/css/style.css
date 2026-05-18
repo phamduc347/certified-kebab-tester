@@ -2061,6 +2061,10 @@ section {
     justify-content: flex-end;
 }
 
+.review-feedback-row--inline {
+    justify-content: flex-start;
+}
+
 .review-helpful-btn {
     display: inline-flex;
     align-items: center;

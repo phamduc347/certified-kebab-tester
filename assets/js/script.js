@@ -445,6 +445,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${String(name || '').trim().toLowerCase()}|${String(city || '').trim().toLowerCase()}`;
     }
 
+    function buildReviewLikeTargetId(review) {
+        const reviewer = String(review && review.reviewer_name ? review.reviewer_name : 'anonym').trim().toLowerCase() || 'anonym';
+        const spotName = String(review && review.spot_name ? review.spot_name : 'spot').trim().toLowerCase() || 'spot';
+        const seed = `${reviewer}|${spotName}`;
+
+        let hash = 0;
+        for (let i = 0; i < seed.length; i++) {
+            const char = seed.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash |= 0;
+        }
+
+        // Keep IDs positive and separate from regular spot IDs.
+        return (Math.abs(hash) % 1000000000) + 1000000000;
+    }
+
     function computeSpotFromBaseAndCommunity(baseSpot, reviews) {
         const criteria = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
         const merged = { ...baseSpot };
@@ -786,8 +802,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Include both base-data IDs and community review IDs from the DB
-        const spotIds = [...new Set(kebabData.map((spot) => Number(spot.id)).filter((id) => Number.isFinite(id)))];
+        // Include base spot IDs and hashed IDs for individual community reviews.
+        const baseSpotIds = kebabData.map((spot) => Number(spot.id)).filter((id) => Number.isFinite(id));
+        const reviewTargetIds = [];
+        approvedCommunityReviewsBySpotId.forEach((reviews) => {
+            (reviews || []).forEach((review) => {
+                const reviewTargetId = Number(buildReviewLikeTargetId(review));
+                if (Number.isFinite(reviewTargetId) && reviewTargetId > 0) {
+                    reviewTargetIds.push(reviewTargetId);
+                }
+            });
+        });
+        const spotIds = [...new Set([...baseSpotIds, ...reviewTargetIds])];
         const voterFingerprint = getCommentVoterFingerprint();
 
         reviewLikesBySpot.clear();
@@ -953,7 +979,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!error) {
             const spot = kebabData.find((entry) => Number(entry.id) === spotId);
-            const spotName = spot ? spot.name : `Spot #${spotId}`;
+            const spotName = likeButton.dataset.likeLabel || (spot ? spot.name : `Spot #${spotId}`);
 
             fetch('https://api.pushcut.io/VcqntPOAR-xGOoaXyGdur/notifications/Certified%20Kebab%20Tester%20-%20Like', {
                 method: 'POST',
@@ -1804,6 +1830,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 criteriaValues.service
             ) / 9;
             const scoreDisplay = `${(averageScore * 10).toFixed(2).replace('.', ',')}%`;
+            const reviewLikeTargetId = buildReviewLikeTargetId(review);
+            const reviewLikeCount = reviewLikesBySpot.get(reviewLikeTargetId) || 0;
+            const reviewLiked = reviewLikedByClient.has(reviewLikeTargetId);
+            const rawSpotName = String(review.spot_name || 'Spot').trim() || 'Spot';
+            const rawReviewerName = String(review.reviewer_name || 'Anonym').trim() || 'Anonym';
+            const reviewLikeLabel = escapeHtml(`${rawSpotName} reviewed by ${rawReviewerName}`);
 
             return `
                 <div class="review-community-item collapsible-panel">
@@ -1841,6 +1873,21 @@ document.addEventListener('DOMContentLoaded', () => {
                                             <span class="badge">${verzehrort}</span>
                                         </div>
                                         <div class="spot-comment">"${reviewText || 'Kein Kommentar angegeben.'}"</div>
+                                        <div class="review-feedback-row review-feedback-row--inline">
+                                            <button
+                                                type="button"
+                                                class="review-helpful-btn ${reviewLiked ? 'is-liked' : ''}"
+                                                data-spot-id="${reviewLikeTargetId}"
+                                                data-like-label="${reviewLikeLabel}"
+                                                data-liked="${reviewLiked ? 'true' : 'false'}"
+                                                ${!supabaseClient ? 'disabled' : ''}
+                                                aria-label="Review als hilfreich markieren"
+                                            >
+                                                <span class="review-helpful-icon" aria-hidden="true">&#9829;</span>
+                                                <span class="review-helpful-label">Hilfreich</span>
+                                                <span class="review-helpful-count">${reviewLikeCount}</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1866,12 +1913,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function attachReviewCardHandlers(card) {
-        const reviewHelpfulButton = card.querySelector('.review-helpful-btn');
+        const reviewHelpfulButtons = card.querySelectorAll('.review-helpful-btn');
         const communityPanel = card.querySelector('.review-community-panel');
 
-        if (reviewHelpfulButton) {
-            reviewHelpfulButton.addEventListener('click', handleReviewHelpfulClick);
-        }
+        reviewHelpfulButtons.forEach((button) => {
+            button.addEventListener('click', handleReviewHelpfulClick);
+        });
 
         if (communityPanel) {
             // Listen for clicks on collapsible triggers (Panel header or individual Item headers)
@@ -2409,6 +2456,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     type="button"
                                     class="review-helpful-btn ${reviewLiked ? 'is-liked' : ''}"
                                     data-spot-id="${spot.id}"
+                                    data-like-label="${safeSpotName}"
                                     data-liked="${reviewLiked ? 'true' : 'false'}"
                                     ${setupMissing ? 'disabled' : ''}
                                     aria-label="Review als hilfreich markieren"
