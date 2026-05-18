@@ -1,11 +1,34 @@
 {
   "info": {
-    "timestamp": "2026-05-17T08:35:26.561Z",
+    "timestamp": "2026-05-18T12:52:44.067Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
   "data": {
     "community_reviews": [
+      {
+        "id": 57,
+        "reviewer_name": "Minh",
+        "spot_name": "Med Dürüm",
+        "city": "Dresden",
+        "dish": "Dürüm",
+        "visit_date": "2026-05-16",
+        "fleisch": 8.6,
+        "gemuese": 8.7,
+        "sosse": 8.8,
+        "brot": 10,
+        "balance": 9.5,
+        "auswahl": 8,
+        "portion": 9,
+        "hygiene": 9,
+        "service": 9.5,
+        "comment_text": "Ich hatte einen Lahmacun mit Dönerfleisch. Ich hatte erst Sorge mich auf ein neues Erlebnis einzulassen und wollte zuerst, wie gewohnt den Döner wählen. Nach einem langen gedanklichen Ping-Pong Spiel, habe ich mich auf den Lahmacun eingelassen und was soll ich sagen.. Es war ein Erlebnis. In meinen Augen war das Gesamtprodukt besser als der Döner. Vorallem hat mich der knusprige und dennoch fluffige Teig abgeholt und dass immer mal wieder der leicht leckere Lahmacun Geschmack durchkam. Bei fast jedem Bissen habe ich mir noch einen ordentlichen Löffen Chili Pulver genehmigt. Das Chili Pulver hatte nicht nur schärfe sondern hat auch geschmacklich eine leicht salzig rauchige Note gehabt und für mich das Gesamtprodukt perfekt abegrundet.\nDie 35 minütige Bahnfahrt hat sich definitiv gelohnt. Nach dem Festmahl kann man noch einen herrvoragend Verdauungspaziergang unternehmen mit einer schönen Aussicht auf Dresden.",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1779094551217-mwvse9rk.jpeg",
+        "is_approved": true,
+        "created_at": "2026-05-18T08:55:52.42433+00:00",
+        "preis": "7,40",
+        "verzehrort": "Dine-in"
+      },
       {
         "id": 39,
         "reviewer_name": "👑 Pham (CKT)",
@@ -510,6 +533,36 @@
         "spot_id": 351420396,
         "voter_fingerprint": "687d4344-ec75-435a-80dd-82876085c770",
         "created_at": "2026-05-16T19:44:37.950577+00:00"
+      },
+      {
+        "id": 35,
+        "spot_id": 1561427281,
+        "voter_fingerprint": "dfcde04f-936b-40ae-a7d1-ac4d78423d45",
+        "created_at": "2026-05-18T10:01:19.134061+00:00"
+      },
+      {
+        "id": 36,
+        "spot_id": 1086884336,
+        "voter_fingerprint": "dfcde04f-936b-40ae-a7d1-ac4d78423d45",
+        "created_at": "2026-05-18T10:01:29.402123+00:00"
+      },
+      {
+        "id": 37,
+        "spot_id": 351420396,
+        "voter_fingerprint": "dfcde04f-936b-40ae-a7d1-ac4d78423d45",
+        "created_at": "2026-05-18T10:01:30.326687+00:00"
+      },
+      {
+        "id": 38,
+        "spot_id": 351420396,
+        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
+        "created_at": "2026-05-18T10:09:29.879906+00:00"
+      },
+      {
+        "id": 39,
+        "spot_id": 1561427281,
+        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
+        "created_at": "2026-05-18T10:09:32.414852+00:00"
       }
     ],
     "review_comments": [
