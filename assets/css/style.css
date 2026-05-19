@@ -2564,6 +2564,18 @@ section {
     color: var(--text-muted);
 }
 
+.community-comment-counter {
+    margin: -2px 0 2px;
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.community-comment-counter.is-over-limit {
+    color: #b91c1c;
+    font-weight: 700;
+}
+
 .community-review-form input.invalid-score {
     border-color: #b91c1c;
     box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.08);

@@ -269,6 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.getElementById('spots-grid');
     const communityReviewForm = document.getElementById('community-review-form');
     const communityReviewStatus = document.getElementById('community-review-status');
+    const communityCommentCounter = document.getElementById('community-comment-counter');
     const communitySubmitPanel = document.getElementById('community-submit-panel');
     const openCommunityReviewFormBtn = document.getElementById('open-community-review-form-btn');
     const spotEntryModeSelect = document.getElementById('spot-entry-mode');
@@ -392,6 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const COMMENT_VOTER_STORAGE_KEY = 'ckt_comment_voter_id_v1';
     const COMMUNITY_REVIEW_BUCKET = 'community-review-images';
     const COMMUNITY_REVIEW_MAX_IMAGE_MB = 6;
+    const COMMUNITY_COMMENT_MAX_LENGTH = 1000;
     let communityReviewsReady = !supabaseClient;
     let communityReviewsLoadError = false;
 
@@ -1100,6 +1102,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return valid;
     }
 
+    function updateCommunityCommentCounter() {
+        if (!communityReviewForm || !communityCommentCounter) return;
+
+        const commentInput = communityReviewForm.querySelector('textarea[name="comment_text"]');
+        const currentLength = String(commentInput && commentInput.value ? commentInput.value : '').length;
+
+        communityCommentCounter.textContent = `${currentLength}/${COMMUNITY_COMMENT_MAX_LENGTH} Zeichen`;
+        communityCommentCounter.classList.toggle('is-over-limit', currentLength > COMMUNITY_COMMENT_MAX_LENGTH);
+    }
+
     function buildCommunityAverage(review) {
         const keys = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
         const values = keys.map((key) => Number(review[key])).filter((value) => Number.isFinite(value));
@@ -1251,7 +1263,8 @@ document.addEventListener('DOMContentLoaded', () => {
             : String(formData.get('city') || '').trim();
         const dish = String(formData.get('dish') || '').trim();
         const visitDate = String(formData.get('visit_date') || '').trim();
-        const commentText = String(formData.get('comment_text') || '').trim();
+        const rawCommentText = String(formData.get('comment_text') || '');
+        const commentText = rawCommentText.trim();
         const preis = String(formData.get('preis') || '').trim();
         const verzehrort = String(formData.get('verzehrort') || '').trim();
         const file = fileInput && fileInput.files ? fileInput.files[0] : null;
@@ -1317,6 +1330,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        if (rawCommentText.length > COMMUNITY_COMMENT_MAX_LENGTH) {
+            if (communityReviewStatus) communityReviewStatus.textContent = `Der Kommentar ist zu lang (${rawCommentText.length}/${COMMUNITY_COMMENT_MAX_LENGTH} Zeichen). Bitte kürzen.`;
+            return;
+        }
+
         const validScores = validateCommunityScoreInputs(form, true);
         if (!validScores) {
             if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte korrigiere die Bewertungsfelder (1-10, max. eine Dezimalstelle).';
@@ -1355,7 +1373,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     preis: preis.slice(0, 20),
                     verzehrort: verzehrort.slice(0, 60),
                     visit_date: visitDate,
-                    comment_text: commentText.slice(0, 1000),
+                    comment_text: commentText.slice(0, COMMUNITY_COMMENT_MAX_LENGTH),
                     image_url: imageUrl,
                     fleisch: scores.fleisch,
                     gemuese: scores.gemuese,
@@ -1393,6 +1411,7 @@ document.addEventListener('DOMContentLoaded', () => {
             form.reset();
             if (submitButton) submitButton.blur();
             syncCommunitySpotInputsFromSelection();
+            updateCommunityCommentCounter();
             if (communityReviewStatus) communityReviewStatus.textContent = 'Danke! Dein Review wurde veröffentlicht.';
             openCommentFeedbackModal();
         } catch (error) {
@@ -1501,6 +1520,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (communityReviewForm) {
             communityReviewForm.addEventListener('submit', handleCommunityReviewSubmit);
+            updateCommunityCommentCounter();
+
+            const commentInput = communityReviewForm.querySelector('textarea[name="comment_text"]');
+            if (commentInput) {
+                commentInput.addEventListener('input', () => {
+                    updateCommunityCommentCounter();
+                    if (communityReviewStatus) {
+                        communityReviewStatus.textContent = '';
+                    }
+                });
+            }
+
             const visitDateInput = communityReviewForm.querySelector('input[name="visit_date"]');
             if (visitDateInput) {
                 validateCommunityVisitDateInput(visitDateInput);
