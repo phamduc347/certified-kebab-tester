@@ -4858,7 +4858,21 @@ body.dark .hero-timeline-tick {
     font-size: 0.8rem;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+}
+
+.hero-timeline-tooltip.interactive {
+    pointer-events: auto;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-timeline-tooltip.interactive:active {
+    transform: translate(-50%, -100%) translateY(-8px) scale(0.97) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+body.dark .hero-timeline-tooltip.interactive:active {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
 body.dark .hero-timeline-tooltip {
@@ -5005,6 +5019,19 @@ body.dark .tooltip-cluster-list::-webkit-scrollbar-thumb {
     align-items: center;
     gap: 8px;
     font-size: 0.75rem;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.tooltip-cluster-row:active {
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: scale(0.97);
+}
+
+body.dark .tooltip-cluster-row:active {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .tooltip-cluster-badge {

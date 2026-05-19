@@ -712,10 +712,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Take last 7 visits
-        const activeReviews = allVisits.slice(-7);
+        const isMobile = window.innerWidth <= 768;
+        const limit = isMobile ? 5 : 7;
 
-        // Find boundary dates: oldest of the 7 visits is start, newest of the 7 visits is end
+        // Take last visits
+        const activeReviews = allVisits.slice(-limit);
+
+        // Find boundary dates: oldest of the visits is start, newest of the visits is end
         const startVisitDate = activeReviews[0].visit_date;
         const endVisitDate = activeReviews[activeReviews.length - 1].visit_date;
 
@@ -824,6 +827,98 @@ document.addEventListener('DOMContentLoaded', () => {
             return count > 0 ? avgRating / count : 0;
         }
 
+        function showTooltip(item, marker) {
+            if (!tooltip) return;
+            const isMobile = window.innerWidth <= 768;
+
+            const firstReview = item.reviews[0];
+            const spotKey = buildSpotKey(firstReview.spot_name, firstReview.city);
+            const spot = kebabData.find((s) => buildSpotKey(s.name, s.city) === spotKey);
+            const spotId = spot ? spot.id : '';
+
+            if (item.isCluster) {
+                let reviewsHtml = '';
+                item.reviews.forEach((r) => {
+                    const name = r.reviewer_name || 'Anonym';
+                    const formattedDate = formatReviewDate(r.visit_date);
+                    reviewsHtml += `
+                        <div class="tooltip-cluster-row" data-spot-id="${spotId}" data-review-id="${r.id}">
+                            <span class="tooltip-cluster-name">
+                                <strong>${escapeHtml(r.spot_name)} (${escapeHtml(r.city)})</strong>
+                                <br/>
+                                <span style="font-size: 0.65rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; margin-top: 2px; width: 100%;">
+                                    <span>von ${escapeHtml(name)} &bull; ${escapeHtml(formattedDate)}</span>
+                                    ${isMobile ? `<span style="color: var(--timeline-marker-color); font-weight: 800; margin-left: 6px;">→</span>` : ''}
+                                </span>
+                            </span>
+                        </div>
+                    `;
+                });
+
+                tooltip.innerHTML = `
+                    <div class="tooltip-header" style="margin-bottom: 4px;">
+                        <span class="tooltip-title">+${item.reviews.length} weitere Besuche</span>
+                    </div>
+                    <div class="tooltip-cluster-list">
+                        ${reviewsHtml}
+                    </div>
+                `;
+            } else {
+                const review = item.reviews[0];
+                const formattedDate = formatReviewDate(review.visit_date);
+                const reviewer = review.reviewer_name || 'Anonym';
+
+                let mobileHint = '';
+                if (isMobile) {
+                    mobileHint = `
+                        <div class="tooltip-mobile-hint" style="margin-top: 6px; font-size: 0.65rem; color: var(--timeline-marker-color); font-weight: 800; border-top: 1px dashed var(--border-color); padding-top: 6px; text-align: center;">
+                            <span>Link zum Review</span>
+                        </div>
+                    `;
+                }
+
+                tooltip.innerHTML = `
+                    <div class="tooltip-header">
+                        <span class="tooltip-title">${escapeHtml(review.spot_name)} (${escapeHtml(review.city)})</span>
+                    </div>
+                    <div class="tooltip-meta">
+                        <span>von ${escapeHtml(reviewer)}</span>
+                    </div>
+                    <div class="tooltip-meta">
+                        <span>Besucht am: ${escapeHtml(formattedDate)}</span>
+                    </div>
+                    ${mobileHint}
+                `;
+            }
+
+            if (spot) {
+                tooltip.dataset.spotId = spot.id;
+                if (!item.isCluster) {
+                    tooltip.dataset.reviewId = item.reviews[0].id;
+                } else {
+                    tooltip.removeAttribute('data-review-id');
+                }
+            }
+
+            const containerRect = timelineContainer.getBoundingClientRect();
+            const markerRect = marker.getBoundingClientRect();
+            const leftPos = markerRect.left - containerRect.left + (markerRect.width / 2);
+            const markerTopRelativeToContainer = markerRect.top - containerRect.top;
+
+            tooltip.style.bottom = 'auto';
+            tooltip.style.left = `${leftPos}px`;
+            tooltip.style.top = `${markerTopRelativeToContainer}px`;
+            tooltip.style.opacity = '1';
+            tooltip.style.transform = 'translate(-50%, -100%) translateY(-8px)';
+            if (isMobile) {
+                tooltip.classList.add('interactive');
+                tooltip.style.pointerEvents = 'auto';
+            } else {
+                tooltip.classList.remove('interactive');
+                tooltip.style.pointerEvents = 'none';
+            }
+        }
+
         // Render markers
         stacks.forEach((item) => {
             const marker = document.createElement('div');
@@ -855,86 +950,108 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Setup Hover & Click Interactions
             marker.addEventListener('mouseenter', () => {
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile) return;
                 marker.classList.add('active');
-
-                if (!tooltip) return;
-
-                if (item.isCluster) {
-                    let reviewsHtml = '';
-                    item.reviews.forEach((r) => {
-                        const name = r.reviewer_name || 'Anonym';
-                        const formattedDate = formatReviewDate(r.visit_date);
-                        reviewsHtml += `
-                            <div class="tooltip-cluster-row">
-                                <span class="tooltip-cluster-name">
-                                    <strong>${escapeHtml(r.spot_name)} (${escapeHtml(r.city)})</strong>
-                                    <br/>
-                                    <span style="font-size: 0.65rem; color: var(--text-muted);">
-                                        von ${escapeHtml(name)} &bull; Besucht am: ${escapeHtml(formattedDate)}
-                                    </span>
-                                </span>
-                            </div>
-                        `;
-                    });
-
-                    tooltip.innerHTML = `
-                        <div class="tooltip-header" style="margin-bottom: 4px;">
-                            <span class="tooltip-title">+${item.reviews.length} weitere Besuche</span>
-                        </div>
-                        <div class="tooltip-cluster-list">
-                            ${reviewsHtml}
-                        </div>
-                    `;
-                } else {
-                    const review = item.reviews[0];
-                    const formattedDate = formatReviewDate(review.visit_date);
-                    const reviewer = review.reviewer_name || 'Anonym';
-
-                    tooltip.innerHTML = `
-                        <div class="tooltip-header">
-                            <span class="tooltip-title">${escapeHtml(review.spot_name)} (${escapeHtml(review.city)})</span>
-                        </div>
-                        <div class="tooltip-meta">
-                            <span>von ${escapeHtml(reviewer)}</span>
-                        </div>
-                        <div class="tooltip-meta">
-                            <span>Besucht am: ${escapeHtml(formattedDate)}</span>
-                        </div>
-                    `;
-                }
-
-                const containerRect = timelineContainer.getBoundingClientRect();
-                const markerRect = marker.getBoundingClientRect();
-                const leftPos = markerRect.left - containerRect.left + (markerRect.width / 2);
-                const markerTopRelativeToContainer = markerRect.top - containerRect.top;
-
-                tooltip.style.bottom = 'auto';
-                tooltip.style.left = `${leftPos}px`;
-                tooltip.style.top = `${markerTopRelativeToContainer}px`;
-                tooltip.style.opacity = '1';
-                tooltip.style.transform = 'translate(-50%, -100%) translateY(-8px)';
+                showTooltip(item, marker);
             });
 
             marker.addEventListener('mouseleave', () => {
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile) return;
                 marker.classList.remove('active');
                 if (tooltip) {
                     tooltip.style.opacity = '0';
                     tooltip.style.transform = 'translate(-50%, -100%) translateY(-4px)';
+                    tooltip.classList.remove('interactive');
+                    tooltip.style.pointerEvents = 'none';
                 }
             });
 
-            marker.addEventListener('click', () => {
-                // Jump to the first review in this item
-                const review = item.reviews[0];
-                const spotKey = buildSpotKey(review.spot_name, review.city);
-                const spot = kebabData.find((s) => buildSpotKey(s.name, s.city) === spotKey);
-                if (spot && typeof jumpToReview === 'function') {
-                    jumpToReview(spot.id);
+            marker.addEventListener('click', (e) => {
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile) {
+                    e.stopPropagation();
+                    
+                    // Remove active class from all other markers
+                    markersContainer.querySelectorAll('.hero-timeline-marker').forEach((m) => {
+                        if (m !== marker) m.classList.remove('active');
+                    });
+
+                    const wasActive = marker.classList.contains('active');
+                    marker.classList.toggle('active', !wasActive);
+
+                    if (wasActive) {
+                        if (tooltip) {
+                            tooltip.style.opacity = '0';
+                            tooltip.style.transform = 'translate(-50%, -100%) translateY(-4px)';
+                            tooltip.classList.remove('interactive');
+                            tooltip.style.pointerEvents = 'none';
+                        }
+                    } else {
+                        showTooltip(item, marker);
+                    }
+                } else {
+                    const review = item.reviews[0];
+                    const spotKey = buildSpotKey(review.spot_name, review.city);
+                    const spot = kebabData.find((s) => buildSpotKey(s.name, s.city) === spotKey);
+                    if (spot && typeof jumpToReview === 'function') {
+                        jumpToReview(spot.id, review.id);
+                    }
                 }
             });
 
             markersContainer.appendChild(marker);
         });
+
+        // Handle tooltip click (only active/interactive on mobile)
+        if (tooltip && !tooltip.dataset.listenerAttached) {
+            tooltip.addEventListener('click', (e) => {
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile && tooltip.classList.contains('interactive')) {
+                    // Check if clicked a cluster row
+                    const clusterRow = e.target.closest('.tooltip-cluster-row');
+                    if (clusterRow) {
+                        const spotId = clusterRow.dataset.spotId;
+                        const reviewId = clusterRow.dataset.reviewId;
+                        if (spotId && reviewId && typeof jumpToReview === 'function') {
+                            jumpToReview(parseInt(spotId), parseInt(reviewId));
+                        }
+                        return;
+                    }
+
+                    // Otherwise, single review click
+                    const spotId = tooltip.dataset.spotId;
+                    const reviewId = tooltip.dataset.reviewId;
+                    if (spotId && reviewId && typeof jumpToReview === 'function') {
+                        jumpToReview(parseInt(spotId), parseInt(reviewId));
+                    }
+                }
+            });
+            tooltip.dataset.listenerAttached = 'true';
+        }
+
+        // Close tooltip when clicking outside
+        function handleOutsideClick(e) {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                if (timelineContainer && !timelineContainer.contains(e.target)) {
+                    if (tooltip) {
+                        tooltip.style.opacity = '0';
+                        tooltip.style.transform = 'translate(-50%, -100%) translateY(-4px)';
+                        tooltip.classList.remove('interactive');
+                        tooltip.style.pointerEvents = 'none';
+                    }
+                    markersContainer.querySelectorAll('.hero-timeline-marker.active').forEach((m) => {
+                        m.classList.remove('active');
+                    });
+                }
+            }
+        }
+        
+        // Remove existing listener before adding to avoid accumulation
+        document.removeEventListener('click', handleOutsideClick);
+        document.addEventListener('click', handleOutsideClick);
     }
 
     function getCommentVoterFingerprint() {
@@ -2240,7 +2357,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const reviewLikeLabel = escapeHtml(`${rawSpotName} reviewed by ${rawReviewerName}`);
 
             return `
-                <div class="review-community-item collapsible-panel">
+                <div class="review-community-item collapsible-panel" data-review-id="${review.id}">
                     <div class="review-community-item-header collapsible-trigger">
                         <span class="review-community-pattern-line review-community-pattern-line--summary" aria-label="Review Kopfzeile">
                             ${renderStars(scoreDisplay)}
@@ -2993,7 +3110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         populateExistingSpotSelectOptions();
     }
 
-    function jumpToReview(spotId) {
+    function jumpToReview(spotId, reviewId) {
         // 1. Reset filters to all active
         activeCities = new Set(cities);
         activeDishes = new Set(dishes);
@@ -3011,6 +3128,16 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 card.classList.add('expanded');
                 syncConfirmedReviewsPanelState(card, true);
+
+                if (reviewId) {
+                    const reviewEl = card.querySelector(`.review-community-item[data-review-id="${reviewId}"]`);
+                    if (reviewEl) {
+                        reviewEl.classList.add('expanded');
+                        setTimeout(() => {
+                            scrollToElementFlush(reviewEl);
+                        }, 100);
+                    }
+                }
             }, 600);
         }
     }
@@ -3822,6 +3949,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resizeTimer = setTimeout(() => {
             updateHeaderHeight();
             handleScroll();
+            renderHeroTimeline();
         }, 150);
     }
 
