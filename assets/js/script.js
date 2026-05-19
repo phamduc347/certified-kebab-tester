@@ -2625,6 +2625,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initSlideshow(card, slides) {
+        const numSlides = slides.length;
+        if (numSlides < 2) return;
+
         // --- Image Carousel Logic ---
         const imageContainer = card.querySelector('.spot-image-container');
         if (imageContainer) {
@@ -2633,29 +2636,75 @@ document.addEventListener('DOMContentLoaded', () => {
             const imgDots = imageContainer.querySelectorAll('.slide-dot');
             const track = imageContainer.querySelector('.slide-image-track');
             let interval;
+            let isAnimating = false;
+            let shiftState = 0; // 0 = normal, -1 = last item shifted to front
 
-            function showImg(index) {
-                if (images[imgIndex]) images[imgIndex].classList.remove('active');
-                if (imgDots[imgIndex]) imgDots[imgIndex].classList.remove('active');
+            function updateActiveStates() {
+                imgDots.forEach((dot, i) => dot.classList.toggle('active', i === imgIndex));
+                images.forEach((img, i) => img.classList.toggle('active', i === imgIndex));
+            }
+
+            function navigateImg(direction) {
+                if (isAnimating) return;
                 
-                imgIndex = (index + slides.length) % slides.length;
-                
-                if (images[imgIndex]) images[imgIndex].classList.add('active');
-                if (imgDots[imgIndex]) imgDots[imgIndex].classList.add('active');
-                
-                if (track) {
+                if (direction === 'next') {
+                    imgIndex = (imgIndex + 1) % numSlides;
+                    updateActiveStates();
+                    
                     track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-                    track.style.transform = `translateX(-${imgIndex * 100}%)`;
+                    track.style.transform = `translateX(-100%)`;
+                    isAnimating = true;
+                    setTimeout(() => {
+                        track.style.transition = 'none';
+                        track.appendChild(track.firstElementChild);
+                        track.style.transform = `translateX(0)`;
+                        void track.offsetHeight; // force reflow
+                        isAnimating = false;
+                    }, 300);
+                } else if (direction === 'prev') {
+                    imgIndex = (imgIndex - 1 + numSlides) % numSlides;
+                    updateActiveStates();
+                    
+                    track.style.transition = 'none';
+                    track.insertBefore(track.lastElementChild, track.firstElementChild);
+                    track.style.transform = `translateX(-100%)`;
+                    void track.offsetHeight; // force reflow
+                    
+                    track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    track.style.transform = `translateX(0)`;
+                    isAnimating = true;
+                    setTimeout(() => {
+                        isAnimating = false;
+                    }, 300);
+                }
+            }
+
+            function jumpToImg(targetIndex) {
+                if (isAnimating || targetIndex === imgIndex) return;
+                let diff = targetIndex - imgIndex;
+                if (diff === 1 || diff === -(numSlides - 1)) {
+                    navigateImg('next');
+                } else if (diff === -1 || diff === numSlides - 1) {
+                    navigateImg('prev');
+                } else {
+                    // Instant jump for distant dots
+                    imgIndex = targetIndex;
+                    updateActiveStates();
+                    track.style.transition = 'none';
+                    for (let i = 0; i < numSlides; i++) {
+                        const trueIndex = (imgIndex + i) % numSlides;
+                        track.appendChild(images[trueIndex]);
+                    }
+                    track.style.transform = `translateX(0)`;
+                    void track.offsetHeight;
                 }
             }
 
             function startAutoplay() {
                 stopAutoplay();
-                if (slides.length > 1) {
-                    interval = setInterval(() => {
-                        showImg(imgIndex + 1);
-                    }, 6000);
-                }
+                interval = setInterval(() => {
+                    navigateImg('next');
+                }, 6000);
             }
 
             function stopAutoplay() {
@@ -2665,92 +2714,166 @@ document.addEventListener('DOMContentLoaded', () => {
             imgDots.forEach((dot, idx) => {
                 dot.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    showImg(idx);
+                    jumpToImg(idx);
                     startAutoplay();
                 });
             });
 
             // Swipe logic for image area
-            if (slides.length > 1) {
-                let startX = 0;
-                let isDragging = false;
+            let startX = 0;
+            let startY = 0;
+            let swipeAxisLocked = null;
+            let isDragging = false;
 
-                imageContainer.addEventListener('pointerdown', (e) => {
-                    e.stopPropagation();
-                    stopAutoplay();
-                    startX = e.clientX;
-                    isDragging = false; // Wait for move
-                    if (track) track.style.transition = 'none';
-                });
+            imageContainer.addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                stopAutoplay();
+                if (isAnimating) return;
+                startX = e.clientX;
+                startY = e.clientY;
+                swipeAxisLocked = null;
+                isDragging = false;
+                shiftState = 0;
+                if (track) track.style.transition = 'none';
+            });
 
-                imageContainer.addEventListener('pointermove', (e) => {
-                    if (startX === 0 || !track) return;
-                    const diff = e.clientX - startX;
+            imageContainer.addEventListener('pointermove', (e) => {
+                if (startX === 0 || !track || isAnimating) return;
+                const diffX = e.clientX - startX;
+                const diffY = e.clientY - startY;
 
-                    if (!isDragging) {
-                        if (Math.abs(diff) < 5) return;
-                        isDragging = true;
+                if (swipeAxisLocked === null) {
+                    const absX = Math.abs(diffX);
+                    const absY = Math.abs(diffY);
+                    if (absX < 5 && absY < 5) return;
+                    swipeAxisLocked = absX >= absY ? 'horizontal' : 'vertical';
+                    if (swipeAxisLocked === 'horizontal') {
                         imageContainer.setPointerCapture(e.pointerId);
                     }
+                }
 
-                    const containerWidth = imageContainer.offsetWidth || 1;
-                    const percentage = (diff / containerWidth) * 100;
+                if (swipeAxisLocked !== 'horizontal') return;
+                isDragging = true;
 
-                    const baseTranslate = -imgIndex * 100;
-                    track.style.transform = `translateX(${baseTranslate + percentage}%)`;
-                });
+                if (diffX > 0 && shiftState === 0) {
+                    track.insertBefore(track.lastElementChild, track.firstElementChild);
+                    shiftState = -1;
+                } else if (diffX <= 0 && shiftState === -1) {
+                    track.appendChild(track.firstElementChild);
+                    shiftState = 0;
+                }
 
-                imageContainer.addEventListener('pointerup', (e) => {
-                    if (isDragging) {
-                        isDragging = false;
-                        imageContainer.releasePointerCapture(e.pointerId);
+                const containerWidth = imageContainer.offsetWidth || 1;
+                const percentage = (diffX / containerWidth) * 100;
 
-                        const diff = e.clientX - startX;
-                        const threshold = 40; // pixels
+                if (shiftState === -1) {
+                    track.style.transform = `translateX(${-(100) + percentage}%)`;
+                } else {
+                    track.style.transform = `translateX(${percentage}%)`;
+                }
+            });
 
-                        if (diff > threshold) {
-                            showImg(imgIndex - 1);
-                        } else if (diff < -threshold) {
-                            showImg(imgIndex + 1);
-                        } else {
-                            showImg(imgIndex);
-                        }
-                        startAutoplay();
-                    }
-                    startX = 0;
-                });
+            imageContainer.addEventListener('pointerup', (e) => {
+                if (startX !== 0 && swipeAxisLocked === 'horizontal') {
+                    imageContainer.releasePointerCapture(e.pointerId);
+                }
+                if (startX === 0) return;
 
-                imageContainer.addEventListener('pointercancel', () => {
-                    if (isDragging) {
-                        isDragging = false;
-                        showImg(imgIndex);
-                        startAutoplay();
-                    }
-                    startX = 0;
-                });
+                const diffX = e.clientX - startX;
+                startX = 0;
+                startY = 0;
 
-                let imgWheelCooldown = false;
-                imageContainer.addEventListener('wheel', (e) => {
-                    const deltaX = e.deltaX || (e.shiftKey ? e.deltaY : 0);
-                    if (Math.abs(deltaX) < 40) return;
-
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (imgWheelCooldown) return;
-
-                    imgWheelCooldown = true;
-                    setTimeout(() => { imgWheelCooldown = false; }, 800);
-
-                    if (deltaX > 0) {
-                        showImg(imgIndex + 1);
-                    } else {
-                        showImg(imgIndex - 1);
-                    }
+                if (!isDragging || swipeAxisLocked !== 'horizontal') {
+                    isDragging = false;
+                    swipeAxisLocked = null;
                     startAutoplay();
-                }, { passive: false });
+                    return;
+                }
 
+                isDragging = false;
+                swipeAxisLocked = null;
+                const containerWidth = imageContainer.offsetWidth || 1;
+                const threshold = containerWidth * 0.20;
+
+                let action = 'none';
+                if (diffX < -threshold) action = 'next';
+                else if (diffX > threshold) action = 'prev';
+
+                if (action === 'next') {
+                    imgIndex = (imgIndex + 1) % numSlides;
+                    updateActiveStates();
+                    track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    track.style.transform = `translateX(-100%)`;
+                    isAnimating = true;
+                    setTimeout(() => {
+                        track.style.transition = 'none';
+                        track.appendChild(track.firstElementChild);
+                        track.style.transform = `translateX(0)`;
+                        void track.offsetHeight;
+                        isAnimating = false;
+                    }, 300);
+                } else if (action === 'prev') {
+                    imgIndex = (imgIndex - 1 + numSlides) % numSlides;
+                    updateActiveStates();
+                    track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    track.style.transform = `translateX(0)`;
+                    isAnimating = true;
+                    setTimeout(() => {
+                        isAnimating = false;
+                    }, 300);
+                } else {
+                    // Snap back
+                    track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    if (shiftState === -1) {
+                        track.style.transform = `translateX(-100%)`;
+                        isAnimating = true;
+                        setTimeout(() => {
+                            track.style.transition = 'none';
+                            track.appendChild(track.firstElementChild);
+                            track.style.transform = `translateX(0)`;
+                            void track.offsetHeight;
+                            isAnimating = false;
+                        }, 300);
+                    } else {
+                        track.style.transform = `translateX(0)`;
+                    }
+                }
                 startAutoplay();
-            }
+            });
+
+            imageContainer.addEventListener('pointercancel', () => {
+                startX = 0;
+                startY = 0;
+                isDragging = false;
+                swipeAxisLocked = null;
+                if (shiftState === -1) {
+                    track.appendChild(track.firstElementChild);
+                    track.style.transform = `translateX(0)`;
+                }
+                startAutoplay();
+            });
+
+            let imgWheelCooldown = false;
+            imageContainer.addEventListener('wheel', (e) => {
+                const deltaX = e.deltaX || (e.shiftKey ? e.deltaY : 0);
+                if (Math.abs(deltaX) < 40) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+                if (imgWheelCooldown || isAnimating) return;
+
+                imgWheelCooldown = true;
+                setTimeout(() => { imgWheelCooldown = false; }, 800);
+
+                if (deltaX > 0) {
+                    navigateImg('next');
+                } else {
+                    navigateImg('prev');
+                }
+                startAutoplay();
+            }, { passive: false });
+
+            startAutoplay();
         }
 
         // --- Comment Carousel Logic ---
@@ -2760,87 +2883,208 @@ document.addEventListener('DOMContentLoaded', () => {
             const commentItems = commentArea.querySelectorAll('.slide-comment-item');
             const commentDots = commentArea.querySelectorAll('.slide-dot');
             const track = commentArea.querySelector('.slide-comment-track');
+            let isAnimating = false;
+            let shiftState = 0;
 
-            function showComment(index) {
-                if (commentItems[commentIndex]) commentItems[commentIndex].classList.remove('active');
-                if (commentDots[commentIndex]) commentDots[commentIndex].classList.remove('active');
+            function updateActiveStates() {
+                commentDots.forEach((dot, i) => dot.classList.toggle('active', i === commentIndex));
+                commentItems.forEach((item, i) => item.classList.toggle('active', i === commentIndex));
+            }
+
+            function navigateComment(direction) {
+                if (isAnimating) return;
                 
-                commentIndex = (index + slides.length) % slides.length;
-                
-                if (commentItems[commentIndex]) commentItems[commentIndex].classList.add('active');
-                if (commentDots[commentIndex]) commentDots[commentIndex].classList.add('active');
-                
-                if (track) {
+                if (direction === 'next') {
+                    commentIndex = (commentIndex + 1) % numSlides;
+                    updateActiveStates();
+                    
                     track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-                    track.style.transform = `translateX(-${commentIndex * 100}%)`;
+                    track.style.transform = `translateX(-100%)`;
+                    isAnimating = true;
+                    setTimeout(() => {
+                        track.style.transition = 'none';
+                        track.appendChild(track.firstElementChild);
+                        track.style.transform = `translateX(0)`;
+                        void track.offsetHeight;
+                        isAnimating = false;
+                    }, 300);
+                } else if (direction === 'prev') {
+                    commentIndex = (commentIndex - 1 + numSlides) % numSlides;
+                    updateActiveStates();
+                    
+                    track.style.transition = 'none';
+                    track.insertBefore(track.lastElementChild, track.firstElementChild);
+                    track.style.transform = `translateX(-100%)`;
+                    void track.offsetHeight;
+                    
+                    track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    track.style.transform = `translateX(0)`;
+                    isAnimating = true;
+                    setTimeout(() => {
+                        isAnimating = false;
+                    }, 300);
+                }
+            }
+
+            function jumpToComment(targetIndex) {
+                if (isAnimating || targetIndex === commentIndex) return;
+                let diff = targetIndex - commentIndex;
+                if (diff === 1 || diff === -(numSlides - 1)) {
+                    navigateComment('next');
+                } else if (diff === -1 || diff === numSlides - 1) {
+                    navigateComment('prev');
+                } else {
+                    commentIndex = targetIndex;
+                    updateActiveStates();
+                    track.style.transition = 'none';
+                    for (let i = 0; i < numSlides; i++) {
+                        const trueIndex = (commentIndex + i) % numSlides;
+                        track.appendChild(commentItems[trueIndex]);
+                    }
+                    track.style.transform = `translateX(0)`;
+                    void track.offsetHeight;
                 }
             }
 
             commentDots.forEach((dot, idx) => {
                 dot.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    showComment(idx);
+                    jumpToComment(idx);
                 });
             });
 
             // Swipe logic for comment area
             let startX = 0;
+            let startY = 0;
+            let swipeAxisLocked = null;
             let isDragging = false;
 
             commentArea.addEventListener('pointerdown', (e) => {
-                // Ignore if clicking on community reviews panel to prevent carousel dragging
                 if (e.target.closest('.review-community-panel')) {
                     startX = 0;
                     return;
                 }
                 e.stopPropagation();
+                if (isAnimating) return;
                 startX = e.clientX;
-                isDragging = false; // Wait for move
+                startY = e.clientY;
+                swipeAxisLocked = null;
+                isDragging = false;
+                shiftState = 0;
                 if (track) track.style.transition = 'none';
             });
 
             commentArea.addEventListener('pointermove', (e) => {
-                if (startX === 0 || !track) return;
-                const diff = e.clientX - startX;
+                if (startX === 0 || !track || isAnimating) return;
+                const diffX = e.clientX - startX;
+                const diffY = e.clientY - startY;
 
-                if (!isDragging) {
-                    if (Math.abs(diff) < 5) return;
-                    isDragging = true;
-                    commentArea.setPointerCapture(e.pointerId);
+                if (swipeAxisLocked === null) {
+                    const absX = Math.abs(diffX);
+                    const absY = Math.abs(diffY);
+                    if (absX < 5 && absY < 5) return;
+                    swipeAxisLocked = absX >= absY ? 'horizontal' : 'vertical';
+                    if (swipeAxisLocked === 'horizontal') {
+                        commentArea.setPointerCapture(e.pointerId);
+                    }
+                }
+
+                if (swipeAxisLocked !== 'horizontal') return;
+                isDragging = true;
+
+                if (diffX > 0 && shiftState === 0) {
+                    track.insertBefore(track.lastElementChild, track.firstElementChild);
+                    shiftState = -1;
+                } else if (diffX <= 0 && shiftState === -1) {
+                    track.appendChild(track.firstElementChild);
+                    shiftState = 0;
                 }
 
                 const containerWidth = commentArea.offsetWidth || 1;
-                const percentage = (diff / containerWidth) * 100;
+                const percentage = (diffX / containerWidth) * 100;
 
-                const baseTranslate = -commentIndex * 100;
-                track.style.transform = `translateX(${baseTranslate + percentage}%)`;
+                if (shiftState === -1) {
+                    track.style.transform = `translateX(${-(100) + percentage}%)`;
+                } else {
+                    track.style.transform = `translateX(${percentage}%)`;
+                }
             });
 
             commentArea.addEventListener('pointerup', (e) => {
-                if (isDragging) {
-                    isDragging = false;
+                if (startX !== 0 && swipeAxisLocked === 'horizontal') {
                     commentArea.releasePointerCapture(e.pointerId);
+                }
+                if (startX === 0) return;
 
-                    const diff = e.clientX - startX;
-                    const threshold = 40; // pixels
+                const diffX = e.clientX - startX;
+                startX = 0;
+                startY = 0;
 
-                    if (diff > threshold) {
-                        showComment(commentIndex - 1);
-                    } else if (diff < -threshold) {
-                        showComment(commentIndex + 1);
+                if (!isDragging || swipeAxisLocked !== 'horizontal') {
+                    isDragging = false;
+                    swipeAxisLocked = null;
+                    return;
+                }
+
+                isDragging = false;
+                swipeAxisLocked = null;
+                const containerWidth = commentArea.offsetWidth || 1;
+                const threshold = containerWidth * 0.20;
+
+                let action = 'none';
+                if (diffX < -threshold) action = 'next';
+                else if (diffX > threshold) action = 'prev';
+
+                if (action === 'next') {
+                    commentIndex = (commentIndex + 1) % numSlides;
+                    updateActiveStates();
+                    track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    track.style.transform = `translateX(-100%)`;
+                    isAnimating = true;
+                    setTimeout(() => {
+                        track.style.transition = 'none';
+                        track.appendChild(track.firstElementChild);
+                        track.style.transform = `translateX(0)`;
+                        void track.offsetHeight;
+                        isAnimating = false;
+                    }, 300);
+                } else if (action === 'prev') {
+                    commentIndex = (commentIndex - 1 + numSlides) % numSlides;
+                    updateActiveStates();
+                    track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    track.style.transform = `translateX(0)`;
+                    isAnimating = true;
+                    setTimeout(() => {
+                        isAnimating = false;
+                    }, 300);
+                } else {
+                    // Snap back
+                    track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    if (shiftState === -1) {
+                        track.style.transform = `translateX(-100%)`;
+                        isAnimating = true;
+                        setTimeout(() => {
+                            track.style.transition = 'none';
+                            track.appendChild(track.firstElementChild);
+                            track.style.transform = `translateX(0)`;
+                            void track.offsetHeight;
+                            isAnimating = false;
+                        }, 300);
                     } else {
-                        showComment(commentIndex);
+                        track.style.transform = `translateX(0)`;
                     }
                 }
-                startX = 0;
             });
 
             commentArea.addEventListener('pointercancel', () => {
-                if (isDragging) {
-                    isDragging = false;
-                    showComment(commentIndex);
-                }
                 startX = 0;
+                startY = 0;
+                isDragging = false;
+                swipeAxisLocked = null;
+                if (shiftState === -1) {
+                    track.appendChild(track.firstElementChild);
+                    track.style.transform = `translateX(0)`;
+                }
             });
 
             let commentWheelCooldown = false;
@@ -2850,15 +3094,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 e.preventDefault();
                 e.stopPropagation();
-                if (commentWheelCooldown) return;
+                if (commentWheelCooldown || isAnimating) return;
 
                 commentWheelCooldown = true;
                 setTimeout(() => { commentWheelCooldown = false; }, 800);
 
                 if (deltaX > 0) {
-                    showComment(commentIndex + 1);
+                    navigateComment('next');
                 } else {
-                    showComment(commentIndex - 1);
+                    navigateComment('prev');
                 }
             }, { passive: false });
         }
