@@ -463,6 +463,43 @@ document.addEventListener('DOMContentLoaded', () => {
         return (Math.abs(hash) % 1000000000) + 1000000000;
     }
 
+    function getCommunityReviewTimestamp(review) {
+        const visitTs = review && review.visit_date ? new Date(review.visit_date).getTime() : Number.NaN;
+        if (!Number.isNaN(visitTs)) return visitTs;
+
+        const createdTs = review && review.created_at ? new Date(review.created_at).getTime() : Number.NaN;
+        if (!Number.isNaN(createdTs)) return createdTs;
+
+        return 0;
+    }
+
+    function getLatestCommunityReview(reviews) {
+        if (!Array.isArray(reviews) || reviews.length === 0) return null;
+
+        let latest = reviews[0];
+        let latestTs = getCommunityReviewTimestamp(latest);
+        for (let i = 1; i < reviews.length; i++) {
+            const current = reviews[i];
+            const currentTs = getCommunityReviewTimestamp(current);
+            if (currentTs > latestTs) {
+                latest = current;
+                latestTs = currentTs;
+            }
+        }
+        return latest;
+    }
+
+    function parseDisplayDateToTimestamp(displayDate) {
+        const raw = String(displayDate || '').trim();
+        const match = raw.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+        if (!match) return Number.NaN;
+
+        const [, day, month, year] = match;
+        const parsed = new Date(`${year}-${month}-${day}T00:00:00`);
+        const ts = parsed.getTime();
+        return Number.isNaN(ts) ? Number.NaN : ts;
+    }
+
     function computeSpotFromBaseAndCommunity(baseSpot, reviews) {
         const criteria = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
         const merged = { ...baseSpot };
@@ -483,12 +520,28 @@ document.addEventListener('DOMContentLoaded', () => {
             ? formatPercentNumber((parsePercentNumber(merged.score) / priceValue))
             : '-';
 
+        const latestCommunityReview = getLatestCommunityReview(reviews);
+        if (latestCommunityReview) {
+            const latestCommunityTs = getCommunityReviewTimestamp(latestCommunityReview);
+            const baseDateTs = parseDisplayDateToTimestamp(baseSpot.date);
+            const shouldUseCommunityDate = Number.isNaN(baseDateTs) || latestCommunityTs >= baseDateTs;
+
+            if (shouldUseCommunityDate) {
+                const latestCommunityDate = formatVisitDate(latestCommunityReview.visit_date);
+                if (latestCommunityDate) {
+                    merged.date = latestCommunityDate;
+                }
+                merged.lastVisitReviewerName = String(latestCommunityReview.reviewer_name || '').trim();
+            }
+        }
+
         return merged;
     }
 
     function computeCommunityOnlySpot(reviews) {
         const criteria = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
         const first = reviews[0] || {};
+        const latestReview = getLatestCommunityReview(reviews) || first;
         // Hash-based stable ID - consistent with how review_spot_likes stores spot_id
         const generatedId = generateStableSpotId(first.spot_name, first.city);
 
@@ -505,7 +558,8 @@ document.addEventListener('DOMContentLoaded', () => {
             verzehrort: String(first.verzehrort || '-').trim() || '-',
             image: String(first.image_url || 'kebab_spot_demo.png').trim() || 'kebab_spot_demo.png',
             kommentar: String(first.comment_text || '').trim(),
-            date: formatVisitDate(first.visit_date),
+            date: formatVisitDate(latestReview.visit_date) || formatVisitDate(first.visit_date),
+            lastVisitReviewerName: String(latestReview.reviewer_name || '').trim(),
             besuche: reviews.length
         };
 
@@ -1167,6 +1221,7 @@ document.addEventListener('DOMContentLoaded', () => {
             plIndex: plIndex,
             besuche: 1,
             date: formatVisitDate(review.visit_date),
+            lastVisitReviewerName: reviewerName,
             verzehrort: review.verzehrort || '-',
             kommentar: `${review.comment_text || ''}${createdAtDisplay ? `\n\nEingereicht am: ${createdAtDisplay}` : ''}`,
             image: review.image_url || 'kebab_spot_demo.png'
@@ -2396,6 +2451,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const reviewLikeCount = reviewLikesBySpot.get(spot.id) || 0;
         const reviewLiked = reviewLikedByClient.has(spot.id);
         const setupMissing = !supabaseClient;
+        const lastVisitReviewerName = String(spot.lastVisitReviewerName || '').trim();
+        const escapedLastVisitReviewerName = escapeHtml(lastVisitReviewerName || 'Unbekannt');
 
         const slides = buildSlidesForSpot(spot);
         const hasSlideshow = slides.length >= 2;
@@ -2454,11 +2511,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         <div class="spot-details">
                             <span class="badge">${spot.dish}</span>
-                            ${includePrice && spot.preis ? `<span class="badge">Preis: ${spot.preis}</span>` : ''}
+                            ${includePrice && spot.preis ? `<span class="badge badge-tooltip">Preis: ${spot.preis}<span class="tooltip-text">Der Preis wird aus dem Durchschnitt der letzten Besuche berechnet.</span></span>` : ''}
                             ${includeVerzehrort && spot.verzehrort ? `<span class="badge badge-tooltip">${spot.verzehrort}<span class="tooltip-text">Verzehrort: Döner wurde vor Ort gegessen (Dine-in) oder mitgenommen/geliefert (Take-away).</span></span>` : ''}
                             ${includePL ? `<span class="badge badge-tooltip">P/L: ${spot.plIndex}<span class="tooltip-text">Price-Leistungs-Index: Gesamtbewertung geteilt durch den Preis. Je höher der Wert, desto besser die Preis-Leistung.</span></span>` : ''}
                             ${includeVisits ? `<span class="badge badge-tooltip">Besuche: ${spot.besuche || 1}<span class="tooltip-text">Die finale Bewertung basiert auf dem Durchschnitt der Bewertungen über alle Besuche.</span></span>` : ''}
-                            ${spot.date ? `<span class="badge">Letzter Besuch: ${spot.date}</span>` : ''}
+                            ${spot.date ? (lastVisitReviewerName
+                ? `<span class="badge badge-tooltip">Letzter Besuch: ${spot.date}<span class="tooltip-text">Zuletzt besucht von: ${escapedLastVisitReviewerName}</span></span>`
+                : `<span class="badge">Letzter Besuch: ${spot.date}</span>`) : ''}
                         </div>
 
                         ${(spot.kommentar || hasSlideshow || includeEngagement) ? `
