@@ -835,11 +835,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 totalScore += getSingleReviewScore(r);
             });
             const avgScore = (totalScore / item.reviews.length).toFixed(1);
-            const scorePercentage = (parseFloat(avgScore) * 10).toFixed(0) + '%';
-            const color = getColorForScore(scorePercentage);
-
-            marker.style.backgroundColor = color;
-            marker.style.color = color;
             marker.style.left = `${item.percent}%`;
             marker.style.setProperty('--stack-offset', `${item.stackIndex * 12}px`);
 

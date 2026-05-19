@@ -14,6 +14,7 @@ html.dark-init body .logo-img {
     --accent: #000000;
     --font-main: 'Inter', sans-serif;
     --transition: all 0.3s ease;
+    --timeline-marker-color: #2563eb;
 
     /* Spacing */
     --section-gap: 100px;
@@ -32,6 +33,7 @@ body.dark {
     --text-main: #ffffff;
     --text-muted: #9ca3af;
     --accent: #ffffff;
+    --timeline-marker-color: hsl(120, 80%, 40%);
 }
 
 html.dark-init body {
@@ -42,6 +44,7 @@ html.dark-init body {
     --text-main: #ffffff;
     --text-muted: #9ca3af;
     --accent: #ffffff;
+    --timeline-marker-color: hsl(120, 80%, 40%);
     background-color: #0a0a0a;
     color: #ffffff;
 }
@@ -4798,6 +4801,8 @@ body.dark .hero-timeline-line {
     pointer-events: auto;
     transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
     box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    background-color: var(--timeline-marker-color);
+    color: var(--timeline-marker-color);
 }
 
 .hero-timeline-marker:hover,
