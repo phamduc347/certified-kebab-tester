@@ -1,6 +1,6 @@
 {
   "info": {
-    "timestamp": "2026-05-18T12:52:44.067Z",
+    "timestamp": "2026-05-19T11:43:53.432Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
@@ -563,6 +563,36 @@
         "spot_id": 1561427281,
         "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
         "created_at": "2026-05-18T10:09:32.414852+00:00"
+      },
+      {
+        "id": 40,
+        "spot_id": 1086884336,
+        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
+        "created_at": "2026-05-18T14:53:07.228482+00:00"
+      },
+      {
+        "id": 41,
+        "spot_id": 1843067820,
+        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
+        "created_at": "2026-05-18T14:53:19.141561+00:00"
+      },
+      {
+        "id": 42,
+        "spot_id": 709238275,
+        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
+        "created_at": "2026-05-18T14:53:20.012295+00:00"
+      },
+      {
+        "id": 43,
+        "spot_id": 1394184757,
+        "voter_fingerprint": "73d06953-61e3-4b3c-804d-cdebdd56247a",
+        "created_at": "2026-05-19T05:55:09.013877+00:00"
+      },
+      {
+        "id": 44,
+        "spot_id": 1530485738,
+        "voter_fingerprint": "73d06953-61e3-4b3c-804d-cdebdd56247a",
+        "created_at": "2026-05-19T05:55:09.185166+00:00"
       }
     ],
     "review_comments": [
