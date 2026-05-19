@@ -23,7 +23,8 @@ const FUNCTIONS_TO_EXTRACT = [
     'getClientSpamBlockReason',
     'computeSpotFromBaseAndCommunity',
     'computeCommunityOnlySpot',
-    'generateStableSpotId'
+    'generateStableSpotId',
+    'calculateTimelineStacks'
 ];
 
 // Special regex for simple one-liners like parseVal

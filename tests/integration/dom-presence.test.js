@@ -38,6 +38,9 @@ describe('DOM Elements Presence', () => {
         expect(document.querySelector('main.container')).not.toBeNull();
         expect(document.querySelector('.hero-section')).not.toBeNull();
         expect(document.getElementById('kebab-canvas')).not.toBeNull();
+        expect(document.getElementById('hero-timeline')).not.toBeNull();
+        expect(document.getElementById('hero-timeline-markers')).not.toBeNull();
+        expect(document.getElementById('hero-timeline-start-date')).not.toBeNull();
     });
 
     it('should have the content sections', () => {

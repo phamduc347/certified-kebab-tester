@@ -200,12 +200,28 @@ export function computeSpotFromBaseAndCommunity(baseSpot, reviews) {
             ? formatPercentNumber((parsePercentNumber(merged.score) / priceValue))
             : '-';
 
+        const latestCommunityReview = getLatestCommunityReview(reviews);
+        if (latestCommunityReview) {
+            const latestCommunityTs = getCommunityReviewTimestamp(latestCommunityReview);
+            const baseDateTs = parseDisplayDateToTimestamp(baseSpot.date);
+            const shouldUseCommunityDate = Number.isNaN(baseDateTs) || latestCommunityTs >= baseDateTs;
+
+            if (shouldUseCommunityDate) {
+                const latestCommunityDate = formatVisitDate(latestCommunityReview.visit_date);
+                if (latestCommunityDate) {
+                    merged.date = latestCommunityDate;
+                }
+                merged.lastVisitReviewerName = String(latestCommunityReview.reviewer_name || '').trim();
+            }
+        }
+
         return merged;
     }
 
 export function computeCommunityOnlySpot(reviews) {
         const criteria = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
         const first = reviews[0] || {};
+        const latestReview = getLatestCommunityReview(reviews) || first;
         // Hash-based stable ID - consistent with how review_spot_likes stores spot_id
         const generatedId = generateStableSpotId(first.spot_name, first.city);
 
@@ -222,7 +238,8 @@ export function computeCommunityOnlySpot(reviews) {
             verzehrort: String(first.verzehrort || '-').trim() || '-',
             image: String(first.image_url || 'kebab_spot_demo.png').trim() || 'kebab_spot_demo.png',
             kommentar: String(first.comment_text || '').trim(),
-            date: formatVisitDate(first.visit_date),
+            date: formatVisitDate(latestReview.visit_date) || formatVisitDate(first.visit_date),
+            lastVisitReviewerName: String(latestReview.reviewer_name || '').trim(),
             besuche: reviews.length
         };
 
@@ -252,6 +269,74 @@ export function generateStableSpotId(name, city) {
             hash = hash & hash;
         }
         return Math.abs(hash) + 100000;
+    }
+
+export function calculateTimelineStacks(reviews, startTime, endTime) {
+        const dateBuckets = new Map();
+        reviews.forEach((review) => {
+            const rawDate = review.visit_date;
+            if (!rawDate) return;
+            const d = new Date(rawDate);
+            if (Number.isNaN(d.getTime())) return;
+            const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            if (!dateBuckets.has(dateKey)) {
+                dateBuckets.set(dateKey, []);
+            }
+            dateBuckets.get(dateKey).push(review);
+        });
+
+        // Normalize start and end times to midnight UTC of their local days
+        const startD = new Date(startTime);
+        const endD = new Date(endTime);
+        const startDateKey = `${startD.getFullYear()}-${String(startD.getMonth() + 1).padStart(2, '0')}-${String(startD.getDate()).padStart(2, '0')}`;
+        const endDateKey = `${endD.getFullYear()}-${String(endD.getMonth() + 1).padStart(2, '0')}-${String(endD.getDate()).padStart(2, '0')}`;
+        const startMidnight = new Date(startDateKey).getTime();
+        const endMidnight = new Date(endDateKey).getTime();
+        const rangeMs = endMidnight - startMidnight;
+
+        const stacks = [];
+        const sortedDates = [...dateBuckets.keys()].sort();
+
+        sortedDates.forEach((dateKey) => {
+            const reviewsForDate = dateBuckets.get(dateKey);
+            reviewsForDate.sort((a, b) => new Date(a.visit_date) - new Date(b.visit_date));
+
+            const time = new Date(dateKey).getTime();
+            const rawPercent = rangeMs === 0 ? 50 : ((time - startMidnight) / rangeMs) * 100;
+            const percent = 8 + (rawPercent * 0.84);
+
+            if (reviewsForDate.length <= 3) {
+                reviewsForDate.forEach((review, idx) => {
+                    stacks.push({
+                        reviews: [review],
+                        percent,
+                        stackIndex: idx,
+                        isCluster: false
+                    });
+                });
+            } else {
+                stacks.push({
+                    reviews: [reviewsForDate[0]],
+                    percent,
+                    stackIndex: 0,
+                    isCluster: false
+                });
+                stacks.push({
+                    reviews: [reviewsForDate[1]],
+                    percent,
+                    stackIndex: 1,
+                    isCluster: false
+                });
+                stacks.push({
+                    reviews: reviewsForDate.slice(2),
+                    percent,
+                    stackIndex: 2,
+                    isCluster: true
+                });
+            }
+        });
+
+        return stacks;
     }
 
 export const parseVal = (s) => parseFloat(String(s).replace(',', '.').replace('%', '').replace(' €', '')) || 0;

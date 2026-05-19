@@ -400,6 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const baseKebabData = kebabData.map((spot) => ({ ...spot }));
     const baseSpotById = new Map(baseKebabData.map((spot) => [Number(spot.id), spot]));
     const approvedCommunityReviewsBySpotId = new Map();
+    let rawApprovedReviews = [];
     function generateStableSpotId(name, city) {
         const str = `${String(name || '').trim().toLowerCase()}|${String(city || '').trim().toLowerCase()}`;
         let hash = 0;
@@ -582,6 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function applyCommunityReviewsToData(approvedReviews) {
         const reviews = Array.isArray(approvedReviews) ? approvedReviews : [];
+        rawApprovedReviews = reviews;
         const groupedByKey = new Map();
 
         reviews.forEach((review) => {
@@ -619,6 +621,325 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         kebabData.splice(0, kebabData.length, ...mergedSpots);
+    }
+
+    function calculateTimelineStacks(reviews, startTime, endTime) {
+        const dateBuckets = new Map();
+        reviews.forEach((review) => {
+            const rawDate = review.visit_date;
+            if (!rawDate) return;
+            const d = new Date(rawDate);
+            if (Number.isNaN(d.getTime())) return;
+            const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            if (!dateBuckets.has(dateKey)) {
+                dateBuckets.set(dateKey, []);
+            }
+            dateBuckets.get(dateKey).push(review);
+        });
+
+        // Normalize start and end times to midnight UTC of their local days
+        const startD = new Date(startTime);
+        const endD = new Date(endTime);
+        const startDateKey = `${startD.getFullYear()}-${String(startD.getMonth() + 1).padStart(2, '0')}-${String(startD.getDate()).padStart(2, '0')}`;
+        const endDateKey = `${endD.getFullYear()}-${String(endD.getMonth() + 1).padStart(2, '0')}-${String(endD.getDate()).padStart(2, '0')}`;
+        const startMidnight = new Date(startDateKey).getTime();
+        const endMidnight = new Date(endDateKey).getTime();
+        const rangeMs = endMidnight - startMidnight;
+
+        const stacks = [];
+        const sortedDates = [...dateBuckets.keys()].sort();
+
+        sortedDates.forEach((dateKey) => {
+            const reviewsForDate = dateBuckets.get(dateKey);
+            reviewsForDate.sort((a, b) => new Date(a.visit_date) - new Date(b.visit_date));
+
+            const time = new Date(dateKey).getTime();
+            const rawPercent = rangeMs === 0 ? 50 : ((time - startMidnight) / rangeMs) * 100;
+            const percent = 8 + (rawPercent * 0.84);
+
+            if (reviewsForDate.length <= 3) {
+                reviewsForDate.forEach((review, idx) => {
+                    stacks.push({
+                        reviews: [review],
+                        percent,
+                        stackIndex: idx,
+                        isCluster: false
+                    });
+                });
+            } else {
+                stacks.push({
+                    reviews: [reviewsForDate[0]],
+                    percent,
+                    stackIndex: 0,
+                    isCluster: false
+                });
+                stacks.push({
+                    reviews: [reviewsForDate[1]],
+                    percent,
+                    stackIndex: 1,
+                    isCluster: false
+                });
+                stacks.push({
+                    reviews: reviewsForDate.slice(2),
+                    percent,
+                    stackIndex: 2,
+                    isCluster: true
+                });
+            }
+        });
+
+        return stacks;
+    }
+
+    function renderHeroTimeline() {
+        const timelineContainer = document.getElementById('hero-timeline');
+        const markersContainer = document.getElementById('hero-timeline-markers');
+        const startDateLabel = document.getElementById('hero-timeline-start-date');
+        const endDateLabel = document.getElementById('hero-timeline-end-date');
+
+        if (!timelineContainer || !markersContainer || !startDateLabel || !endDateLabel) return;
+
+        // Clear previous markers & ticks
+        markersContainer.innerHTML = '';
+
+        // Get all reviews with a valid visit_date, sorted chronologically
+        const allVisits = rawApprovedReviews
+            .filter((review) => review.visit_date)
+            .sort((a, b) => new Date(a.visit_date) - new Date(b.visit_date));
+
+        if (allVisits.length === 0) {
+            timelineContainer.style.display = 'none';
+            return;
+        }
+
+        // Take last 7 visits
+        const activeReviews = allVisits.slice(-7);
+
+        // Find boundary dates: oldest of the 7 visits is start, newest of the 7 visits is end
+        const startVisitDate = activeReviews[0].visit_date;
+        const endVisitDate = activeReviews[activeReviews.length - 1].visit_date;
+
+        const startMidnight = new Date(startVisitDate).getTime();
+        const endMidnight = new Date(endVisitDate).getTime();
+        const rangeMs = endMidnight - startMidnight;
+
+        // Formats a YYYY-MM-DD date to "DD. MMM"
+        const months = ["Jan", "Feb", "März", "Apr", "Mai", "Juni", "Juli", "Aug", "Sept", "Okt", "Nov", "Dez"];
+        function formatAxisLabelDate(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            if (Number.isNaN(d.getTime())) return '';
+            const day = d.getDate();
+            return `${day}. ${months[d.getMonth()]}`;
+        }
+
+        // Left label displays start date of the window
+        startDateLabel.textContent = formatAxisLabelDate(startVisitDate);
+
+        // Right label always displays "Heute"
+        endDateLabel.textContent = 'Heute';
+
+        timelineContainer.style.display = 'flex';
+
+        // Add visual grid ticks if range is greater than 0
+        if (rangeMs > 0) {
+            // 1. Middle tick (50% average)
+            const middleTime = startMidnight + rangeMs / 2;
+            const middleDate = new Date(middleTime);
+            const middleDay = middleDate.getDate();
+            const middleMonth = months[middleDate.getMonth()];
+
+            const middleTick = document.createElement('div');
+            middleTick.className = 'hero-timeline-tick';
+            middleTick.style.left = '50%';
+            markersContainer.appendChild(middleTick);
+
+            const middleLabel = document.createElement('div');
+            middleLabel.className = 'hero-timeline-tick-label';
+            middleLabel.style.left = '50%';
+            middleLabel.textContent = `${middleDay}. ${middleMonth}`;
+            markersContainer.appendChild(middleLabel);
+
+            // 2. Extra quarter ticks for grid styling (25% and 75%)
+            const q1Tick = document.createElement('div');
+            q1Tick.className = 'hero-timeline-tick';
+            q1Tick.style.left = '25%';
+            markersContainer.appendChild(q1Tick);
+
+            const q3Tick = document.createElement('div');
+            q3Tick.className = 'hero-timeline-tick';
+            q3Tick.style.left = '75%';
+            markersContainer.appendChild(q3Tick);
+        }
+
+        // Calculate chronological stacks
+        const stacks = calculateTimelineStacks(activeReviews, startMidnight, endMidnight);
+        let maxStackIndex = 0;
+        stacks.forEach((item) => {
+            if (item.stackIndex > maxStackIndex) {
+                maxStackIndex = item.stackIndex;
+            }
+        });
+
+        // Adjust top margin of timeline wrapper dynamically to fit stacked items
+        const timelineWrapper = timelineContainer.querySelector('.hero-timeline-wrapper');
+        if (timelineWrapper) {
+            const extraTopSpace = maxStackIndex * 12;
+            timelineWrapper.style.marginTop = `${extraTopSpace + 10}px`;
+        }
+
+        // Get lazy-tooltip container
+        const tooltip = document.getElementById('hero-timeline-tooltip');
+
+        // Helper to format date nicely
+        function formatReviewDate(rawDate) {
+            if (!rawDate) return '';
+            if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+                const [year, month, day] = rawDate.split('-');
+                return `${day}.${month}.${year}`;
+            }
+            const date = new Date(rawDate);
+            if (Number.isNaN(date.getTime())) return '';
+            return date.toLocaleString('de-DE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Helper to calculate average rating of a single review
+        function getSingleReviewScore(review) {
+            let avgRating = 0;
+            const criteriaKeys = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
+            let count = 0;
+            criteriaKeys.forEach((key) => {
+                const val = parseFloat(String(review[key]).replace(',', '.')) || 0;
+                if (val > 0) {
+                    avgRating += val;
+                    count++;
+                }
+            });
+            return count > 0 ? avgRating / count : 0;
+        }
+
+        // Render markers
+        stacks.forEach((item) => {
+            const marker = document.createElement('div');
+            marker.className = 'hero-timeline-marker';
+
+            // Calculate score average across all reviews in this item (usually 1, but multiple if cluster)
+            let totalScore = 0;
+            item.reviews.forEach((r) => {
+                totalScore += getSingleReviewScore(r);
+            });
+            const avgScore = (totalScore / item.reviews.length).toFixed(1);
+            const scorePercentage = (parseFloat(avgScore) * 10).toFixed(0) + '%';
+            const color = getColorForScore(scorePercentage);
+
+            marker.style.backgroundColor = color;
+            marker.style.color = color;
+            marker.style.left = `${item.percent}%`;
+            marker.style.setProperty('--stack-offset', `${item.stackIndex * 12}px`);
+
+            // Set browser native title attribute with spot information
+            if (item.isCluster) {
+                const spotNames = item.reviews.map(r => `${r.spot_name} (${r.city}) [${formatReviewDate(r.visit_date)}]`).join(', ');
+                marker.title = `${item.reviews.length} Besuche: ${spotNames}`;
+            } else {
+                const r = item.reviews[0];
+                marker.title = `${r.spot_name} (${r.city}) [${formatReviewDate(r.visit_date)}]`;
+            }
+
+            // Apply cluster styling
+            if (item.isCluster) {
+                marker.classList.add('cluster');
+                marker.innerHTML = `<span>+${item.reviews.length}</span>`;
+            }
+
+            // Setup Hover & Click Interactions
+            marker.addEventListener('mouseenter', () => {
+                marker.classList.add('active');
+
+                if (!tooltip) return;
+
+                if (item.isCluster) {
+                    let reviewsHtml = '';
+                    item.reviews.forEach((r) => {
+                        const name = r.reviewer_name || 'Anonym';
+                        const formattedDate = formatReviewDate(r.visit_date);
+                        reviewsHtml += `
+                            <div class="tooltip-cluster-row">
+                                <span class="tooltip-cluster-name">
+                                    <strong>${escapeHtml(r.spot_name)} (${escapeHtml(r.city)})</strong>
+                                    <br/>
+                                    <span style="font-size: 0.65rem; color: var(--text-muted);">
+                                        von ${escapeHtml(name)} &bull; Besucht am: ${escapeHtml(formattedDate)}
+                                    </span>
+                                </span>
+                            </div>
+                        `;
+                    });
+
+                    tooltip.innerHTML = `
+                        <div class="tooltip-header" style="margin-bottom: 4px;">
+                            <span class="tooltip-title">+${item.reviews.length} weitere Besuche</span>
+                        </div>
+                        <div class="tooltip-cluster-list">
+                            ${reviewsHtml}
+                        </div>
+                    `;
+                } else {
+                    const review = item.reviews[0];
+                    const formattedDate = formatReviewDate(review.visit_date);
+                    const reviewer = review.reviewer_name || 'Anonym';
+
+                    tooltip.innerHTML = `
+                        <div class="tooltip-header">
+                            <span class="tooltip-title">${escapeHtml(review.spot_name)} (${escapeHtml(review.city)})</span>
+                        </div>
+                        <div class="tooltip-meta">
+                            <span>von ${escapeHtml(reviewer)}</span>
+                        </div>
+                        <div class="tooltip-meta">
+                            <span>Besucht am: ${escapeHtml(formattedDate)}</span>
+                        </div>
+                    `;
+                }
+
+                const containerRect = timelineContainer.getBoundingClientRect();
+                const markerRect = marker.getBoundingClientRect();
+                const leftPos = markerRect.left - containerRect.left + (markerRect.width / 2);
+                const markerTopRelativeToContainer = markerRect.top - containerRect.top;
+
+                tooltip.style.bottom = 'auto';
+                tooltip.style.left = `${leftPos}px`;
+                tooltip.style.top = `${markerTopRelativeToContainer}px`;
+                tooltip.style.opacity = '1';
+                tooltip.style.transform = 'translate(-50%, -100%) translateY(-8px)';
+            });
+
+            marker.addEventListener('mouseleave', () => {
+                marker.classList.remove('active');
+                if (tooltip) {
+                    tooltip.style.opacity = '0';
+                    tooltip.style.transform = 'translate(-50%, -100%) translateY(-4px)';
+                }
+            });
+
+            marker.addEventListener('click', () => {
+                // Jump to the first review in this item
+                const review = item.reviews[0];
+                const spotKey = buildSpotKey(review.spot_name, review.city);
+                const spot = kebabData.find((s) => buildSpotKey(s.name, s.city) === spotKey);
+                if (spot && typeof jumpToReview === 'function') {
+                    jumpToReview(spot.id);
+                }
+            });
+
+            markersContainer.appendChild(marker);
+        });
     }
 
     function getCommentVoterFingerprint() {
@@ -2673,6 +2994,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateChart();
         initAnalytics();
         initSpotlight();
+        renderHeroTimeline();
         populateExistingSpotSelectOptions();
     }
 
