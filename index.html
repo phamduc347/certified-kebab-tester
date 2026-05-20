@@ -171,6 +171,13 @@
                         <div class="mobile-filter-panel-header">
                             <h3>Filter</h3>
                         </div>
+                        <p class="mobile-filter-section-title">Sortierung</p>
+                        <select id="mobile-review-sort-select" class="review-sort-select mobile-review-sort-select">
+                            <option value="score-desc">Score: Absteigend</option>
+                            <option value="score-asc">Score: Aufsteigend</option>
+                            <option value="pl-index">Beste Preis-Leistung</option>
+                            <option value="newest">Neuheiten</option>
+                        </select>
                         <p class="mobile-filter-section-title">Städte</p>
                         <div class="filter-group" id="filter-city-group"></div>
                         <p class="mobile-filter-section-title">Gericht</p>
@@ -181,14 +188,10 @@
                         </div>
                     </div>
                     <div class="filter-utilities">
-                        <button id="toggle-all-btn" class="toggle-all-btn">
-                            <span id="toggle-all-label">Alle ausklappen</span>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
-                        </button>
-                        <select id="review-sort-select" class="review-sort-select">
+                        <div class="spot-search-wrapper filter-search-wrapper">
+                            <input type="text" id="review-filter-search" class="spot-search-input" placeholder="Suche nach Dönerspots oder Städten...">
+                        </div>
+                        <select id="review-sort-select" class="review-sort-select desktop-review-sort-select">
                             <option value="score-desc">Score: Absteigend</option>
                             <option value="score-asc">Score: Aufsteigend</option>
                             <option value="pl-index">Beste Preis-Leistung</option>

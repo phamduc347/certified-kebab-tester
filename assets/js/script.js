@@ -2541,6 +2541,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let dishes = [];
     let activeCities = new Set();
     let activeDishes = new Set();
+    let reviewFilterQuery = '';
 
     function getSpotDishVariants(spot) {
         const variants = new Set();
@@ -3317,6 +3318,14 @@ document.addEventListener('DOMContentLoaded', () => {
         gridContainer.innerHTML = '';
 
         const filteredData = kebabData.filter(spot => {
+            const query = reviewFilterQuery.trim().toLowerCase();
+            if (query) {
+                const searchable = `${String(spot.name || '').toLowerCase()} ${String(spot.city || '').toLowerCase()}`;
+                if (!searchable.includes(query)) {
+                    return false;
+                }
+            }
+
             const cityMatch = activeCities.size === 0 || activeCities.has(spot.city);
             const spotDishVariants = getSpotDishVariants(spot);
             let dishMatch = activeDishes.size === 0;
@@ -3755,10 +3764,25 @@ document.addEventListener('DOMContentLoaded', () => {
     initAnalytics();
     initCommunityReviews();
 
-    const sortSelect = document.getElementById('review-sort-select');
-    if (sortSelect) {
-        sortSelect.addEventListener('change', (e) => {
+    const sortSelects = Array.from(document.querySelectorAll('.review-sort-select'));
+    sortSelects.forEach((select) => {
+        select.value = currentSortMode;
+        select.addEventListener('change', (e) => {
             currentSortMode = e.target.value;
+            sortSelects.forEach((otherSelect) => {
+                if (otherSelect !== e.target) {
+                    otherSelect.value = currentSortMode;
+                }
+            });
+            renderGrid();
+        });
+    });
+
+    const reviewFilterSearchInput = document.getElementById('review-filter-search');
+    if (reviewFilterSearchInput) {
+        reviewFilterSearchInput.addEventListener('input', (e) => {
+            reviewFilterQuery = String(e.target.value || '').trim();
+            visibleCount = SPOTS_PER_PAGE;
             renderGrid();
         });
     }
@@ -4033,32 +4057,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, { threshold: 0.15 });
             hmObserver.observe(heatmapContainer);
         }
-    }
-
-    // Toggle-All Button logic
-    const toggleAllBtn = document.getElementById('toggle-all-btn');
-    const toggleAllLabel = document.getElementById('toggle-all-label');
-    const toggleAllIcon = toggleAllBtn ? toggleAllBtn.querySelector('svg') : null;
-    let allExpanded = false;
-
-    if (toggleAllBtn) {
-        toggleAllBtn.addEventListener('click', () => {
-            allExpanded = !allExpanded;
-            const cards = gridContainer.querySelectorAll('.spot-card');
-            cards.forEach(card => {
-                if (allExpanded) {
-                    card.classList.add('expanded');
-                    syncConfirmedReviewsPanelState(card, true);
-                } else {
-                    card.classList.remove('expanded');
-                    syncConfirmedReviewsPanelState(card, false);
-                }
-            });
-            toggleAllLabel.textContent = allExpanded ? 'Alle einklappen' : 'Alle ausklappen';
-            if (toggleAllIcon) {
-                toggleAllIcon.style.transform = allExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
-            }
-        });
     }
 
     // Lightbox logic
