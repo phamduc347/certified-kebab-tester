@@ -165,8 +165,18 @@
                     unabhängig und systematisch.</p>
 
                 <div class="filters-bar">
-                    <div class="filter-group" id="filter-city-group"></div>
-                    <div class="filter-group" id="filter-dish-group"></div>
+                    <div class="mobile-filter-panel-backdrop" id="mobile-filter-backdrop" hidden></div>
+                    <div class="mobile-filter-panel" id="mobile-filter-panel" aria-hidden="true">
+                        <div class="mobile-filter-panel-grabber" aria-hidden="true"></div>
+                        <div class="mobile-filter-panel-header">
+                            <h3>Filter</h3>
+                        </div>
+                        <p class="mobile-filter-section-title">Städte</p>
+                        <div class="filter-group" id="filter-city-group"></div>
+                        <p class="mobile-filter-section-title">Gericht</p>
+                        <div class="filter-group" id="filter-dish-group"></div>
+                        <button id="mobile-filter-reset-btn" class="mobile-filter-reset-btn" type="button">ZURÜCKSETZEN</button>
+                    </div>
                     <div class="filter-utilities">
                         <button id="toggle-all-btn" class="toggle-all-btn">
                             <span id="toggle-all-label">Alle ausklappen</span>
@@ -181,6 +191,14 @@
                             <option value="pl-index">Beste Preis-Leistung</option>
                             <option value="newest">Neuheiten</option>
                         </select>
+                        <button id="mobile-filter-toggle-btn" class="mobile-filter-toggle-btn" type="button" aria-label="Filter öffnen" aria-controls="mobile-filter-panel" aria-expanded="false">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4 6h16"></path>
+                                <path d="M7 12h10"></path>
+                                <path d="M10 18h4"></path>
+                            </svg>
+                            <span id="mobile-filter-toggle-count" class="mobile-filter-toggle-count" hidden>0</span>
+                        </button>
                         <button id="open-community-review-form-btn" class="community-submit-trigger" type="button">
                             Review einreichen
                         </button>
