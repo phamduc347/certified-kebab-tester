@@ -952,7 +952,9 @@ section {
 .mobile-filter-panel-header,
 .mobile-filter-toggle-btn,
 .mobile-filter-section-title,
-.mobile-filter-reset-btn {
+.mobile-filter-reset-btn,
+.mobile-filter-clear-btn,
+.mobile-filter-actions {
     display: none;
 }
 
@@ -2925,7 +2927,7 @@ section {
 
     .mobile-filter-reset-btn {
         display: block;
-        margin-top: 10px;
+        margin-top: 0;
         width: 100%;
         border: 1px solid var(--border-color);
         background: var(--bg-secondary);
@@ -2943,6 +2945,34 @@ section {
     .mobile-filter-reset-btn:hover {
         border-color: var(--text-main);
         background: #eef2f7;
+    }
+
+    .mobile-filter-clear-btn {
+        display: block;
+        width: 100%;
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        color: var(--text-main);
+        border-radius: 10px;
+        padding: 11px 14px;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .mobile-filter-clear-btn:hover {
+        border-color: var(--text-main);
+        background: #eef2f7;
+    }
+
+    .mobile-filter-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 10px;
     }
 
     .community-review-grid.two-cols,
@@ -2989,6 +3019,10 @@ body.dark .mobile-filter-toggle-count {
 }
 
 body.dark .mobile-filter-reset-btn:hover {
+    background: #1a1a1a;
+}
+
+body.dark .mobile-filter-clear-btn:hover {
     background: #1a1a1a;
 }
 

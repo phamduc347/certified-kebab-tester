@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileFilterToggleBtn = document.getElementById('mobile-filter-toggle-btn');
     const mobileFilterCloseBtn = document.getElementById('mobile-filter-close-btn');
     const mobileFilterResetBtn = document.getElementById('mobile-filter-reset-btn');
+    const mobileFilterClearBtn = document.getElementById('mobile-filter-clear-btn');
     const mobileFilterToggleCount = document.getElementById('mobile-filter-toggle-count');
     const MOBILE_FILTER_BREAKPOINT = 680;
 
@@ -3785,6 +3786,16 @@ document.addEventListener('DOMContentLoaded', () => {
         mobileFilterResetBtn.addEventListener('click', () => {
             activeCities = new Set(cities);
             activeDishes = new Set(dishes);
+            populateFilters();
+            visibleCount = SPOTS_PER_PAGE;
+            renderGrid();
+        });
+    }
+
+    if (mobileFilterClearBtn) {
+        mobileFilterClearBtn.addEventListener('click', () => {
+            activeCities = new Set();
+            activeDishes = new Set();
             populateFilters();
             visibleCount = SPOTS_PER_PAGE;
             renderGrid();
