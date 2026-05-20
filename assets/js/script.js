@@ -2491,7 +2491,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Festgelegte Gericht-Optionen
-    const FIXED_DISHES = ['Döner', 'Gemüse-Döner', 'Steak-Döner', 'Veggie-Döner', 'Vegan-Döner'];
+    const FIXED_DISHES = ['Döner', 'Dürüm', 'Gemüse-Döner', 'Steak-Döner', 'Veggie-Döner', 'Vegan-Döner'];
 
     let cities = [];
     let dishes = [];
