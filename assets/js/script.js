@@ -55,8 +55,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (/^[a-z0-9_\-\.\/]+$/i.test(trimmed)) {
             return escapeHtml(trimmed);
         }
-        return fallbackUrl;
     }
+
+    // Persistente Referenzen zur Vermeidung von Memory Leaks
+    let globalTimelineOutsideClickHandler = null;
+    let plChartObserver = null;
+    let heatmapObserver = null;
+    let spotlightRotationTimer = null;
+    let spotlightClickDotHandler = null;
+    let spotlightPointerDownHandler = null;
+    let spotlightPointerMoveHandler = null;
+    let spotlightPointerUpHandler = null;
+    let spotlightPointerCancelHandler = null;
+    let spotlightClickHandler = null;
+    let spotlightWheelHandler = null;
+
 
     // ── Dark Mode ──────────────────────────────────────────────────────
     const darkmodeBtn = document.getElementById('darkmode-btn');
@@ -1172,9 +1185,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Close tooltip when clicking outside
-        function handleOutsideClick(e) {
+        if (globalTimelineOutsideClickHandler) {
+            document.removeEventListener('click', globalTimelineOutsideClickHandler);
+        }
+
+        globalTimelineOutsideClickHandler = function(e) {
             const isMobile = window.innerWidth <= 768;
             if (isMobile) {
+                const timelineContainer = document.getElementById('hero-timeline');
+                const markersContainer = document.getElementById('hero-timeline-markers');
+                const tooltip = document.getElementById('hero-timeline-tooltip');
                 if (timelineContainer && !timelineContainer.contains(e.target)) {
                     if (tooltip) {
                         tooltip.style.opacity = '0';
@@ -1182,16 +1202,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         tooltip.classList.remove('interactive');
                         tooltip.style.pointerEvents = 'none';
                     }
-                    markersContainer.querySelectorAll('.hero-timeline-marker.active').forEach((m) => {
-                        m.classList.remove('active');
-                    });
+                    if (markersContainer) {
+                        markersContainer.querySelectorAll('.hero-timeline-marker.active').forEach((m) => {
+                            m.classList.remove('active');
+                        });
+                    }
                 }
             }
-        }
+        };
         
-        // Remove existing listener before adding to avoid accumulation
-        document.removeEventListener('click', handleOutsideClick);
-        document.addEventListener('click', handleOutsideClick);
+        document.addEventListener('click', globalTimelineOutsideClickHandler);
     }
 
     function getCommentVoterFingerprint() {
@@ -2900,10 +2920,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 interval = setInterval(() => {
                     navigateImg('next');
                 }, 6000);
+                card._autoplayInterval = interval;
             }
 
             function stopAutoplay() {
-                if (interval) clearInterval(interval);
+                if (interval) {
+                    clearInterval(interval);
+                    interval = null;
+                }
+                if (card._autoplayInterval) {
+                    clearInterval(card._autoplayInterval);
+                    card._autoplayInterval = null;
+                }
             }
 
             imgDots.forEach((dot, idx) => {
@@ -3537,7 +3565,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return card;
     }
 
+    function cleanupGridIntervals() {
+        if (!gridContainer) return;
+        const cards = gridContainer.querySelectorAll('.spot-card');
+        cards.forEach(card => {
+            if (card._autoplayInterval) {
+                clearInterval(card._autoplayInterval);
+                card._autoplayInterval = null;
+            }
+        });
+    }
+
     function renderGrid() {
+        cleanupGridIntervals();
         gridContainer.innerHTML = '';
 
         const filteredData = kebabData.filter(spot => {
@@ -3815,7 +3855,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let currentIndex = 1; // 1-based index for infinite scroll
         const totalItems = spotlightItems.length;
-        let rotationTimer;
 
         function renderSpotlightItems() {
             if (totalItems === 0) return;
@@ -3930,24 +3969,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function startRotation() {
             stopRotation();
-            rotationTimer = setInterval(() => {
+            spotlightRotationTimer = setInterval(() => {
                 currentIndex++;
                 updateSpotlight();
             }, 5000);
         }
 
         function stopRotation() {
-            if (rotationTimer) clearInterval(rotationTimer);
+            if (spotlightRotationTimer) {
+                clearInterval(spotlightRotationTimer);
+                spotlightRotationTimer = null;
+            }
         }
 
-        dotsContainer.addEventListener('click', (e) => {
+        if (spotlightClickDotHandler) {
+            dotsContainer.removeEventListener('click', spotlightClickDotHandler);
+        }
+        spotlightClickDotHandler = (e) => {
             if (e.target.classList.contains('dot')) {
                 const index = parseInt(e.target.dataset.index) + 1; // Map dot index to real index
                 if (index === currentIndex) return;
                 updateSpotlight(index);
                 startRotation();
             }
-        });
+        };
+        dotsContainer.addEventListener('click', spotlightClickDotHandler);
 
         // Swipe / drag navigation — snap-to-nearest + axis-lock
         let swipeStartX = null;
@@ -3956,7 +4002,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let isDragging = false;
         let suppressNextClick = false;
 
-        container.addEventListener('pointerdown', (e) => {
+        if (spotlightPointerDownHandler) {
+            container.removeEventListener('pointerdown', spotlightPointerDownHandler);
+        }
+        spotlightPointerDownHandler = (e) => {
             // Only handle primary button (left click / single touch)
             if (e.pointerType === 'mouse' && e.button !== 0) return;
             swipeStartX = e.clientX;
@@ -3965,9 +4014,13 @@ document.addEventListener('DOMContentLoaded', () => {
             isDragging = false;
             suppressNextClick = false;
             stopRotation();
-        });
+        };
+        container.addEventListener('pointerdown', spotlightPointerDownHandler);
 
-        container.addEventListener('pointermove', (e) => {
+        if (spotlightPointerMoveHandler) {
+            container.removeEventListener('pointermove', spotlightPointerMoveHandler);
+        }
+        spotlightPointerMoveHandler = (e) => {
             if (swipeStartX === null) return;
 
             const deltaX = e.clientX - swipeStartX;
@@ -4000,9 +4053,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 track.style.transition = 'none';
                 track.style.transform = `translateX(${baseTranslate + percentage}%)`;
             }
-        });
+        };
+        container.addEventListener('pointermove', spotlightPointerMoveHandler);
 
-        container.addEventListener('pointerup', (e) => {
+        if (spotlightPointerUpHandler) {
+            container.removeEventListener('pointerup', spotlightPointerUpHandler);
+        }
+        spotlightPointerUpHandler = (e) => {
             container.style.cursor = '';
             if (swipeStartX === null) return;
 
@@ -4034,9 +4091,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             updateSpotlight();
             startRotation();
-        });
+        };
+        container.addEventListener('pointerup', spotlightPointerUpHandler);
 
-        container.addEventListener('pointercancel', () => {
+        if (spotlightPointerCancelHandler) {
+            container.removeEventListener('pointercancel', spotlightPointerCancelHandler);
+        }
+        spotlightPointerCancelHandler = () => {
             container.style.cursor = '';
             swipeStartX = null;
             swipeStartY = null;
@@ -4045,20 +4106,28 @@ document.addEventListener('DOMContentLoaded', () => {
             suppressNextClick = false;
             updateSpotlight();
             startRotation();
-        });
+        };
+        container.addEventListener('pointercancel', spotlightPointerCancelHandler);
 
         // Prevent click on buttons/links when a drag occurred
-        container.addEventListener('click', (e) => {
+        if (spotlightClickHandler) {
+            container.removeEventListener('click', spotlightClickHandler, true);
+        }
+        spotlightClickHandler = (e) => {
             if (suppressNextClick) {
                 e.preventDefault();
                 e.stopPropagation();
                 suppressNextClick = false;
             }
-        }, true);
+        };
+        container.addEventListener('click', spotlightClickHandler, true);
 
         // Horizontal wheel scroll navigation with cooldown to limit redraws
         let wheelCooldown = false;
-        container.addEventListener('wheel', (e) => {
+        if (spotlightWheelHandler) {
+            container.removeEventListener('wheel', spotlightWheelHandler);
+        }
+        spotlightWheelHandler = (e) => {
             const deltaX = e.deltaX || (e.shiftKey ? e.deltaY : 0);
 
             // Only react if horizontal scrolling is detected (higher threshold)
@@ -4079,7 +4148,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             updateSpotlight();
             startRotation();
-        }, { passive: false });
+        };
+        container.addEventListener('wheel', spotlightWheelHandler, { passive: false });
 
         renderSpotlightItems();
         renderDots();
@@ -4266,13 +4336,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
 
         // Animate bars when section enters viewport
-        const observer = new IntersectionObserver((entries) => {
+        if (plChartObserver) {
+            plChartObserver.disconnect();
+        }
+        plChartObserver = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting) {
                 container.classList.add('pl-animate');
-                observer.unobserve(container);
+                if (plChartObserver) {
+                    plChartObserver.unobserve(container);
+                }
             }
         }, { threshold: 0.2 });
-        observer.observe(container);
+        plChartObserver.observe(container);
 
         // Click on name → jump to review
         container.querySelectorAll('.pl-name[data-id]').forEach(el => {
@@ -4419,14 +4494,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 el.addEventListener('click', () => jumpToReview(el.dataset.id));
             });
 
-            const hmObserver = new IntersectionObserver((entries) => {
+            if (heatmapObserver) {
+                heatmapObserver.disconnect();
+            }
+            heatmapObserver = new IntersectionObserver((entries) => {
                 if (entries[0].isIntersecting) {
                     heatmapContainer.querySelector('.hm-animate-target')
                         ?.classList.add('hm-animate');
-                    hmObserver.unobserve(heatmapContainer);
+                    if (heatmapObserver) {
+                        heatmapObserver.unobserve(heatmapContainer);
+                    }
                 }
             }, { threshold: 0.15 });
-            hmObserver.observe(heatmapContainer);
+            heatmapObserver.observe(heatmapContainer);
         }
     }
 
