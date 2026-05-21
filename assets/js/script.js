@@ -2149,6 +2149,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Fetch data and handle loader removal
         loadCommunityReviews()
             .then(() => loadReviewComments())
+            .then(() => {
+                handleInitialReviewShareLink();
+            })
             .catch(err => console.error("Loader Data Error:", err))
             .finally(() => {
                 const elapsed = Date.now() - (window.loaderStartTime || Date.now());
@@ -3630,6 +3633,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!Number.isFinite(targetSpotId)) return;
 
+        const clearShareParamsFromUrl = () => {
+            const cleanUrl = `${window.location.pathname}${window.location.hash || ''}`;
+            window.history.replaceState({}, '', cleanUrl);
+        };
+
+        const hasTargetReviewElement = () => {
+            if (!targetReviewId) return true;
+            const card = document.getElementById(`spot-${targetSpotId}`);
+            if (!card) return false;
+            return Array.from(card.querySelectorAll('.review-community-item'))
+                .some((item) => String(item.dataset.reviewId || '') === targetReviewId);
+        };
+
         const tryJumpToSharedReview = (attempt = 0) => {
             const hasData = Array.isArray(kebabData) && kebabData.length > 0;
             if (!hasData) {
@@ -3639,15 +3655,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            if (targetReviewId && !communityReviewsReady) {
+                if (attempt < 20) {
+                    setTimeout(() => tryJumpToSharedReview(attempt + 1), 200);
+                }
+                return;
+            }
+
             if (targetReviewId) {
                 jumpToReview(targetSpotId, targetReviewId);
+
+                // wait for jump animation/render and verify review item exists; retry if data arrived late
+                setTimeout(() => {
+                    if (hasTargetReviewElement()) {
+                        clearShareParamsFromUrl();
+                        return;
+                    }
+
+                    if (attempt < 20) {
+                        setTimeout(() => tryJumpToSharedReview(attempt + 1), 220);
+                    }
+                }, 760);
+                return;
             } else {
                 jumpToReview(targetSpotId);
             }
 
             // Prevent repeated deep-link jumps (and "show all" mode) on subsequent reloads.
-            const cleanUrl = `${window.location.pathname}${window.location.hash || ''}`;
-            window.history.replaceState({}, '', cleanUrl);
+            clearShareParamsFromUrl();
         };
 
         tryJumpToSharedReview();
@@ -3992,7 +4027,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initSpotlight();
     initAnalytics();
     initCommunityReviews();
-    handleInitialReviewShareLink();
 
     const sortSelects = Array.from(document.querySelectorAll('.review-sort-select'));
     sortSelects.forEach((select) => {
