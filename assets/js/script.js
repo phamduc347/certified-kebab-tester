@@ -3664,6 +3664,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return parseFloat(String(s).replace(',', '.').replace('%', '')) || 0;
         };
 
+        const getSubmissionTimestamp = (review) => {
+            const createdTs = review && review.created_at ? new Date(review.created_at).getTime() : Number.NaN;
+            if (!Number.isNaN(createdTs)) return createdTs;
+
+            const visitTs = review && review.visit_date ? new Date(review.visit_date).getTime() : Number.NaN;
+            if (!Number.isNaN(visitTs)) return visitTs;
+
+            return 0;
+        };
+
+        const newestSubmittedCommunityReview = [...rawApprovedReviews]
+            .sort((a, b) => getSubmissionTimestamp(b) - getSubmissionTimestamp(a))[0];
+
+        let newestSubmittedSpot = null;
+        if (newestSubmittedCommunityReview) {
+            const spotKey = buildSpotKey(newestSubmittedCommunityReview.spot_name, newestSubmittedCommunityReview.city);
+            newestSubmittedSpot = kebabData.find((spot) => buildSpotKey(spot.name, spot.city) === spotKey) || null;
+        }
+
         // fix: null-safe date parsing — fall back to epoch if date is missing/malformed
         const sortedByDate = [...kebabData].sort((a, b) => {
             const parseDate = (d) => {
@@ -3683,7 +3702,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // fix: filter out any undefined spots before rendering
         const spotlightItems = [
-            { spot: sortedByDate[0], label: "LATEST TEST", tag: "NEWEST ADDITION" },
+            { spot: newestSubmittedSpot || sortedByDate[0], label: "LATEST TEST", tag: "NEWEST ADDITION" },
             { spot: sortedByScore[0], label: "ALL-TIME BEST", tag: "THE BENCHMARK" },
             { spot: sortedByPL[0], label: "VALUE CHAMPION", tag: "BEST PRICE-PERFORMANCE" },
             { spot: bestDresden, label: "DRESDEN'S HERO", tag: "TOP LOCAL CHOICE" },
