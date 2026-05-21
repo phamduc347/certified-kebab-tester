@@ -3285,7 +3285,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function buildCommunityReviewShareLink(spotId, reviewId) {
         const normalizedSpotId = Number(spotId);
         const normalizedReviewId = String(reviewId || '').trim();
-        const shareUrl = new URL(window.location.href);
+        const shareUrl = new URL('/', 'https://certifiedkebabtester.de');
         shareUrl.search = '';
         shareUrl.hash = 'spots';
         if (Number.isFinite(normalizedSpotId)) shareUrl.searchParams.set('s', String(normalizedSpotId));
