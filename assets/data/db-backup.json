@@ -1,11 +1,34 @@
 {
   "info": {
-    "timestamp": "2026-05-20T10:38:45.220Z",
+    "timestamp": "2026-05-21T11:58:23.847Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
   "data": {
     "community_reviews": [
+      {
+        "id": 59,
+        "reviewer_name": "Long Le",
+        "spot_name": "Josef‘s Biofleisch",
+        "city": "Frankfurt am Main",
+        "dish": "Steak-Döner",
+        "visit_date": "2026-05-12",
+        "fleisch": 9,
+        "gemuese": 8.4,
+        "sosse": 9,
+        "brot": 8.2,
+        "balance": 7.6,
+        "auswahl": 7,
+        "portion": 7.5,
+        "hygiene": 10,
+        "service": 10,
+        "comment_text": "Josefs Bio Döner überzeugt auf einem Niveau, das man bei einem klassischen Dönerladen nur selten erlebt. Schon beim ersten Eindruck merkt man, dass hier großer Wert auf Qualität und Herkunft der Zutaten gelegt wird – besonders beim Fleisch.\n\nDas Premium-Biofleisch hebt den Döner geschmacklich deutlich von gewöhnlichen Imbissen ab. Das Fleisch wirkt nicht überwürzt oder künstlich aromatisiert, sondern hat einen natürlichen, intensiven Geschmack mit einer saftigen Konsistenz. Außen leicht knusprig angegrillt, innen zart und aromatisch – genau so, wie hochwertiges Fleisch sein sollte. Man merkt sofort, dass hier keine Massenware vom Standardspieß verwendet wird.\n\nAuch das Brot verdient ein großes Lob: frisch, warm und stabil genug, um die großzügige Füllung perfekt zusammenzuhalten. Die Kombination aus knackigem Salat, frischem Gemüse und den hausgemachten Soßen sorgt dafür, dass jeder Biss ausgewogen schmeckt. Besonders positiv fällt auf, dass die Zutaten frisch wirken und nicht einfach",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1779357516790-tv2p1cqr.jpeg",
+        "is_approved": true,
+        "created_at": "2026-05-21T09:58:39.780369+00:00",
+        "preis": "12,30",
+        "verzehrort": "Dine-in"
+      },
       {
         "id": 58,
         "reviewer_name": "👑 Pham (CKT)",
@@ -634,6 +657,36 @@
         "spot_id": 819086993,
         "voter_fingerprint": "dfcde04f-936b-40ae-a7d1-ac4d78423d45",
         "created_at": "2026-05-20T07:12:31.200429+00:00"
+      },
+      {
+        "id": 48,
+        "spot_id": 819086993,
+        "voter_fingerprint": "71c4fc5c-2969-400d-9696-f6b0e0507a3e",
+        "created_at": "2026-05-21T09:28:43.557151+00:00"
+      },
+      {
+        "id": 49,
+        "spot_id": 1396155810,
+        "voter_fingerprint": "71c4fc5c-2969-400d-9696-f6b0e0507a3e",
+        "created_at": "2026-05-21T09:28:44.064236+00:00"
+      },
+      {
+        "id": 50,
+        "spot_id": 819086993,
+        "voter_fingerprint": "27f60e20-d262-45bd-8f7d-3802c312ce07",
+        "created_at": "2026-05-21T09:37:30.391279+00:00"
+      },
+      {
+        "id": 51,
+        "spot_id": 1122676229,
+        "voter_fingerprint": "dfcde04f-936b-40ae-a7d1-ac4d78423d45",
+        "created_at": "2026-05-21T09:59:23.316525+00:00"
+      },
+      {
+        "id": 52,
+        "spot_id": 1122676229,
+        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
+        "created_at": "2026-05-21T10:56:35.968568+00:00"
       }
     ],
     "review_comments": [
