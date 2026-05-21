@@ -2532,6 +2532,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                                 data-default-label="Review teilen"
                                                 data-share-spot-id="${Number(spotId)}"
                                                 data-share-review-id="${escapeHtml(String(review.id || ''))}"
+                                                data-share-spot-name="${escapeHtml(rawSpotName)}"
+                                                data-share-reviewer-name="${escapeHtml(rawReviewerName)}"
                                                 aria-label="Community-Review-Link kopieren"
                                             ><span class="review-share-icon" aria-hidden="true">&#128279;</span><span class="review-share-label">Review teilen</span></button>
                                         </div>
@@ -2573,6 +2575,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 event.stopPropagation();
                 const shareSpotId = Number(button.dataset.shareSpotId);
                 const shareReviewId = String(button.dataset.shareReviewId || '').trim();
+                const shareSpotName = String(button.dataset.shareSpotName || '').trim() || 'Spot';
+                const shareReviewerName = String(button.dataset.shareReviewerName || '').trim() || 'Anonym';
 
                 if (!Number.isFinite(shareSpotId) || !shareReviewId) {
                     setShareButtonState(button, 'Fehler', 'is-error');
@@ -2580,8 +2584,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const shareLink = buildCommunityReviewShareLink(shareSpotId, shareReviewId);
+                const shareText = buildCommunityReviewShareText(shareSpotName, shareReviewerName, shareLink);
                 try {
-                    await copyTextToClipboard(shareLink);
+                    await copyTextToClipboard(shareText);
                     setShareButtonState(button, 'Kopiert', 'is-copied');
                 } catch (error) {
                     setShareButtonState(button, 'Fehler', 'is-error');
@@ -3291,6 +3296,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (Number.isFinite(normalizedSpotId)) shareUrl.searchParams.set('s', String(normalizedSpotId));
         if (normalizedReviewId) shareUrl.searchParams.set('r', normalizedReviewId);
         return shareUrl.toString();
+    }
+
+    function buildCommunityReviewShareText(spotName, reviewerName, shareLink) {
+        const normalizedSpotName = String(spotName || '').trim() || 'Spot';
+        const normalizedReviewerName = String(reviewerName || '').trim() || 'Anonym';
+        return `Checkout Kebab-Review for "${normalizedSpotName}" by ${normalizedReviewerName}: ${shareLink}`;
     }
 
     async function copyTextToClipboard(text) {
