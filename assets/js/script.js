@@ -35,6 +35,29 @@ window.fadeOutLoader = () => {
 setTimeout(window.fadeOutLoader, 5000);
 
 document.addEventListener('DOMContentLoaded', () => {
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function sanitizeUrl(url, fallbackUrl = 'kebab_spot_demo.png') {
+        if (!url) return fallbackUrl;
+        const trimmed = String(url).trim();
+        // Allow relative paths, http, https, data:image
+        if (/^(https?:\/\/|\/|data:image\/)/i.test(trimmed)) {
+            return escapeHtml(trimmed);
+        }
+        // If it looks like a local filename
+        if (/^[a-z0-9_\-\.\/]+$/i.test(trimmed)) {
+            return escapeHtml(trimmed);
+        }
+        return fallbackUrl;
+    }
+
     // ── Dark Mode ──────────────────────────────────────────────────────
     const darkmodeBtn = document.getElementById('darkmode-btn');
     const savedTheme = localStorage.getItem('theme');
@@ -1281,14 +1304,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function escapeHtml(value) {
-        return String(value || '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
+    // escapeHtml is declared at the top of DOMContentLoaded
 
     function formatCommentDate(dateStr) {
         if (!dateStr) return '';
@@ -2492,7 +2508,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="review-community-item-body">
                                 <div class="spot-top-content review-community-top-content">
                                     <div class="spot-image-container review-community-image-container">
-                                        ${imageUrl ? `<img src="${imageUrl}" alt="Review Bild" class="spot-image review-community-image" loading="lazy" />` : `<img src="kebab_spot_demo.png" alt="Review Bild" class="spot-image review-community-image" loading="lazy" />`}
+                                        <img src="${sanitizeUrl(imageUrl)}" alt="Review Bild" class="spot-image review-community-image" loading="lazy" />
                                     </div>
                                     <div class="spot-content">
                                         <div class="spot-categories">
@@ -3416,13 +3432,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="spot-image-container">
                         ${hasSlideshow ? `
                             <div class="slide-image-track">
-                                ${slides.map((s, i) => `<img src="${s.imageUrl}" alt="Slide ${i + 1}" class="slide-image ${i === 0 ? 'active' : ''}" loading="lazy" />`).join('')}
+                                ${slides.map((s, i) => `<img src="${sanitizeUrl(s.imageUrl)}" alt="Slide ${i + 1}" class="slide-image ${i === 0 ? 'active' : ''}" loading="lazy" />`).join('')}
                             </div>
                             <div class="slide-dots">
                                 ${slides.map((_, i) => `<button class="slide-dot ${i === 0 ? 'active' : ''}" aria-label="Slide ${i + 1}"></button>`).join('')}
                             </div>
                         ` : `
-                            <img src="${spot.image || 'kebab_spot_demo.png'}" alt="Bild von ${spot.name}" class="spot-image" loading="lazy" />
+                            <img src="${sanitizeUrl(spot.image)}" alt="Bild von ${escapeHtml(spot.name)}" class="spot-image" loading="lazy" />
                         `}
                     </div>
                     <div class="spot-content">
@@ -3455,8 +3471,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="slide-comment-track">
                                         ${slides.map((s, i) => `
                                             <div class="slide-comment-item ${i === 0 ? 'active' : ''}">
-                                                <div class="spot-comment">"${s.comment}"</div>
-                                                <div class="slide-author-info">— ${s.author}</div>
+                                                <div class="spot-comment">"${escapeHtml(s.comment)}"</div>
+                                                <div class="slide-author-info">— ${escapeHtml(s.author)}</div>
                                             </div>
                                         `).join('')}
                                     </div>
@@ -3464,7 +3480,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         ${slides.map((_, i) => `<button class="slide-dot ${i === 0 ? 'active' : ''}" aria-label="Comment Slide ${i + 1}"></button>`).join('')}
                                     </div>
                                 ` : spot.kommentar ? `
-                                    <div class="spot-comment">"${spot.kommentar}"</div>
+                                    <div class="spot-comment">"${escapeHtml(spot.kommentar)}"</div>
                                     ${singleCommunityCommentAuthor ? `<div class="slide-author-info">— ${singleCommunityCommentAuthor}</div>` : ''}
                                 ` : ''}
                                 ${includeEngagement ? renderCommunityReviewsPanelForSpot(spot.id) : ''}
@@ -3819,16 +3835,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         return `
                             <div class="latest-card ${i === currentIndex ? 'active' : ''}" data-index="${item.dataIndex}">
                                 <div class="latest-image-wrapper">
-                                    <img src="${spot.image || 'kebab_spot_demo.png'}" alt="${spot.name}" class="latest-image spot-image">
-                                    <div class="latest-badge">${item.label}</div>
+                                    <img src="${sanitizeUrl(spot.image)}" alt="${escapeHtml(spot.name)}" class="latest-image spot-image">
+                                    <div class="latest-badge">${escapeHtml(item.label)}</div>
                                 </div>
                                 <div class="latest-content">
                                     <div class="latest-header">
                                         <div class="latest-info">
-                                            <span class="latest-label">${item.tag}</span>
-                                            <h3 class="latest-title" data-id="${spot.id}">${spot.name}</h3>
+                                            <span class="latest-label">${escapeHtml(item.tag)}</span>
+                                            <h3 class="latest-title" data-id="${spot.id}">${escapeHtml(spot.name)}</h3>
                                             ${renderStars(scoreDisplay)}
-                                            <div class="latest-meta">${spot.city} • ${spot.date} <span class="latest-meta-reviews">(${spot.besuche || 1} ${spot.besuche === 1 ? 'Review' : 'Reviews'})</span></div>
+                                            <div class="latest-meta">${escapeHtml(spot.city)} • ${escapeHtml(spot.date)} <span class="latest-meta-reviews">(${spot.besuche || 1} ${spot.besuche === 1 ? 'Review' : 'Reviews'})</span></div>
                                         </div>
                                         <div class="latest-score-block">
                                             <div class="latest-score-label">SCORE</div>
