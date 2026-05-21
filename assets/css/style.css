@@ -2173,6 +2173,7 @@ section {
     margin-top: 10px;
     display: flex;
     justify-content: flex-end;
+    gap: 8px;
 }
 
 .review-feedback-row--inline {
