@@ -4604,10 +4604,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3>4. LocalStorage & Cookies</h3>
                 <p>Diese Seite nutzt keine klassischen Cookies. Wir verwenden lediglich den <strong>LocalStorage</strong> deines Browsers, um deine Präferenz für den Dark/Light Mode zu speichern. Diese Information verbleibt auf deinem Endgerät.</p>
             </div>
-            <div class="legal-section">
-                <h3>5. Externe Karten (Leaflet)</h3>
-                <p>Für die Darstellung der Karte wird Leaflet.js genutzt. Dabei werden Kartendaten von OpenStreetMap/Carto geladen. Hierbei wird technisch bedingt deine IP-Adresse an diese Dienste übertragen.</p>
-            </div>
         `,
         impressum: `
             <h2>Impressum</h2>
