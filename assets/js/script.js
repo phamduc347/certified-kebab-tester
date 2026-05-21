@@ -3652,7 +3652,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!Number.isFinite(targetSpotId)) return;
 
         const clearShareParamsFromUrl = () => {
-            const cleanUrl = `${window.location.pathname}${window.location.hash || ''}`;
+            const cleanUrl = window.location.pathname;
             window.history.replaceState({}, '', cleanUrl);
         };
 
