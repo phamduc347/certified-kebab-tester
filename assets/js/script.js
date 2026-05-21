@@ -3378,9 +3378,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const setupMissing = !supabaseClient;
         const lastVisitReviewerName = String(spot.lastVisitReviewerName || '').trim();
         const escapedLastVisitReviewerName = escapeHtml(lastVisitReviewerName || 'Unbekannt');
+        const hasBaseSpotEntry = baseSpotById.has(Number(spot.id));
 
         const slides = buildSlidesForSpot(spot);
         const hasSlideshow = slides.length >= 2;
+        const singleCommunityCommentAuthor = !hasBaseSpotEntry && slides.length === 1
+            ? String(slides[0].author || '').trim()
+            : '';
 
         card.innerHTML = `
             <div class="spot-card-header">
@@ -3461,6 +3465,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     </div>
                                 ` : spot.kommentar ? `
                                     <div class="spot-comment">"${spot.kommentar}"</div>
+                                    ${singleCommunityCommentAuthor ? `<div class="slide-author-info">— ${singleCommunityCommentAuthor}</div>` : ''}
                                 ` : ''}
                                 ${includeEngagement ? renderCommunityReviewsPanelForSpot(spot.id) : ''}
                             </div>
