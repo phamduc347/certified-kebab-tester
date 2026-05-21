@@ -248,6 +248,11 @@ body.mobile-filter-open {
     overflow: hidden;
 }
 
+html.mobile-filter-open,
+body.mobile-filter-open {
+    overscroll-behavior: none;
+}
+
 .container {
     max-width: 1248px;
     margin: 0 auto;
@@ -2908,6 +2913,10 @@ section {
         transform: translateY(0);
     }
 
+    .mobile-filter-panel.is-dragging {
+        transition: none;
+    }
+
     .mobile-filter-panel-grabber {
         display: block;
         width: 44px;
@@ -2915,6 +2924,8 @@ section {
         border-radius: 999px;
         background: var(--border-color);
         margin: 0 auto 8px;
+        touch-action: none;
+        cursor: ns-resize;
     }
 
     .mobile-filter-panel-header {
