@@ -2505,6 +2505,14 @@ document.addEventListener('DOMContentLoaded', () => {
                                                 <span class="review-helpful-label">Gefällt mir</span>
                                                 <span class="review-helpful-count">${reviewLikeCount}</span>
                                             </button>
+                                            <button
+                                                type="button"
+                                                class="review-share-btn"
+                                                data-default-label="Review teilen"
+                                                data-share-spot-id="${Number(spotId)}"
+                                                data-share-review-id="${escapeHtml(String(review.id || ''))}"
+                                                aria-label="Community-Review-Link kopieren"
+                                            ><span class="review-share-icon" aria-hidden="true">&#128279;</span><span class="review-share-label">Review teilen</span></button>
                                         </div>
                                     </div>
                                 </div>
@@ -2532,10 +2540,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function attachReviewCardHandlers(card) {
         const reviewHelpfulButtons = card.querySelectorAll('.review-helpful-btn');
+        const reviewShareButtons = card.querySelectorAll('.review-share-btn');
         const communityPanel = card.querySelector('.review-community-panel');
 
         reviewHelpfulButtons.forEach((button) => {
             button.addEventListener('click', handleReviewHelpfulClick);
+        });
+
+        reviewShareButtons.forEach((button) => {
+            button.addEventListener('click', async (event) => {
+                event.stopPropagation();
+                const shareSpotId = Number(button.dataset.shareSpotId);
+                const shareReviewId = String(button.dataset.shareReviewId || '').trim();
+
+                if (!Number.isFinite(shareSpotId) || !shareReviewId) {
+                    setShareButtonState(button, 'Fehler', 'is-error');
+                    return;
+                }
+
+                const shareLink = buildCommunityReviewShareLink(shareSpotId, shareReviewId);
+                try {
+                    await copyTextToClipboard(shareLink);
+                    setShareButtonState(button, 'Kopiert', 'is-copied');
+                } catch (error) {
+                    setShareButtonState(button, 'Fehler', 'is-error');
+                }
+            });
         });
 
         if (communityPanel) {
@@ -2705,7 +2735,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMobileFilterToggleState();
     }
 
-    const SPOTS_PER_PAGE = 6;
+    const SPOTS_PER_PAGE = 7;
     let visibleCount = SPOTS_PER_PAGE;
 
     function buildSlidesForSpot(spot) {
@@ -3212,6 +3242,69 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function buildCommunityReviewShareLink(spotId, reviewId) {
+        const normalizedSpotId = Number(spotId);
+        const normalizedReviewId = String(reviewId || '').trim();
+        const shareUrl = new URL(window.location.href);
+        shareUrl.search = '';
+        shareUrl.hash = 'spots';
+        if (Number.isFinite(normalizedSpotId)) shareUrl.searchParams.set('s', String(normalizedSpotId));
+        if (normalizedReviewId) shareUrl.searchParams.set('r', normalizedReviewId);
+        return shareUrl.toString();
+    }
+
+    async function copyTextToClipboard(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return;
+        }
+
+        const helper = document.createElement('textarea');
+        helper.value = text;
+        helper.setAttribute('readonly', 'readonly');
+        helper.style.position = 'fixed';
+        helper.style.opacity = '0';
+        helper.style.left = '-9999px';
+        document.body.appendChild(helper);
+        helper.focus();
+        helper.select();
+        const successfulCopy = document.execCommand('copy');
+        document.body.removeChild(helper);
+
+        if (!successfulCopy) {
+            throw new Error('clipboard-copy-failed');
+        }
+    }
+
+    function setShareButtonState(button, label, className) {
+        if (!button) return;
+        const defaultLabel = button.dataset.defaultLabel || 'Share';
+        const labelElement = button.querySelector('.review-share-label');
+        if (labelElement) {
+            labelElement.textContent = label;
+        } else {
+            button.textContent = label;
+        }
+        button.classList.remove('is-copied', 'is-error');
+        if (className) {
+            button.classList.add(className);
+        }
+
+        if (button._shareResetTimeout) {
+            clearTimeout(button._shareResetTimeout);
+        }
+
+        button._shareResetTimeout = setTimeout(() => {
+            if (labelElement) {
+                labelElement.textContent = defaultLabel;
+            } else {
+                button.textContent = defaultLabel;
+            }
+            button.classList.remove('is-copied', 'is-error');
+            button._shareResetTimeout = null;
+        }, 1800);
+    }
+
     function createReviewCardElement(spot, index, options = {}) {
         const card = document.createElement('div');
         card.className = 'spot-card';
@@ -3348,17 +3441,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const header = card.querySelector('.spot-card-header');
-        header.addEventListener('click', (e) => {
-            if (!e.target.closest('.maps-button')) {
-                const isOpening = !card.classList.contains('expanded');
-                card.classList.toggle('expanded');
-                syncConfirmedReviewsPanelState(card, isOpening);
 
-                if (isOpening) {
-                    setTimeout(() => {
-                        scrollToElementFlush(card);
-                    }, 50);
-                }
+        header.addEventListener('click', (e) => {
+            if (e.target.closest('.maps-button')) {
+                return;
+            }
+
+            const isOpening = !card.classList.contains('expanded');
+            card.classList.toggle('expanded');
+            syncConfirmedReviewsPanelState(card, isOpening);
+
+            if (isOpening) {
+                setTimeout(() => {
+                    scrollToElementFlush(card);
+                }, 50);
             }
         });
 
@@ -3496,6 +3592,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, 600);
         }
+    }
+
+    function handleInitialReviewShareLink() {
+        const params = new URLSearchParams(window.location.search);
+        const rawSpotId = params.get('s');
+        const rawReviewId = params.get('r');
+
+        const parsePositiveIntParam = (value) => {
+            if (typeof value !== 'string') return null;
+            const normalized = value.trim();
+            if (normalized === '') return null;
+            const parsed = Number(normalized);
+            if (!Number.isFinite(parsed) || parsed <= 0) return null;
+            return parsed;
+        };
+
+        const spotId = parsePositiveIntParam(rawSpotId);
+        const hasReviewId = typeof rawReviewId === 'string' && rawReviewId.trim() !== '';
+
+        let targetSpotId = null;
+        let targetReviewId = null;
+
+        if (spotId !== null && hasReviewId) {
+            targetSpotId = spotId;
+            targetReviewId = rawReviewId.trim();
+        } else if (spotId !== null) {
+            targetSpotId = spotId;
+        } else {
+            // Backward compatibility for older spot-only share links using ?r=<spotId>
+            // Only treat it as legacy share link when hash points to the reviews section.
+            const legacySpotId = parsePositiveIntParam(rawReviewId);
+            if (legacySpotId !== null && window.location.hash === '#spots') {
+                targetSpotId = legacySpotId;
+            }
+        }
+
+        if (!Number.isFinite(targetSpotId)) return;
+
+        const tryJumpToSharedReview = (attempt = 0) => {
+            const hasData = Array.isArray(kebabData) && kebabData.length > 0;
+            if (!hasData) {
+                if (attempt < 20) {
+                    setTimeout(() => tryJumpToSharedReview(attempt + 1), 150);
+                }
+                return;
+            }
+
+            if (targetReviewId) {
+                jumpToReview(targetSpotId, targetReviewId);
+            } else {
+                jumpToReview(targetSpotId);
+            }
+
+            // Prevent repeated deep-link jumps (and "show all" mode) on subsequent reloads.
+            const cleanUrl = `${window.location.pathname}${window.location.hash || ''}`;
+            window.history.replaceState({}, '', cleanUrl);
+        };
+
+        tryJumpToSharedReview();
     }
 
     function initSpotlight() {
@@ -3818,6 +3973,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSpotlight();
     initAnalytics();
     initCommunityReviews();
+    handleInitialReviewShareLink();
 
     const sortSelects = Array.from(document.querySelectorAll('.review-sort-select'));
     sortSelects.forEach((select) => {

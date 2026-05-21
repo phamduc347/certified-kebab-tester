@@ -201,6 +201,12 @@ body.dark .review-helpful-btn {
     border-color: #2a2a2a;
 }
 
+body.dark .review-share-btn {
+    background: #1a1a1a;
+    color: #d1d5db;
+    border-color: #2a2a2a;
+}
+
 body.dark .review-helpful-btn.is-liked {
     background: #2d1515;
 }
@@ -2186,6 +2192,44 @@ section {
     font-weight: 700;
     cursor: pointer;
     transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.review-share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid var(--border-color);
+    background: #ffffff;
+    color: #374151;
+    border-radius: 999px;
+    padding: 6px 11px;
+    font-size: 0.73rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.review-share-btn:hover {
+    border-color: #111827;
+    color: #111827;
+}
+
+.review-share-btn.is-copied {
+    border-color: #14532d;
+    background: #dcfce7;
+    color: #14532d;
+}
+
+.review-share-btn.is-error {
+    border-color: #b91c1c;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.review-share-icon {
+    font-size: 0.78rem;
+    line-height: 1;
 }
 
 .review-helpful-btn:hover {
