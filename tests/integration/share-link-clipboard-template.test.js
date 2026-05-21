@@ -12,6 +12,7 @@ describe('Share link clipboard template', () => {
         expect(templateFnMatch).not.toBeNull();
 
         const templateBody = templateFnMatch[1];
+        expect(templateBody).toContain('🥙 Checkout Kebab-Review for');
         expect(templateBody).toContain('Checkout Kebab-Review for');
         expect(templateBody).toContain('by ${normalizedReviewerName}: ${shareLink}');
 

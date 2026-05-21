@@ -3301,7 +3301,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function buildCommunityReviewShareText(spotName, reviewerName, shareLink) {
         const normalizedSpotName = String(spotName || '').trim() || 'Spot';
         const normalizedReviewerName = String(reviewerName || '').trim() || 'Anonym';
-        return `Checkout Kebab-Review for "${normalizedSpotName}" by ${normalizedReviewerName}: ${shareLink}`;
+        return `🥙 Checkout Kebab-Review for "${normalizedSpotName}" by ${normalizedReviewerName}: ${shareLink}`;
     }
 
     async function copyTextToClipboard(text) {
