@@ -3798,6 +3798,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initSpotlight() {
+        // Stoppe bestehende Spotlight-Rotation vor Neuanlage, um Memory Leaks zu verhindern
+        if (spotlightRotationTimer) {
+            clearInterval(spotlightRotationTimer);
+            spotlightRotationTimer = null;
+        }
+
         const container = document.getElementById('spotlight-container');
         const dotsContainer = document.getElementById('spotlight-dots');
         if (!container || !dotsContainer) return;
