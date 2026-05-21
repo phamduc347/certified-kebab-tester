@@ -2667,6 +2667,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return variants;
     }
 
+    function getSpotReviewerSearchText(spot) {
+        const reviewerNames = new Set();
+
+        const lastVisitReviewerName = String(spot && spot.lastVisitReviewerName ? spot.lastVisitReviewerName : '').trim();
+        if (lastVisitReviewerName) {
+            reviewerNames.add(lastVisitReviewerName.toLowerCase());
+        }
+
+        const reviews = approvedCommunityReviewsBySpotId.get(Number(spot && spot.id)) || [];
+        reviews.forEach((review) => {
+            const reviewerName = String(review && review.reviewer_name ? review.reviewer_name : '').trim().toLowerCase();
+            if (reviewerName) {
+                reviewerNames.add(reviewerName);
+            }
+        });
+
+        return [...reviewerNames].join(' ');
+    }
+
     function refreshFilterOptions(preserveSelection = true) {
         const previousAvailableCities = new Set(cities);
         const previousAvailableDishes = new Set(dishes);
@@ -3492,7 +3511,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const filteredData = kebabData.filter(spot => {
             const query = reviewFilterQuery.trim().toLowerCase();
             if (query) {
-                const searchable = `${String(spot.name || '').toLowerCase()} ${String(spot.city || '').toLowerCase()}`;
+                const searchable = `${String(spot.name || '').toLowerCase()} ${String(spot.city || '').toLowerCase()} ${getSpotReviewerSearchText(spot)}`;
                 if (!searchable.includes(query)) {
                     return false;
                 }
