@@ -2,7 +2,25 @@
 if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
 }
-window.scrollTo(0, 0);
+const isReloadNavigation = (() => {
+    const navEntry = performance.getEntriesByType('navigation')[0];
+    if (navEntry && navEntry.type) {
+        return navEntry.type === 'reload';
+    }
+    return performance.navigation && performance.navigation.type === 1;
+})();
+
+const forceScrollTop = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+};
+
+if (isReloadNavigation) {
+    // Re-apply on multiple lifecycle phases because some browsers restore scroll late.
+    forceScrollTop();
+    requestAnimationFrame(forceScrollTop);
+    window.addEventListener('load', forceScrollTop, { once: true });
+    window.addEventListener('pageshow', forceScrollTop, { once: true });
+}
 
 // Global Loader Management
 window.loaderStartTime = Date.now();
