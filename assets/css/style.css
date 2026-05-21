@@ -1351,6 +1351,7 @@ section {
     font-weight: 700;
     margin-bottom: 12px;
     letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
 .latest-info h3 {
