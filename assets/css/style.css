@@ -4646,6 +4646,8 @@ body.modal-open {
     gap: 32px;
     padding-left: 20px;
     height: 100%;
+    will-change: transform;
+    -webkit-transform: translateZ(0);
 }
 
 .next-up-item {
@@ -4699,17 +4701,19 @@ body.modal-open {
 
 @keyframes ticker-scroll {
     0% {
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0);
     }
 
     100% {
-        transform: translateX(-50%);
+        transform: translate3d(-50%, 0, 0);
     }
 }
 
 /* Hover to pause for readability */
-.next-up-ticker-wrapper:hover .next-up-ticker {
-    animation-play-state: paused;
+@media (hover: hover) {
+    .next-up-ticker-wrapper:hover .next-up-ticker {
+        animation-play-state: paused;
+    }
 }
 
 /*
