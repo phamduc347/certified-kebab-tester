@@ -2105,9 +2105,9 @@ section {
 }
 
 .badge:hover {
-    background: var(--text-main);
-    color: var(--bg-main);
-    border-color: var(--text-main);
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
     transform: translateY(-1px);
 }
 
