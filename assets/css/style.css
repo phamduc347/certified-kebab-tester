@@ -5030,7 +5030,7 @@ body.modal-open {
     left: 0;
     height: 100%;
     width: 40%;
-    background: var(--text-main);
+    background: linear-gradient(90deg, #2563eb, #60a5fa);
     animation: loaderProgress 2s infinite ease-in-out;
 }
 
