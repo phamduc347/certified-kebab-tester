@@ -3429,6 +3429,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return `🥙 Checkout Kebab-Review for "${normalizedSpotName}" by ${normalizedReviewerName}: ${shareLink}`;
     }
 
+    function buildCommunityReviewNativeShareText(spotName, reviewerName) {
+        const normalizedSpotName = String(spotName || '').trim() || 'Spot';
+        const normalizedReviewerName = String(reviewerName || '').trim() || 'Anonym';
+        return `🥙 Checkout Kebab-Review for "${normalizedSpotName}" by ${normalizedReviewerName}`;
+    }
+
     async function copyCommunityReviewShareText(shareSpotName, shareReviewerName, shareLink) {
         const shareText = buildCommunityReviewShareText(shareSpotName, shareReviewerName, shareLink);
         await copyTextToClipboard(shareText);
@@ -3444,7 +3450,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const imageUrl = sanitizeUrl(payload.shareImageUrl || '');
         const shareLink = String(payload.shareLink || '').trim();
         const qrCodeUrl = shareLink
-            ? `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=0&data=${encodeURIComponent(shareLink)}`
+            ? `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=0&data=${encodeURIComponent(shareLink)}`
             : '';
         const previewRaw = String(payload.shareComment || '').replace(/\s+/g, ' ').trim();
         const previewText = previewRaw
@@ -3472,6 +3478,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </article>
             </div>
+            <button
+                type="button"
+                class="review-share-panel-toggle"
+                data-share-panel-toggle
+                data-collapsed-label="CHECKOUT MY REVIEW"
+                data-expanded-label="Review Teilen ausblenden"
+                aria-pressed="false"
+            >Review Teilen ausblenden</button>
             <div class="review-share-actions-shell">
                 <aside class="review-share-actions">
                     <h3>Review Teilen</h3>
@@ -3481,7 +3495,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button type="button" class="review-share-action-btn" data-share-action="copy-text">Share-Text kopieren</button>
                         <button type="button" class="review-share-action-btn" data-share-action="native-share">TEILEN</button>
                     </div>
-                    <p class="review-share-status" data-share-status aria-live="polite"></p>
                 </aside>
             </div>
         `;
@@ -3501,12 +3514,22 @@ document.addEventListener('DOMContentLoaded', () => {
         activeReviewShareTrigger = payload.triggerButton || null;
         reviewShareModalContent.innerHTML = renderReviewShareStoryModal(payload);
 
-        const statusEl = reviewShareModalContent.querySelector('[data-share-status]');
         const actionButtons = reviewShareModalContent.querySelectorAll('[data-share-action]');
         const nativeShareBtn = reviewShareModalContent.querySelector('[data-share-action="native-share"]');
+        const panelToggleBtn = reviewShareModalContent.querySelector('[data-share-panel-toggle]');
 
         if (!(navigator.share && window.isSecureContext)) {
             nativeShareBtn?.setAttribute('hidden', 'hidden');
+        }
+
+        if (panelToggleBtn) {
+            panelToggleBtn.addEventListener('click', () => {
+                const isPhotoFocusMode = reviewShareModalContent.classList.toggle('is-photo-focus-mode');
+                panelToggleBtn.setAttribute('aria-pressed', isPhotoFocusMode ? 'true' : 'false');
+                panelToggleBtn.textContent = isPhotoFocusMode
+                    ? (panelToggleBtn.dataset.collapsedLabel || 'CHECKOUT MY REVIEW')
+                    : (panelToggleBtn.dataset.expandedLabel || 'Review Teilen ausblenden');
+            });
         }
 
         const applyShareButtonState = (button, label, className) => {
@@ -3535,30 +3558,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (action === 'copy-link') {
                         await copyTextToClipboard(shareLink);
                         applyShareButtonState(button, 'Link kopiert', 'is-success');
-                        if (statusEl) statusEl.textContent = 'Link wurde in die Zwischenablage kopiert.';
                         return;
                     }
 
                     if (action === 'copy-text') {
                         await copyCommunityReviewShareText(shareSpotName, shareReviewerName, shareLink);
                         applyShareButtonState(button, 'Text kopiert', 'is-success');
-                        if (statusEl) statusEl.textContent = 'Share-Text wurde in die Zwischenablage kopiert.';
                         return;
                     }
 
                     if (action === 'native-share' && navigator.share && window.isSecureContext) {
-                        const text = buildCommunityReviewShareText(shareSpotName, shareReviewerName, shareLink);
+                        const text = buildCommunityReviewNativeShareText(shareSpotName, shareReviewerName);
                         await navigator.share({
                             title: `${shareSpotName} - Community Review`,
                             text,
                             url: shareLink
                         });
                         applyShareButtonState(button, 'Geteilt', 'is-success');
-                        if (statusEl) statusEl.textContent = 'Native Share erfolgreich geöffnet.';
                     }
                 } catch (error) {
+                    if (action === 'native-share' && error && error.name === 'AbortError') {
+                        applyShareButtonState(button, 'Abgebrochen', 'is-success');
+                        return;
+                    }
                     applyShareButtonState(button, 'Fehler', 'is-error');
-                    if (statusEl) statusEl.textContent = 'Teilen fehlgeschlagen. Bitte erneut versuchen.';
                 }
             });
         });
