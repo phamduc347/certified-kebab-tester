@@ -3633,9 +3633,34 @@ document.addEventListener('DOMContentLoaded', () => {
                             .replace(/[^a-z0-9]+/g, '-')
                             .replace(/^-+|-+$/g, '') || 'spot';
 
+                        const filename = `kebab-review-${safeSpotName}.png`;
+
+                        if (typeof navigator !== 'undefined' && typeof navigator.share === 'function' && typeof canvas.toBlob === 'function') {
+                            const imageBlob = await new Promise((resolve) => {
+                                canvas.toBlob(resolve, 'image/png');
+                            });
+
+                            if (imageBlob) {
+                                const shareFile = new File([imageBlob], filename, { type: 'image/png' });
+                                const canShareFile = typeof navigator.canShare === 'function'
+                                    ? navigator.canShare({ files: [shareFile] })
+                                    : true;
+
+                                if (canShareFile) {
+                                    await navigator.share({
+                                        files: [shareFile],
+                                        title: `${shareSpotName} - Community Review`,
+                                        text: buildCommunityReviewNativeShareText(shareSpotName, shareReviewerName)
+                                    });
+                                    applyShareButtonState(button, 'Teilen geöffnet', 'is-success');
+                                    return;
+                                }
+                            }
+                        }
+
                         const downloadLink = document.createElement('a');
                         downloadLink.href = canvas.toDataURL('image/png');
-                        downloadLink.download = `kebab-review-${safeSpotName}.png`;
+                        downloadLink.download = filename;
                         downloadLink.click();
 
                         applyShareButtonState(button, 'PNG gespeichert', 'is-success');

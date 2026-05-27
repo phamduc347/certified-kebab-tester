@@ -13,7 +13,11 @@ describe('Share popup PNG download template', () => {
         expect(source).toContain("if (action === 'download-image')");
         expect(source).toContain("typeof window.html2canvas !== 'function'");
         expect(source).toContain("await window.html2canvas(storyCard");
+        expect(source).toContain("typeof navigator !== 'undefined' && typeof navigator.share === 'function'");
+        expect(source).toContain("const shareFile = new File([imageBlob], filename, { type: 'image/png' });");
+        expect(source).toContain('files: [shareFile]');
+        expect(source).toContain("applyShareButtonState(button, 'Teilen geöffnet', 'is-success')");
         expect(source).toContain("canvas.toDataURL('image/png')");
-        expect(source).toContain("downloadLink.download = `kebab-review-${safeSpotName}.png`;");
+        expect(source).toContain('downloadLink.download = filename;');
     });
 });

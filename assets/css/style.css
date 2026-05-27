@@ -4764,52 +4764,123 @@ body.modal-open {
     display: flex;
     flex-direction: column;
     height: 100%;
+    transition: padding 0.34s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .review-share-modal-layout {
     display: flex;
     flex: 1 1 auto;
     min-height: 0;
+    transition: transform 0.34s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.28s ease;
 }
 
 .review-share-actions-shell {
     margin-top: auto;
     padding-top: 12px;
+    overflow: hidden;
+    opacity: 1;
+    max-height: 260px;
+    transform: translateY(0);
+    pointer-events: auto;
+    transition:
+        opacity 0.28s ease,
+        max-height 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
+        transform 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
+        margin-top 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
+        padding-top 0.34s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .review-share-panel-toggle {
     align-self: flex-end;
     margin-top: 10px;
-    border: 1px solid var(--border-color);
-    background: rgba(255, 255, 255, 0.88);
-    color: #0f172a;
-    border-radius: 10px;
-    padding: 8px 12px;
-    font-size: 0.72rem;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    font-weight: 700;
+    border: 1px dashed rgba(15, 23, 42, 0.38);
+    background: rgba(255, 255, 255, 0.56);
+    color: rgba(15, 23, 42, 0.78);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 0.76rem;
+    letter-spacing: 0.2px;
+    text-transform: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     cursor: pointer;
-    transition: border-color 0.2s ease, transform 0.2s ease;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.review-share-panel-toggle::before {
+    content: '\25B2';
+    font-size: 0.65rem;
+    opacity: 0.8;
 }
 
 .review-share-panel-toggle:hover {
-    border-color: #111827;
+    border-color: rgba(15, 23, 42, 0.72);
+    background: rgba(255, 255, 255, 0.82);
+    color: #0f172a;
     transform: translateY(-1px);
 }
 
+.review-share-panel-toggle[aria-pressed='true'] {
+    border-style: solid;
+    border-color: rgba(20, 83, 45, 0.55);
+    background: rgba(220, 252, 231, 0.82);
+    color: #14532d;
+}
+
+.review-share-panel-toggle[aria-pressed='true']::before {
+    content: '\25BC';
+}
+
 .review-share-download-btn {
-    display: none;
-    margin-top: 8px;
+    display: block;
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-width: 0;
     align-self: stretch;
+    overflow: hidden;
+    pointer-events: none;
+    transform: translateY(8px);
+    background: #2563eb;
+    border-color: #1d4ed8;
+    color: #ffffff;
+    transition:
+        opacity 0.28s ease,
+        max-height 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
+        margin-top 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
+        padding 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
+        border-width 0.2s ease,
+        transform 0.34s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.review-share-download-btn:hover {
+    background: #2563eb;
+    border-color: #1d4ed8;
+    color: #ffffff;
 }
 
 .review-share-modal-content.is-photo-focus-mode .review-share-actions-shell {
-    display: none;
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+    padding-top: 0;
+    transform: translateY(10px);
+    pointer-events: none;
 }
 
 .review-share-modal-content.is-photo-focus-mode .review-share-download-btn {
-    display: block;
+    opacity: 1;
+    max-height: 56px;
+    margin-top: 8px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+    border-width: 1px;
+    pointer-events: auto;
+    transform: translateY(0);
 }
 
 .review-share-modal-content.is-photo-focus-mode {
@@ -4823,6 +4894,7 @@ body.modal-open {
 .review-share-modal-content.is-photo-focus-mode .review-share-story-card {
     min-height: clamp(560px, 86svh, 1080px);
     min-height: clamp(560px, 86dvh, 1080px);
+    transform: scale(1.01);
 }
 
 .review-share-modal-content.is-photo-focus-mode .review-share-panel-toggle {
@@ -4843,6 +4915,7 @@ body.modal-open {
     background: #111827;
     display: flex;
     align-items: flex-end;
+    transition: min-height 0.34s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.34s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.34s ease;
 }
 
 .review-share-story-image {
@@ -4866,6 +4939,7 @@ body.modal-open {
     right: 14px;
     z-index: 2;
     width: clamp(92px, 25%, 160px);
+    height: clamp(92px, 25%, 160px);
     aspect-ratio: 1 / 1;
     padding: 7px;
     border-radius: 12px;
@@ -4879,6 +4953,7 @@ body.modal-open {
     width: 100%;
     height: 100%;
     display: block;
+    object-fit: contain;
     border-radius: 8px;
 }
 
@@ -4999,6 +5074,13 @@ body.modal-open {
     transform: translateY(-1px);
 }
 
+.review-share-action-btn.review-share-download-btn,
+.review-share-action-btn.review-share-download-btn:hover {
+    background: #2563eb;
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
 .review-share-action-btn.is-success {
     border-color: #14532d;
     background: #dcfce7;
@@ -5029,6 +5111,13 @@ body.dark .review-share-action-btn {
     color: #f8fafc;
 }
 
+body.dark .review-share-action-btn.review-share-download-btn,
+body.dark .review-share-action-btn.review-share-download-btn:hover {
+    background: #2563eb;
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
 body.dark .review-share-action-btn.is-success {
     background: rgba(20, 83, 45, 0.5);
     border-color: rgba(74, 222, 128, 0.5);
@@ -5042,9 +5131,21 @@ body.dark .review-share-action-btn.is-error {
 }
 
 body.dark .review-share-panel-toggle {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.26);
+    color: rgba(248, 250, 252, 0.86);
+}
+
+body.dark .review-share-panel-toggle:hover {
+    border-color: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.08);
     color: #f8fafc;
+}
+
+body.dark .review-share-panel-toggle[aria-pressed='true'] {
+    border-color: rgba(74, 222, 128, 0.45);
+    background: rgba(20, 83, 45, 0.4);
+    color: #bbf7d0;
 }
 
 @media (max-width: 768px) {
@@ -5057,6 +5158,7 @@ body.dark .review-share-panel-toggle {
         top: 10px;
         right: 10px;
         width: clamp(82px, 25%, 120px);
+        height: clamp(82px, 25%, 120px);
         aspect-ratio: 1 / 1;
         padding: 6px;
         border-radius: 10px;
@@ -5075,6 +5177,10 @@ body.dark .review-share-panel-toggle {
         width: 100%;
         align-self: stretch;
         margin-top: 12px;
+        position: sticky;
+        bottom: 8px;
+        z-index: 4;
+        backdrop-filter: blur(6px);
     }
 
     .review-share-story-card {
