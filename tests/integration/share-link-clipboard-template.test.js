@@ -18,7 +18,8 @@ describe('Share link clipboard template', () => {
 
         expect(source).toContain('data-share-spot-name="${escapeHtml(data.rawSpotName)}"');
         expect(source).toContain('data-share-reviewer-name="${escapeHtml(data.rawReviewerName)}"');
-        expect(source).toContain('const shareText = buildCommunityReviewShareText(shareSpotName, shareReviewerName, shareLink);');
+        expect(source).toContain('class="review-share-action-btn review-share-copy-btn"');
+        expect(source).toContain('await copyCommunityReviewShareText(shareSpotName, shareReviewerName, payload.shareLink);');
         expect(source).toContain('await copyTextToClipboard(shareText);');
     });
 });

@@ -4765,6 +4765,7 @@ body.modal-open {
     padding: clamp(16px, 2.2vh, 30px);
     display: flex;
     flex-direction: column;
+    gap: 8px;
     height: 100%;
     transition: padding 0.34s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -4837,26 +4838,18 @@ body.modal-open {
 
 .review-share-download-btn {
     display: block;
-    opacity: 0;
-    max-height: 0;
+    opacity: 1;
+    max-height: none;
     margin-top: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    border-width: 0;
     align-self: stretch;
-    overflow: hidden;
-    pointer-events: none;
-    transform: translateY(8px);
+    pointer-events: auto;
+    transform: none;
     background: #2563eb;
     border-color: #1d4ed8;
     color: #ffffff;
     transition:
-        opacity 0.28s ease,
-        max-height 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
-        margin-top 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
-        padding 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
-        border-width 0.2s ease,
-        transform 0.34s cubic-bezier(0.2, 0.8, 0.2, 1);
+        border-color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .review-share-download-btn:hover {
@@ -4875,14 +4868,7 @@ body.modal-open {
 }
 
 .review-share-modal-content.is-photo-focus-mode .review-share-download-btn {
-    opacity: 1;
-    max-height: 56px;
-    margin-top: 8px;
-    padding-top: 9px;
-    padding-bottom: 9px;
-    border-width: 1px;
-    pointer-events: auto;
-    transform: translateY(0);
+    margin-top: 0;
 }
 
 .review-share-modal-content.is-photo-focus-mode {
@@ -4894,9 +4880,9 @@ body.modal-open {
 }
 
 .review-share-modal-content.is-photo-focus-mode .review-share-story-card {
-    min-height: clamp(560px, 86svh, 1080px);
-    min-height: clamp(560px, 86dvh, 1080px);
-    transform: scale(1.01);
+    min-height: clamp(380px, 66svh, 760px);
+    min-height: clamp(380px, 66dvh, 760px);
+    transform: none;
 }
 
 .review-share-modal-content.is-photo-focus-mode .review-share-panel-toggle {
@@ -4908,8 +4894,8 @@ body.modal-open {
     position: relative;
     width: 100%;
     height: 100%;
-    min-height: clamp(420px, 62svh, 760px);
-    min-height: clamp(420px, 62dvh, 760px);
+    min-height: clamp(320px, 56svh, 640px);
+    min-height: clamp(320px, 56dvh, 640px);
     border-radius: 26px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.25);
@@ -4918,6 +4904,11 @@ body.modal-open {
     display: flex;
     align-items: flex-end;
     transition: min-height 0.34s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.34s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.34s ease;
+}
+
+.review-share-copy-btn,
+.review-share-download-btn {
+    width: 100%;
 }
 
 .review-share-story-image {
@@ -5192,8 +5183,8 @@ body.dark .review-share-panel-toggle[aria-pressed='true'] {
     }
 
     .review-share-modal-content.is-photo-focus-mode .review-share-story-card {
-        min-height: clamp(440px, 82svh, 900px);
-        min-height: clamp(440px, 82dvh, 900px);
+        min-height: clamp(320px, 58svh, 560px);
+        min-height: clamp(320px, 58dvh, 560px);
     }
 
     .review-share-modal-container.is-photo-focus-mode {
