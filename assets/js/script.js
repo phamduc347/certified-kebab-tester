@@ -4576,7 +4576,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // fix: filter out any undefined spots before rendering
         const spotlightItems = [
-            { spot: newestSubmittedSpot || sortedByDate[0], label: "LATEST TEST", tag: "NEWEST ADDITION" },
+            { 
+                spot: newestSubmittedSpot || sortedByDate[0], 
+                reviewId: newestSubmittedCommunityReview ? newestSubmittedCommunityReview.id : null,
+                label: "LATEST TEST", 
+                tag: "NEWEST ADDITION" 
+            },
             { spot: sortedByScore[0], label: "ALL-TIME BEST", tag: "THE BENCHMARK" },
             { spot: sortedByPL[0], label: "VALUE CHAMPION", tag: "BEST PRICE-PERFORMANCE" },
             { spot: bestDresden, label: "DRESDEN'S HERO", tag: "TOP LOCAL CHOICE" },
@@ -4611,7 +4616,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="latest-header">
                                         <div class="latest-info">
                                             <span class="latest-label">${escapeHtml(item.tag)}</span>
-                                            <h3 class="latest-title" data-id="${spot.id}">${escapeHtml(spot.name)}</h3>
+                                            <h3 class="latest-title" data-id="${spot.id}" data-review-id="${item.reviewId || ''}">${escapeHtml(spot.name)}</h3>
                                             ${renderStars(scoreDisplay)}
                                             <div class="latest-meta">${escapeHtml(spot.city)} • ${escapeHtml(spot.date)} <span class="latest-meta-reviews">(${spot.besuche || 1} ${spot.besuche === 1 ? 'Review' : 'Reviews'})</span></div>
                                         </div>
@@ -4625,7 +4630,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <div class="latest-details">
                                             <span class="badge">${spot.dish}</span>
                                         </div>
-                                        <button class="spotlight-jump-btn" data-id="${spot.id}">
+                                        <button class="spotlight-jump-btn" data-id="${spot.id}" data-review-id="${item.reviewId || ''}">
                                             <span>Full Review</span>
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
                                         </button>
@@ -4641,7 +4646,8 @@ document.addEventListener('DOMContentLoaded', () => {
             container.querySelectorAll('.spotlight-jump-btn, .latest-title').forEach(el => {
                 el.addEventListener('click', () => {
                     const id = el.dataset.id;
-                    jumpToReview(id);
+                    const reviewId = el.dataset.reviewId;
+                    jumpToReview(id, reviewId || null);
                 });
             });
         }
