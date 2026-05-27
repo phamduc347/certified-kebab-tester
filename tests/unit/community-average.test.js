@@ -113,22 +113,6 @@ describe('buildCommunityAverage', () => {
         expect(result).toBe('0.0');
     });
 
-    it.skip('handles mixed valid and undefined values', () => {
-        const review = {
-            fleisch: 8,
-            gemuese: undefined,
-            sosse: 9,
-            brot: 8,
-            balance: 10,
-            auswahl: 7,
-            portion: 8,
-            hygiene: 9,
-            service: 8
-        };
-        const result = buildCommunityAverage(review);
-        // undefined converts to 0, average = (8+0+9+8+10+7+8+9+8)/9 = 67/9 ≈ 7.444
-        expect(parseFloat(result)).toMatch(/^7\./);
-    });
 
     it('handles decimal score values', () => {
         const review = {
