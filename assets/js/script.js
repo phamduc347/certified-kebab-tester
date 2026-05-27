@@ -3498,7 +3498,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ? `<div class="review-share-story-badges">${detailBadges.join('')}</div>`
             : '';
         const qrCodeUrl = shareLink
-            ? `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=0&data=${encodeURIComponent(shareLink)}`
+            ? `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=0&color=ffffff&bgcolor=000000&data=${encodeURIComponent(shareLink)}`
             : '';
         const previewRaw = String(payload.shareComment || '').replace(/\s+/g, ' ').trim();
         const previewText = previewRaw

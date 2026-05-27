@@ -5049,10 +5049,14 @@ body.modal-open {
     aspect-ratio: 1 / 1;
     padding: 7px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(15, 23, 42, 0.2);
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.26);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    border: 0.5px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
     pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .review-share-story-qr-image {
@@ -5060,6 +5064,7 @@ body.modal-open {
     height: 100%;
     display: block;
     object-fit: contain;
+    mix-blend-mode: screen;
     border-radius: 8px;
 }
 
@@ -6269,11 +6274,14 @@ body.dark .tooltip-cluster-row:active {
 /* Push QR code below top safe zone (260px from top) */
 .review-share-story-card.is-export .review-share-story-qr {
     top: 260px !important;
+    bottom: auto !important;
     right: 60px !important;
     width: 240px !important;
     height: 240px !important;
     padding: 16px !important;
     border-radius: 24px !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
 }
 
 .review-share-story-card.is-export .review-share-story-qr-image {
