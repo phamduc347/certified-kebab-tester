@@ -3438,7 +3438,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const normalizedReviewId = String(reviewId || '').trim();
         const shareUrl = new URL('/', 'https://certifiedkebabtester.de');
         shareUrl.search = '';
-        shareUrl.hash = 'spots';
         if (Number.isFinite(normalizedSpotId)) shareUrl.searchParams.set('s', String(normalizedSpotId));
         if (normalizedReviewId) shareUrl.searchParams.set('r', normalizedReviewId);
         return shareUrl.toString();
@@ -4054,6 +4053,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams(window.location.search);
         const rawSpotId = params.get('s');
         const rawReviewId = params.get('r');
+        const hadLegacyReviewHash = window.location.hash === '#spots';
 
         const parsePositiveIntParam = (value) => {
             if (typeof value !== 'string') return null;
@@ -4085,6 +4085,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!Number.isFinite(targetSpotId)) return;
+
+        if (hadLegacyReviewHash) {
+            const urlWithoutHash = `${window.location.pathname}${window.location.search}`;
+            window.history.replaceState({}, '', urlWithoutHash);
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
 
         const clearShareParamsFromUrl = () => {
             const cleanUrl = window.location.pathname;
