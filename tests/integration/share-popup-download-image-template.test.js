@@ -22,7 +22,7 @@ describe('Share popup PNG download template', () => {
         expect(source).toContain("typeof navigator !== 'undefined' && typeof navigator.share === 'function'");
         expect(source).toContain("const shareFile = new File([imageBlob], filename, { type: 'image/png' });");
         expect(source).toContain('files: [shareFile]');
-        expect(source).toContain("applyShareButtonState(button, 'Bild heruntergeladen', 'is-success')");
+        expect(source).toContain("applyShareButtonState(button, 'Story-Karte heruntergeladen', 'is-success')");
         expect(source).toContain("URL.createObjectURL(imageBlob)");
         expect(source).toContain('downloadLink.download = filename;');
     });

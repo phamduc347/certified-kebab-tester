@@ -3513,7 +3513,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="review-share-story-loading-spinner"></div>
                         <span>Erstelle Share-Card...</span>
                     </div>
-                    <img src="${imageUrl}" crossorigin="anonymous" alt="Story Vorschau" class="review-share-story-image" loading="lazy" />
+                    <div class="review-share-story-image" style="background-image: url('${imageUrl}');" aria-label="Story Vorschau"></div>
                     <div class="review-share-story-overlay"></div>
                     ${qrCodeUrl ? `
                         <div class="review-share-story-qr" aria-hidden="true">
@@ -3532,19 +3532,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="review-share-story-cta">MEHR REVIEWS AUF CERTIFIEDKEBABTESTER.DE</span>
                     </div>
                 </article>
+                <div class="review-share-sidebar">
+                    <div class="review-share-sidebar-header">
+                        <h2>Review teilen</h2>
+                        <p class="review-share-sidebar-desc">Kopiere den Link zum Teilen oder lade die Story-Karte für Social Media herunter.</p>
+                    </div>
+                    <div class="review-share-sidebar-actions">
+                        <button
+                            type="button"
+                            class="review-share-action-btn review-share-copy-btn"
+                            data-share-action="copy-link"
+                            aria-label="Share-Text kopieren"
+                        >Link kopieren</button>
+                        <button
+                            type="button"
+                            class="review-share-action-btn review-share-download-btn"
+                            data-share-action="download-image"
+                            aria-label="Share Karte als PNG herunterladen"
+                        >Story-Karte herunterladen</button>
+                    </div>
+                </div>
             </div>
-            <button
-                type="button"
-                class="review-share-action-btn review-share-copy-btn"
-                data-share-action="copy-link"
-                aria-label="Share-Text kopieren"
-            >Link kopieren</button>
-            <button
-                type="button"
-                class="review-share-action-btn review-share-download-btn"
-                data-share-action="download-image"
-                aria-label="Share Karte als PNG herunterladen"
-            >Review Karte herunterladen</button>
         `;
     }
 
@@ -3662,7 +3670,7 @@ document.addEventListener('DOMContentLoaded', () => {
             backgroundRenderPromise.then((imageBlob) => {
                 if (imageBlob && reviewShareModal.classList.contains('active')) {
                     const imageUrl = URL.createObjectURL(imageBlob);
-                    
+
                     // Save to cache
                     shareCardsCache[cacheKey] = {
                         imageBlob: imageBlob,
@@ -3772,7 +3780,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     title: `${shareSpotName} - Community Review`,
                                     text: buildCommunityReviewNativeShareText(shareSpotName, shareReviewerName)
                                 });
-                                applyShareButtonState(button, 'Bild heruntergeladen', 'is-success');
+                                applyShareButtonState(button, 'Story-Karte heruntergeladen', 'is-success');
                                 return;
                             }
                         }
