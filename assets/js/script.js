@@ -3651,7 +3651,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         title: `${shareSpotName} - Community Review`,
                                         text: buildCommunityReviewNativeShareText(shareSpotName, shareReviewerName)
                                     });
-                                    applyShareButtonState(button, 'Teilen geöffnet', 'is-success');
+                                    applyShareButtonState(button, 'Bild heruntergeladen', 'is-success');
                                     return;
                                 }
                             }
