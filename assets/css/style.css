@@ -4754,6 +4754,11 @@ body.modal-open {
         linear-gradient(150deg, rgba(255, 255, 255, 0.98), rgba(246, 249, 252, 0.98));
 }
 
+.review-share-modal-container.is-photo-focus-mode {
+    max-height: calc(100svh - 12px);
+    max-height: calc(100dvh - 12px);
+}
+
 .review-share-modal-content {
     padding: clamp(16px, 2.2vh, 30px);
     display: flex;
@@ -4797,13 +4802,22 @@ body.modal-open {
     display: none;
 }
 
+.review-share-modal-content.is-photo-focus-mode {
+    padding: 10px;
+}
+
 .review-share-modal-content.is-photo-focus-mode .review-share-modal-layout {
     flex: 1 1 auto;
 }
 
 .review-share-modal-content.is-photo-focus-mode .review-share-story-card {
-    min-height: clamp(520px, 78svh, 920px);
-    min-height: clamp(520px, 78dvh, 920px);
+    min-height: clamp(560px, 86svh, 1080px);
+    min-height: clamp(560px, 86dvh, 1080px);
+}
+
+.review-share-modal-content.is-photo-focus-mode .review-share-panel-toggle {
+    margin-top: 6px;
+    padding: 6px 10px;
 }
 
 .review-share-story-card {
@@ -5060,8 +5074,17 @@ body.dark .review-share-panel-toggle {
     }
 
     .review-share-modal-content.is-photo-focus-mode .review-share-story-card {
-        min-height: clamp(360px, 70svh, 700px);
-        min-height: clamp(360px, 70dvh, 700px);
+        min-height: clamp(440px, 82svh, 900px);
+        min-height: clamp(440px, 82dvh, 900px);
+    }
+
+    .review-share-modal-container.is-photo-focus-mode {
+        max-height: calc(100svh - 6px);
+        max-height: calc(100dvh - 6px);
+    }
+
+    .review-share-modal-content.is-photo-focus-mode {
+        padding: 8px;
     }
 
     .review-share-actions-row {

@@ -3542,6 +3542,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function openReviewShareStoryModal(payload) {
         const reviewShareModal = document.getElementById('review-share-modal');
         const reviewShareModalContent = document.getElementById('review-share-modal-content');
+        const reviewShareModalContainer = reviewShareModal
+            ? reviewShareModal.querySelector('.review-share-modal-container')
+            : null;
         if (!reviewShareModal || !reviewShareModalContent) return false;
 
         const shareSpotName = String(payload.shareSpotName || '').trim() || 'Spot';
@@ -3549,6 +3552,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const shareLink = String(payload.shareLink || '').trim();
 
         activeReviewShareTrigger = payload.triggerButton || null;
+        reviewShareModalContent.classList.remove('is-photo-focus-mode');
+        reviewShareModalContainer?.classList.remove('is-photo-focus-mode');
         reviewShareModalContent.innerHTML = renderReviewShareStoryModal(payload);
 
         const actionButtons = reviewShareModalContent.querySelectorAll('[data-share-action]');
@@ -3562,6 +3567,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (panelToggleBtn) {
             panelToggleBtn.addEventListener('click', () => {
                 const isPhotoFocusMode = reviewShareModalContent.classList.toggle('is-photo-focus-mode');
+                reviewShareModalContainer?.classList.toggle('is-photo-focus-mode', isPhotoFocusMode);
                 panelToggleBtn.setAttribute('aria-pressed', isPhotoFocusMode ? 'true' : 'false');
                 panelToggleBtn.textContent = isPhotoFocusMode
                     ? (panelToggleBtn.dataset.collapsedLabel || 'CHECKOUT THIS REVIEW')
@@ -4805,6 +4811,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const communityReviewModalContent = document.getElementById('community-review-modal-content');
     const reviewShareModal = document.getElementById('review-share-modal');
     const reviewShareModalContent = document.getElementById('review-share-modal-content');
+    const reviewShareModalContainer = reviewShareModal
+        ? reviewShareModal.querySelector('.review-share-modal-container')
+        : null;
     const commentFeedbackConfirm = commentFeedbackModal
         ? commentFeedbackModal.querySelector('.comment-feedback-confirm')
         : null;
@@ -4954,6 +4963,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!reviewShareModal || !reviewShareModalContent) return;
         reviewShareModal.classList.remove('active');
         reviewShareModal.setAttribute('aria-hidden', 'true');
+        reviewShareModalContent.classList.remove('is-photo-focus-mode');
+        reviewShareModalContainer?.classList.remove('is-photo-focus-mode');
         reviewShareModalContent.innerHTML = '';
         syncModalOpenState();
 
