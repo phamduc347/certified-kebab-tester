@@ -4912,6 +4912,57 @@ body.modal-open {
     transition: min-height 0.34s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.34s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.34s ease;
 }
 
+.review-share-story-rendered-preview {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    border-radius: inherit;
+    pointer-events: none;
+    transition: opacity 0.35s ease-in-out;
+    opacity: 0;
+}
+
+.review-share-story-rendered-preview.is-visible {
+    opacity: 1;
+}
+
+.review-share-story-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 15;
+    background: rgba(15, 23, 42, 0.72);
+    backdrop-filter: blur(16px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    border-radius: inherit;
+    transition: opacity 0.3s ease-in-out;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 500;
+    pointer-events: all;
+}
+
+.review-share-story-loading.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.review-share-story-loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: review-share-spin 0.8s linear infinite;
+}
+
+@keyframes review-share-spin {
+    to { transform: rotate(360deg); }
+}
+
 .review-share-copy-btn,
 .review-share-download-btn {
     width: 100%;
@@ -6205,4 +6256,8 @@ body.dark .tooltip-cluster-row:active {
     font-size: 24px !important;
     margin-top: 30px !important;
     letter-spacing: 2px !important;
+}
+
+.review-share-story-card.is-export .review-share-story-loading {
+    display: none !important;
 }

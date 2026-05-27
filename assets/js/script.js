@@ -3494,7 +3494,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             <div class="review-share-modal-layout">
                 <article class="review-share-story-card" aria-label="Story-Vorschau">
-                    <div class="review-share-story-rendered-preview" style="position: absolute; inset: 0; z-index: 10; display: none; border-radius: inherit; pointer-events: none;"></div>
+                    <div class="review-share-story-rendered-preview"></div>
+                    <div class="review-share-story-loading" aria-hidden="true">
+                        <div class="review-share-story-loading-spinner"></div>
+                        <span>Erstelle Share-Card...</span>
+                    </div>
                     <img src="${imageUrl}" crossorigin="anonymous" alt="Story Vorschau" class="review-share-story-image" loading="lazy" />
                     <div class="review-share-story-overlay"></div>
                     ${qrCodeUrl ? `
@@ -3530,6 +3534,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
+    const shareCardsCache = {};
     let activeReviewShareTrigger = null;
 
     function openReviewShareStoryModal(payload) {
@@ -3569,61 +3574,111 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1600);
         };
 
-        // Pre-render the 4K card in the background for display in modal and instant download
-        const backgroundRenderPromise = (async () => {
-            const storyCard = reviewShareModalContent.querySelector('.review-share-story-card');
-            if (!storyCard || typeof window.html2canvas !== 'function') return null;
+        const cacheKey = String(payload.shareLink || '').trim();
+        const cachedCard = shareCardsCache[cacheKey];
 
-            const exportCard = storyCard.cloneNode(true);
-            exportCard.classList.add('is-export');
-            exportCard.style.position = 'absolute';
-            exportCard.style.left = '-9999px';
-            exportCard.style.top = '0';
-            exportCard.style.width = '1080px';
-            exportCard.style.height = '1920px';
+        if (cachedCard) {
+            reviewShareModal._previewImageUrl = cachedCard.imageUrl;
+            reviewShareModal._cachedBlob = cachedCard.imageBlob;
+            reviewShareModal._currentRenderPromise = Promise.resolve(cachedCard.imageBlob);
 
-            document.body.appendChild(exportCard);
+            const previewContainer = reviewShareModalContent.querySelector('.review-share-story-rendered-preview');
+            const loadingOverlay = reviewShareModalContent.querySelector('.review-share-story-loading');
+            if (previewContainer) {
+                const img = document.createElement('img');
+                img.alt = 'Rendered Preview';
+                img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit;';
+                previewContainer.innerHTML = '';
+                previewContainer.appendChild(img);
 
-            let canvas;
-            try {
-                canvas = await window.html2canvas(exportCard, {
-                    backgroundColor: null,
-                    useCORS: true,
-                    width: 1080,
-                    height: 1920,
-                    scale: 2
-                });
-            } finally {
-                document.body.removeChild(exportCard);
-            }
+                const showImage = () => {
+                    if (loadingOverlay) {
+                        loadingOverlay.classList.add('is-hidden');
+                    }
+                    previewContainer.classList.add('is-visible');
+                };
 
-            const imageBlob = await new Promise((resolve) => {
-                canvas.toBlob(resolve, 'image/png');
-            });
-
-            return imageBlob;
-        })();
-
-        reviewShareModal._currentRenderPromise = backgroundRenderPromise;
-
-        // Apply pre-rendered preview as soon as it's ready
-        backgroundRenderPromise.then((imageBlob) => {
-            if (imageBlob && reviewShareModal.classList.contains('active')) {
-                const imageUrl = URL.createObjectURL(imageBlob);
-                reviewShareModal._previewImageUrl = imageUrl;
-                reviewShareModal._cachedBlob = imageBlob;
-
-                const previewContainer = reviewShareModalContent.querySelector('.review-share-story-rendered-preview');
-                if (previewContainer) {
-                    previewContainer.innerHTML = `
-                        <img src="${imageUrl}" alt="Rendered Preview" style="width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit;" />
-                    `;
-                    previewContainer.style.display = 'block';
+                img.onload = showImage;
+                img.src = cachedCard.imageUrl;
+                if (img.complete) {
+                    showImage();
                 }
+                // Instantly show cached image to avoid any loading flicker or freeze
+                showImage();
             }
-        }).catch((err) => {
-            console.error('Pre-rendering preview failed:', err);
-        });
+        } else {
+            // Pre-render the 4K card in the background for display in modal and instant download
+            const backgroundRenderPromise = (async () => {
+                const storyCard = reviewShareModalContent.querySelector('.review-share-story-card');
+                if (!storyCard || typeof window.html2canvas !== 'function') return null;
+
+                const exportCard = storyCard.cloneNode(true);
+                exportCard.classList.add('is-export');
+                exportCard.style.position = 'absolute';
+                exportCard.style.left = '-9999px';
+                exportCard.style.top = '0';
+                exportCard.style.width = '1080px';
+                exportCard.style.height = '1920px';
+
+                document.body.appendChild(exportCard);
+
+                let canvas;
+                try {
+                    canvas = await window.html2canvas(exportCard, {
+                        backgroundColor: null,
+                        useCORS: true,
+                        width: 1080,
+                        height: 1920,
+                        scale: 2
+                    });
+                } finally {
+                    document.body.removeChild(exportCard);
+                }
+
+                const imageBlob = await new Promise((resolve) => {
+                    canvas.toBlob(resolve, 'image/png');
+                });
+
+                return imageBlob;
+            })();
+
+            reviewShareModal._currentRenderPromise = backgroundRenderPromise;
+
+            // Apply pre-rendered preview as soon as it's ready
+            backgroundRenderPromise.then((imageBlob) => {
+                if (imageBlob && reviewShareModal.classList.contains('active')) {
+                    const imageUrl = URL.createObjectURL(imageBlob);
+                    
+                    // Save to cache
+                    shareCardsCache[cacheKey] = {
+                        imageBlob: imageBlob,
+                        imageUrl: imageUrl
+                    };
+
+                    reviewShareModal._previewImageUrl = imageUrl;
+                    reviewShareModal._cachedBlob = imageBlob;
+
+                    const previewContainer = reviewShareModalContent.querySelector('.review-share-story-rendered-preview');
+                    if (previewContainer) {
+                        const img = document.createElement('img');
+                        img.alt = 'Rendered Preview';
+                        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit;';
+                        img.onload = () => {
+                            const loadingOverlay = reviewShareModalContent.querySelector('.review-share-story-loading');
+                            if (loadingOverlay) {
+                                loadingOverlay.classList.add('is-hidden');
+                            }
+                            previewContainer.classList.add('is-visible');
+                        };
+                        img.src = imageUrl;
+                        previewContainer.innerHTML = '';
+                        previewContainer.appendChild(img);
+                    }
+                }
+            }).catch((err) => {
+                console.error('Pre-rendering preview failed:', err);
+            });
+        }
 
         actionButtons.forEach((button) => {
             button.addEventListener('click', async () => {
@@ -5107,7 +5162,10 @@ document.addEventListener('DOMContentLoaded', () => {
         syncModalOpenState();
 
         if (reviewShareModal._previewImageUrl) {
-            URL.revokeObjectURL(reviewShareModal._previewImageUrl);
+            const isCached = Object.values(shareCardsCache).some(card => card.imageUrl === reviewShareModal._previewImageUrl);
+            if (!isCached) {
+                URL.revokeObjectURL(reviewShareModal._previewImageUrl);
+            }
             reviewShareModal._previewImageUrl = null;
         }
         reviewShareModal._cachedBlob = null;
