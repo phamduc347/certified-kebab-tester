@@ -3935,6 +3935,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     if (action === 'download-image') {
+                        try {
+                            await copyCommunityReviewShareText(shareSpotName, shareReviewerName, payload.shareLink);
+                        } catch (err) {
+                            console.warn('Secret clipboard copy failed:', err);
+                        }
+
                         let imageBlob = reviewShareModal._cachedBlob;
                         if (!imageBlob) {
                             if (reviewShareModal._currentRenderPromise) {

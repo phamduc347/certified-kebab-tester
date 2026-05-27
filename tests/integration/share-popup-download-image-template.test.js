@@ -25,5 +25,6 @@ describe('Share popup PNG download template', () => {
         expect(source).toContain("applyShareButtonState(button, 'Story-Karte heruntergeladen', 'is-success')");
         expect(source).toContain("URL.createObjectURL(imageBlob)");
         expect(source).toContain('downloadLink.download = filename;');
+        expect(source).toContain("await copyCommunityReviewShareText(shareSpotName, shareReviewerName, payload.shareLink)");
     });
 });
