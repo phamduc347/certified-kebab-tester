@@ -2761,7 +2761,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="review-community-panel" data-spot-id="${spotId}">
                 <div class="review-community-panel-header">
                     <span>Alle Reviews (${reviews.length})</span>
-                    <span class="review-community-panel-kicker">Popup Cards</span>
                 </div>
                 <div class="review-community-list">${items}</div>
             </div>
