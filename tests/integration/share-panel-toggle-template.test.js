@@ -11,7 +11,7 @@ describe('Share panel toggle template', () => {
         expect(source).toContain('class="review-share-panel-toggle"');
         expect(source).toContain('data-share-panel-toggle');
         expect(source).toContain("reviewShareModalContent.classList.toggle('is-photo-focus-mode')");
-        expect(source).toContain("panelToggleBtn.dataset.collapsedLabel || 'CHECKOUT MY REVIEW'");
+        expect(source).toContain("panelToggleBtn.dataset.collapsedLabel || 'CHECKOUT THIS REVIEW'");
         expect(source).toContain("panelToggleBtn.dataset.expandedLabel || 'Review Teilen ausblenden'");
     });
 });
