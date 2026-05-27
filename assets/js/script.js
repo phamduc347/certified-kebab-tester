@@ -2807,6 +2807,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const scorePct = avg * 10;
             
             return {
+                id: review.id,
                 reviewer,
                 date: dateStr,
                 score: scorePct
@@ -2937,7 +2938,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return `
                 <g class="trend-dot-group">
                     <circle cx="${p.x}" cy="${p.y}" r="5" class="trend-dot" style="fill: ${dotColor};" />
-                    <circle cx="${p.x}" cy="${p.y}" r="9" class="trend-dot-hover-area" />
+                    <circle cx="${p.x}" cy="${p.y}" r="9" class="trend-dot-hover-area" data-review-id="${escapeHtml(String(p.dp.id || ''))}" data-spot-id="${Number(spotId)}" />
                     <g class="trend-tooltip" style="display: none;">
                         <rect x="${p.x - 70}" y="${p.y - 65}" width="140" height="50" rx="6" class="trend-tooltip-rect" />
                         <text x="${p.x}" y="${p.y - 48}" class="trend-tooltip-text-reviewer" font-size="10" font-weight="600" text-anchor="middle">${p.dp.reviewer}</text>
@@ -2991,6 +2992,14 @@ document.addEventListener('DOMContentLoaded', () => {
             button.addEventListener('click', (event) => {
                 event.stopPropagation();
                 openCommunityReviewPopup(button.dataset.spotId, button.dataset.reviewId, button);
+            });
+        });
+
+        const trendDots = card.querySelectorAll('.trend-dot-hover-area');
+        trendDots.forEach((dot) => {
+            dot.addEventListener('click', (event) => {
+                event.stopPropagation();
+                openCommunityReviewPopup(dot.dataset.spotId, dot.dataset.reviewId, dot);
             });
         });
 
