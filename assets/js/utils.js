@@ -184,6 +184,7 @@ export function computeSpotFromBaseAndCommunity(baseSpot, reviews) {
         const criteria = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
         const merged = { ...baseSpot };
         const totalCount = 1 + reviews.length;
+        const latestCommunityReview = getLatestCommunityReview(reviews);
 
         criteria.forEach((key) => {
             const baseVal = Number(baseSpot[key]) || 0;
@@ -195,12 +196,19 @@ export function computeSpotFromBaseAndCommunity(baseSpot, reviews) {
         merged.score = formatPercentNumber(avgAcrossCriteria * 10);
         merged.besuche = totalCount;
 
-        const priceValue = parseEuroNumber(merged.preis);
+        let priceValue = parseEuroNumber(baseSpot.preis);
+        if (latestCommunityReview) {
+            const latestReviewPriceValue = parseEuroNumber(latestCommunityReview.preis);
+            if (Number.isFinite(latestReviewPriceValue) && latestReviewPriceValue > 0) {
+                merged.preis = formatEuroNumber(latestReviewPriceValue);
+                priceValue = latestReviewPriceValue;
+            }
+        }
+
         merged.plIndex = priceValue > 0
             ? formatPercentNumber((parsePercentNumber(merged.score) / priceValue))
             : '-';
 
-        const latestCommunityReview = getLatestCommunityReview(reviews);
         if (latestCommunityReview) {
             const latestCommunityTs = getCommunityReviewTimestamp(latestCommunityReview);
             const baseDateTs = parseDisplayDateToTimestamp(baseSpot.date);
@@ -251,10 +259,10 @@ export function computeCommunityOnlySpot(reviews) {
         const avgAcrossCriteria = criteria.reduce((sum, key) => sum + (Number(generated[key]) || 0), 0) / criteria.length;
         generated.score = formatPercentNumber(avgAcrossCriteria * 10);
 
-        const avgPrice = reviews.reduce((sum, review) => sum + parseEuroNumber(review.preis), 0) / reviews.length;
-        if (Number.isFinite(avgPrice) && avgPrice > 0) {
-            generated.preis = formatEuroNumber(avgPrice);
-            generated.plIndex = formatPercentNumber(parsePercentNumber(generated.score) / avgPrice);
+        const latestReviewPriceValue = parseEuroNumber(latestReview.preis);
+        if (Number.isFinite(latestReviewPriceValue) && latestReviewPriceValue > 0) {
+            generated.preis = formatEuroNumber(latestReviewPriceValue);
+            generated.plIndex = formatPercentNumber(parsePercentNumber(generated.score) / latestReviewPriceValue);
         }
 
         return generated;

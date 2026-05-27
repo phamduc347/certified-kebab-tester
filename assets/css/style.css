@@ -4883,6 +4883,28 @@ body.modal-open {
     color: rgba(255, 255, 255, 0.9);
 }
 
+.review-share-story-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.review-share-story-pill {
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: 0.68rem;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.96);
+    background: rgba(15, 23, 42, 0.48);
+    border: 1px solid rgba(255, 255, 255, 0.26);
+}
+
+.review-share-story-pill--accent {
+    background: rgba(255, 237, 213, 0.24);
+    border-color: rgba(254, 215, 170, 0.75);
+}
+
 .review-share-story-score {
     font-size: 0.9rem;
     font-weight: 800;
@@ -4894,6 +4916,15 @@ body.modal-open {
     letter-spacing: 0.7px;
     text-transform: none;
     color: rgba(255, 255, 255, 0.84);
+}
+
+.review-share-story-cta {
+    margin-top: 4px;
+    font-size: 0.71rem;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.62);
 }
 
 .review-share-actions {

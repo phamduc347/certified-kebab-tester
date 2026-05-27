@@ -2470,10 +2470,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const submittedAt = formatCommentDate(review.created_at);
         const rawReviewText = String(review.comment_text || '').trim();
         const reviewText = escapeHtml(rawReviewText);
-        const dish = escapeHtml(review.dish || '-');
-        const preis = escapeHtml(review.preis || '-');
-        const preisWithUnit = (preis === '-' || preis.includes('€')) ? preis : `${preis} €`;
-        const verzehrort = escapeHtml(review.verzehrort || '-');
+        const rawDish = String(review.dish || '').trim() || '-';
+        const rawPreis = String(review.preis || '').trim() || '-';
+        const rawPreisWithUnit = (rawPreis === '-' || rawPreis.includes('€')) ? rawPreis : `${rawPreis} €`;
+        const rawVerzehrort = String(review.verzehrort || '').trim() || '-';
+        const spotEntry = kebabData.find((spot) => Number(spot && spot.id) === Number(spotId)) || baseSpotById.get(Number(spotId)) || null;
+        const rawCity = String(review.city || (spotEntry && spotEntry.city) || '').trim() || '-';
+        const dish = escapeHtml(rawDish);
+        const preisWithUnit = escapeHtml(rawPreisWithUnit);
+        const verzehrort = escapeHtml(rawVerzehrort);
         const imageUrl = String(review.image_url || '').trim();
         const headerDate = visitDate || submittedAt || '-';
         const criteriaValues = {
@@ -2523,6 +2528,10 @@ document.addEventListener('DOMContentLoaded', () => {
             reviewLiked,
             rawSpotName,
             rawReviewerName,
+            rawDish,
+            rawPreisWithUnit,
+            rawVerzehrort,
+            rawCity,
             reviewLikeLabel,
             previewText: previewText || 'Kein Kommentar angegeben.',
             shareSpotId: Number(spotId),
@@ -2594,6 +2603,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                 data-share-date="${escapeHtml(data.headerDate)}"
                                 data-share-image-url="${sanitizeUrl(data.imageUrl)}"
                                 data-share-comment="${escapeHtml(data.rawReviewText)}"
+                                data-share-dish="${escapeHtml(data.rawDish)}"
+                                data-share-price="${escapeHtml(data.rawPreisWithUnit)}"
+                                data-share-consumption-type="${escapeHtml(data.rawVerzehrort)}"
+                                data-share-city="${escapeHtml(data.rawCity)}"
                                 aria-label="Community-Review-Link kopieren"
                             ><span class="review-share-icon" aria-hidden="true">&#128279;</span><span class="review-share-label">Review teilen</span></button>
                         </div>
@@ -2633,6 +2646,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const shareDate = String(button.dataset.shareDate || '').trim() || '-';
                 const shareImageUrl = String(button.dataset.shareImageUrl || '').trim();
                 const shareComment = String(button.dataset.shareComment || '').trim();
+                const shareDish = String(button.dataset.shareDish || '').trim() || '-';
+                const sharePrice = String(button.dataset.sharePrice || '').trim() || '-';
+                const shareConsumptionType = String(button.dataset.shareConsumptionType || '').trim() || '-';
+                const shareCity = String(button.dataset.shareCity || '').trim() || '-';
 
                 if (!Number.isFinite(shareSpotId) || !shareReviewId) {
                     setShareButtonState(button, 'Fehler', 'is-error');
@@ -2647,6 +2664,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     shareDate,
                     shareImageUrl,
                     shareComment,
+                    shareDish,
+                    sharePrice,
+                    shareConsumptionType,
+                    shareCity,
                     shareLink,
                     triggerButton: button
                 });
@@ -3447,14 +3468,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const score = escapeHtml(payload.shareScore || '-');
         const scoreStars = renderStars(score);
         const date = escapeHtml(payload.shareDate || '-');
+        const dish = escapeHtml(payload.shareDish || '-');
+        const price = escapeHtml(payload.sharePrice || '-');
+        const consumptionType = escapeHtml(payload.shareConsumptionType || '-');
+        const city = escapeHtml(payload.shareCity || '-');
         const imageUrl = sanitizeUrl(payload.shareImageUrl || '');
         const shareLink = String(payload.shareLink || '').trim();
+        const detailBadges = [];
+
+        if (dish !== '-') detailBadges.push(`<span class="review-share-story-pill review-share-story-pill--accent">${dish}</span>`);
+        if (price !== '-') detailBadges.push(`<span class="review-share-story-pill">Preis: ${price}</span>`);
+        if (consumptionType !== '-') detailBadges.push(`<span class="review-share-story-pill">${consumptionType}</span>`);
+        if (city !== '-') detailBadges.push(`<span class="review-share-story-pill">Ort: ${city}</span>`);
+
+        const detailBadgesMarkup = detailBadges.length > 0
+            ? `<div class="review-share-story-badges">${detailBadges.join('')}</div>`
+            : '';
         const qrCodeUrl = shareLink
             ? `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=0&data=${encodeURIComponent(shareLink)}`
             : '';
         const previewRaw = String(payload.shareComment || '').replace(/\s+/g, ' ').trim();
         const previewText = previewRaw
-            ? escapeHtml(previewRaw.length > 88 ? `${previewRaw.slice(0, 88).trim()}...` : previewRaw)
+            ? escapeHtml(previewRaw.length > 180 ? `${previewRaw.slice(0, 180).trim()}...` : previewRaw)
             : 'Kein Kommentar angegeben.';
 
         return `
@@ -3473,8 +3508,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span>von ${reviewerName}</span>
                             <span>· ${date}</span>
                         </div>
+                        ${detailBadgesMarkup}
                         <span class="review-share-story-score">${scoreStars}</span>
                         <span class="review-share-story-footer">"${previewText}"</span>
+                        <span class="review-share-story-cta">Mehr Reviews auf certifiedkebabtester.de</span>
                     </div>
                 </article>
             </div>
@@ -3489,7 +3526,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="review-share-actions-shell">
                 <aside class="review-share-actions">
                     <h3>Review Teilen</h3>
-                    <p>Screenshotte die Story-Karte links für Instagram/TikTok. Für den Link kannst du die Buttons unten nutzen.</p>
+                    <p>Screenshotte die Story-Karte für Instagram oder TikTok. Für den Link kannst du die Buttons unten nutzen.</p>
                     <div class="review-share-actions-row">
                         <button type="button" class="review-share-action-btn" data-share-action="copy-link">Link kopieren</button>
                         <button type="button" class="review-share-action-btn" data-share-action="copy-text">Share-Text kopieren</button>
