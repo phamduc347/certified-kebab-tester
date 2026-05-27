@@ -16,8 +16,8 @@ describe('Share link clipboard template', () => {
         expect(templateBody).toContain('Checkout Kebab-Review for');
         expect(templateBody).toContain('by ${normalizedReviewerName}: ${shareLink}');
 
-        expect(source).toContain('data-share-spot-name="${escapeHtml(rawSpotName)}"');
-        expect(source).toContain('data-share-reviewer-name="${escapeHtml(rawReviewerName)}"');
+        expect(source).toContain('data-share-spot-name="${escapeHtml(data.rawSpotName)}"');
+        expect(source).toContain('data-share-reviewer-name="${escapeHtml(data.rawReviewerName)}"');
         expect(source).toContain('const shareText = buildCommunityReviewShareText(shareSpotName, shareReviewerName, shareLink);');
         expect(source).toContain('await copyTextToClipboard(shareText);');
     });

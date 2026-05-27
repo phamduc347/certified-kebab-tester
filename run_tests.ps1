@@ -29,8 +29,16 @@ try {
     node helpers/sync-utils.cjs
     Write-Host ""
 
-    # Force stable output across terminals/CI by disabling dynamic color/TTY output.
-    npm test
+    # PowerShell-compatible test execution (avoids Unix env assignment in package.json scripts).
+    $previousNodeOptions = $env:NODE_OPTIONS
+    $env:NODE_OPTIONS = '--experimental-require-module'
+    node node_modules/vitest/vitest.mjs run --reporter=verbose --no-color --pool=forks
+    if ($null -eq $previousNodeOptions) {
+        Remove-Item Env:NODE_OPTIONS -ErrorAction SilentlyContinue
+    }
+    else {
+        $env:NODE_OPTIONS = $previousNodeOptions
+    }
 }
 finally {
     Pop-Location

@@ -2438,26 +2438,10 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    function renderCommunityReviewsPanelForSpot(spotId) {
+    function getSortedCommunityReviewsForSpot(spotId) {
         const reviews = approvedCommunityReviewsBySpotId.get(Number(spotId)) || [];
 
-        if (reviews.length === 0) {
-            return `
-                <div class="review-community-panel collapsible-panel" data-spot-id="${spotId}">
-                    <div class="review-community-panel-header collapsible-trigger">
-                        <span>Alle Reviews (0)</span>
-                        <span class="expand-icon">▼</span>
-                    </div>
-                    <div class="collapsible-content">
-                        <div class="collapsible-inner">
-                            <p class="review-community-empty">Noch keine weiteren bestätigten Reviews.</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        const sortedReviews = [...reviews].sort((a, b) => {
+        return [...reviews].sort((a, b) => {
             const getTimestamp = (review) => {
                 const visitTs = review && review.visit_date ? new Date(review.visit_date).getTime() : Number.NaN;
                 if (!Number.isNaN(visitTs)) return visitTs;
@@ -2470,137 +2454,156 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return getTimestamp(b) - getTimestamp(a);
         });
+    }
 
-        const items = sortedReviews.map((review) => {
-            const reviewer = escapeHtml(review.reviewer_name || 'Anonym');
-            const visitDate = formatVisitDate(review.visit_date);
-            const submittedAt = formatCommentDate(review.created_at);
-            const reviewText = escapeHtml(review.comment_text || '');
-            const dish = escapeHtml(review.dish || '-');
-            const preis = escapeHtml(review.preis || '-');
-            const preisWithUnit = (preis === '-' || preis.includes('€')) ? preis : `${preis} €`;
-            const verzehrort = escapeHtml(review.verzehrort || '-');
-            const imageUrl = String(review.image_url || '').trim();
-            const headerDate = visitDate || submittedAt || '-';
-            const criteriaValues = {
-                fleisch: Number(review.fleisch) || 0,
-                gemuese: Number(review.gemuese) || 0,
-                sosse: Number(review.sosse) || 0,
-                brot: Number(review.brot) || 0,
-                balance: Number(review.balance) || 0,
-                auswahl: Number(review.auswahl) || 0,
-                portion: Number(review.portion) || 0,
-                hygiene: Number(review.hygiene) || 0,
-                service: Number(review.service) || 0
-            };
-            const averageScore = (
-                criteriaValues.fleisch +
-                criteriaValues.gemuese +
-                criteriaValues.sosse +
-                criteriaValues.brot +
-                criteriaValues.balance +
-                criteriaValues.auswahl +
-                criteriaValues.portion +
-                criteriaValues.hygiene +
-                criteriaValues.service
-            ) / 9;
-            const scoreDisplay = `${(averageScore * 10).toFixed(2).replace('.', ',')}%`;
-            const reviewLikeTargetId = buildReviewLikeTargetId(review);
-            const reviewLikeCount = reviewLikesBySpot.get(reviewLikeTargetId) || 0;
-            const reviewLiked = reviewLikedByClient.has(reviewLikeTargetId);
-            const rawSpotName = String(review.spot_name || 'Spot').trim() || 'Spot';
-            const rawReviewerName = String(review.reviewer_name || 'Anonym').trim() || 'Anonym';
-            const reviewLikeLabel = escapeHtml(`${rawSpotName} reviewed by ${rawReviewerName}`);
+    function getCommunityReviewPresentation(review, spotId) {
+        const reviewer = escapeHtml(review.reviewer_name || 'Anonym');
+        const visitDate = formatVisitDate(review.visit_date);
+        const submittedAt = formatCommentDate(review.created_at);
+        const reviewText = escapeHtml(review.comment_text || '');
+        const dish = escapeHtml(review.dish || '-');
+        const preis = escapeHtml(review.preis || '-');
+        const preisWithUnit = (preis === '-' || preis.includes('€')) ? preis : `${preis} €`;
+        const verzehrort = escapeHtml(review.verzehrort || '-');
+        const imageUrl = String(review.image_url || '').trim();
+        const headerDate = visitDate || submittedAt || '-';
+        const criteriaValues = {
+            fleisch: Number(review.fleisch) || 0,
+            gemuese: Number(review.gemuese) || 0,
+            sosse: Number(review.sosse) || 0,
+            brot: Number(review.brot) || 0,
+            balance: Number(review.balance) || 0,
+            auswahl: Number(review.auswahl) || 0,
+            portion: Number(review.portion) || 0,
+            hygiene: Number(review.hygiene) || 0,
+            service: Number(review.service) || 0
+        };
+        const averageScore = (
+            criteriaValues.fleisch +
+            criteriaValues.gemuese +
+            criteriaValues.sosse +
+            criteriaValues.brot +
+            criteriaValues.balance +
+            criteriaValues.auswahl +
+            criteriaValues.portion +
+            criteriaValues.hygiene +
+            criteriaValues.service
+        ) / 9;
+        const scoreDisplay = `${(averageScore * 10).toFixed(2).replace('.', ',')}%`;
+        const reviewLikeTargetId = buildReviewLikeTargetId(review);
+        const reviewLikeCount = reviewLikesBySpot.get(reviewLikeTargetId) || 0;
+        const reviewLiked = reviewLikedByClient.has(reviewLikeTargetId);
+        const rawSpotName = String(review.spot_name || 'Spot').trim() || 'Spot';
+        const rawReviewerName = String(review.reviewer_name || 'Anonym').trim() || 'Anonym';
+        const reviewLikeLabel = escapeHtml(`${rawSpotName} reviewed by ${rawReviewerName}`);
+        const previewText = reviewText.length > 140 ? `${reviewText.slice(0, 140).trim()}…` : reviewText;
 
-            return `
-                <div class="review-community-item collapsible-panel" data-review-id="${review.id}">
-                    <div class="review-community-item-header collapsible-trigger">
-                        <span class="review-community-pattern-line review-community-pattern-line--summary" aria-label="Review Kopfzeile">
-                            ${renderStars(scoreDisplay)}
-                            <span class="review-community-pattern-score">Score: ${scoreDisplay}</span>
-                            <span class="review-community-pattern-author">Review von ${reviewer}</span>
-                            <span class="review-community-pattern-date">· ${headerDate}</span>
-                        </span>
-                        <span class="expand-icon">▼</span>
+        return {
+            reviewer,
+            reviewText,
+            dish,
+            preisWithUnit,
+            verzehrort,
+            imageUrl,
+            headerDate,
+            criteriaValues,
+            scoreDisplay,
+            reviewLikeTargetId,
+            reviewLikeCount,
+            reviewLiked,
+            rawSpotName,
+            rawReviewerName,
+            reviewLikeLabel,
+            previewText: previewText || 'Kein Kommentar angegeben.',
+            shareSpotId: Number(spotId),
+            shareReviewId: escapeHtml(String(review.id || ''))
+        };
+    }
+
+    function renderCommunityReviewModalBody(review, spotId) {
+        const data = getCommunityReviewPresentation(review, spotId);
+
+        return `
+            <article class="review-community-modal-card" data-review-id="${data.shareReviewId}">
+                <div class="review-community-modal-hero">
+                    <div class="review-community-modal-copy">
+                        <span class="review-community-modal-eyebrow">Community Review</span>
+                        <h2>${escapeHtml(data.rawSpotName)}</h2>
+                        <div class="review-community-pattern-line review-community-pattern-line--summary" aria-label="Review Kopfzeile">
+                            ${renderStars(data.scoreDisplay)}
+                            <span class="review-community-pattern-score">Score: ${data.scoreDisplay}</span>
+                            <span class="review-community-pattern-author">Review von ${data.reviewer}</span>
+                            <span class="review-community-pattern-date">· ${data.headerDate}</span>
+                        </div>
                     </div>
-                    <div class="collapsible-content">
-                        <div class="collapsible-inner">
-                            <div class="review-community-item-body">
-                                <div class="spot-top-content review-community-top-content">
-                                    <div class="spot-image-container review-community-image-container">
-                                        <img src="${sanitizeUrl(imageUrl)}" alt="Review Bild" class="spot-image review-community-image" loading="lazy" />
-                                    </div>
-                                    <div class="spot-content">
-                                        <div class="spot-categories">
-                                            ${renderCriteriaBar('Fleisch', criteriaValues.fleisch, { showAverageSymbol: false })}
-                                            ${renderCriteriaBar('Gemüse', criteriaValues.gemuese, { showAverageSymbol: false })}
-                                            ${renderCriteriaBar('Soße', criteriaValues.sosse, { showAverageSymbol: false })}
-                                            ${renderCriteriaBar('Brot', criteriaValues.brot, { showAverageSymbol: false })}
-                                            ${renderCriteriaBar('Balance', criteriaValues.balance, { showAverageSymbol: false })}
-                                            ${renderCriteriaBar('Auswahl', criteriaValues.auswahl, { showAverageSymbol: false })}
-                                            ${renderCriteriaBar('Portion', criteriaValues.portion, { showAverageSymbol: false })}
-                                            ${renderCriteriaBar('Hygiene', criteriaValues.hygiene, { showAverageSymbol: false })}
-                                            ${renderCriteriaBar('Service', criteriaValues.service, { showAverageSymbol: false })}
-                                        </div>
-                                        <div class="spot-details">
-                                            <span class="badge">${dish}</span>
-                                            <span class="badge">Preis: ${preisWithUnit}</span>
-                                            <span class="badge">${verzehrort}</span>
-                                        </div>
-                                        <div class="spot-comment">"${reviewText || 'Kein Kommentar angegeben.'}"</div>
-                                        <div class="review-feedback-row review-feedback-row--inline">
-                                            <button
-                                                type="button"
-                                                class="review-helpful-btn ${reviewLiked ? 'is-liked' : ''}"
-                                                data-spot-id="${reviewLikeTargetId}"
-                                                data-like-label="${reviewLikeLabel}"
-                                                data-liked="${reviewLiked ? 'true' : 'false'}"
-                                                ${!supabaseClient ? 'disabled' : ''}
-                                                aria-label="Review als hilfreich markieren"
-                                            >
-                                                <span class="review-helpful-icon" aria-hidden="true">&#9829;</span>
-                                                <span class="review-helpful-label">Gefällt mir</span>
-                                                <span class="review-helpful-count">${reviewLikeCount}</span>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                class="review-share-btn"
-                                                data-default-label="Review teilen"
-                                                data-share-spot-id="${Number(spotId)}"
-                                                data-share-review-id="${escapeHtml(String(review.id || ''))}"
-                                                data-share-spot-name="${escapeHtml(rawSpotName)}"
-                                                data-share-reviewer-name="${escapeHtml(rawReviewerName)}"
-                                                aria-label="Community-Review-Link kopieren"
-                                            ><span class="review-share-icon" aria-hidden="true">&#128279;</span><span class="review-share-label">Review teilen</span></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="review-community-modal-meta">
+                        <span class="badge">${data.dish}</span>
+                        <span class="badge">Preis: ${data.preisWithUnit}</span>
+                        <span class="badge">${data.verzehrort}</span>
+                    </div>
+                </div>
+                <div class="review-community-modal-layout">
+                    <div class="spot-image-container review-community-image-container review-community-modal-image-container">
+                        <img src="${sanitizeUrl(data.imageUrl)}" alt="Review Bild" class="spot-image review-community-image" loading="lazy" />
+                    </div>
+                    <div class="review-community-modal-body">
+                        <div class="spot-categories review-community-modal-categories">
+                            ${renderCriteriaBar('Fleisch', data.criteriaValues.fleisch, { showAverageSymbol: false })}
+                            ${renderCriteriaBar('Gemüse', data.criteriaValues.gemuese, { showAverageSymbol: false })}
+                            ${renderCriteriaBar('Soße', data.criteriaValues.sosse, { showAverageSymbol: false })}
+                            ${renderCriteriaBar('Brot', data.criteriaValues.brot, { showAverageSymbol: false })}
+                            ${renderCriteriaBar('Balance', data.criteriaValues.balance, { showAverageSymbol: false })}
+                            ${renderCriteriaBar('Auswahl', data.criteriaValues.auswahl, { showAverageSymbol: false })}
+                            ${renderCriteriaBar('Portion', data.criteriaValues.portion, { showAverageSymbol: false })}
+                            ${renderCriteriaBar('Hygiene', data.criteriaValues.hygiene, { showAverageSymbol: false })}
+                            ${renderCriteriaBar('Service', data.criteriaValues.service, { showAverageSymbol: false })}
+                        </div>
+                        <div class="spot-comment review-community-modal-comment">"${data.reviewText || 'Kein Kommentar angegeben.'}"</div>
+                        <div class="review-feedback-row review-feedback-row--inline">
+                            <button
+                                type="button"
+                                class="review-helpful-btn ${data.reviewLiked ? 'is-liked' : ''}"
+                                data-spot-id="${data.reviewLikeTargetId}"
+                                data-like-label="${data.reviewLikeLabel}"
+                                data-liked="${data.reviewLiked ? 'true' : 'false'}"
+                                ${!supabaseClient ? 'disabled' : ''}
+                                aria-label="Review als hilfreich markieren"
+                            >
+                                <span class="review-helpful-icon" aria-hidden="true">&#9829;</span>
+                                <span class="review-helpful-label">Gefällt mir</span>
+                                <span class="review-helpful-count">${data.reviewLikeCount}</span>
+                            </button>
+                            <button
+                                type="button"
+                                class="review-share-btn"
+                                data-default-label="Review teilen"
+                                data-share-spot-id="${data.shareSpotId}"
+                                data-share-review-id="${data.shareReviewId}"
+                                data-share-spot-name="${escapeHtml(data.rawSpotName)}"
+                                data-share-reviewer-name="${escapeHtml(data.rawReviewerName)}"
+                                aria-label="Community-Review-Link kopieren"
+                            ><span class="review-share-icon" aria-hidden="true">&#128279;</span><span class="review-share-label">Review teilen</span></button>
                         </div>
                     </div>
                 </div>
-            `;
-        }).join('');
-
-        return `
-            <div class="review-community-panel collapsible-panel" data-spot-id="${spotId}">
-                <div class="review-community-panel-header collapsible-trigger">
-                    <span>Alle Reviews (${reviews.length})</span>
-                    <span class="expand-icon">▼</span>
-                </div>
-                <div class="collapsible-content">
-                    <div class="collapsible-inner">
-                        <div class="review-community-list">${items}</div>
-                    </div>
-                </div>
-            </div>
+            </article>
         `;
     }
 
-    function attachReviewCardHandlers(card) {
-        const reviewHelpfulButtons = card.querySelectorAll('.review-helpful-btn');
-        const reviewShareButtons = card.querySelectorAll('.review-share-btn');
-        const communityPanel = card.querySelector('.review-community-panel');
+    let activeCommunityReviewTrigger = null;
+
+    function clearActiveCommunityReviewPreview() {
+        document.querySelectorAll('.review-community-preview-btn.is-active').forEach((button) => {
+            button.classList.remove('is-active');
+            button.setAttribute('aria-pressed', 'false');
+        });
+    }
+
+    function bindReviewActionButtons(container) {
+        if (!container) return;
+
+        const reviewHelpfulButtons = container.querySelectorAll('.review-helpful-btn');
+        const reviewShareButtons = container.querySelectorAll('.review-share-btn');
 
         reviewHelpfulButtons.forEach((button) => {
             button.addEventListener('click', handleReviewHelpfulClick);
@@ -2629,56 +2632,114 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
+    }
+
+    function openCommunityReviewPopup(spotId, reviewId, triggerElement = null) {
+        const communityReviewModal = document.getElementById('community-review-modal');
+        const communityReviewModalContent = document.getElementById('community-review-modal-content');
+        if (!communityReviewModal || !communityReviewModalContent) return false;
+
+        const reviews = getSortedCommunityReviewsForSpot(spotId);
+        const selectedReview = reviews.find((review) => String(review && review.id) === String(reviewId));
+        if (!selectedReview) return false;
+
+        clearActiveCommunityReviewPreview();
+
+        const resolvedTrigger = triggerElement || document.querySelector(`#spot-${spotId} .review-community-preview-btn[data-review-id="${String(reviewId)}"]`);
+        if (resolvedTrigger) {
+            resolvedTrigger.classList.add('is-active');
+            resolvedTrigger.setAttribute('aria-pressed', 'true');
+        }
+        activeCommunityReviewTrigger = resolvedTrigger || null;
+
+        communityReviewModalContent.innerHTML = renderCommunityReviewModalBody(selectedReview, spotId);
+        bindReviewActionButtons(communityReviewModalContent);
+        communityReviewModal.classList.add('active');
+        communityReviewModal.setAttribute('aria-hidden', 'false');
+        syncModalOpenState();
+
+        const closeButton = communityReviewModal.querySelector('.modal-close');
+        closeButton?.focus();
+        return true;
+    }
+
+    function renderCommunityReviewsPanelForSpot(spotId) {
+        const reviews = getSortedCommunityReviewsForSpot(spotId);
+
+        if (reviews.length === 0) {
+            return `
+                <div class="review-community-panel" data-spot-id="${spotId}">
+                    <div class="review-community-panel-header">
+                        <span>Alle Reviews (0)</span>
+                        <span class="review-community-panel-kicker">Community</span>
+                    </div>
+                    <p class="review-community-empty">Noch keine weiteren bestätigten Reviews.</p>
+                </div>
+            `;
+        }
+        const items = reviews.map((review) => {
+            const data = getCommunityReviewPresentation(review, spotId);
+
+            return `
+                <button
+                    type="button"
+                    class="review-community-preview-btn"
+                    data-review-id="${data.shareReviewId}"
+                    data-spot-id="${Number(spotId)}"
+                    aria-haspopup="dialog"
+                    aria-pressed="false"
+                >
+                    <span class="review-community-preview-topline">${renderStars(data.scoreDisplay)}<span class="review-community-pattern-score">Score: ${data.scoreDisplay}</span></span>
+                    <span class="review-community-preview-main">
+                        <span class="review-community-pattern-author">Review von ${data.reviewer}</span>
+                        <span class="review-community-pattern-date">${data.headerDate}</span>
+                    </span>
+                    <span class="review-community-preview-copy">${data.previewText}</span>
+                    <span class="review-community-preview-footer">
+                        <span class="badge">${data.dish}</span>
+                    </span>
+                </button>
+            `;
+        }).join('');
+
+        return `
+            <div class="review-community-panel" data-spot-id="${spotId}">
+                <div class="review-community-panel-header">
+                    <span>Alle Reviews (${reviews.length})</span>
+                    <span class="review-community-panel-kicker">Popup Cards</span>
+                </div>
+                <div class="review-community-list">${items}</div>
+            </div>
+        `;
+    }
+
+    function attachReviewCardHandlers(card) {
+        const communityPanel = card.querySelector('.review-community-panel');
+        const reviewPreviewButtons = card.querySelectorAll('.review-community-preview-btn');
+
+        bindReviewActionButtons(card);
+
+        reviewPreviewButtons.forEach((button) => {
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+                openCommunityReviewPopup(button.dataset.spotId, button.dataset.reviewId, button);
+            });
+        });
 
         if (communityPanel) {
-            // Listen for clicks on collapsible triggers (Panel header or individual Item headers)
-            communityPanel.addEventListener('click', (event) => {
-                const trigger = event.target.closest('.collapsible-trigger');
-                if (trigger) {
-                    const panel = trigger.closest('.collapsible-panel');
-                    if (panel) {
-                        const isOpening = !panel.classList.contains('expanded');
-                        panel.classList.toggle('expanded');
-
-                        // Match the main-card behavior: when opening a single review, align it flush below header.
-                        if (isOpening && panel.classList.contains('review-community-item')) {
-                            setTimeout(() => {
-                                scrollToElementFlush(panel);
-                            }, 50);
-                        }
-
-                        event.stopPropagation();
-                    }
-                    return;
-                }
-
-                // Let image clicks bubble so delegated lightbox handling can open zoom.
-                if (event.target && event.target.closest('.spot-image')) {
-                    return;
-                }
-                event.stopPropagation();
-            });
+            communityPanel.addEventListener('click', (event) => event.stopPropagation());
             communityPanel.addEventListener('keydown', (event) => event.stopPropagation());
         }
     }
 
     function syncConfirmedReviewsPanelState(card, shouldOpenPanel) {
-        if (!card) return;
+        if (shouldOpenPanel || !card) return;
 
-        const panel = card.querySelector('.review-community-panel');
-        if (!panel) return;
-
-        if (shouldOpenPanel) {
-            panel.classList.add('expanded');
-        } else {
-            panel.classList.remove('expanded');
+        const activeButton = card.querySelector('.review-community-preview-btn.is-active');
+        if (activeButton) {
+            activeButton.classList.remove('is-active');
+            activeButton.setAttribute('aria-pressed', 'false');
         }
-
-        // Keep nested review entries collapsed by default.
-        const nestedReviews = panel.querySelectorAll('.review-community-item');
-        nestedReviews.forEach((item) => {
-            item.classList.remove('expanded');
-        });
     }
 
     // Festgelegte Gericht-Optionen
@@ -3694,11 +3755,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 syncConfirmedReviewsPanelState(card, true);
 
                 if (reviewId) {
-                    const reviewEl = card.querySelector(`.review-community-item[data-review-id="${reviewId}"]`);
-                    if (reviewEl) {
-                        reviewEl.classList.add('expanded');
+                    const reviewTrigger = card.querySelector(`.review-community-preview-btn[data-review-id="${reviewId}"]`);
+                    if (reviewTrigger) {
                         setTimeout(() => {
-                            scrollToElementFlush(reviewEl);
+                            openCommunityReviewPopup(spotId, reviewId, reviewTrigger);
                         }, 100);
                     }
                 }
@@ -3751,7 +3811,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!targetReviewId) return true;
             const card = document.getElementById(`spot-${targetSpotId}`);
             if (!card) return false;
-            return Array.from(card.querySelectorAll('.review-community-item'))
+            return Array.from(card.querySelectorAll('.review-community-preview-btn'))
                 .some((item) => String(item.dataset.reviewId || '') === targetReviewId);
         };
 
@@ -4520,6 +4580,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     const commentFeedbackModal = document.getElementById('comment-feedback-modal');
+    const communityReviewModal = document.getElementById('community-review-modal');
+    const communityReviewModalContent = document.getElementById('community-review-modal-content');
     const commentFeedbackConfirm = commentFeedbackModal
         ? commentFeedbackModal.querySelector('.comment-feedback-confirm')
         : null;
@@ -4561,7 +4623,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const syncModalOpenState = () => {
         const hasActiveModal =
             (legalModal && legalModal.classList.contains('active')) ||
-            (commentFeedbackModal && commentFeedbackModal.classList.contains('active'));
+            (commentFeedbackModal && commentFeedbackModal.classList.contains('active')) ||
+            (communityReviewModal && communityReviewModal.classList.contains('active'));
 
         document.body.classList.toggle('modal-open', Boolean(hasActiveModal));
     };
@@ -4648,6 +4711,21 @@ document.addEventListener('DOMContentLoaded', () => {
         syncModalOpenState();
     };
 
+    const closeCommunityReviewModal = () => {
+        if (!communityReviewModal || !communityReviewModalContent) return;
+        communityReviewModal.classList.remove('active');
+        communityReviewModal.setAttribute('aria-hidden', 'true');
+        communityReviewModalContent.innerHTML = '';
+        clearActiveCommunityReviewPreview();
+        syncModalOpenState();
+
+        if (activeCommunityReviewTrigger && typeof activeCommunityReviewTrigger.focus === 'function') {
+            activeCommunityReviewTrigger.focus();
+        }
+
+        activeCommunityReviewTrigger = null;
+    };
+
     if (openDisclaimer) openDisclaimer.addEventListener('click', (e) => { e.preventDefault(); openModal('disclaimer'); });
     if (openPrivacy) openPrivacy.addEventListener('click', (e) => { e.preventDefault(); openModal('privacy'); });
     if (openImpressum) openImpressum.addEventListener('click', (e) => { e.preventDefault(); openModal('impressum'); });
@@ -4670,6 +4748,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && commentFeedbackModal.classList.contains('active')) {
                 closeCommentFeedbackModal();
+            }
+        });
+    }
+
+    if (communityReviewModal) {
+        communityReviewModal.querySelector('.modal-overlay')?.addEventListener('click', closeCommunityReviewModal);
+        communityReviewModal.querySelector('.modal-close')?.addEventListener('click', closeCommunityReviewModal);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && communityReviewModal.classList.contains('active')) {
+                closeCommunityReviewModal();
             }
         });
     }
