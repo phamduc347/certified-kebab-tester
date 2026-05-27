@@ -658,6 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const criteria = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
         const merged = { ...baseSpot };
         const totalCount = 1 + reviews.length;
+        const latestCommunityReview = getLatestCommunityReview(reviews);
 
         criteria.forEach((key) => {
             const baseVal = Number(baseSpot[key]) || 0;
@@ -669,12 +670,19 @@ document.addEventListener('DOMContentLoaded', () => {
         merged.score = formatPercentNumber(avgAcrossCriteria * 10);
         merged.besuche = totalCount;
 
-        const priceValue = parseEuroNumber(merged.preis);
+        let priceValue = parseEuroNumber(baseSpot.preis);
+        if (latestCommunityReview) {
+            const latestReviewPriceValue = parseEuroNumber(latestCommunityReview.preis);
+            if (Number.isFinite(latestReviewPriceValue) && latestReviewPriceValue > 0) {
+                merged.preis = formatEuroNumber(latestReviewPriceValue);
+                priceValue = latestReviewPriceValue;
+            }
+        }
+
         merged.plIndex = priceValue > 0
             ? formatPercentNumber((parsePercentNumber(merged.score) / priceValue))
             : '-';
 
-        const latestCommunityReview = getLatestCommunityReview(reviews);
         if (latestCommunityReview) {
             const latestCommunityTs = getCommunityReviewTimestamp(latestCommunityReview);
             const baseDateTs = parseDisplayDateToTimestamp(baseSpot.date);
@@ -725,10 +733,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const avgAcrossCriteria = criteria.reduce((sum, key) => sum + (Number(generated[key]) || 0), 0) / criteria.length;
         generated.score = formatPercentNumber(avgAcrossCriteria * 10);
 
-        const avgPrice = reviews.reduce((sum, review) => sum + parseEuroNumber(review.preis), 0) / reviews.length;
-        if (Number.isFinite(avgPrice) && avgPrice > 0) {
-            generated.preis = formatEuroNumber(avgPrice);
-            generated.plIndex = formatPercentNumber(parsePercentNumber(generated.score) / avgPrice);
+        const latestReviewPriceValue = parseEuroNumber(latestReview.preis);
+        if (Number.isFinite(latestReviewPriceValue) && latestReviewPriceValue > 0) {
+            generated.preis = formatEuroNumber(latestReviewPriceValue);
+            generated.plIndex = formatPercentNumber(parsePercentNumber(generated.score) / latestReviewPriceValue);
         }
 
         return generated;
@@ -3545,7 +3553,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         <div class="spot-details">
                             <span class="badge">${spot.dish}</span>
-                            ${includePrice && spot.preis ? `<span class="badge badge-tooltip">Preis: ${spot.preis}<span class="tooltip-text">Der Preis wird aus dem Durchschnitt der letzten Besuche berechnet.</span></span>` : ''}
+                            ${includePrice && spot.preis ? `<span class="badge badge-tooltip">Preis: ${spot.preis}<span class="tooltip-text">Der Preis entspricht dem letzten Review.</span></span>` : ''}
                             ${includeVerzehrort && spot.verzehrort ? `<span class="badge badge-tooltip">${spot.verzehrort}<span class="tooltip-text">Verzehrort: Döner wurde vor Ort gegessen (Dine-in) oder mitgenommen/geliefert (Take-away).</span></span>` : ''}
                             ${includePL ? `<span class="badge badge-tooltip">P/L: ${spot.plIndex}<span class="tooltip-text">Price-Leistungs-Index: Gesamtbewertung geteilt durch den Preis. Je höher der Wert, desto besser die Preis-Leistung.</span></span>` : ''}
                             ${includeVisits ? `<span class="badge badge-tooltip">Besuche: ${spot.besuche || 1}<span class="tooltip-text">Die finale Bewertung basiert auf dem Durchschnitt der Bewertungen über alle Besuche.</span></span>` : ''}
