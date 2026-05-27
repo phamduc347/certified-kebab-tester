@@ -2775,13 +2775,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderSpotTrendChart(reviews, spotId) {
         const sortedReviews = [...reviews].reverse();
-        
+
         const dataPoints = sortedReviews.map((review) => {
             const reviewer = escapeHtml(review.reviewer_name || 'Anonym');
             const visitDate = formatVisitDate(review.visit_date);
             const submittedAt = formatCommentDate(review.created_at);
             const dateStr = visitDate || submittedAt || '-';
-            
+
             const criteriaValues = {
                 fleisch: Number(review.fleisch) || 0,
                 gemuese: Number(review.gemuese) || 0,
@@ -2805,7 +2805,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 criteriaValues.service
             ) / 9;
             const scorePct = avg * 10;
-            
+
             return {
                 id: review.id,
                 reviewer,
@@ -2817,11 +2817,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const scores = dataPoints.map(d => d.score);
         const minS = Math.min(...scores);
         const maxS = Math.max(...scores);
-        
+
         const firstScore = dataPoints[0].score;
         const lastScore = dataPoints[dataPoints.length - 1].score;
         const diff = lastScore - firstScore;
-        
+
         let trendArrow = '→';
         let trendColor = 'var(--text-main, #000000)';
         let trendClass = 'neutral';
@@ -2843,51 +2843,51 @@ document.addEventListener('DOMContentLoaded', () => {
             trendColor = 'var(--text-main, #000000)';
             trendClass = 'neutral';
         }
-        
+
         const width = 500;
         const height = 180;
         const paddingLeft = 50;
         const paddingRight = 30;
         const paddingTop = 30;
         const paddingBottom = 40;
-        
+
         const chartWidth = width - paddingLeft - paddingRight;
         const chartHeight = height - paddingTop - paddingBottom;
-        
+
         const minVal = Math.max(0, Math.floor(minS - 3));
         const maxVal = Math.min(100, Math.ceil(maxS + 3));
         const range = maxVal - minVal || 10;
-        
+
         const chartXPadding = 35; // Spacing at the start and end of the x-axis
         const getX = (index) => paddingLeft + chartXPadding + (index / (dataPoints.length - 1)) * (chartWidth - 2 * chartXPadding);
         const getY = (val) => height - paddingBottom - ((val - minVal) / range) * chartHeight;
-        
+
         const points = dataPoints.map((dp, i) => ({
             x: getX(i),
             y: getY(dp.score),
             dp
         }));
-        
+
         const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
         const fillPath = `${linePath} L ${points[points.length - 1].x.toFixed(1)} ${(height - paddingBottom).toFixed(1)} L ${points[0].x.toFixed(1)} ${(height - paddingBottom).toFixed(1)} Z`;
-        
+
         const segments = [];
         for (let i = 0; i < points.length - 1; i++) {
             const p1 = points[i];
             const p2 = points[i + 1];
             const segDiff = p2.dp.score - p1.dp.score;
-            
+
             let segColor = 'var(--text-main, #000000)';
             if (segDiff > threshold) {
                 segColor = '#22c55e';
             } else if (segDiff < -threshold) {
                 segColor = '#ef4444';
             }
-            
+
             const midX = (p1.x + p2.x) / 2;
             const midY = (p1.y + p2.y) / 2;
             const displayDiff = (segDiff > 0 ? '+' : '') + segDiff.toFixed(1).replace('.', ',') + '%';
-            
+
             segments.push(`
                 <line 
                     x1="${p1.x.toFixed(1)}" 
@@ -2908,7 +2908,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 >${displayDiff}</text>
             `);
         }
-        
+
         const gridLines = [];
         const gridSteps = 3;
         for (let i = 0; i <= gridSteps; i++) {
@@ -2920,10 +2920,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <text x="${paddingLeft - 10}" y="${y + 4}" fill="var(--text-muted, #94a3b8)" font-size="10" text-anchor="end">${displayVal}%</text>
             `);
         }
-        
+
         const dots = points.map((p, i) => {
             const formattedScore = p.dp.score.toFixed(2).replace('.', ',') + '%';
-            
+
             let dotColor = 'var(--text-main, #000000)';
             if (i > 0) {
                 const prevP = points[i - 1];
@@ -2934,7 +2934,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     dotColor = '#ef4444';
                 }
             }
-            
+
             return `
                 <g class="trend-dot-group">
                     <circle cx="${p.x}" cy="${p.y}" r="5" class="trend-dot" style="fill: ${dotColor};" />
@@ -2948,7 +2948,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </g>
             `;
         }).join('');
-        
+
         const xLabels = points.map((p, i) => {
             const labelText = p.dp.date !== '-' ? p.dp.date : `Review ${i + 1}`;
             return `
@@ -3771,7 +3771,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             class="review-share-action-btn review-share-download-btn"
                             data-share-action="download-image"
                             aria-label="Share Karte als PNG herunterladen"
-                        >Story-Karte herunterladen</button>
+                        >Story-Karte teilen</button>
                     </div>
                 </div>
             </div>
@@ -4008,7 +4008,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     title: `${shareSpotName} - Community Review`,
                                     text: buildCommunityReviewNativeShareText(shareSpotName, shareReviewerName)
                                 });
-                                applyShareButtonState(button, 'Story-Karte heruntergeladen', 'is-success');
+                                applyShareButtonState(button, 'Story-Karte geteilt', 'is-success');
                                 return;
                             }
                         }
@@ -4582,11 +4582,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // fix: filter out any undefined spots before rendering
         const spotlightItems = [
-            { 
-                spot: newestSubmittedSpot || sortedByDate[0], 
+            {
+                spot: newestSubmittedSpot || sortedByDate[0],
                 reviewId: newestSubmittedCommunityReview ? newestSubmittedCommunityReview.id : null,
-                label: "LATEST TEST", 
-                tag: "NEWEST ADDITION" 
+                label: "LATEST TEST",
+                tag: "NEWEST ADDITION"
             },
             { spot: sortedByScore[0], label: "ALL-TIME BEST", tag: "THE BENCHMARK" },
             { spot: sortedByPL[0], label: "VALUE CHAMPION", tag: "BEST PRICE-PERFORMANCE" },
