@@ -3519,10 +3519,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 type="button"
                 class="review-share-panel-toggle"
                 data-share-panel-toggle
-                data-collapsed-label="CHECKOUT MY REVIEW"
+                data-collapsed-label="Review Teilen einblenden"
                 data-expanded-label="Review Teilen ausblenden"
                 aria-pressed="false"
             >Review Teilen ausblenden</button>
+            <button
+                type="button"
+                class="review-share-action-btn review-share-download-btn"
+                data-share-action="download-image"
+                aria-label="Share Karte als PNG herunterladen"
+            >Review Karte herunterladen</button>
             <div class="review-share-actions-shell">
                 <aside class="review-share-actions">
                     <h3>Review Teilen</h3>
@@ -3607,6 +3613,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (action === 'copy-text') {
                         await copyCommunityReviewShareText(shareSpotName, shareReviewerName, shareLink);
                         applyShareButtonState(button, 'Text kopiert', 'is-success');
+                        return;
+                    }
+
+                    if (action === 'download-image') {
+                        const storyCard = reviewShareModalContent.querySelector('.review-share-story-card');
+                        if (!storyCard || typeof window.html2canvas !== 'function') {
+                            throw new Error('share-image-export-unavailable');
+                        }
+
+                        const canvas = await window.html2canvas(storyCard, {
+                            backgroundColor: null,
+                            useCORS: true,
+                            scale: Math.max(2, window.devicePixelRatio || 1)
+                        });
+
+                        const safeSpotName = shareSpotName
+                            .toLowerCase()
+                            .replace(/[^a-z0-9]+/g, '-')
+                            .replace(/^-+|-+$/g, '') || 'spot';
+
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = canvas.toDataURL('image/png');
+                        downloadLink.download = `kebab-review-${safeSpotName}.png`;
+                        downloadLink.click();
+
+                        applyShareButtonState(button, 'PNG gespeichert', 'is-success');
                         return;
                     }
 

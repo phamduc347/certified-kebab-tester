@@ -4798,8 +4798,18 @@ body.modal-open {
     transform: translateY(-1px);
 }
 
+.review-share-download-btn {
+    display: none;
+    margin-top: 8px;
+    align-self: stretch;
+}
+
 .review-share-modal-content.is-photo-focus-mode .review-share-actions-shell {
     display: none;
+}
+
+.review-share-modal-content.is-photo-focus-mode .review-share-download-btn {
+    display: block;
 }
 
 .review-share-modal-content.is-photo-focus-mode {
