@@ -1133,7 +1133,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isMobile = window.innerWidth <= 768;
                 if (isMobile) {
                     e.stopPropagation();
-                    
+
                     // Remove active class from all other markers
                     markersContainer.querySelectorAll('.hero-timeline-marker').forEach((m) => {
                         if (m !== marker) m.classList.remove('active');
@@ -1197,7 +1197,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.removeEventListener('click', globalTimelineOutsideClickHandler);
         }
 
-        globalTimelineOutsideClickHandler = function(e) {
+        globalTimelineOutsideClickHandler = function (e) {
             const isMobile = window.innerWidth <= 768;
             if (isMobile) {
                 const timelineContainer = document.getElementById('hero-timeline');
@@ -1218,7 +1218,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         };
-        
+
         document.addEventListener('click', globalTimelineOutsideClickHandler);
     }
 
@@ -2963,11 +2963,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             function navigateImg(direction) {
                 if (isAnimating) return;
-                
+
                 if (direction === 'next') {
                     imgIndex = (imgIndex + 1) % numSlides;
                     updateActiveStates();
-                    
+
                     track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                     track.style.transform = `translateX(-100%)`;
                     isAnimating = true;
@@ -2981,12 +2981,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (direction === 'prev') {
                     imgIndex = (imgIndex - 1 + numSlides) % numSlides;
                     updateActiveStates();
-                    
+
                     track.style.transition = 'none';
                     track.insertBefore(track.lastElementChild, track.firstElementChild);
                     track.style.transform = `translateX(-100%)`;
                     void track.offsetHeight; // force reflow
-                    
+
                     track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                     track.style.transform = `translateX(0)`;
                     isAnimating = true;
@@ -3218,11 +3218,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             function navigateComment(direction) {
                 if (isAnimating) return;
-                
+
                 if (direction === 'next') {
                     commentIndex = (commentIndex + 1) % numSlides;
                     updateActiveStates();
-                    
+
                     track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                     track.style.transform = `translateX(-100%)`;
                     isAnimating = true;
@@ -3236,12 +3236,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (direction === 'prev') {
                     commentIndex = (commentIndex - 1 + numSlides) % numSlides;
                     updateActiveStates();
-                    
+
                     track.style.transition = 'none';
                     track.insertBefore(track.lastElementChild, track.firstElementChild);
                     track.style.transform = `translateX(-100%)`;
                     void track.offsetHeight;
-                    
+
                     track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                     track.style.transform = `translateX(0)`;
                     isAnimating = true;
@@ -3581,7 +3581,7 @@ document.addEventListener('DOMContentLoaded', () => {
             exportCard.style.top = '0';
             exportCard.style.width = '1080px';
             exportCard.style.height = '1920px';
-            
+
             document.body.appendChild(exportCard);
 
             let canvas;
@@ -3653,7 +3653,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 exportCard.style.top = '0';
                                 exportCard.style.width = '1080px';
                                 exportCard.style.height = '1920px';
-                                
+
                                 document.body.appendChild(exportCard);
 
                                 let canvas;
@@ -3712,7 +3712,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         downloadLink.href = URL.createObjectURL(imageBlob);
                         downloadLink.download = filename;
                         downloadLink.click();
-                        
+
                         // Clean up URL object after a short delay
                         setTimeout(() => {
                             URL.revokeObjectURL(downloadLink.href);
@@ -4300,9 +4300,9 @@ document.addEventListener('DOMContentLoaded', () => {
             container.innerHTML = `
                 <div class="spotlight-track">
                     ${itemsToRender.map((item, i) => {
-                        const spot = item.spot;
-                        const scoreDisplay = normalizeSpotScoreDisplay(spot.score);
-                        return `
+                const spot = item.spot;
+                const scoreDisplay = normalizeSpotScoreDisplay(spot.score);
+                return `
                             <div class="latest-card ${i === currentIndex ? 'active' : ''}" data-index="${item.dataIndex}">
                                 <div class="latest-image-wrapper">
                                     <img src="${sanitizeUrl(spot.image)}" alt="${escapeHtml(spot.name)}" class="latest-image spot-image">
@@ -4334,7 +4334,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </div>
                             </div>
                         `;
-                    }).join('')}
+            }).join('')}
                 </div>
             `;
 
@@ -4368,7 +4368,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const track = container.querySelector('.spotlight-track');
             const cards = container.querySelectorAll('.latest-card');
-            
+
             if (track) {
                 track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                 track.style.transform = `translateX(-${currentIndex * 100}%)`;
@@ -4383,7 +4383,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             currentIndex = 1;
                         }
                         track.style.transform = `translateX(-${currentIndex * 100}%)`;
-                        
+
                         cards.forEach((card, i) => {
                             card.classList.toggle('active', i === currentIndex);
                         });
@@ -4463,7 +4463,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const absY = Math.abs(deltaY);
                 if (absX < 5 && absY < 5) return; // not moved enough yet
                 swipeAxisLocked = absX >= absY ? 'horizontal' : 'vertical';
-                
+
                 // If it's a horizontal swipe, capture the pointer now
                 if (swipeAxisLocked === 'horizontal') {
                     container.setPointerCapture(e.pointerId);
