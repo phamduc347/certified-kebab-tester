@@ -4672,6 +4672,13 @@ body.modal-open {
     transition: var(--transition);
 }
 
+.modal-close:focus,
+.modal-close:focus-visible,
+.modal-close:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 .modal-close span {
     display: block;
     width: 20px;
