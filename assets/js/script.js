@@ -3700,8 +3700,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderReviewShareStoryModal(payload) {
         const spotName = escapeHtml(payload.shareSpotName || 'Spot');
         const reviewerName = escapeHtml(payload.shareReviewerName || 'Anonym');
-        const score = escapeHtml(payload.shareScore || '-');
-        const scoreStars = renderStars(score);
         const date = escapeHtml(payload.shareDate || '-');
         const dish = escapeHtml(payload.shareDish || '-');
         const price = escapeHtml(payload.sharePrice || '-');
@@ -3748,7 +3746,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span>von ${reviewerName}</span>
                             <span>· ${date}</span>
                         </div>
-                        <div class="review-share-story-score">${scoreStars}</div>
                         ${detailBadgesMarkup}
                         <span class="review-share-story-footer">"${previewText}"</span>
                         <span class="review-share-story-cta">MEHR REVIEWS AUF CERTIFIEDKEBABTESTER.DE</span>
