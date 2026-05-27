@@ -3527,7 +3527,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isPhotoFocusMode = reviewShareModalContent.classList.toggle('is-photo-focus-mode');
                 panelToggleBtn.setAttribute('aria-pressed', isPhotoFocusMode ? 'true' : 'false');
                 panelToggleBtn.textContent = isPhotoFocusMode
-                    ? (panelToggleBtn.dataset.collapsedLabel || 'CHECKOUT MY REVIEW')
+                    ? (panelToggleBtn.dataset.collapsedLabel || 'CHECKOUT THIS REVIEW')
                     : (panelToggleBtn.dataset.expandedLabel || 'Review Teilen ausblenden');
             });
         }
