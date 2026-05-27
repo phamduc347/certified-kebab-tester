@@ -2757,12 +2757,226 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }).join('');
 
+        let trendMarkup = '';
+        if (reviews.length > 1) {
+            trendMarkup = renderSpotTrendChart(reviews, spotId);
+        }
+
         return `
             <div class="review-community-panel" data-spot-id="${spotId}">
                 <div class="review-community-panel-header">
                     <span>Alle Reviews (${reviews.length})</span>
                 </div>
                 <div class="review-community-list">${items}</div>
+                ${trendMarkup}
+            </div>
+        `;
+    }
+
+    function renderSpotTrendChart(reviews, spotId) {
+        const sortedReviews = [...reviews].reverse();
+        
+        const dataPoints = sortedReviews.map((review) => {
+            const reviewer = escapeHtml(review.reviewer_name || 'Anonym');
+            const visitDate = formatVisitDate(review.visit_date);
+            const submittedAt = formatCommentDate(review.created_at);
+            const dateStr = visitDate || submittedAt || '-';
+            
+            const criteriaValues = {
+                fleisch: Number(review.fleisch) || 0,
+                gemuese: Number(review.gemuese) || 0,
+                sosse: Number(review.sosse) || 0,
+                brot: Number(review.brot) || 0,
+                balance: Number(review.balance) || 0,
+                auswahl: Number(review.auswahl) || 0,
+                portion: Number(review.portion) || 0,
+                hygiene: Number(review.hygiene) || 0,
+                service: Number(review.service) || 0
+            };
+            const avg = (
+                criteriaValues.fleisch +
+                criteriaValues.gemuese +
+                criteriaValues.sosse +
+                criteriaValues.brot +
+                criteriaValues.balance +
+                criteriaValues.auswahl +
+                criteriaValues.portion +
+                criteriaValues.hygiene +
+                criteriaValues.service
+            ) / 9;
+            const scorePct = avg * 10;
+            
+            return {
+                reviewer,
+                date: dateStr,
+                score: scorePct
+            };
+        });
+
+        const scores = dataPoints.map(d => d.score);
+        const minS = Math.min(...scores);
+        const maxS = Math.max(...scores);
+        
+        const firstScore = dataPoints[0].score;
+        const lastScore = dataPoints[dataPoints.length - 1].score;
+        const diff = lastScore - firstScore;
+        
+        let trendArrow = '→';
+        let trendColor = 'var(--text-main, #000000)';
+        let trendClass = 'neutral';
+        const sign = diff > 0 ? '+' : '';
+        let trendText = `${sign}${diff.toFixed(1).replace('.', ',')}%`;
+        const threshold = 3.0;
+        if (diff > threshold) {
+            trendArrow = '▲';
+            trendColor = '#22c55e';
+            trendClass = 'up';
+            trendText = `+${diff.toFixed(1).replace('.', ',')}%`;
+        } else if (diff < -threshold) {
+            trendArrow = '▼';
+            trendColor = '#ef4444';
+            trendClass = 'down';
+            trendText = `${diff.toFixed(1).replace('.', ',')}%`;
+        } else {
+            trendArrow = '→';
+            trendColor = 'var(--text-main, #000000)';
+            trendClass = 'neutral';
+        }
+        
+        const width = 500;
+        const height = 180;
+        const paddingLeft = 50;
+        const paddingRight = 30;
+        const paddingTop = 30;
+        const paddingBottom = 40;
+        
+        const chartWidth = width - paddingLeft - paddingRight;
+        const chartHeight = height - paddingTop - paddingBottom;
+        
+        const minVal = Math.max(0, Math.floor(minS - 3));
+        const maxVal = Math.min(100, Math.ceil(maxS + 3));
+        const range = maxVal - minVal || 10;
+        
+        const chartXPadding = 35; // Spacing at the start and end of the x-axis
+        const getX = (index) => paddingLeft + chartXPadding + (index / (dataPoints.length - 1)) * (chartWidth - 2 * chartXPadding);
+        const getY = (val) => height - paddingBottom - ((val - minVal) / range) * chartHeight;
+        
+        const points = dataPoints.map((dp, i) => ({
+            x: getX(i),
+            y: getY(dp.score),
+            dp
+        }));
+        
+        const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+        const fillPath = `${linePath} L ${points[points.length - 1].x.toFixed(1)} ${(height - paddingBottom).toFixed(1)} L ${points[0].x.toFixed(1)} ${(height - paddingBottom).toFixed(1)} Z`;
+        
+        const segments = [];
+        for (let i = 0; i < points.length - 1; i++) {
+            const p1 = points[i];
+            const p2 = points[i + 1];
+            const segDiff = p2.dp.score - p1.dp.score;
+            
+            let segColor = 'var(--text-main, #000000)';
+            if (segDiff > threshold) {
+                segColor = '#22c55e';
+            } else if (segDiff < -threshold) {
+                segColor = '#ef4444';
+            }
+            
+            const midX = (p1.x + p2.x) / 2;
+            const midY = (p1.y + p2.y) / 2;
+            const displayDiff = (segDiff > 0 ? '+' : '') + segDiff.toFixed(1).replace('.', ',') + '%';
+            
+            segments.push(`
+                <line 
+                    x1="${p1.x.toFixed(1)}" 
+                    y1="${p1.y.toFixed(1)}" 
+                    x2="${p2.x.toFixed(1)}" 
+                    y2="${p2.y.toFixed(1)}" 
+                    stroke="${segColor}" 
+                    stroke-width="2.5" 
+                    stroke-linecap="round" 
+                />
+                <text 
+                    x="${midX.toFixed(1)}" 
+                    y="${(midY - 8).toFixed(1)}" 
+                    fill="${segColor}" 
+                    font-size="9" 
+                    font-weight="bold" 
+                    text-anchor="middle"
+                >${displayDiff}</text>
+            `);
+        }
+        
+        const gridLines = [];
+        const gridSteps = 3;
+        for (let i = 0; i <= gridSteps; i++) {
+            const val = minVal + (i / gridSteps) * range;
+            const y = getY(val);
+            const displayVal = val % 1 === 0 ? val.toFixed(0) : val.toFixed(1);
+            gridLines.push(`
+                <line x1="${paddingLeft}" y1="${y}" x2="${width - paddingRight}" y2="${y}" stroke="var(--border-color, rgba(255, 255, 255, 0.08))" stroke-dasharray="3,3" />
+                <text x="${paddingLeft - 10}" y="${y + 4}" fill="var(--text-muted, #94a3b8)" font-size="10" text-anchor="end">${displayVal}%</text>
+            `);
+        }
+        
+        const dots = points.map((p, i) => {
+            const formattedScore = p.dp.score.toFixed(2).replace('.', ',') + '%';
+            
+            let dotColor = 'var(--text-main, #000000)';
+            if (i > 0) {
+                const prevP = points[i - 1];
+                const segDiff = p.dp.score - prevP.dp.score;
+                if (segDiff > threshold) {
+                    dotColor = '#22c55e';
+                } else if (segDiff < -threshold) {
+                    dotColor = '#ef4444';
+                }
+            }
+            
+            return `
+                <g class="trend-dot-group">
+                    <circle cx="${p.x}" cy="${p.y}" r="5" class="trend-dot" style="fill: ${dotColor};" />
+                    <circle cx="${p.x}" cy="${p.y}" r="9" class="trend-dot-hover-area" />
+                    <g class="trend-tooltip" style="display: none;">
+                        <rect x="${p.x - 70}" y="${p.y - 65}" width="140" height="50" rx="6" class="trend-tooltip-rect" />
+                        <text x="${p.x}" y="${p.y - 48}" class="trend-tooltip-text-reviewer" font-size="10" font-weight="600" text-anchor="middle">${p.dp.reviewer}</text>
+                        <text x="${p.x}" y="${p.y - 34}" fill="${dotColor}" font-size="11" font-weight="bold" text-anchor="middle">${formattedScore}</text>
+                        <text x="${p.x}" y="${p.y - 20}" class="trend-tooltip-text-date" font-size="9" text-anchor="middle">${p.dp.date}</text>
+                    </g>
+                </g>
+            `;
+        }).join('');
+        
+        const xLabels = points.map((p, i) => {
+            const labelText = p.dp.date !== '-' ? p.dp.date : `Review ${i + 1}`;
+            return `
+                <text x="${p.x}" y="${height - paddingBottom + 18}" fill="var(--text-muted, #94a3b8)" font-size="9" text-anchor="middle">${labelText}</text>
+            `;
+        }).join('');
+
+        const uniqueId = `trend-gradient-${spotId}`;
+
+        return `
+            <div class="review-community-trend-section">
+                <div class="review-community-trend-header">
+                    <h4>Trend <span class="trend-arrow-indicator ${trendClass}">${trendArrow} ${trendText}</span></h4>
+                </div>
+                <div class="review-community-trend-chart-container">
+                    <svg viewBox="0 0 ${width} ${height}" class="review-community-trend-svg" width="100%" height="100%">
+                        <defs>
+                            <linearGradient id="${uniqueId}" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="${trendColor}" stop-opacity="0.25" />
+                                <stop offset="100%" stop-color="${trendColor}" stop-opacity="0.00" />
+                            </linearGradient>
+                        </defs>
+                        ${gridLines.join('')}
+                        <path d="${fillPath}" fill="url(#${uniqueId})" />
+                        ${segments.join('')}
+                        ${xLabels}
+                        ${dots}
+                    </svg>
+                </div>
             </div>
         `;
     }
