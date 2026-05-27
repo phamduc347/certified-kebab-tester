@@ -2468,7 +2468,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const reviewer = escapeHtml(review.reviewer_name || 'Anonym');
         const visitDate = formatVisitDate(review.visit_date);
         const submittedAt = formatCommentDate(review.created_at);
-        const reviewText = escapeHtml(review.comment_text || '');
+        const rawReviewText = String(review.comment_text || '').trim();
+        const reviewText = escapeHtml(rawReviewText);
         const dish = escapeHtml(review.dish || '-');
         const preis = escapeHtml(review.preis || '-');
         const preisWithUnit = (preis === '-' || preis.includes('€')) ? preis : `${preis} €`;
@@ -2509,6 +2510,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return {
             reviewer,
             reviewText,
+            rawReviewText,
             dish,
             preisWithUnit,
             verzehrort,
@@ -2588,6 +2590,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                 data-share-review-id="${data.shareReviewId}"
                                 data-share-spot-name="${escapeHtml(data.rawSpotName)}"
                                 data-share-reviewer-name="${escapeHtml(data.rawReviewerName)}"
+                                data-share-score="${escapeHtml(data.scoreDisplay)}"
+                                data-share-date="${escapeHtml(data.headerDate)}"
+                                data-share-image-url="${sanitizeUrl(data.imageUrl)}"
+                                data-share-comment="${escapeHtml(data.rawReviewText)}"
                                 aria-label="Community-Review-Link kopieren"
                             ><span class="review-share-icon" aria-hidden="true">&#128279;</span><span class="review-share-label">Review teilen</span></button>
                         </div>
@@ -2617,12 +2623,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         reviewShareButtons.forEach((button) => {
-            button.addEventListener('click', async (event) => {
+            button.addEventListener('click', (event) => {
                 event.stopPropagation();
                 const shareSpotId = Number(button.dataset.shareSpotId);
                 const shareReviewId = String(button.dataset.shareReviewId || '').trim();
                 const shareSpotName = String(button.dataset.shareSpotName || '').trim() || 'Spot';
                 const shareReviewerName = String(button.dataset.shareReviewerName || '').trim() || 'Anonym';
+                const shareScore = String(button.dataset.shareScore || '').trim() || '-';
+                const shareDate = String(button.dataset.shareDate || '').trim() || '-';
+                const shareImageUrl = String(button.dataset.shareImageUrl || '').trim();
+                const shareComment = String(button.dataset.shareComment || '').trim();
 
                 if (!Number.isFinite(shareSpotId) || !shareReviewId) {
                     setShareButtonState(button, 'Fehler', 'is-error');
@@ -2630,13 +2640,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const shareLink = buildCommunityReviewShareLink(shareSpotId, shareReviewId);
-                const shareText = buildCommunityReviewShareText(shareSpotName, shareReviewerName, shareLink);
-                try {
-                    await copyTextToClipboard(shareText);
-                    setShareButtonState(button, 'Kopiert', 'is-copied');
-                } catch (error) {
-                    setShareButtonState(button, 'Fehler', 'is-error');
-                }
+                openReviewShareStoryModal({
+                    shareSpotName,
+                    shareReviewerName,
+                    shareScore,
+                    shareDate,
+                    shareImageUrl,
+                    shareComment,
+                    shareLink,
+                    triggerButton: button
+                });
             });
         });
     }
@@ -3414,6 +3427,147 @@ document.addEventListener('DOMContentLoaded', () => {
         const normalizedSpotName = String(spotName || '').trim() || 'Spot';
         const normalizedReviewerName = String(reviewerName || '').trim() || 'Anonym';
         return `🥙 Checkout Kebab-Review for "${normalizedSpotName}" by ${normalizedReviewerName}: ${shareLink}`;
+    }
+
+    async function copyCommunityReviewShareText(shareSpotName, shareReviewerName, shareLink) {
+        const shareText = buildCommunityReviewShareText(shareSpotName, shareReviewerName, shareLink);
+        await copyTextToClipboard(shareText);
+        return shareText;
+    }
+
+    function renderReviewShareStoryModal(payload) {
+        const spotName = escapeHtml(payload.shareSpotName || 'Spot');
+        const reviewerName = escapeHtml(payload.shareReviewerName || 'Anonym');
+        const score = escapeHtml(payload.shareScore || '-');
+        const scoreStars = renderStars(score);
+        const date = escapeHtml(payload.shareDate || '-');
+        const imageUrl = sanitizeUrl(payload.shareImageUrl || '');
+        const shareLink = String(payload.shareLink || '').trim();
+        const qrCodeUrl = shareLink
+            ? `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=0&data=${encodeURIComponent(shareLink)}`
+            : '';
+        const previewRaw = String(payload.shareComment || '').replace(/\s+/g, ' ').trim();
+        const previewText = previewRaw
+            ? escapeHtml(previewRaw.length > 88 ? `${previewRaw.slice(0, 88).trim()}...` : previewRaw)
+            : 'Kein Kommentar angegeben.';
+
+        return `
+            <div class="review-share-modal-layout">
+                <article class="review-share-story-card" aria-label="Story-Vorschau">
+                    <img src="${imageUrl}" alt="Story Vorschau" class="review-share-story-image" loading="lazy" />
+                    <div class="review-share-story-overlay"></div>
+                    ${qrCodeUrl ? `
+                        <div class="review-share-story-qr" aria-hidden="true">
+                            <img src="${qrCodeUrl}" alt="QR Code zum Review" class="review-share-story-qr-image" loading="lazy" />
+                        </div>
+                    ` : ''}
+                    <div class="review-share-story-content">
+                        <h3>${spotName}</h3>
+                        <div class="review-share-story-meta">
+                            <span>von ${reviewerName}</span>
+                            <span>· ${date}</span>
+                        </div>
+                        <span class="review-share-story-score">${scoreStars}</span>
+                        <span class="review-share-story-footer">"${previewText}"</span>
+                    </div>
+                </article>
+            </div>
+            <div class="review-share-actions-shell">
+                <aside class="review-share-actions">
+                    <h3>Review Teilen</h3>
+                    <p>Screenshotte die Story-Karte links für Instagram/TikTok. Für den Link kannst du die Buttons unten nutzen.</p>
+                    <div class="review-share-actions-row">
+                        <button type="button" class="review-share-action-btn" data-share-action="copy-link">Link kopieren</button>
+                        <button type="button" class="review-share-action-btn" data-share-action="copy-text">Share-Text kopieren</button>
+                        <button type="button" class="review-share-action-btn" data-share-action="native-share">TEILEN</button>
+                    </div>
+                    <p class="review-share-status" data-share-status aria-live="polite"></p>
+                </aside>
+            </div>
+        `;
+    }
+
+    let activeReviewShareTrigger = null;
+
+    function openReviewShareStoryModal(payload) {
+        const reviewShareModal = document.getElementById('review-share-modal');
+        const reviewShareModalContent = document.getElementById('review-share-modal-content');
+        if (!reviewShareModal || !reviewShareModalContent) return false;
+
+        const shareSpotName = String(payload.shareSpotName || '').trim() || 'Spot';
+        const shareReviewerName = String(payload.shareReviewerName || '').trim() || 'Anonym';
+        const shareLink = String(payload.shareLink || '').trim();
+
+        activeReviewShareTrigger = payload.triggerButton || null;
+        reviewShareModalContent.innerHTML = renderReviewShareStoryModal(payload);
+
+        const statusEl = reviewShareModalContent.querySelector('[data-share-status]');
+        const actionButtons = reviewShareModalContent.querySelectorAll('[data-share-action]');
+        const nativeShareBtn = reviewShareModalContent.querySelector('[data-share-action="native-share"]');
+
+        if (!(navigator.share && window.isSecureContext)) {
+            nativeShareBtn?.setAttribute('hidden', 'hidden');
+        }
+
+        const applyShareButtonState = (button, label, className) => {
+            if (!button) return;
+            const defaultLabel = button.dataset.defaultLabel || button.textContent;
+            button.dataset.defaultLabel = defaultLabel;
+            button.textContent = label;
+            button.classList.remove('is-success', 'is-error');
+            if (className) button.classList.add(className);
+
+            if (button._shareStoryTimeout) {
+                clearTimeout(button._shareStoryTimeout);
+            }
+
+            button._shareStoryTimeout = setTimeout(() => {
+                button.textContent = button.dataset.defaultLabel;
+                button.classList.remove('is-success', 'is-error');
+                button._shareStoryTimeout = null;
+            }, 1600);
+        };
+
+        actionButtons.forEach((button) => {
+            button.addEventListener('click', async () => {
+                const action = String(button.dataset.shareAction || '').trim();
+                try {
+                    if (action === 'copy-link') {
+                        await copyTextToClipboard(shareLink);
+                        applyShareButtonState(button, 'Link kopiert', 'is-success');
+                        if (statusEl) statusEl.textContent = 'Link wurde in die Zwischenablage kopiert.';
+                        return;
+                    }
+
+                    if (action === 'copy-text') {
+                        await copyCommunityReviewShareText(shareSpotName, shareReviewerName, shareLink);
+                        applyShareButtonState(button, 'Text kopiert', 'is-success');
+                        if (statusEl) statusEl.textContent = 'Share-Text wurde in die Zwischenablage kopiert.';
+                        return;
+                    }
+
+                    if (action === 'native-share' && navigator.share && window.isSecureContext) {
+                        const text = buildCommunityReviewShareText(shareSpotName, shareReviewerName, shareLink);
+                        await navigator.share({
+                            title: `${shareSpotName} - Community Review`,
+                            text,
+                            url: shareLink
+                        });
+                        applyShareButtonState(button, 'Geteilt', 'is-success');
+                        if (statusEl) statusEl.textContent = 'Native Share erfolgreich geöffnet.';
+                    }
+                } catch (error) {
+                    applyShareButtonState(button, 'Fehler', 'is-error');
+                    if (statusEl) statusEl.textContent = 'Teilen fehlgeschlagen. Bitte erneut versuchen.';
+                }
+            });
+        });
+
+        reviewShareModal.classList.add('active');
+        reviewShareModal.setAttribute('aria-hidden', 'false');
+        syncModalOpenState();
+        reviewShareModalContent.querySelector('[data-share-action]')?.focus();
+        return true;
     }
 
     async function copyTextToClipboard(text) {
@@ -4589,6 +4743,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentFeedbackModal = document.getElementById('comment-feedback-modal');
     const communityReviewModal = document.getElementById('community-review-modal');
     const communityReviewModalContent = document.getElementById('community-review-modal-content');
+    const reviewShareModal = document.getElementById('review-share-modal');
+    const reviewShareModalContent = document.getElementById('review-share-modal-content');
     const commentFeedbackConfirm = commentFeedbackModal
         ? commentFeedbackModal.querySelector('.comment-feedback-confirm')
         : null;
@@ -4631,7 +4787,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasActiveModal =
             (legalModal && legalModal.classList.contains('active')) ||
             (commentFeedbackModal && commentFeedbackModal.classList.contains('active')) ||
-            (communityReviewModal && communityReviewModal.classList.contains('active'));
+            (communityReviewModal && communityReviewModal.classList.contains('active')) ||
+            (reviewShareModal && reviewShareModal.classList.contains('active'));
 
         document.body.classList.toggle('modal-open', Boolean(hasActiveModal));
     };
@@ -4733,6 +4890,20 @@ document.addEventListener('DOMContentLoaded', () => {
         activeCommunityReviewTrigger = null;
     };
 
+    const closeReviewShareModal = () => {
+        if (!reviewShareModal || !reviewShareModalContent) return;
+        reviewShareModal.classList.remove('active');
+        reviewShareModal.setAttribute('aria-hidden', 'true');
+        reviewShareModalContent.innerHTML = '';
+        syncModalOpenState();
+
+        if (activeReviewShareTrigger && typeof activeReviewShareTrigger.focus === 'function') {
+            activeReviewShareTrigger.focus();
+        }
+
+        activeReviewShareTrigger = null;
+    };
+
     if (openDisclaimer) openDisclaimer.addEventListener('click', (e) => { e.preventDefault(); openModal('disclaimer'); });
     if (openPrivacy) openPrivacy.addEventListener('click', (e) => { e.preventDefault(); openModal('privacy'); });
     if (openImpressum) openImpressum.addEventListener('click', (e) => { e.preventDefault(); openModal('impressum'); });
@@ -4766,6 +4937,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && communityReviewModal.classList.contains('active')) {
                 closeCommunityReviewModal();
+            }
+        });
+    }
+
+    if (reviewShareModal) {
+        reviewShareModal.querySelector('.modal-overlay')?.addEventListener('click', closeReviewShareModal);
+        reviewShareModal.querySelector('.modal-close')?.addEventListener('click', closeReviewShareModal);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && reviewShareModal.classList.contains('active')) {
+                closeReviewShareModal();
             }
         });
     }
