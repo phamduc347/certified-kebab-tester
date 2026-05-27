@@ -3301,7 +3301,9 @@ body.dark .review-community-modal-image-container {
     }
 
     .community-review-modal-container {
-        max-height: 92vh;
+        width: min(1248px, calc(100vw - 24px));
+        max-height: calc(100svh - 24px);
+        max-height: calc(100dvh - 24px);
         border-radius: 22px;
     }
 
