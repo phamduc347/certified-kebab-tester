@@ -876,8 +876,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const isMobile = window.innerWidth <= 768;
         const limit = isMobile ? 5 : 7;
 
-        // Take last visits
-        const activeReviews = allVisits.slice(-limit);
+        // Group reviews by unique visit date (YYYY-MM-DD)
+        const visitDateMap = new Map();
+        allVisits.forEach((review) => {
+            const d = new Date(review.visit_date);
+            if (Number.isNaN(d.getTime())) return;
+            const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            if (!visitDateMap.has(dateKey)) {
+                visitDateMap.set(dateKey, []);
+            }
+            visitDateMap.get(dateKey).push(review);
+        });
+
+        // Take the last N unique dates and collect all their reviews
+        const sortedDateKeys = [...visitDateMap.keys()].sort();
+        const selectedDateKeys = sortedDateKeys.slice(-limit);
+        const activeReviews = selectedDateKeys.flatMap((key) => visitDateMap.get(key));
 
         // Find boundary dates: oldest of the visits is start, newest of the visits is end
         const startVisitDate = activeReviews[0].visit_date;
