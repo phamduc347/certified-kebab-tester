@@ -4099,6 +4099,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 .some((item) => String(item.dataset.reviewId || '') === targetReviewId);
         };
 
+        const openDeepLinkedReviewModalWithoutScroll = () => {
+            activeCities = new Set(cities);
+            activeDishes = new Set(dishes);
+            visibleCount = kebabData.length;
+            populateFilters();
+            renderGrid();
+
+            const card = document.getElementById(`spot-${targetSpotId}`);
+            if (!card) return false;
+
+            card.classList.add('expanded');
+            syncConfirmedReviewsPanelState(card, true);
+
+            const reviewTrigger = card.querySelector(`.review-community-preview-btn[data-review-id="${targetReviewId}"]`);
+            if (!reviewTrigger) return false;
+
+            openCommunityReviewPopup(targetSpotId, targetReviewId, reviewTrigger);
+            return true;
+        };
+
         const tryJumpToSharedReview = (attempt = 0) => {
             const hasData = Array.isArray(kebabData) && kebabData.length > 0;
             if (!hasData) {
@@ -4116,6 +4136,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (targetReviewId) {
+                const shouldOpenReviewModalWithoutScroll = window.innerWidth <= 768;
+                if (shouldOpenReviewModalWithoutScroll) {
+                    if (openDeepLinkedReviewModalWithoutScroll()) {
+                        clearShareParamsFromUrl();
+                        return;
+                    }
+
+                    if (attempt < 20) {
+                        setTimeout(() => tryJumpToSharedReview(attempt + 1), 220);
+                    }
+                    return;
+                }
+
                 jumpToReview(targetSpotId, targetReviewId);
 
                 // wait for jump animation/render and verify review item exists; retry if data arrived late
