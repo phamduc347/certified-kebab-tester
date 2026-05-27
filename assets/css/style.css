@@ -5014,7 +5014,9 @@ body.modal-open {
 }
 
 @keyframes review-share-spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .review-share-copy-btn,

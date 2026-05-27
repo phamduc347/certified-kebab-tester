@@ -3510,7 +3510,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="review-share-story-rendered-preview"></div>
                     <div class="review-share-story-loading" aria-hidden="true">
                         <div class="review-share-story-loading-spinner"></div>
-                        <span>Erstelle Share-Card...</span>
+                        <span>Story-Karte wird geladen...</span>
                     </div>
                     <div class="review-share-story-image" style="background-image: url('${imageUrl}');" aria-label="Story Vorschau"></div>
                     <div class="review-share-story-overlay"></div>
