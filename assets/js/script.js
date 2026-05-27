@@ -3490,9 +3490,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const detailBadges = [];
 
         if (dish !== '-') detailBadges.push(`<span class="review-share-story-pill review-share-story-pill--accent">${dish}</span>`);
-        if (price !== '-') detailBadges.push(`<span class="review-share-story-pill">Preis: ${price}</span>`);
+        if (price !== '-') detailBadges.push(`<span class="review-share-story-pill">${price}</span>`);
         if (consumptionType !== '-') detailBadges.push(`<span class="review-share-story-pill">${consumptionType}</span>`);
-        if (city !== '-') detailBadges.push(`<span class="review-share-story-pill">Ort: ${city}</span>`);
+        if (city !== '-') detailBadges.push(`<span class="review-share-story-pill">${city}</span>`);
 
         const detailBadgesMarkup = detailBadges.length > 0
             ? `<div class="review-share-story-badges">${detailBadges.join('')}</div>`
