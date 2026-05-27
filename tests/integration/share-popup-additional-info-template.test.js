@@ -17,6 +17,6 @@ describe('Share popup additional info template', () => {
         expect(source).toContain('if (price !== \'-\') detailBadges.push');
         expect(source).toContain('if (city !== \'-\') detailBadges.push');
         expect(source).toContain('class="review-share-story-badges"');
-        expect(source).toContain('Mehr Reviews auf certifiedkebabtester.de');
+        expect(source).toContain('MEHR REVIEWS AUF CERTIFIEDKEBABTESTER.DE');
     });
 });

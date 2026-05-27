@@ -3494,11 +3494,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             <div class="review-share-modal-layout">
                 <article class="review-share-story-card" aria-label="Story-Vorschau">
-                    <img src="${imageUrl}" alt="Story Vorschau" class="review-share-story-image" loading="lazy" />
+                    <div class="review-share-story-rendered-preview" style="position: absolute; inset: 0; z-index: 10; display: none; border-radius: inherit; pointer-events: none;"></div>
+                    <img src="${imageUrl}" crossorigin="anonymous" alt="Story Vorschau" class="review-share-story-image" loading="lazy" />
                     <div class="review-share-story-overlay"></div>
                     ${qrCodeUrl ? `
                         <div class="review-share-story-qr" aria-hidden="true">
-                            <img src="${qrCodeUrl}" alt="QR Code zum Review" class="review-share-story-qr-image" loading="lazy" />
+                            <img src="${qrCodeUrl}" crossorigin="anonymous" alt="QR Code zum Review" class="review-share-story-qr-image" loading="lazy" />
                         </div>
                     ` : ''}
                     <div class="review-share-story-content">
@@ -3507,10 +3508,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span>von ${reviewerName}</span>
                             <span>· ${date}</span>
                         </div>
+                        <div class="review-share-story-score">${scoreStars}</div>
                         ${detailBadgesMarkup}
-                        <span class="review-share-story-score">${scoreStars}</span>
                         <span class="review-share-story-footer">"${previewText}"</span>
-                        <span class="review-share-story-cta">Mehr Reviews auf certifiedkebabtester.de</span>
+                        <span class="review-share-story-cta">MEHR REVIEWS AUF CERTIFIEDKEBABTESTER.DE</span>
                     </div>
                 </article>
             </div>
@@ -3568,6 +3569,62 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1600);
         };
 
+        // Pre-render the 4K card in the background for display in modal and instant download
+        const backgroundRenderPromise = (async () => {
+            const storyCard = reviewShareModalContent.querySelector('.review-share-story-card');
+            if (!storyCard || typeof window.html2canvas !== 'function') return null;
+
+            const exportCard = storyCard.cloneNode(true);
+            exportCard.classList.add('is-export');
+            exportCard.style.position = 'absolute';
+            exportCard.style.left = '-9999px';
+            exportCard.style.top = '0';
+            exportCard.style.width = '1080px';
+            exportCard.style.height = '1920px';
+            
+            document.body.appendChild(exportCard);
+
+            let canvas;
+            try {
+                canvas = await window.html2canvas(exportCard, {
+                    backgroundColor: null,
+                    useCORS: true,
+                    width: 1080,
+                    height: 1920,
+                    scale: 2
+                });
+            } finally {
+                document.body.removeChild(exportCard);
+            }
+
+            const imageBlob = await new Promise((resolve) => {
+                canvas.toBlob(resolve, 'image/png');
+            });
+
+            return imageBlob;
+        })();
+
+        reviewShareModal._currentRenderPromise = backgroundRenderPromise;
+
+        // Apply pre-rendered preview as soon as it's ready
+        backgroundRenderPromise.then((imageBlob) => {
+            if (imageBlob && reviewShareModal.classList.contains('active')) {
+                const imageUrl = URL.createObjectURL(imageBlob);
+                reviewShareModal._previewImageUrl = imageUrl;
+                reviewShareModal._cachedBlob = imageBlob;
+
+                const previewContainer = reviewShareModalContent.querySelector('.review-share-story-rendered-preview');
+                if (previewContainer) {
+                    previewContainer.innerHTML = `
+                        <img src="${imageUrl}" alt="Rendered Preview" style="width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit;" />
+                    `;
+                    previewContainer.style.display = 'block';
+                }
+            }
+        }).catch((err) => {
+            console.error('Pre-rendering preview failed:', err);
+        });
+
         actionButtons.forEach((button) => {
             button.addEventListener('click', async () => {
                 const action = String(button.dataset.shareAction || '').trim();
@@ -3579,16 +3636,53 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     if (action === 'download-image') {
-                        const storyCard = reviewShareModalContent.querySelector('.review-share-story-card');
-                        if (!storyCard || typeof window.html2canvas !== 'function') {
-                            throw new Error('share-image-export-unavailable');
+                        let imageBlob = reviewShareModal._cachedBlob;
+                        if (!imageBlob) {
+                            if (reviewShareModal._currentRenderPromise) {
+                                imageBlob = await reviewShareModal._currentRenderPromise;
+                            } else {
+                                const storyCard = reviewShareModalContent.querySelector('.review-share-story-card');
+                                if (!storyCard || typeof window.html2canvas !== 'function') {
+                                    throw new Error('share-image-export-unavailable');
+                                }
+
+                                const exportCard = storyCard.cloneNode(true);
+                                exportCard.classList.add('is-export');
+                                exportCard.style.position = 'absolute';
+                                exportCard.style.left = '-9999px';
+                                exportCard.style.top = '0';
+                                exportCard.style.width = '1080px';
+                                exportCard.style.height = '1920px';
+                                
+                                document.body.appendChild(exportCard);
+
+                                let canvas;
+                                try {
+                                    canvas = await window.html2canvas(exportCard, {
+                                        backgroundColor: null,
+                                        useCORS: true,
+                                        width: 1080,
+                                        height: 1920,
+                                        scale: 2
+                                    });
+                                } finally {
+                                    document.body.removeChild(exportCard);
+                                }
+
+                                imageBlob = await new Promise((resolve) => {
+                                    canvas.toBlob(resolve, 'image/png');
+                                });
+                            }
                         }
 
-                        const canvas = await window.html2canvas(storyCard, {
-                            backgroundColor: null,
-                            useCORS: true,
-                            scale: Math.max(2, window.devicePixelRatio || 1)
-                        });
+                        if (!imageBlob) {
+                            throw new Error('blob-generation-failed');
+                        }
+
+                        // Maximum image size check (30MB)
+                        if (imageBlob.size > 30 * 1024 * 1024) {
+                            throw new Error('image-size-exceeds-limit');
+                        }
 
                         const safeSpotName = shareSpotName
                             .toLowerCase()
@@ -3597,33 +3691,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         const filename = `kebab-review-${safeSpotName}.png`;
 
-                        if (typeof navigator !== 'undefined' && typeof navigator.share === 'function' && typeof canvas.toBlob === 'function') {
-                            const imageBlob = await new Promise((resolve) => {
-                                canvas.toBlob(resolve, 'image/png');
-                            });
+                        if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+                            const shareFile = new File([imageBlob], filename, { type: 'image/png' });
+                            const canShareFile = typeof navigator.canShare === 'function'
+                                ? navigator.canShare({ files: [shareFile] })
+                                : true;
 
-                            if (imageBlob) {
-                                const shareFile = new File([imageBlob], filename, { type: 'image/png' });
-                                const canShareFile = typeof navigator.canShare === 'function'
-                                    ? navigator.canShare({ files: [shareFile] })
-                                    : true;
-
-                                if (canShareFile) {
-                                    await navigator.share({
-                                        files: [shareFile],
-                                        title: `${shareSpotName} - Community Review`,
-                                        text: buildCommunityReviewNativeShareText(shareSpotName, shareReviewerName)
-                                    });
-                                    applyShareButtonState(button, 'Bild heruntergeladen', 'is-success');
-                                    return;
-                                }
+                            if (canShareFile) {
+                                await navigator.share({
+                                    files: [shareFile],
+                                    title: `${shareSpotName} - Community Review`,
+                                    text: buildCommunityReviewNativeShareText(shareSpotName, shareReviewerName)
+                                });
+                                applyShareButtonState(button, 'Bild heruntergeladen', 'is-success');
+                                return;
                             }
                         }
 
                         const downloadLink = document.createElement('a');
-                        downloadLink.href = canvas.toDataURL('image/png');
+                        downloadLink.href = URL.createObjectURL(imageBlob);
                         downloadLink.download = filename;
                         downloadLink.click();
+                        
+                        // Clean up URL object after a short delay
+                        setTimeout(() => {
+                            URL.revokeObjectURL(downloadLink.href);
+                        }, 100);
 
                         applyShareButtonState(button, 'PNG gespeichert', 'is-success');
                         return;
@@ -5012,6 +5105,13 @@ document.addEventListener('DOMContentLoaded', () => {
         reviewShareModalContainer?.classList.remove('is-photo-focus-mode');
         reviewShareModalContent.innerHTML = '';
         syncModalOpenState();
+
+        if (reviewShareModal._previewImageUrl) {
+            URL.revokeObjectURL(reviewShareModal._previewImageUrl);
+            reviewShareModal._previewImageUrl = null;
+        }
+        reviewShareModal._cachedBlob = null;
+        reviewShareModal._currentRenderPromise = null;
 
         if (activeReviewShareTrigger && typeof activeReviewShareTrigger.focus === 'function') {
             activeReviewShareTrigger.focus();

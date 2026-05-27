@@ -4902,6 +4902,7 @@ body.modal-open {
     min-height: clamp(320px, 56dvh, 640px);
     border-radius: 26px;
     overflow: hidden;
+    contain: paint;
     border: 1px solid rgba(255, 255, 255, 0.25);
     box-shadow: 0 28px 52px rgba(15, 23, 42, 0.3);
     background: #111827;
@@ -4922,12 +4923,14 @@ body.modal-open {
     height: 100%;
     object-fit: cover;
     object-position: center;
+    border-radius: inherit;
 }
 
 .review-share-story-overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.9) 88%);
+    border-radius: inherit;
 }
 
 .review-share-story-qr {
@@ -4977,6 +4980,7 @@ body.modal-open {
     gap: 8px;
     font-size: 0.82rem;
     color: rgba(255, 255, 255, 0.9);
+    align-items: center;
 }
 
 .review-share-story-badges {
@@ -5002,8 +5006,13 @@ body.modal-open {
 }
 
 .review-share-story-score {
-    font-size: 0.9rem;
-    font-weight: 800;
+    margin-top: -6px;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.review-share-story-score .stars-outer {
+    font-size: 1.55rem !important;
 }
 
 .review-share-story-footer {
@@ -6090,5 +6099,90 @@ body.dark .tooltip-cluster-row:active {
     .hero-timeline-tick-label {
         font-size: 0.55rem;
     }
+}
+
+.review-share-story-cta {
+    display: block !important;
+    text-align: right !important;
+    width: 100% !important;
+}
+
+/* --- High-Resolution 1080x1920 Story Export Card Styling (Optimized for Instagram Stories) --- */
+.review-share-story-card.is-export {
+    width: 1080px !important;
+    height: 1920px !important;
+    min-height: 1920px !important;
+    border-radius: 40px !important;
+    border: 3px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: none !important;
+    contain: paint !important;
+}
+
+/* Push QR code below top safe zone (260px from top) */
+.review-share-story-card.is-export .review-share-story-qr {
+    top: 260px !important;
+    right: 60px !important;
+    width: 240px !important;
+    height: 240px !important;
+    padding: 16px !important;
+    border-radius: 24px !important;
+}
+
+.review-share-story-card.is-export .review-share-story-qr-image {
+    border-radius: 12px !important;
+}
+
+/* Add bottom padding (260px) to raise content above bottom safe zone */
+.review-share-story-card.is-export .review-share-story-content {
+    padding: 60px 60px 260px 60px !important;
+    gap: 20px !important;
+}
+
+.review-share-story-card.is-export .review-share-story-content h3 {
+    font-size: 76px !important;
+    line-height: 1.1 !important;
+    font-weight: 900 !important;
+    margin-bottom: 8px !important;
+}
+
+.review-share-story-card.is-export .review-share-story-meta {
+    font-size: 26px !important;
+    gap: 16px !important;
+    margin-bottom: 12px !important;
+    align-items: center !important;
+}
+
+.review-share-story-card.is-export .review-share-story-badges {
+    gap: 12px !important;
+    margin-bottom: 12px !important;
+}
+
+.review-share-story-card.is-export .review-share-story-pill {
+    font-size: 24px !important;
+    padding: 12px 28px !important;
+    border-radius: 999px !important;
+}
+
+.review-share-story-card.is-export .review-share-story-score {
+    margin-top: -24px !important;
+    margin-bottom: 16px !important;
+    display: block !important;
+}
+
+.review-share-story-card.is-export .review-share-story-score .stars-outer {
+    font-size: 58px !important;
+}
+
+.review-share-story-card.is-export .review-share-story-footer {
+    font-size: 34px !important;
+    line-height: 1.45 !important;
+    margin-top: 16px !important;
+    margin-bottom: 24px !important;
+}
+
+.review-share-story-card.is-export .review-share-story-cta {
+    font-size: 24px !important;
+    margin-top: 30px !important;
+    letter-spacing: 2px !important;
 }
 
