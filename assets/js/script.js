@@ -2535,7 +2535,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <article class="review-community-modal-card" data-review-id="${data.shareReviewId}">
                 <div class="review-community-modal-hero">
                     <div class="review-community-modal-copy">
-                        <span class="review-community-modal-eyebrow">Community Review</span>
                         <h2>${escapeHtml(data.rawSpotName)}</h2>
                         <div class="review-community-pattern-line review-community-pattern-line--summary" aria-label="Review Kopfzeile">
                             ${renderStars(data.scoreDisplay)}

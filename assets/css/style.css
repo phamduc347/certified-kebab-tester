@@ -2591,19 +2591,6 @@ section {
     max-width: 620px;
 }
 
-.review-community-modal-eyebrow {
-    display: inline-flex;
-    width: fit-content;
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: rgba(217, 119, 6, 0.12);
-    color: #9a3412;
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
 .review-community-modal-copy h2 {
     margin: 0;
     font-size: clamp(1.8rem, 2.6vw, 2.6rem);
@@ -2718,11 +2705,6 @@ body.dark .community-review-modal-container {
 
 body.dark .review-community-modal-image-container {
     background: rgba(255, 255, 255, 0.04);
-}
-
-body.dark .review-community-modal-eyebrow {
-    background: rgba(245, 158, 11, 0.16);
-    color: #fcd34d;
 }
 
 .review-community-meta {
