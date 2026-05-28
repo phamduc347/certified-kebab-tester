@@ -1748,7 +1748,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function validateCommunityScoreInputs(form, showNativeMessage = false) {
-        const scoreInputs = form ? form.querySelectorAll('.community-score-grid input') : [];
+        const scoreInputs = form ? form.querySelectorAll('.community-score-grid input[type="number"]') : [];
         let valid = true;
 
         scoreInputs.forEach((input) => {
@@ -1762,6 +1762,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         return valid;
+    }
+
+    function updateCommunityScoreSliderFill(slider, numericValue) {
+        if (!slider) return;
+
+        const min = Number.parseFloat(slider.min);
+        const max = Number.parseFloat(slider.max);
+        const safeMin = Number.isFinite(min) ? min : 0;
+        const safeMax = Number.isFinite(max) ? max : 10;
+        const clamped = Math.min(safeMax, Math.max(safeMin, Number.parseFloat(numericValue) || safeMin));
+        const span = safeMax - safeMin;
+        const progress = span > 0 ? ((clamped - safeMin) / span) * 100 : 0;
+
+        slider.style.setProperty('--score-progress', `${Math.min(100, Math.max(0, progress))}%`);
     }
 
     function updateCommunityCommentCounter() {
@@ -2208,7 +2222,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     validateCommunityVisitDateInput(visitDateInput);
                 });
             }
-            const scoreInputs = communityReviewForm.querySelectorAll('.community-score-grid input');
+            const scoreInputs = communityReviewForm.querySelectorAll('.community-score-grid input[type="number"]');
             scoreInputs.forEach((input) => {
                 input.addEventListener('input', () => {
                     validateCommunityScoreInput(input);
@@ -2219,6 +2233,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 input.addEventListener('blur', () => {
                     validateCommunityScoreInput(input);
                 });
+            });
+
+            document.querySelectorAll('.community-score-grid label').forEach(label => {
+                const slider = label.querySelector('.score-slider');
+                const numberInput = label.querySelector('.score-number');
+                if (slider && numberInput) {
+                    const syncFromSlider = () => {
+                        const sliderValue = Number.parseFloat(slider.value);
+                        const sliderClamped = Number.isFinite(sliderValue)
+                            ? Math.min(10, Math.max(0, sliderValue))
+                            : 0;
+                        const scoreValue = Math.max(1, sliderClamped);
+                        const normalizedSlider = sliderClamped.toFixed(1).replace(/\.0$/, '');
+                        const normalizedScore = scoreValue.toFixed(1).replace(/\.0$/, '');
+
+                        slider.value = normalizedSlider;
+                        numberInput.value = normalizedScore;
+                        updateCommunityScoreSliderFill(slider, sliderClamped);
+                        validateCommunityScoreInput(numberInput);
+                    };
+
+                    const syncFromNumberInput = () => {
+                        const numberValue = Number.parseFloat(numberInput.value);
+                        const clamped = Number.isFinite(numberValue)
+                            ? Math.min(10, Math.max(1, numberValue))
+                            : 1;
+                        const normalized = clamped.toFixed(1).replace(/\.0$/, '');
+
+                        numberInput.value = normalized;
+                        slider.value = normalized;
+                        updateCommunityScoreSliderFill(slider, clamped);
+                    };
+
+                    syncFromNumberInput();
+
+                    slider.addEventListener('input', () => {
+                        syncFromSlider();
+                    });
+                    numberInput.addEventListener('input', () => {
+                        syncFromNumberInput();
+                    });
+                    numberInput.addEventListener('blur', () => {
+                        syncFromNumberInput();
+                    });
+                }
             });
         }
 

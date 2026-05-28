@@ -18,7 +18,7 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     -->
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/style.css?v=4.4">
+    <link rel="stylesheet" href="assets/css/style.css?v=4.5">
     <!-- Dark mode: apply class before render to prevent flash -->
     <script>
         // Check for saved theme preference or system preference
@@ -281,22 +281,51 @@
                     <details class="community-score-panel">
                         <summary>Bewertungen (9 Kriterien)</summary>
                         <div class="community-score-grid">
-                            <label>Fleisch <input type="number" name="fleisch" min="1" max="10" step="0.1"
-                                    required></label>
-                            <label>Gemüse <input type="number" name="gemuese" min="1" max="10" step="0.1"
-                                    required></label>
-                            <label>Soße <input type="number" name="sosse" min="1" max="10" step="0.1" required></label>
-                            <label>Brot <input type="number" name="brot" min="1" max="10" step="0.1" required></label>
-                            <label>Balance <input type="number" name="balance" min="1" max="10" step="0.1"
-                                    required></label>
-                            <label>Auswahl <input type="number" name="auswahl" min="1" max="10" step="0.1"
-                                    required></label>
-                            <label>Portion <input type="number" name="portion" min="1" max="10" step="0.1"
-                                    required></label>
-                            <label>Hygiene <input type="number" name="hygiene" min="1" max="10" step="0.1"
-                                    required></label>
-                            <label>Service <input type="number" name="service" min="1" max="10" step="0.1"
-                                    required></label>
+                            <label>
+                                <span>🥩 Fleisch</span>
+                                <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                <input type="number" name="fleisch" class="score-number" min="1" max="10" step="0.1" value="5" required>
+                            </label>
+                            <label>
+                                <span>🥬 Gemüse</span>
+                                <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                <input type="number" name="gemuese" class="score-number" min="1" max="10" step="0.1" value="5" required>
+                            </label>
+                            <label>
+                                <span>🍶 Soße</span>
+                                <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                <input type="number" name="sosse" class="score-number" min="1" max="10" step="0.1" value="5" required>
+                            </label>
+                            <label>
+                                <span>🥖 Brot</span>
+                                <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                <input type="number" name="brot" class="score-number" min="1" max="10" step="0.1" value="5" required>
+                            </label>
+                            <label>
+                                <span>⚖️ Balance</span>
+                                <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                <input type="number" name="balance" class="score-number" min="1" max="10" step="0.1" value="5" required>
+                            </label>
+                            <label>
+                                <span>📋 Auswahl</span>
+                                <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                <input type="number" name="auswahl" class="score-number" min="1" max="10" step="0.1" value="5" required>
+                            </label>
+                            <label>
+                                <span>🍽️ Portion</span>
+                                <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                <input type="number" name="portion" class="score-number" min="1" max="10" step="0.1" value="5" required>
+                            </label>
+                            <label>
+                                <span>✨ Hygiene</span>
+                                <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                <input type="number" name="hygiene" class="score-number" min="1" max="10" step="0.1" value="5" required>
+                            </label>
+                            <label>
+                                <span>👨‍🍳 Service</span>
+                                <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                <input type="number" name="service" class="score-number" min="1" max="10" step="0.1" value="5" required>
+                            </label>
                         </div>
                         <p class="community-score-hint">Bitte Werte von 1 bis 10 mit maximal einer Dezimalstelle
                             eingeben (z. B. 8 oder 8.5).</p>
@@ -674,7 +703,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="assets/data/kebab-data.js?v=4.3"></script>
-    <script src="assets/js/script.js?v=4.4"></script>
+    <script src="assets/js/script.js?v=4.5"></script>
 </body>
 
 </html>

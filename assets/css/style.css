@@ -185,6 +185,18 @@ body.dark .community-score-grid label {
     border-color: #2a2a2a;
 }
 
+body.dark .community-score-grid label .score-slider {
+    background: linear-gradient(to right, hsl(0, 80%, 42%), hsl(45, 80%, 42%), hsl(120, 80%, 42%));
+}
+
+body.dark .community-score-grid label .score-slider::-moz-range-track {
+    background: linear-gradient(to right, hsl(0, 80%, 42%), hsl(45, 80%, 42%), hsl(120, 80%, 42%));
+}
+
+body.dark .community-score-grid label .score-slider::-moz-range-progress {
+    background: linear-gradient(to right, hsl(0, 80%, 42%), hsl(45, 80%, 42%), hsl(120, 80%, 42%));
+}
+
 body.dark .review-comment-text,
 body.dark .review-community-text,
 body.dark .community-review-text {
@@ -2897,16 +2909,69 @@ body.dark .review-community-modal-image-container {
     background: #ffffff;
     padding: 7px 8px;
     display: grid;
-    grid-template-columns: 1fr 72px;
+    grid-template-columns: 60px 1fr 50px;
     align-items: center;
     gap: 8px;
     font-size: 0.76rem;
 }
 
-.community-score-grid label input {
+.community-score-grid label .score-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    height: 8px;
+    background: linear-gradient(to right, hsl(0, 80%, 42%), hsl(45, 80%, 42%), hsl(120, 80%, 42%));
+    border-radius: 4px;
+    outline: none;
+}
+
+.community-score-grid label .score-slider::-moz-range-track {
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, hsl(0, 80%, 42%), hsl(45, 80%, 42%), hsl(120, 80%, 42%));
+}
+
+.community-score-grid label .score-slider::-moz-range-progress {
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, hsl(0, 80%, 42%), hsl(45, 80%, 42%), hsl(120, 80%, 42%));
+}
+
+.community-score-grid label .score-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #2563eb;
+    cursor: pointer;
+}
+
+.community-score-grid label .score-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #2563eb;
+    cursor: pointer;
+    border: none;
+}
+
+.community-score-grid label .score-number {
     text-align: center;
-    padding: 6px 8px;
+    padding: 4px;
     font-size: 0.8rem;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -moz-appearance: textfield;
+}
+
+.community-score-grid label .score-number::-webkit-outer-spin-button,
+.community-score-grid label .score-number::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .community-score-hint {
@@ -3263,9 +3328,12 @@ body.dark .review-community-modal-image-container {
         margin-top: 10px;
     }
 
-    .community-review-grid.two-cols,
-    .community-score-grid {
+    .community-review-grid.two-cols {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .community-score-grid {
+        grid-template-columns: 1fr;
     }
 
     .community-reviews-card {
@@ -3281,8 +3349,21 @@ body.dark .review-community-modal-image-container {
     }
 
     .community-score-grid label {
-        grid-template-columns: 1fr 64px;
+        grid-template-columns: 1fr 45px;
         padding: 6px 7px;
+    }
+
+    .community-score-grid label span {
+        grid-column: 1 / -1;
+    }
+
+    .community-score-grid label .score-slider {
+        grid-column: 1;
+        margin: 0;
+    }
+
+    .community-score-grid label .score-number {
+        grid-column: 2;
     }
 
     .community-score-panel {
@@ -3348,8 +3429,7 @@ body.dark .mobile-filter-clear-btn:hover {
 
 @media (max-width: 420px) {
 
-    .community-review-grid.two-cols,
-    .community-score-grid {
+    .community-review-grid.two-cols {
         grid-template-columns: 1fr;
     }
 }
