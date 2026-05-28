@@ -3386,7 +3386,7 @@ body.dark .review-community-modal-image-container {
         padding: 12px;
     }
 
-    .community-review-modal-container {
+    .modal-container.community-review-modal-container {
         width: min(1248px, calc(100vw - 24px));
         max-height: calc(100svh - 24px);
         max-height: calc(100dvh - 24px);
