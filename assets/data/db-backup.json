@@ -1,11 +1,57 @@
 {
   "info": {
-    "timestamp": "2026-05-27T12:38:30.960Z",
+    "timestamp": "2026-05-28T04:00:16.776Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
   "data": {
     "community_reviews": [
+      {
+        "id": 61,
+        "reviewer_name": "👑 Pham (CKT)",
+        "spot_name": "Taksim Steak Kebab Haus",
+        "city": "Dresden",
+        "dish": "Döner",
+        "visit_date": "2026-05-27",
+        "fleisch": 7.5,
+        "gemuese": 8.1,
+        "sosse": 7.8,
+        "brot": 8.4,
+        "balance": 7.2,
+        "auswahl": 7.8,
+        "portion": 8.2,
+        "hygiene": 8.4,
+        "service": 8.5,
+        "comment_text": "Heute gab‘s zwei mal Döner. Zum Mittag und zum Abend aber beide Male waren leider sehr ernüchternd.. Bei Taksim wurde heute eindeutig nicht geduldig gewartet um die Krosshaftigkeit des Fleisches zu garantieren. Stattdessen ist man das Risiko eingegangen unwissentlich dem Dönertester ein unfertiges Werk zu liefern. Insgesamt war das sowohl geschmacklich als auch optisch eher eine schwache Leistung. Ist da eine Trendwende zu erkennen?",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1779916867976-2wz8l8uv.jpeg",
+        "is_approved": true,
+        "created_at": "2026-05-27T21:21:10.309212+00:00",
+        "preis": "7",
+        "verzehrort": "Take-away"
+      },
+      {
+        "id": 60,
+        "reviewer_name": "👑 Pham (CKT)",
+        "spot_name": "Eva Steak Döner",
+        "city": "Dresden",
+        "dish": "Steak-Döner",
+        "visit_date": "2026-05-27",
+        "fleisch": 8.1,
+        "gemuese": 7.3,
+        "sosse": 7.7,
+        "brot": 8.6,
+        "balance": 8.1,
+        "auswahl": 7.4,
+        "portion": 5.5,
+        "hygiene": 8.3,
+        "service": 8.3,
+        "comment_text": "Fleisch war ganz ok - geschmacklich kann es leider gar nicht mit Istanbul Market mithalten. Die Soße war lecker, aber eher sparsam verteilt. Einzig das Brot überzeugte: außen kross, innen weich – insgesamt allerdings für den Preis viel zu klein. Das Gemüse war frisch, aber nichts Besonderes. Wirklich verwunderlich war die fehlende Konstanz: Bei 5 bestellten normalen Dönern gab es deutlich Unterschiede hinsichtlich Größe und Zutaten. Manche hatten viel Petersilie und ich hatte quasi gar keine? - Was soll das? Insgesamt ein \"OK\" Döner mit ordentlicher Anmutung, aber Luft nach oben hinsichtlich Portion und Gleichmäßigkeit.",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1779905741473-8r1m1l6g.jpeg",
+        "is_approved": true,
+        "created_at": "2026-05-27T18:15:44.062716+00:00",
+        "preis": "8,90",
+        "verzehrort": "Dine-in"
+      },
       {
         "id": 59,
         "reviewer_name": "Long Le",
@@ -711,6 +757,12 @@
         "spot_id": 1394184757,
         "voter_fingerprint": "dfcde04f-936b-40ae-a7d1-ac4d78423d45",
         "created_at": "2026-05-27T06:42:15.868674+00:00"
+      },
+      {
+        "id": 57,
+        "spot_id": 1369045344,
+        "voter_fingerprint": "71c4fc5c-2969-400d-9696-f6b0e0507a3e",
+        "created_at": "2026-05-27T22:41:47.760843+00:00"
       }
     ],
     "review_comments": [
