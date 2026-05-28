@@ -2897,16 +2897,31 @@ body.dark .review-community-modal-image-container {
     background: #ffffff;
     padding: 7px 8px;
     display: grid;
-    grid-template-columns: 1fr 72px;
+    grid-template-columns: 60px 1fr 50px;
     align-items: center;
     gap: 8px;
     font-size: 0.76rem;
 }
 
-.community-score-grid label input {
+.community-score-grid label .score-slider {
+    width: 100%;
+    cursor: pointer;
+}
+
+.community-score-grid label .score-number {
     text-align: center;
-    padding: 6px 8px;
+    padding: 4px;
     font-size: 0.8rem;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -moz-appearance: textfield;
+}
+
+.community-score-grid label .score-number::-webkit-outer-spin-button,
+.community-score-grid label .score-number::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .community-score-hint {
@@ -3281,7 +3296,7 @@ body.dark .review-community-modal-image-container {
     }
 
     .community-score-grid label {
-        grid-template-columns: 1fr 64px;
+        grid-template-columns: 55px 1fr 45px;
         padding: 6px 7px;
     }
 

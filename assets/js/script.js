@@ -1748,7 +1748,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function validateCommunityScoreInputs(form, showNativeMessage = false) {
-        const scoreInputs = form ? form.querySelectorAll('.community-score-grid input') : [];
+        const scoreInputs = form ? form.querySelectorAll('.community-score-grid input[type="number"]') : [];
         let valid = true;
 
         scoreInputs.forEach((input) => {
@@ -2208,7 +2208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     validateCommunityVisitDateInput(visitDateInput);
                 });
             }
-            const scoreInputs = communityReviewForm.querySelectorAll('.community-score-grid input');
+            const scoreInputs = communityReviewForm.querySelectorAll('.community-score-grid input[type="number"]');
             scoreInputs.forEach((input) => {
                 input.addEventListener('input', () => {
                     validateCommunityScoreInput(input);
@@ -2219,6 +2219,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 input.addEventListener('blur', () => {
                     validateCommunityScoreInput(input);
                 });
+            });
+
+            document.querySelectorAll('.community-score-grid label').forEach(label => {
+                const slider = label.querySelector('.score-slider');
+                const numberInput = label.querySelector('.score-number');
+                if (slider && numberInput) {
+                    slider.addEventListener('input', () => {
+                        numberInput.value = slider.value;
+                        validateCommunityScoreInput(numberInput);
+                    });
+                    numberInput.addEventListener('input', () => {
+                        slider.value = numberInput.value;
+                    });
+                }
             });
         }
 
