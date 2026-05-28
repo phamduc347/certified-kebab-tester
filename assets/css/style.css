@@ -171,12 +171,8 @@ body.dark .community-review-form input[readonly] {
     color: #9ca3af;
 }
 
-body.dark .community-score-panel {
-    background: #151515;
-}
-
 body.dark .community-review-form label,
-body.dark .community-score-panel summary {
+body.dark .community-score-title {
     color: var(--text-main);
 }
 
@@ -2798,6 +2794,25 @@ body.dark .review-community-modal-image-container {
     margin-top: 20px;
 }
 
+.modal-container.community-submit-modal-container {
+    width: min(1248px, calc(100vw - 40px));
+    max-width: 1248px;
+    max-height: 88vh;
+    border-radius: 28px;
+}
+
+.community-submit-modal-content {
+    padding: 28px;
+}
+
+.community-submit-modal-content .community-submit-card {
+    margin-top: 0;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    background: transparent;
+}
+
 .community-reviews-card h3 {
     margin: 0 0 8px;
     font-size: 1.05rem;
@@ -2866,41 +2881,21 @@ body.dark .review-community-modal-image-container {
     resize: vertical;
 }
 
-.community-score-panel {
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 8px 10px 10px;
-    background: #fcfcfc;
+.community-score-section {
+    margin-top: 16px;
 }
 
-.community-score-panel summary {
-    cursor: pointer;
+.community-score-title {
     font-size: 0.82rem;
     font-weight: 700;
     color: #111827;
-    list-style: none;
-}
-
-.community-score-panel summary::-webkit-details-marker {
-    display: none;
-}
-
-.community-score-panel summary::after {
-    content: '▼';
-    float: right;
-    font-size: 0.68rem;
-    margin-top: 2px;
-}
-
-.community-score-panel[open] summary::after {
-    content: '▲';
+    margin: 0 0 8px;
 }
 
 .community-score-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
-    margin-top: 8px;
 }
 
 .community-score-grid label {
@@ -3383,11 +3378,22 @@ body.dark .review-community-modal-image-container {
         padding: 22px 18px 18px;
     }
 
+    .community-submit-modal-content {
+        padding: 22px 18px 18px;
+    }
+
     .modal {
         padding: 12px;
     }
 
     .community-review-modal-container {
+        width: min(1248px, calc(100vw - 24px));
+        max-height: calc(100svh - 24px);
+        max-height: calc(100dvh - 24px);
+        border-radius: 22px;
+    }
+
+    .modal-container.community-submit-modal-container {
         width: min(1248px, calc(100vw - 24px));
         max-height: calc(100svh - 24px);
         max-height: calc(100dvh - 24px);

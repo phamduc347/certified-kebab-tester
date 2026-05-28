@@ -424,6 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const communityReviewStatus = document.getElementById('community-review-status');
     const communityCommentCounter = document.getElementById('community-comment-counter');
     const communitySubmitPanel = document.getElementById('community-submit-panel');
+    const communitySubmitModal = document.getElementById('community-submit-modal');
     const openCommunityReviewFormBtn = document.getElementById('open-community-review-form-btn');
     const spotEntryModeSelect = document.getElementById('spot-entry-mode');
     const existingSpotSelect = document.getElementById('existing-spot-select');
@@ -2047,7 +2048,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     spot_name: spotName.slice(0, 80),
                     city: city.slice(0, 60),
                     dish: dish.slice(0, 60),
-                    preis: preis.slice(0, 20),
+                    preis: formatEuroNumber(parseEuroNumber(preis)),
                     verzehrort: verzehrort.slice(0, 60),
                     visit_date: visitDate,
                     comment_text: commentText.slice(0, COMMUNITY_COMMENT_MAX_LENGTH),
@@ -2090,6 +2091,7 @@ document.addEventListener('DOMContentLoaded', () => {
             syncCommunitySpotInputsFromSelection();
             updateCommunityCommentCounter();
             if (communityReviewStatus) communityReviewStatus.textContent = 'Danke! Dein Review wurde veröffentlicht.';
+            closeCommunitySubmitModal();
             openCommentFeedbackModal();
         } catch (error) {
             const message = error && error.message ? error.message : 'Fehler beim Einreichen des Reviews.';
@@ -2150,27 +2152,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function closeCommunitySubmitModal() {
+        if (!communitySubmitModal) return;
+
+        communitySubmitModal.classList.remove('active');
+        communitySubmitModal.setAttribute('aria-hidden', 'true');
+
+        if (openCommunityReviewFormBtn) {
+            openCommunityReviewFormBtn.setAttribute('aria-expanded', 'false');
+            if (typeof openCommunityReviewFormBtn.focus === 'function') {
+                openCommunityReviewFormBtn.focus();
+            }
+        }
+
+        syncModalOpenState();
+    }
+
     function openCommunitySubmitPanel() {
-        if (!communitySubmitPanel) return;
-        communitySubmitPanel.hidden = false;
+        if (!communitySubmitModal) return;
+
+        communitySubmitModal.classList.add('active');
+        communitySubmitModal.setAttribute('aria-hidden', 'false');
+
         if (openCommunityReviewFormBtn) {
             openCommunityReviewFormBtn.setAttribute('aria-expanded', 'true');
             openCommunityReviewFormBtn.blur();
         }
+
+        syncModalOpenState();
+
         const firstField = communityReviewForm ? communityReviewForm.querySelector('input[name="reviewer_name"]') : null;
         if (firstField) {
             firstField.focus({ preventScroll: true });
         }
-        scrollToElementFlush(communitySubmitPanel);
     }
 
     function initCommunityReviews() {
         populateExistingSpotSelectOptions();
         syncCommunitySpotInputsFromSelection();
-
-        if (communitySubmitPanel) {
-            communitySubmitPanel.hidden = true;
-        }
 
         if (openCommunityReviewFormBtn) {
             openCommunityReviewFormBtn.setAttribute('aria-expanded', 'false');
@@ -5361,9 +5380,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasActiveModal =
             (legalModal && legalModal.classList.contains('active')) ||
             (commentFeedbackModal && commentFeedbackModal.classList.contains('active')) ||
+            (communitySubmitModal && communitySubmitModal.classList.contains('active')) ||
             (communityReviewModal && communityReviewModal.classList.contains('active')) ||
             (reviewShareModal && reviewShareModal.classList.contains('active'));
-
         document.body.classList.toggle('modal-open', Boolean(hasActiveModal));
     };
 
@@ -5512,6 +5531,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && commentFeedbackModal.classList.contains('active')) {
                 closeCommentFeedbackModal();
+            }
+        });
+    }
+
+    if (communitySubmitModal) {
+        communitySubmitModal.querySelector('.modal-overlay')?.addEventListener('click', closeCommunitySubmitModal);
+        communitySubmitModal.querySelector('.modal-close')?.addEventListener('click', closeCommunitySubmitModal);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && communitySubmitModal.classList.contains('active')) {
+                closeCommunitySubmitModal();
             }
         });
     }
