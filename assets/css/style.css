@@ -185,6 +185,18 @@ body.dark .community-score-grid label {
     border-color: #2a2a2a;
 }
 
+body.dark .community-score-grid label .score-slider {
+    background: linear-gradient(to right, hsl(0, 80%, 42%), hsl(45, 80%, 42%), hsl(120, 80%, 42%));
+}
+
+body.dark .community-score-grid label .score-slider::-moz-range-track {
+    background: linear-gradient(to right, hsl(0, 80%, 42%), hsl(45, 80%, 42%), hsl(120, 80%, 42%));
+}
+
+body.dark .community-score-grid label .score-slider::-moz-range-progress {
+    background: linear-gradient(to right, hsl(0, 80%, 42%), hsl(45, 80%, 42%), hsl(120, 80%, 42%));
+}
+
 body.dark .review-comment-text,
 body.dark .review-community-text,
 body.dark .community-review-text {
@@ -2910,9 +2922,21 @@ body.dark .review-community-modal-image-container {
     margin: 0;
     padding: 0;
     height: 8px;
-    background: #e5e7eb;
+    background: linear-gradient(to right, hsl(0, 80%, 42%), hsl(45, 80%, 42%), hsl(120, 80%, 42%));
     border-radius: 4px;
     outline: none;
+}
+
+.community-score-grid label .score-slider::-moz-range-track {
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, hsl(0, 80%, 42%), hsl(45, 80%, 42%), hsl(120, 80%, 42%));
+}
+
+.community-score-grid label .score-slider::-moz-range-progress {
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, hsl(0, 80%, 42%), hsl(45, 80%, 42%), hsl(120, 80%, 42%));
 }
 
 .community-score-grid label .score-slider::-webkit-slider-thumb {
