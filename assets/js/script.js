@@ -5915,6 +5915,7 @@ Stichpunkte:
     const featureNotesConfirmBtn = featureNotesModal ? featureNotesModal.querySelector('.feature-notes-confirm-btn') : null;
     const featureNotesReviewFormBtn = document.getElementById('feature-notes-review-form-btn');
     const featureNotesShareBestSpotBtn = document.getElementById('feature-notes-share-best-spot-btn');
+    const featureNotesKiHelperBtn = document.getElementById('feature-notes-ki-helper-btn');
 
     function openBestSpotShareFromFeatureNotes() {
         if (!Array.isArray(kebabData) || kebabData.length === 0) return;
@@ -6015,6 +6016,19 @@ Stichpunkte:
         featureNotesReviewFormBtn?.addEventListener('click', () => {
             closeFeatureNotesModal();
             openCommunitySubmitPanel();
+        });
+
+        featureNotesKiHelperBtn?.addEventListener('click', () => {
+            closeFeatureNotesModal();
+            openCommunitySubmitPanel();
+            
+            // Auto-toggle open the KI helper panel if it is hidden
+            const kiInfoPanel = document.getElementById('ki-helper-info');
+            if (kiInfoPanel && kiInfoPanel.hidden) {
+                kiInfoPanel.hidden = false;
+                const kiToggleBtns = document.querySelectorAll('#copy-ai-prompt-btn, #copy-ai-prompt-btn-mobile');
+                kiToggleBtns.forEach(btn => btn.classList.add('active'));
+            }
         });
 
         featureNotesShareBestSpotBtn?.addEventListener('click', openBestSpotShareFromFeatureNotes);
