@@ -2444,6 +2444,13 @@ Stichpunkte:
                 });
             }
 
+            const kiOpenLinkBtn = communityReviewForm.querySelector('.ki-open-chatgpt-btn');
+            if (kiOpenLinkBtn) {
+                kiOpenLinkBtn.addEventListener('click', () => {
+                    copyKiPrompt(kiOpenLinkBtn);
+                });
+            }
+
             communityReviewForm.addEventListener('reset', () => {
                 if (communityPhotoPreviewWrapper) {
                     communityPhotoPreviewWrapper.hidden = true;
