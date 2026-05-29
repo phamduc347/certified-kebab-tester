@@ -2524,7 +2524,7 @@ Stichpunkte:
                     btnSpan.textContent = isLoading ? "Generiere..." : "Text generieren";
                 }
                 if (isLoading) {
-                    showGeneratorStatus("Verbindung zu Gemini wird hergestellt...", "loading");
+                    showGeneratorStatus("Text wird generiert...", "loading");
                 }
             }
 
