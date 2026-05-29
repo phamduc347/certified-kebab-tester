@@ -5467,6 +5467,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Legal Modal Logic
     const legalModal = document.getElementById('legal-modal');
+    const featureNotesModal = document.getElementById('feature-notes-modal');
+    const featureNotesBtn = document.getElementById('feature-notes-btn');
     const modalContent = document.getElementById('modal-content');
     const openDisclaimer = document.getElementById('open-disclaimer');
     const openPrivacy = document.getElementById('open-privacy');
@@ -5478,7 +5480,8 @@ document.addEventListener('DOMContentLoaded', () => {
             (commentFeedbackModal && commentFeedbackModal.classList.contains('active')) ||
             (communitySubmitModal && communitySubmitModal.classList.contains('active')) ||
             (communityReviewModal && communityReviewModal.classList.contains('active')) ||
-            (reviewShareModal && reviewShareModal.classList.contains('active'));
+            (reviewShareModal && reviewShareModal.classList.contains('active')) ||
+            (featureNotesModal && featureNotesModal.classList.contains('active'));
         document.body.classList.toggle('modal-open', Boolean(hasActiveModal));
     };
 
@@ -5663,6 +5666,55 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Feature Notes (Changelog) Modal Logic
+    const featureNotesConfirmBtn = featureNotesModal ? featureNotesModal.querySelector('.feature-notes-confirm-btn') : null;
+
+    function openFeatureNotesModal() {
+        if (!featureNotesModal) return;
+        featureNotesModal.classList.add('active');
+        featureNotesModal.setAttribute('aria-hidden', 'false');
+
+        // Hide notification badge
+        const badge = featureNotesBtn ? featureNotesBtn.querySelector('.notification-badge') : null;
+        if (badge) {
+            badge.style.display = 'none';
+        }
+        localStorage.setItem('has_seen_v4.7_features', 'true');
+        syncModalOpenState();
+    }
+
+    function closeFeatureNotesModal() {
+        if (!featureNotesModal) return;
+        featureNotesModal.classList.remove('active');
+        featureNotesModal.setAttribute('aria-hidden', 'true');
+        syncModalOpenState();
+    }
+
+    if (featureNotesBtn) {
+        featureNotesBtn.addEventListener('click', openFeatureNotesModal);
+        
+        // Check localStorage to hide badge initially
+        if (localStorage.getItem('has_seen_v4.7_features') === 'true') {
+            const badge = featureNotesBtn.querySelector('.notification-badge');
+            if (badge) {
+                badge.style.display = 'none';
+            }
+        }
+    }
+
+    if (featureNotesModal) {
+        featureNotesModal.querySelector('.modal-overlay')?.addEventListener('click', closeFeatureNotesModal);
+        featureNotesModal.querySelector('.modal-close')?.addEventListener('click', closeFeatureNotesModal);
+        featureNotesConfirmBtn?.addEventListener('click', closeFeatureNotesModal);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && featureNotesModal.classList.contains('active')) {
+                closeFeatureNotesModal();
+            }
+        });
+    }
+
     // Optimized Scroll Listener
     let scrollTimeout;
     const scrollGap = 24;

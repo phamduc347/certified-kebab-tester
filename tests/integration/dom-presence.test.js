@@ -28,6 +28,7 @@ describe('DOM Elements Presence', () => {
 
     it('should have the action buttons', () => {
         expect(document.getElementById('hamburger-btn')).not.toBeNull();
+        expect(document.getElementById('feature-notes-btn')).not.toBeNull();
     });
 
     it('should have the overlays', () => {
@@ -55,5 +56,6 @@ describe('DOM Elements Presence', () => {
         expect(document.getElementById('lightbox')).not.toBeNull();
         expect(document.getElementById('legal-modal')).not.toBeNull();
         expect(document.getElementById('comment-feedback-modal')).not.toBeNull();
+        expect(document.getElementById('feature-notes-modal')).not.toBeNull();
     });
 });

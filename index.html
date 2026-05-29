@@ -21,7 +21,7 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     -->
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/style.css?v=4.7">
+    <link rel="stylesheet" href="assets/css/style.css?v=4.8">
     <!-- Dark mode: apply class before render to prevent flash -->
     <script>
         // Check for saved theme preference or system preference
@@ -73,6 +73,13 @@
                 <a href="#contact" class="header-link">Contact</a>
             </nav>
             <div class="header-actions">
+                <button id="feature-notes-btn" class="feature-notes-btn" aria-label="Feature Notes" type="button">
+                    <svg class="icon-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <span class="notification-badge"></span>
+                </button>
                 <button id="darkmode-btn" class="darkmode-btn" aria-label="Darkmode umschalten" type="button">
                     <!-- Moon: shown in light mode -->
                     <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -539,6 +546,79 @@
         </div>
     </div>
 
+    <!-- Feature Notes Modal -->
+    <div id="feature-notes-modal" class="modal" aria-hidden="true">
+        <div class="modal-overlay"></div>
+        <div class="modal-container feature-notes-modal-container">
+            <button class="modal-close" aria-label="Schließen"><span></span><span></span></button>
+            <div class="modal-content feature-notes-content">
+                <div class="feature-notes-header">
+                    <span class="feature-notes-eyebrow">✨ CKT Newsletter</span>
+                    <h2>Döner-Changelog & Features</h2>
+                    <p class="feature-notes-subtitle">Die neuesten Updates und zukünftige Meilensteine des Certified Kebab Testers.</p>
+                </div>
+                
+                <div class="feature-notes-section">
+                    <h3>🚀 Letzte 3 Releases</h3>
+                    <div class="changelog-list">
+                        <div class="changelog-item">
+                            <div class="changelog-badge recent">Neu</div>
+                            <div class="changelog-details">
+                                <h4>Döner-Review-Einreichung 2.0</h4>
+                                <p>Erstelle eigene Döner-Reviews mit einer neuen interaktiven Preisauswahl, Verzehrort-Bubbles (Dine-in, Take-away, Delivery) und direktem 16:9-Bild-Upload.</p>
+                            </div>
+                        </div>
+                        <div class="changelog-item">
+                            <div class="changelog-badge recent">Neu</div>
+                            <div class="changelog-details">
+                                <h4>Responsives Layout & Smart-Form</h4>
+                                <p>Das Einreichungsformular wurde für Mobilgeräte optimiert. Auf Desktop-Monitoren teilt es sich elegant in zwei Spalten mit einem vollflächigen Kommentarfeld auf.</p>
+                            </div>
+                        </div>
+                        <div class="changelog-item">
+                            <div class="changelog-badge recent">Neu</div>
+                            <div class="changelog-details">
+                                <h4>Download & Share System</h4>
+                                <p>Teile deine Lieblingsspots unkompliziert mit Native File-Sharing auf Smartphones, direkten Deep-Links zu Reviews und erstelle PNG-Infografiken zum Download.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-notes-section upcoming">
+                    <h3>🔮 Zukünftige Features</h3>
+                    <div class="changelog-list">
+                        <div class="changelog-item roadmap">
+                            <div class="changelog-badge blueprint">Geplant</div>
+                            <div class="changelog-details">
+                                <h4>KI-Schreibhilfe (Döner-Bot)</h4>
+                                <p>Ein integrierter KI-Assistent, der aus deinen stichpunktartigen Notizen automatisch eine geschliffene und appetitliche Döner-Kritik formuliert.</p>
+                            </div>
+                        </div>
+                        <div class="changelog-item roadmap">
+                            <div class="changelog-badge blueprint">Geplant</div>
+                            <div class="changelog-details">
+                                <h4>Interaktive Döner-Karte</h4>
+                                <p>Finde die besten Spots in deiner Umgebung direkt auf einer interaktiven Karte mit GPS-Ortung und Radius-Suche.</p>
+                            </div>
+                        </div>
+                        <div class="changelog-item roadmap">
+                            <div class="changelog-badge blueprint">Geplant</div>
+                            <div class="changelog-details">
+                                <h4>Community-Achievements</h4>
+                                <p>Sammle Punkte und schalte witzige Abzeichen für deine verfassten Döner-Reviews frei (z.B. „Scharf-König“ oder „Zwiebel-Gourmet“).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-notes-footer">
+                    <button type="button" class="feature-notes-confirm-btn">Coole Features!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Community Submit Modal -->
     <div id="community-submit-modal" class="modal" aria-hidden="true">
         <div class="modal-overlay"></div>
@@ -751,7 +831,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="assets/data/kebab-data.js?v=4.4"></script>
-    <script src="assets/js/script.js?v=4.7"></script>
+    <script src="assets/js/script.js?v=4.8"></script>
 </body>
 
 </html>
