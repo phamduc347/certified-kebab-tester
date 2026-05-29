@@ -2453,6 +2453,172 @@ Stichpunkte:
                 });
             }
 
+            // Direct generation API call via Supabase Functions
+            const kiSubmitGenerateBtn = communityReviewForm.querySelector('#ki-submit-generate-btn');
+            const kiGeneratorInput = communityReviewForm.querySelector('#ki-generator-input');
+            const kiGeneratorStatus = communityReviewForm.querySelector('#ki-generator-status');
+            const kiLimitDisplay = communityReviewForm.querySelector('#ki-limit-display');
+            const commentTextarea = communityReviewForm.querySelector('[name="comment_text"]');
+
+            const maxKiAttempts = 10;
+            function getRemainingKiAttempts() {
+                const stored = sessionStorage.getItem('kebab_tester_ki_attempts');
+                if (stored === null) {
+                    sessionStorage.setItem('kebab_tester_ki_attempts', maxKiAttempts.toString());
+                    return maxKiAttempts;
+                }
+                return parseInt(stored, 10);
+            }
+
+            function decrementKiAttempts() {
+                const current = getRemainingKiAttempts();
+                const nextVal = Math.max(0, current - 1);
+                sessionStorage.setItem('kebab_tester_ki_attempts', nextVal.toString());
+                return nextVal;
+            }
+
+            function updateKiLimitDisplay() {
+                if (!kiLimitDisplay) return;
+                const remaining = getRemainingKiAttempts();
+                kiLimitDisplay.textContent = `${remaining}/10 Generierungen frei`;
+                
+                if (remaining <= 0) {
+                    if (kiSubmitGenerateBtn) {
+                        kiSubmitGenerateBtn.disabled = true;
+                    }
+                    if (kiGeneratorInput) {
+                        kiGeneratorInput.disabled = true;
+                    }
+                    kiLimitDisplay.style.color = '#ef4444';
+                    kiLimitDisplay.style.fontWeight = '700';
+                } else {
+                    const isLoading = kiSubmitGenerateBtn && kiSubmitGenerateBtn.querySelector('span') && 
+                                      kiSubmitGenerateBtn.querySelector('span').textContent === "Generiere...";
+                    if (kiSubmitGenerateBtn) {
+                        kiSubmitGenerateBtn.disabled = isLoading;
+                    }
+                    if (kiGeneratorInput) {
+                        kiGeneratorInput.disabled = false;
+                    }
+                    kiLimitDisplay.style.color = '';
+                    kiLimitDisplay.style.fontWeight = '';
+                }
+            }
+
+            // Initialize display on load
+            updateKiLimitDisplay();
+
+            function showGeneratorStatus(msg, type) {
+                if (!kiGeneratorStatus) return;
+                kiGeneratorStatus.textContent = msg;
+                kiGeneratorStatus.className = "ki-generator-status " + type;
+                kiGeneratorStatus.hidden = false;
+            }
+
+            function setGeneratorLoading(isLoading) {
+                if (!kiSubmitGenerateBtn) return;
+                const remaining = getRemainingKiAttempts();
+                kiSubmitGenerateBtn.disabled = isLoading || remaining <= 0;
+                const btnSpan = kiSubmitGenerateBtn.querySelector('span');
+                if (btnSpan) {
+                    btnSpan.textContent = isLoading ? "Generiere..." : "Text generieren";
+                }
+                if (isLoading) {
+                    showGeneratorStatus("Verbindung zu Gemini wird hergestellt...", "loading");
+                }
+            }
+
+            if (kiSubmitGenerateBtn && kiGeneratorInput) {
+                kiSubmitGenerateBtn.addEventListener('click', async () => {
+                    const bulletPoints = kiGeneratorInput.value.trim();
+                    if (!bulletPoints) {
+                        showGeneratorStatus("Bitte gib zuerst ein paar Stichpunkte ein.", "error");
+                        return;
+                    }
+
+                    const remaining = getRemainingKiAttempts();
+                    if (remaining <= 0) {
+                        showGeneratorStatus("Limit erreicht. Du hast keine verbleibenden Versuche in dieser Sitzung.", "error");
+                        return;
+                    }
+
+                    try {
+                        setGeneratorLoading(true);
+                        
+                        // Decrement attempts immediately on starting generation
+                        decrementKiAttempts();
+                        updateKiLimitDisplay();
+                        
+                        // Get Supabase client
+                        const client = ensureSupabaseClient();
+                        if (!client) {
+                            throw new Error("Supabase-Client ist nicht initialisiert.");
+                        }
+
+                        // Build prompt dynamically using the template rules
+                        const prompt = `Du schreibst einen kurzen Reviewkommentar für eine Dönerbewertung.
+
+Regeln:
+•  Gib ausschließlich den fertigen Kommentar zurück.
+•  Keine Einleitung, keine Erklärungen, keine Anführungszeichen.
+•  Maximal 1000 Zeichen.
+•  Stil: kurz, prägnant, trocken, leicht humorvoll, intelligent, nicht cringe.
+•  Keine Emojis.
+•  Natürlich klingende Alltagssprache.
+•  Kein übertriebener Slang.
+•  Keine Wiederholungen.
+•  Erwähne nur Aspekte, die in den Stichpunkten unten tatsächlich ausgefüllt wurden.
+•  Keine erfundenen Details.
+•  Wenn ein Stichpunkt leer ist, darf dieser Aspekt im Kommentar nicht erwähnt werden.
+•  Der Kommentar soll wie von einer echten Person wirken.
+
+Struktur:
+1. Kurzer Gesamteindruck.
+2. Konkrete Beobachtungen ausschließlich basierend auf den Stichpunkten.
+3. Abschluss mit trockener oder nüchterner Pointe.
+
+Stichpunkte:
+- ${bulletPoints.replace(/\n/g, '\n- ')}`;
+
+                        const { data, error } = await client.functions.invoke('generate-review', {
+                            body: { prompt }
+                        });
+
+                        if (error) {
+                            let errorMsg = error.message;
+                            try {
+                                if (error.context && typeof error.context.json === 'function') {
+                                    const errJson = await error.context.json();
+                                    if (errJson && errJson.error) {
+                                        errorMsg = errJson.error;
+                                    }
+                                }
+                            } catch (e) {}
+                            throw new Error(errorMsg);
+                        }
+                        if (!data || !data.text) throw new Error("Keine Antwort erhalten.");
+
+                        // Set the value in the comment textarea
+                        if (commentTextarea) {
+                            commentTextarea.value = data.text;
+                            // Trigger input event to update the character counter and validation
+                            commentTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+
+                        showGeneratorStatus("Erfolgreich generiert!", "success");
+                        setTimeout(() => {
+                            if (kiGeneratorStatus) kiGeneratorStatus.hidden = true;
+                        }, 3000);
+
+                    } catch (err) {
+                        console.error("Fehler bei der Generierung:", err);
+                        showGeneratorStatus("Fehler: " + err.message, "error");
+                    } finally {
+                        setGeneratorLoading(false);
+                    }
+                });
+            }
+
             communityReviewForm.addEventListener('reset', () => {
                 if (communityPhotoPreviewWrapper) {
                     communityPhotoPreviewWrapper.hidden = true;
@@ -2463,6 +2629,14 @@ Stichpunkte:
                 if (communityImagePreview) {
                     communityImagePreview.src = '';
                 }
+                if (kiGeneratorInput) {
+                    kiGeneratorInput.value = '';
+                }
+                if (kiGeneratorStatus) {
+                    kiGeneratorStatus.hidden = true;
+                    kiGeneratorStatus.textContent = '';
+                }
+                updateKiLimitDisplay();
             });
         }
 

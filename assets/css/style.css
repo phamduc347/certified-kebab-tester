@@ -7315,16 +7315,16 @@ body.dark .comment-helper-btn.active .icon-sparkle {
 }
 
 .ki-helper-info:not([hidden]) {
-    max-height: 350px;
+    max-height: 500px;
     opacity: 1;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .ki-helper-info-content {
     background: rgba(139, 92, 246, 0.04);
     border: 1px solid rgba(139, 92, 246, 0.15);
-    border-radius: 10px;
-    padding: 14px 16px;
+    border-radius: 12px;
+    padding: 18px 20px;
 }
 
 body.dark .ki-helper-info-content {
@@ -7338,31 +7338,19 @@ body.dark .ki-helper-info-content {
         margin-bottom: 0;
         height: 100%;
     }
-    
+
     .ki-helper-info-content {
         height: 100%;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
         box-sizing: border-box;
     }
-}
-
-.ki-helper-info-title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #7c3aed;
-    margin: 0 0 8px;
-}
-
-body.dark .ki-helper-info-title {
-    color: #a78bfa;
 }
 
 .ki-helper-steps {
     margin: 0 0 12px;
     padding-left: 18px;
-    font-size: 0.72rem;
+    font-size: 0.78rem;
     line-height: 1.6;
     color: var(--text-secondary);
 }
@@ -7384,7 +7372,7 @@ body.dark .ki-helper-steps li::marker {
     display: flex;
     align-items: center;
     gap: 8px;
-    justify-content: flex-start;
+    flex-wrap: wrap;
 }
 
 .ki-copy-action-btn,
@@ -7394,15 +7382,17 @@ body.dark .ki-helper-steps li::marker {
     justify-content: center;
     gap: 6px;
     border-radius: 8px;
-    padding: 0 16px;
-    height: 32px;
+    padding: 0 14px;
+    height: 34px;
     line-height: 1;
-    font-size: 0.72rem;
+    font-size: 0.76rem;
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
     transition: var(--transition);
     box-sizing: border-box;
+    white-space: nowrap;
+    width: 155px;
 }
 
 /* Copy Action Button specific styles */
@@ -7453,6 +7443,210 @@ body.dark .ki-open-chatgpt-btn:hover {
     box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25) !important;
     color: #fff !important;
     border: none !important;
+}
+
+/* ── KI-Schreibhilfe – Direkt-Generator ───────────────────────────── */
+.ki-direct-generator {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ki-manual-generator {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ki-section-desc {
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.45;
+}
+
+.ki-direct-generator textarea {
+    width: 100%;
+    min-height: 72px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.8rem;
+    font-family: inherit;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    resize: vertical;
+    outline: none;
+    transition: var(--transition);
+    box-sizing: border-box;
+}
+
+.ki-direct-generator textarea:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+body.dark .ki-direct-generator textarea:focus {
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
+}
+
+.ki-direct-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.ki-limit-display {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.ki-submit-generate-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0 14px;
+    height: 34px;
+    gap: 6px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    box-sizing: border-box;
+    white-space: nowrap;
+    width: 155px;
+}
+
+.ki-submit-generate-btn:hover {
+    background: linear-gradient(135deg, #6d28d9, #5b21b6);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(124, 58, 237, 0.25);
+}
+
+.ki-submit-generate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.ki-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 16px 0;
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.ki-divider::before,
+.ki-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ki-divider:not(:empty)::before {
+    margin-right: .8em;
+}
+
+.ki-divider:not(:empty)::after {
+    margin-left: .8em;
+}
+
+.ki-generator-status {
+    font-size: 0.72rem;
+    font-weight: 600;
+    margin: 2px 0 0;
+}
+
+.ki-generator-status.error {
+    color: #ef4444;
+}
+
+.ki-generator-status.loading {
+    color: #8b5cf6;
+}
+
+body.dark .ki-generator-status.loading {
+    color: #a78bfa;
+}
+
+.ki-generator-status.success {
+    color: #10b981;
+}
+
+/* ── KI-Schreibhilfe – Mobile Optimierungen ───────────────────────── */
+@media (max-width: 768px) {
+    .ki-helper-info-content {
+        padding: 16px;
+    }
+
+    .ki-direct-generator textarea {
+        min-height: 68px;
+        font-size: 0.82rem;
+        padding: 10px 12px;
+    }
+
+    .ki-submit-generate-btn {
+        height: 36px;
+        padding: 0 14px;
+        font-size: 0.76rem;
+        flex: 0 0 calc(50% - 4px);
+        justify-content: center;
+    }
+
+    .ki-copy-action-btn,
+    .ki-open-chatgpt-btn {
+        height: 36px;
+        padding: 0 14px;
+        font-size: 0.76rem;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .ki-helper-info-actions {
+        gap: 8px;
+    }
+
+    .ki-section-desc {
+        font-size: 0.76rem;
+    }
+
+    .ki-limit-display {
+        font-size: 0.7rem;
+    }
+
+    .ki-divider {
+        margin: 12px 0;
+    }
+}
+
+/* ── KI-Schreibhilfe – Desktop Optimierungen ──────────────────────── */
+@media (min-width: 769px) {
+    .ki-direct-generator {
+        flex: 1;
+    }
+
+    .ki-manual-generator {
+        flex-shrink: 0;
+    }
+
+    .ki-divider {
+        margin: 14px 0;
+    }
 }
 
 /* Ensure textarea label has no extra styling issues */
