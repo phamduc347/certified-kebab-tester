@@ -5669,6 +5669,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Feature Notes (Changelog) Modal Logic
     const featureNotesConfirmBtn = featureNotesModal ? featureNotesModal.querySelector('.feature-notes-confirm-btn') : null;
+    const featureNotesReviewFormBtn = document.getElementById('feature-notes-review-form-btn');
+    const featureNotesShareBestSpotBtn = document.getElementById('feature-notes-share-best-spot-btn');
+
+    function openBestSpotShareFromFeatureNotes() {
+        if (!Array.isArray(kebabData) || kebabData.length === 0) return;
+
+        const sortedByScore = [...kebabData].sort((a, b) => parsePercentNumber(b.score) - parsePercentNumber(a.score));
+        const bestSpot = sortedByScore[0];
+        if (!bestSpot) return;
+
+        const shareSpotId = Number(bestSpot.id);
+        const latestCommunityReview = Number.isFinite(shareSpotId)
+            ? getSortedCommunityReviewsForSpot(shareSpotId)[0] || null
+            : null;
+        const shareReviewId = latestCommunityReview && latestCommunityReview.id
+            ? String(latestCommunityReview.id).trim()
+            : '';
+
+        const shareLink = shareReviewId
+            ? buildCommunityReviewShareLink(shareSpotId, shareReviewId)
+            : (() => {
+                const url = new URL('/', 'https://certifiedkebabtester.de');
+                if (Number.isFinite(shareSpotId)) {
+                    url.searchParams.set('s', String(shareSpotId));
+                }
+                return url.toString();
+            })();
+
+        const opened = openReviewShareStoryModal({
+            shareSpotName: String(bestSpot.name || 'Spot').trim() || 'Spot',
+            shareReviewerName: latestCommunityReview
+                ? (String(latestCommunityReview.reviewer_name || '').trim() || 'Anonym')
+                : 'CKT Team',
+            shareScore: normalizeSpotScoreDisplay(bestSpot.score),
+            shareDate: latestCommunityReview
+                ? (formatVisitDate(latestCommunityReview.visit_date) || formatCommentDate(latestCommunityReview.created_at) || String(bestSpot.date || '-'))
+                : String(bestSpot.date || '-'),
+            shareImageUrl: latestCommunityReview
+                ? String(latestCommunityReview.image_url || '').trim()
+                : String(bestSpot.image || '').trim(),
+            shareComment: latestCommunityReview
+                ? String(latestCommunityReview.comment_text || '').trim()
+                : String(bestSpot.kommentar || '').trim(),
+            shareDish: latestCommunityReview
+                ? (String(latestCommunityReview.dish || '').trim() || '-')
+                : (String(bestSpot.dish || '').trim() || '-'),
+            sharePrice: latestCommunityReview
+                ? (String(latestCommunityReview.preis || '').trim() || '-')
+                : (String(bestSpot.preis || '').trim() || '-'),
+            shareConsumptionType: latestCommunityReview
+                ? (String(latestCommunityReview.verzehrort || '').trim() || '-')
+                : (String(bestSpot.verzehrort || '').trim() || '-'),
+            shareCity: String(bestSpot.city || '-').trim() || '-',
+            shareLink
+        });
+
+        if (opened) {
+            closeFeatureNotesModal();
+        }
+    }
 
     function openFeatureNotesModal() {
         if (!featureNotesModal) return;
@@ -5707,6 +5767,13 @@ document.addEventListener('DOMContentLoaded', () => {
         featureNotesModal.querySelector('.modal-overlay')?.addEventListener('click', closeFeatureNotesModal);
         featureNotesModal.querySelector('.modal-close')?.addEventListener('click', closeFeatureNotesModal);
         featureNotesConfirmBtn?.addEventListener('click', closeFeatureNotesModal);
+
+        featureNotesReviewFormBtn?.addEventListener('click', () => {
+            closeFeatureNotesModal();
+            openCommunitySubmitPanel();
+        });
+
+        featureNotesShareBestSpotBtn?.addEventListener('click', openBestSpotShareFromFeatureNotes);
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && featureNotesModal.classList.contains('active')) {
