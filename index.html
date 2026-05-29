@@ -21,7 +21,7 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     -->
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/style.css?v=4.8">
+    <link rel="stylesheet" href="assets/css/style.css?v=5.1">
     <!-- Dark mode: apply class before render to prevent flash -->
     <script>
         // Check for saved theme preference or system preference
@@ -695,11 +695,40 @@
 
                         <!-- Block 5: Kommentar -->
                         <div class="community-desktop-comment-wrapper">
-                            <label>Kommentar
+                            <label class="comment-textarea-label">
+                                <span class="comment-label-text">Kommentar</span>
                                 <textarea name="comment_text" maxlength="1000" placeholder="Wie war dein Besuch?"
                                     required></textarea>
                             </label>
-                            <p id="community-comment-counter" class="community-comment-counter" aria-live="polite">0/1000 Zeichen</p>
+                            <div class="comment-footer-row">
+                                <button type="button" id="copy-ai-prompt-btn" class="comment-helper-btn" title="Kopiert einen KI-Prompt in die Zwischenablage">
+                                    <svg class="icon-sparkle" viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                                        <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z"/>
+                                    </svg>
+                                    <span>KI-Schreibhilfe</span>
+                                </button>
+                                <p id="community-comment-counter" class="community-comment-counter" aria-live="polite">0/1000 Zeichen</p>
+                            </div>
+                            <div id="ki-helper-info" class="ki-helper-info" hidden>
+                                <div class="ki-helper-info-content">
+                                    <p class="ki-helper-info-title">So nutzt du die KI-Schreibhilfe:</p>
+                                    <ol class="ki-helper-steps">
+                                        <li>Klicke auf <strong>„Prompt kopieren"</strong> – die Vorlage wird in deine Zwischenablage kopiert.</li>
+                                        <li>Öffne <strong>ChatGPT</strong> (oder eine andere KI) und füge den Prompt ein.</li>
+                                        <li>Ergänze deine <strong>Stichpunkte</strong> am Ende des Prompts (z. B. „Fleisch saftig, Soße zu scharf").</li>
+                                        <li>Kopiere den generierten Text und füge ihn hier im <strong>Kommentarfeld</strong> ein.</li>
+                                    </ol>
+                                    <div class="ki-helper-info-actions">
+                                        <button type="button" id="ki-copy-prompt-action" class="ki-copy-action-btn">
+                                            <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                            </svg>
+                                            <span>Prompt kopieren</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Block 6: Bewertungen -->
@@ -804,7 +833,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="assets/data/kebab-data.js?v=4.4"></script>
-    <script src="assets/js/script.js?v=4.8"></script>
+    <script src="assets/js/script.js?v=5.1"></script>
 </body>
 
 </html>

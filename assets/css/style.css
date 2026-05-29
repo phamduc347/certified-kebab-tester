@@ -7155,3 +7155,191 @@ body.dark .feature-notes-eyebrow {
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
 }
+
+/* ── KI-Schreibhilfe – Footer Row ─────────────────────────────────── */
+.comment-footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+    margin-bottom: 8px;
+}
+
+.comment-footer-row .community-comment-counter {
+    margin: 0;
+    text-align: right;
+}
+
+.comment-label-text {
+    display: block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.comment-helper-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(139, 92, 246, 0.08);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #7c3aed;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+body.dark .comment-helper-btn {
+    background: rgba(167, 139, 250, 0.1);
+    border-color: rgba(167, 139, 250, 0.25);
+    color: #a78bfa;
+}
+
+.comment-helper-btn .icon-sparkle {
+    color: #7c3aed;
+    transition: transform 0.3s ease;
+}
+
+body.dark .comment-helper-btn .icon-sparkle {
+    color: #a78bfa;
+}
+
+.comment-helper-btn:hover {
+    color: #6d28d9;
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.35);
+}
+
+.comment-helper-btn:hover .icon-sparkle {
+    transform: scale(1.2) rotate(15deg);
+    color: #6d28d9;
+}
+
+body.dark .comment-helper-btn:hover {
+    color: #c084fc;
+    background: rgba(167, 139, 250, 0.18);
+    border-color: rgba(167, 139, 250, 0.4);
+}
+
+body.dark .comment-helper-btn:hover .icon-sparkle {
+    color: #c084fc;
+}
+
+.comment-helper-btn.active {
+    color: #fff;
+    background: #7c3aed;
+    border-color: #6d28d9;
+}
+
+.comment-helper-btn.active .icon-sparkle {
+    color: #fff;
+}
+
+body.dark .comment-helper-btn.active {
+    color: #121214;
+    background: #a78bfa;
+    border-color: #8b5cf6;
+}
+
+body.dark .comment-helper-btn.active .icon-sparkle {
+    color: #121214;
+}
+
+/* ── KI-Schreibhilfe – Info Panel ─────────────────────────────────── */
+.ki-helper-info {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.25s ease;
+    margin-bottom: 0;
+}
+
+.ki-helper-info:not([hidden]) {
+    max-height: 350px;
+    opacity: 1;
+    margin-bottom: 10px;
+}
+
+.ki-helper-info-content {
+    background: rgba(139, 92, 246, 0.04);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: 10px;
+    padding: 14px 16px;
+}
+
+body.dark .ki-helper-info-content {
+    background: rgba(167, 139, 250, 0.06);
+    border-color: rgba(167, 139, 250, 0.15);
+}
+
+.ki-helper-info-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #7c3aed;
+    margin: 0 0 8px;
+}
+
+body.dark .ki-helper-info-title {
+    color: #a78bfa;
+}
+
+.ki-helper-steps {
+    margin: 0 0 12px;
+    padding-left: 18px;
+    font-size: 0.72rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.ki-helper-steps li {
+    margin-bottom: 4px;
+}
+
+.ki-helper-steps li::marker {
+    color: #8b5cf6;
+    font-weight: 700;
+}
+
+body.dark .ki-helper-steps li::marker {
+    color: #a78bfa;
+}
+
+.ki-helper-info-actions {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.ki-copy-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.ki-copy-action-btn:hover {
+    background: linear-gradient(135deg, #6d28d9, #5b21b6);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(124, 58, 237, 0.25);
+}
+
+.ki-copy-action-btn.copied {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25) !important;
+}
+
+/* Ensure textarea label has no extra styling issues */
+.comment-textarea-label {
+    display: block;
+}

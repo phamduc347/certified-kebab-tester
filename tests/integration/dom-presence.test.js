@@ -57,5 +57,8 @@ describe('DOM Elements Presence', () => {
         expect(document.getElementById('legal-modal')).not.toBeNull();
         expect(document.getElementById('comment-feedback-modal')).not.toBeNull();
         expect(document.getElementById('feature-notes-modal')).not.toBeNull();
+        expect(document.getElementById('copy-ai-prompt-btn')).not.toBeNull();
+        expect(document.getElementById('ki-helper-info')).not.toBeNull();
+        expect(document.getElementById('ki-copy-prompt-action')).not.toBeNull();
     });
 });
