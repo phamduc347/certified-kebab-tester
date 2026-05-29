@@ -3546,7 +3546,7 @@ body.dark .verzehrort-bubble input[type="radio"]:checked + span {
     }
 
     .community-review-form textarea {
-        min-height: 92px;
+        min-height: 150px;
     }
 
     .community-score-grid label {
@@ -6912,9 +6912,5 @@ body.dark .community-photo-section input[type="file"]:focus + .custom-file-uploa
         grid-template-columns: 1fr 1fr;
         gap: 28px;
         align-items: start;
-    }
-
-    .community-review-form textarea {
-        min-height: 140px; /* Slightly taller textarea on desktop to balance layout */
     }
 }
