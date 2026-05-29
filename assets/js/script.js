@@ -2384,7 +2384,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // KI-Schreibhilfe toggle & copy logic
-            const kiToggleBtn = communityReviewForm.querySelector('#copy-ai-prompt-btn');
+            const kiToggleBtns = communityReviewForm.querySelectorAll('#copy-ai-prompt-btn, #copy-ai-prompt-btn-mobile');
             const kiInfoPanel = communityReviewForm.querySelector('#ki-helper-info');
             const kiCopyActionBtn = communityReviewForm.querySelector('#ki-copy-prompt-action');
 
@@ -2430,11 +2430,13 @@ Stichpunkte:
                 });
             }
 
-            if (kiToggleBtn && kiInfoPanel) {
-                kiToggleBtn.addEventListener('click', () => {
-                    const isHidden = kiInfoPanel.hidden;
-                    kiInfoPanel.hidden = !isHidden;
-                    kiToggleBtn.classList.toggle('active', isHidden);
+            if (kiToggleBtns.length > 0 && kiInfoPanel) {
+                kiToggleBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const isHidden = kiInfoPanel.hidden;
+                        kiInfoPanel.hidden = !isHidden;
+                        kiToggleBtns.forEach(b => b.classList.toggle('active', isHidden));
+                    });
                 });
             }
 
