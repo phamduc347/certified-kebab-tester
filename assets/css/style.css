@@ -6885,3 +6885,36 @@ body.dark .community-photo-section input[type="file"]:focus + .custom-file-uploa
     from { opacity: 0; transform: scale(0.9); }
     to { opacity: 1; transform: scale(1); }
 }
+
+/* ── Community Submit Modal Layout (Desktop & Mobile) ─────────────── */
+.community-desktop-two-cols {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.community-desktop-col-left,
+.community-desktop-col-right {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.community-desktop-comment-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+@media (min-width: 769px) {
+    .community-desktop-two-cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+        align-items: start;
+    }
+
+    .community-review-form textarea {
+        min-height: 140px; /* Slightly taller textarea on desktop to balance layout */
+    }
+}

@@ -550,95 +550,104 @@
                     <p class="community-reviews-hint"><strong>Hinweis:</strong> Alle Bewertungen werden vom CKT-Team geprüft und können ggf. gelöscht werden.</p>
                     <form id="community-review-form" class="community-review-form">
                         <div class="community-modal-divider"></div>
-                        <!-- Block 1: Wer bist du & wann? -->
-                        <div class="community-review-grid two-cols">
-                            <label>Dein Name
-                                <input type="text" name="reviewer_name" maxlength="40" required>
-                            </label>
-                            <label>Besuchsdatum
-                                <input type="date" name="visit_date" required>
-                            </label>
-                        </div>
+                        <div class="community-desktop-two-cols">
+                            <!-- Left Column: Inputs & Selection -->
+                            <div class="community-desktop-col-left">
+                                <!-- Block 1: Wer bist du & wann? -->
+                                <div class="community-review-grid two-cols">
+                                    <label>Dein Name
+                                        <input type="text" name="reviewer_name" maxlength="40" required>
+                                    </label>
+                                    <label>Besuchsdatum
+                                        <input type="date" name="visit_date" required>
+                                    </label>
+                                </div>
 
-                        <!-- Block 2: Welcher Spot? -->
-                        <div class="community-review-grid two-cols">
-                            <label>Review-Typ
-                                <select name="spot_entry_mode" id="spot-entry-mode" required>
-                                    <option value="existing">Bestehender Spot</option>
-                                    <option value="new">Neuer Spot</option>
-                                </select>
-                            </label>
-                            <label id="existing-spot-wrapper">Dönerspot auswählen
-                                <select name="existing_spot_id" id="existing-spot-select" required></select>
-                            </label>
-                        </div>
+                                <!-- Block 2: Welcher Spot? -->
+                                <div class="community-review-grid two-cols">
+                                    <label>Review-Typ
+                                        <select name="spot_entry_mode" id="spot-entry-mode" required>
+                                            <option value="existing">Bestehender Spot</option>
+                                            <option value="new">Neuer Spot</option>
+                                        </select>
+                                    </label>
+                                    <label id="existing-spot-wrapper">Dönerspot auswählen
+                                        <select name="existing_spot_id" id="existing-spot-select" required></select>
+                                    </label>
+                                </div>
 
-                        <div class="community-review-grid two-cols" id="spot-name-city-wrapper" hidden>
-                            <label>Spot-Name
-                                <input type="text" name="spot_name" id="community-spot-name" maxlength="80">
-                            </label>
-                            <label>Stadt
-                                <input type="text" name="city" id="community-city" maxlength="60">
-                            </label>
-                        </div>
+                                <div class="community-review-grid two-cols" id="spot-name-city-wrapper" hidden>
+                                    <label>Spot-Name
+                                        <input type="text" name="spot_name" id="community-spot-name" maxlength="80">
+                                    </label>
+                                    <label>Stadt
+                                        <input type="text" name="city" id="community-city" maxlength="60">
+                                    </label>
+                                </div>
 
+                                <!-- Block 4: Was & wie viel? -->
+                                <div class="community-review-grid two-cols">
+                                    <label>Gericht
+                                        <select name="dish" id="community-dish-select" required>
+                                            <option value="Döner" selected>Döner</option>
+                                            <option value="Dürüm">Dürüm</option>
+                                            <option value="Gemüse-Döner">Gemüse-Döner</option>
+                                            <option value="Steak-Döner">Steak-Döner</option>
+                                            <option value="Veggie-Döner">Veggie-Döner</option>
+                                            <option value="Vegan-Döner">Vegan-Döner</option>
+                                        </select>
+                                    </label>
+                                    <label>Preis
+                                        <select name="preis" id="community-preis-select" required>
+                                            <!-- Dynamic price options will be populated here -->
+                                        </select>
+                                    </label>
+                                </div>
 
-                        <!-- Block 4: Was & wie viel? -->
-                        <div class="community-review-grid two-cols">
-                            <label>Gericht
-                                <select name="dish" id="community-dish-select" required>
-                                    <option value="Döner" selected>Döner</option>
-                                    <option value="Dürüm">Dürüm</option>
-                                    <option value="Gemüse-Döner">Gemüse-Döner</option>
-                                    <option value="Steak-Döner">Steak-Döner</option>
-                                    <option value="Veggie-Döner">Veggie-Döner</option>
-                                    <option value="Vegan-Döner">Vegan-Döner</option>
-                                </select>
-                            </label>
-                            <label>Preis
-                                <select name="preis" id="community-preis-select" required>
-                                    <!-- Dynamic price options will be populated here -->
-                                </select>
-                            </label>
-                        </div>
-
-                        <div class="verzehrort-field">
-                            <span class="verzehrort-label">Verzehrort</span>
-                            <div class="verzehrort-bubbles" role="group" aria-label="Verzehrort auswählen">
-                                <label class="verzehrort-bubble">
-                                    <input type="radio" name="verzehrort" value="Dine-in" checked>
-                                    <span>🍽 Dine-in</span>
-                                </label>
-                                <label class="verzehrort-bubble">
-                                    <input type="radio" name="verzehrort" value="Take-away">
-                                    <span>🥡 Take-away</span>
-                                </label>
-                                <label class="verzehrort-bubble">
-                                    <input type="radio" name="verzehrort" value="Delivery">
-                                    <span>🛵 Delivery</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Block 3: Foto -->
-                        <div class="community-photo-section">
-                            <span class="photo-label">Bild vom Döner (erforderlich)</span>
-                            <div class="community-photo-preview-wrapper" id="community-photo-preview-wrapper" hidden>
-                                <div class="community-image-preview-container" id="community-image-preview-container">
-                                    <img src="" alt="Vorschau" id="community-image-preview">
-                                    <button type="button" class="remove-preview-btn" id="remove-preview-btn" title="Bild entfernen">×</button>
+                                <div class="verzehrort-field">
+                                    <span class="verzehrort-label">Verzehrort</span>
+                                    <div class="verzehrort-bubbles" role="group" aria-label="Verzehrort auswählen">
+                                        <label class="verzehrort-bubble">
+                                            <input type="radio" name="verzehrort" value="Dine-in" checked>
+                                            <span>🍽 Dine-in</span>
+                                        </label>
+                                        <label class="verzehrort-bubble">
+                                            <input type="radio" name="verzehrort" value="Take-away">
+                                            <span>🥡 Take-away</span>
+                                        </label>
+                                        <label class="verzehrort-bubble">
+                                            <input type="radio" name="verzehrort" value="Delivery">
+                                            <span>🛵 Delivery</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                            <input type="file" name="visit_image" id="community-image-input" accept="image/*" required>
-                            <label for="community-image-input" class="custom-file-upload-btn">Bild auswählen</label>
-                        </div>
 
-                        <!-- Block 5: Kommentar -->
-                        <label>Kommentar
-                            <textarea name="comment_text" maxlength="1000" placeholder="Wie war dein Besuch?"
-                                required></textarea>
-                        </label>
-                        <p id="community-comment-counter" class="community-comment-counter" aria-live="polite">0/1000 Zeichen</p>
+                            <!-- Right Column: Media & Commentary -->
+                            <div class="community-desktop-col-right">
+                                <!-- Block 3: Foto -->
+                                <div class="community-photo-section">
+                                    <span class="photo-label">Bild vom Döner (erforderlich)</span>
+                                    <div class="community-photo-preview-wrapper" id="community-photo-preview-wrapper" hidden>
+                                        <div class="community-image-preview-container" id="community-image-preview-container">
+                                            <img src="" alt="Vorschau" id="community-image-preview">
+                                            <button type="button" class="remove-preview-btn" id="remove-preview-btn" title="Bild entfernen">×</button>
+                                        </div>
+                                    </div>
+                                    <input type="file" name="visit_image" id="community-image-input" accept="image/*" required>
+                                    <label for="community-image-input" class="custom-file-upload-btn">Bild auswählen</label>
+                                </div>
+
+                                <!-- Block 5: Kommentar -->
+                                <div class="community-desktop-comment-wrapper">
+                                    <label>Kommentar
+                                        <textarea name="comment_text" maxlength="1000" placeholder="Wie war dein Besuch?"
+                                            required></textarea>
+                                    </label>
+                                    <p id="community-comment-counter" class="community-comment-counter" aria-live="polite">0/1000 Zeichen</p>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Block 6: Bewertungen -->
                         <div class="community-score-section">
