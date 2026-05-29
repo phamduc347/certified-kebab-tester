@@ -7126,6 +7126,7 @@ body.dark .feature-notes-eyebrow {
     border-radius: 6px;
     text-transform: none;
     order: 0;
+    width: auto;
 }
 
 .feature-notes-footer {
