@@ -7111,6 +7111,23 @@ body.dark .feature-notes-eyebrow {
     justify-content: flex-end;
 }
 
+.changelog-date {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 4px;
+    display: inline-block;
+}
+
+.changelog-actions .community-submit-trigger {
+    padding: 6px 12px;
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+    border-radius: 6px;
+    text-transform: none;
+    order: 0;
+}
+
 .feature-notes-footer {
     display: flex;
     justify-content: center;
