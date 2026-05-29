@@ -433,6 +433,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const communityCityInput = document.getElementById('community-city');
     const spotNameCityWrapper = document.getElementById('spot-name-city-wrapper');
     const communityPreisSelect = document.getElementById('community-preis-select');
+    const communityImageInput = document.getElementById('community-image-input');
+    const communityPhotoPreviewWrapper = document.getElementById('community-photo-preview-wrapper');
+    const communityImagePreviewContainer = document.getElementById('community-image-preview-container');
+    const communityImagePreview = document.getElementById('community-image-preview');
+    const removePreviewBtn = document.getElementById('remove-preview-btn');
+    const customFileUploadBtn = document.querySelector('.custom-file-upload-btn');
     const btnGrid = document.getElementById('btn-grid');
     const btnList = document.getElementById('btn-list');
 
@@ -2326,6 +2332,66 @@ document.addEventListener('DOMContentLoaded', () => {
                     numberInput.addEventListener('blur', () => {
                         syncFromNumberInput();
                     });
+                }
+            });
+
+            // Image Preview logic
+            if (communityImageInput) {
+                communityImageInput.addEventListener('change', () => {
+                    const file = communityImageInput.files ? communityImageInput.files[0] : null;
+                    if (file && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            if (communityImagePreview) {
+                                communityImagePreview.src = e.target.result;
+                            }
+                            if (communityPhotoPreviewWrapper) {
+                                communityPhotoPreviewWrapper.hidden = false;
+                            }
+                            if (customFileUploadBtn) {
+                                customFileUploadBtn.style.display = 'none';
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        if (communityImagePreview) communityImagePreview.src = '';
+                        if (communityPhotoPreviewWrapper) communityPhotoPreviewWrapper.hidden = true;
+                        if (customFileUploadBtn) {
+                            customFileUploadBtn.style.display = '';
+                        }
+                    }
+                });
+            }
+
+            if (removePreviewBtn) {
+                removePreviewBtn.addEventListener('click', () => {
+                    if (communityImageInput) {
+                        communityImageInput.value = '';
+                    }
+                    if (communityImagePreview) {
+                        communityImagePreview.src = '';
+                    }
+                    if (communityPhotoPreviewWrapper) {
+                        communityPhotoPreviewWrapper.hidden = true;
+                    }
+                    if (customFileUploadBtn) {
+                        customFileUploadBtn.style.display = '';
+                    }
+                    if (communityReviewStatus) {
+                        communityReviewStatus.textContent = '';
+                    }
+                });
+            }
+
+            communityReviewForm.addEventListener('reset', () => {
+                if (communityPhotoPreviewWrapper) {
+                    communityPhotoPreviewWrapper.hidden = true;
+                }
+                if (customFileUploadBtn) {
+                    customFileUploadBtn.style.display = '';
+                }
+                if (communityImagePreview) {
+                    communityImagePreview.src = '';
                 }
             });
         }

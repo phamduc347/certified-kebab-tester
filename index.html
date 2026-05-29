@@ -582,10 +582,6 @@
                             </label>
                         </div>
 
-                        <!-- Block 3: Foto -->
-                        <label>Bild vom Döner (erforderlich)
-                            <input type="file" name="visit_image" accept="image/*" required>
-                        </label>
 
                         <!-- Block 4: Was & wie viel? -->
                         <div class="community-review-grid two-cols">
@@ -622,6 +618,19 @@
                                     <span>🛵 Delivery</span>
                                 </label>
                             </div>
+                        </div>
+
+                        <!-- Block 3: Foto -->
+                        <div class="community-photo-section">
+                            <span class="photo-label">Bild vom Döner (erforderlich)</span>
+                            <div class="community-photo-preview-wrapper" id="community-photo-preview-wrapper" hidden>
+                                <div class="community-image-preview-container" id="community-image-preview-container">
+                                    <img src="" alt="Vorschau" id="community-image-preview">
+                                    <button type="button" class="remove-preview-btn" id="remove-preview-btn" title="Bild entfernen">×</button>
+                                </div>
+                            </div>
+                            <input type="file" name="visit_image" id="community-image-input" accept="image/*" required>
+                            <label for="community-image-input" class="custom-file-upload-btn">Bild auswählen</label>
                         </div>
 
                         <!-- Block 5: Kommentar -->
