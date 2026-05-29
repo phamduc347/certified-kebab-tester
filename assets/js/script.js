@@ -431,6 +431,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const existingSpotWrapper = document.getElementById('existing-spot-wrapper');
     const communitySpotNameInput = document.getElementById('community-spot-name');
     const communityCityInput = document.getElementById('community-city');
+    const spotNameCityWrapper = document.getElementById('spot-name-city-wrapper');
+    const communityPreisSelect = document.getElementById('community-preis-select');
     const btnGrid = document.getElementById('btn-grid');
     const btnList = document.getElementById('btn-list');
 
@@ -2115,6 +2117,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function populateCommunityPriceSelectOptions() {
+        if (!communityPreisSelect) return;
+
+        const options = [];
+        for (let val = 1.0; val <= 30.0; val += 0.1) {
+            const numericVal = Math.round(val * 10) / 10;
+            const formatted = numericVal.toFixed(2).replace('.', ',') + ' €';
+            const isSelected = numericVal === 7.0 ? ' selected' : '';
+            options.push(`<option value="${formatted}"${isSelected}>${formatted}</option>`);
+        }
+        communityPreisSelect.innerHTML = options.join('');
+    }
+
     function syncCommunitySpotInputsFromSelection() {
         if (!spotEntryModeSelect || !communitySpotNameInput || !communityCityInput) return;
 
@@ -2123,12 +2138,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedSpot = kebabData.find(s => Number(s.id) === existingSpotId);
 
         if (mode === 'existing') {
+            // Show spot-select, hide manual name/city fields
             if (existingSpotWrapper) {
                 existingSpotWrapper.style.display = '';
             }
             if (existingSpotSelect) {
                 existingSpotSelect.required = true;
             }
+            // Hide & clear the manual name/city wrapper
+            if (spotNameCityWrapper) {
+                spotNameCityWrapper.hidden = true;
+            }
+            communitySpotNameInput.required = false;
+            communityCityInput.required = false;
 
             if (selectedSpot) {
                 communitySpotNameInput.value = selectedSpot.name;
@@ -2138,12 +2160,19 @@ document.addEventListener('DOMContentLoaded', () => {
             communitySpotNameInput.readOnly = true;
             communityCityInput.readOnly = true;
         } else {
+            // Hide spot-select, show manual name/city fields
             if (existingSpotWrapper) {
                 existingSpotWrapper.style.display = 'none';
             }
             if (existingSpotSelect) {
                 existingSpotSelect.required = false;
             }
+            // Show & enable the manual name/city wrapper
+            if (spotNameCityWrapper) {
+                spotNameCityWrapper.hidden = false;
+            }
+            communitySpotNameInput.required = true;
+            communityCityInput.required = true;
 
             communitySpotNameInput.readOnly = false;
             communityCityInput.readOnly = false;
@@ -2189,6 +2218,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initCommunityReviews() {
         populateExistingSpotSelectOptions();
+        populateCommunityPriceSelectOptions();
         syncCommunitySpotInputsFromSelection();
 
         if (openCommunityReviewFormBtn) {
