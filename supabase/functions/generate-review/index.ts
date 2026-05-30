@@ -5,6 +5,35 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function sanitizeInput(text: string): string {
+  if (!text) return "";
+  
+  // Truncate to a reasonable limit (500 characters)
+  let sanitized = text.slice(0, 500).trim();
+  
+  // List of forbidden patterns that suggest prompt injection
+  const forbiddenPatterns = [
+    /ignore\s+all\s+previous/i,
+    /ignore\s+instructions/i,
+    /ignoriere\s+(alle\s+)?regeln/i,
+    /ignoriere\s+(alle\s+)?anweisungen/i,
+    /system\s*prompt/i,
+    /developer\s*prompt/i,
+    /tue\s+so\s+als\s+ob/i,
+    /acting\s+as/i,
+    /you\s+are\s+now/i,
+    /du\s+bist\s+jetzt/i
+  ];
+
+  for (const pattern of forbiddenPatterns) {
+    if (pattern.test(sanitized)) {
+      throw new Error("Ungültige Eingabe erkannt (Sicherheitsrichtlinie).");
+    }
+  }
+
+  return sanitized;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -12,10 +41,21 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt } = await req.json();
+    const body = await req.json();
+    const rawBulletPoints = body.bulletPoints || body.prompt || "";
     
-    if (!prompt || prompt.trim() === "") {
-      return new Response(JSON.stringify({ error: "Kein Prompt angegeben." }), {
+    if (!rawBulletPoints || rawBulletPoints.trim() === "") {
+      return new Response(JSON.stringify({ error: "Keine Stichpunkte angegeben." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    let bulletPoints: string;
+    try {
+      bulletPoints = sanitizeInput(rawBulletPoints);
+    } catch (sanitizeError) {
+      return new Response(JSON.stringify({ error: sanitizeError.message }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -29,14 +69,40 @@ serve(async (req) => {
       });
     }
 
-    // Call stable v1 version of Gemini API
+    const systemInstructionText = `Du schreibst einen kurzen Reviewkommentar für eine Dönerbewertung.
+
+Regeln:
+• Gib ausschließlich den fertigen Kommentar zurück.
+• Keine Einleitung, keine Erklärungen, keine Anführungszeichen.
+• Maximal 1000 Zeichen.
+• Stil: kurz, prägnant, trocken, leicht humorvoll, intelligent, nicht cringe.
+• Keine Emojis.
+• Natürlich klingende Alltagssprache.
+• Kein übertriebener Slang.
+• Keine Wiederholungen.
+• Erwähne nur Aspekte, die in den Stichpunkten des Nutzers tatsächlich angegeben wurden.
+• Keine erfundenen Details.
+• Wenn ein Stichpunkt leer ist, darf dieser Aspekt im Kommentar nicht erwähnt werden.
+• Der Kommentar soll wie von einer echten Person wirken.
+
+Struktur:
+1. Kurzer Gesamteindruck.
+2. Konkrete Beobachtungen ausschließlich basierend auf den Stichpunkten.
+3. Abschluss mit trockener oder nüchterner Pointe.`;
+
+    const userText = `Stichpunkte:\n- ${bulletPoints.replace(/\n/g, '\n- ')}`;
+
+    // Call stable v1 version of Gemini API using systemInstruction
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
+          contents: [{ role: "user", parts: [{ text: userText }] }],
+          systemInstruction: {
+            parts: [{ text: systemInstructionText }]
+          }
         })
       }
     );

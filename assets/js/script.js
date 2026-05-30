@@ -2499,33 +2499,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             throw new Error("Supabase-Client ist nicht initialisiert.");
                         }
 
-                        // Build prompt dynamically using the template rules
-                        const prompt = `Du schreibst einen kurzen Reviewkommentar für eine Dönerbewertung.
-
-Regeln:
-•  Gib ausschließlich den fertigen Kommentar zurück.
-•  Keine Einleitung, keine Erklärungen, keine Anführungszeichen.
-•  Maximal 1000 Zeichen.
-•  Stil: kurz, prägnant, trocken, leicht humorvoll, intelligent, nicht cringe.
-•  Keine Emojis.
-•  Natürlich klingende Alltagssprache.
-•  Kein übertriebener Slang.
-•  Keine Wiederholungen.
-•  Erwähne nur Aspekte, die in den Stichpunkten unten tatsächlich ausgefüllt wurden.
-•  Keine erfundenen Details.
-•  Wenn ein Stichpunkt leer ist, darf dieser Aspekt im Kommentar nicht erwähnt werden.
-•  Der Kommentar soll wie von einer echten Person wirken.
-
-Struktur:
-1. Kurzer Gesamteindruck.
-2. Konkrete Beobachtungen ausschließlich basierend auf den Stichpunkten.
-3. Abschluss mit trockener oder nüchterner Pointe.
-
-Stichpunkte:
-- ${bulletPoints.replace(/\n/g, '\n- ')}`;
-
                         const { data, error } = await client.functions.invoke('generate-review', {
-                            body: { prompt }
+                            body: { bulletPoints }
                         });
 
                         if (error) {
