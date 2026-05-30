@@ -5005,6 +5005,7 @@ body.modal-open {
 .modal-content {
     padding: 40px;
     overflow-y: auto;
+    overflow-x: hidden;
     color: var(--text-main);
     line-height: 1.6;
 }
