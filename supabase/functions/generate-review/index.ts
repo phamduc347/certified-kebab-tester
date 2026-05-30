@@ -92,9 +92,9 @@ Struktur:
 
     const userText = `Stichpunkte:\n- ${bulletPoints.replace(/\n/g, '\n- ')}`;
 
-    // Call stable v1 version of Gemini API using systemInstruction
+    // Call v1beta version of Gemini API using systemInstruction
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
