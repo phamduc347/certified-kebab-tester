@@ -1,11 +1,34 @@
 {
   "info": {
-    "timestamp": "2026-05-29T04:02:33.509Z",
+    "timestamp": "2026-05-30T03:49:59.194Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
   "data": {
     "community_reviews": [
+      {
+        "id": 63,
+        "reviewer_name": "👑 Pham (CKT)",
+        "spot_name": "Asia-Döner Imbiss",
+        "city": "Görlitz",
+        "dish": "Döner",
+        "visit_date": "2026-05-22",
+        "fleisch": 8.1,
+        "gemuese": 8.9,
+        "sosse": 9.4,
+        "brot": 8,
+        "balance": 8.7,
+        "auswahl": 8.2,
+        "portion": 8.1,
+        "hygiene": 8.9,
+        "service": 9.4,
+        "comment_text": "Letztens mal wieder in Görlitz auf dem Wochenmarkt Döner essen gewesen. Das Fleisch und das Brot sind zwar Standard. Aber Gemüse und die Soße waren wieder einfach ausgezeichnet. Vermutlich weil diese Komponenten auch selbst zubereitet werden von den Inhabern. Portion für diesen Preis ist zudem einfach unschlagbar. Es gibt keinen besseren Döner in der Preisklasse in Görlitz, falls überhaupt jemand so einen Dönerpreis noch anbietet.",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1780101485612-kz4q34p9.jpeg",
+        "is_approved": true,
+        "created_at": "2026-05-30T00:38:07.918688+00:00",
+        "preis": "6,00 €",
+        "verzehrort": "Dine-in"
+      },
       {
         "id": 61,
         "reviewer_name": "👑 Pham (CKT)",
@@ -763,6 +786,18 @@
         "spot_id": 1369045344,
         "voter_fingerprint": "71c4fc5c-2969-400d-9696-f6b0e0507a3e",
         "created_at": "2026-05-27T22:41:47.760843+00:00"
+      },
+      {
+        "id": 58,
+        "spot_id": 1873572288,
+        "voter_fingerprint": "5a70b97f-0c1d-4b15-9590-4dd0be7afb96",
+        "created_at": "2026-05-29T07:29:39.445622+00:00"
+      },
+      {
+        "id": 59,
+        "spot_id": 1708800826,
+        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
+        "created_at": "2026-05-30T00:39:38.792952+00:00"
       }
     ],
     "review_comments": [
