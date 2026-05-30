@@ -59,7 +59,6 @@ describe('DOM Elements Presence', () => {
         expect(document.getElementById('feature-notes-modal')).not.toBeNull();
         expect(document.getElementById('copy-ai-prompt-btn')).not.toBeNull();
         expect(document.getElementById('ki-helper-info')).not.toBeNull();
-        expect(document.getElementById('ki-copy-prompt-action')).not.toBeNull();
         expect(document.getElementById('ki-generator-input')).not.toBeNull();
         expect(document.getElementById('ki-submit-generate-btn')).not.toBeNull();
         expect(document.getElementById('ki-generator-status')).not.toBeNull();

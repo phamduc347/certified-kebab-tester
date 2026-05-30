@@ -2383,52 +2383,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            // KI-Schreibhilfe toggle & copy logic
+            // KI-Schreibhilfe toggle logic
             const kiToggleBtns = communityReviewForm.querySelectorAll('#copy-ai-prompt-btn, #copy-ai-prompt-btn-mobile');
             const kiInfoPanel = communityReviewForm.querySelector('#ki-helper-info');
-            const kiCopyActionBtn = communityReviewForm.querySelector('#ki-copy-prompt-action');
-
-            const kiPromptText = `Du schreibst einen kurzen Reviewkommentar für eine Dönerbewertung.
-
-Regeln:
-•  Gib ausschließlich den fertigen Kommentar zurück.
-•  Keine Einleitung, keine Erklärungen, keine Anführungszeichen.
-•  Maximal 1000 Zeichen.
-•  Stil: kurz, prägnant, trocken, leicht humorvoll, intelligent, nicht cringe.
-•  Keine Emojis.
-•  Natürlich klingende Alltagssprache.
-•  Kein übertriebener Slang.
-•  Keine Wiederholungen.
-•  Erwähne nur Aspekte, die in den Stichpunkten unten tatsächlich ausgefüllt wurden.
-•  Keine erfundenen Details.
-•  Wenn ein Stichpunkt leer ist, darf dieser Aspekt im Kommentar nicht erwähnt werden.
-•  Der Kommentar soll wie von einer echten Person wirken.
-
-Struktur:
-1. Kurzer Gesamteindruck.
-2. Konkrete Beobachtungen ausschließlich basierend auf den ausgefüllten Stichpunkten.
-3. Abschluss mit trockener oder nüchterner Pointe.
-
-Stichpunkte:
-- 
--  `;
-
-            function copyKiPrompt(btn) {
-                navigator.clipboard.writeText(kiPromptText).then(() => {
-                    const btnText = btn.querySelector('span');
-                    if (btnText) {
-                        const originalText = btnText.textContent;
-                        btnText.textContent = 'Kopiert!';
-                        btn.classList.add('copied');
-                        setTimeout(() => {
-                            btnText.textContent = originalText;
-                            btn.classList.remove('copied');
-                        }, 2000);
-                    }
-                }).catch(err => {
-                    console.error('Kopieren fehlgeschlagen:', err);
-                });
-            }
 
             if (kiToggleBtns.length > 0 && kiInfoPanel) {
                 kiToggleBtns.forEach(btn => {
@@ -2437,19 +2394,6 @@ Stichpunkte:
                         kiInfoPanel.hidden = !isHidden;
                         kiToggleBtns.forEach(b => b.classList.toggle('active', isHidden));
                     });
-                });
-            }
-
-            if (kiCopyActionBtn) {
-                kiCopyActionBtn.addEventListener('click', () => {
-                    copyKiPrompt(kiCopyActionBtn);
-                });
-            }
-
-            const kiOpenLinkBtn = communityReviewForm.querySelector('.ki-open-chatgpt-btn');
-            if (kiOpenLinkBtn) {
-                kiOpenLinkBtn.addEventListener('click', () => {
-                    copyKiPrompt(kiOpenLinkBtn);
                 });
             }
 
