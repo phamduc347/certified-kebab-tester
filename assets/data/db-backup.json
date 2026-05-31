@@ -1,11 +1,57 @@
 {
   "info": {
-    "timestamp": "2026-05-30T03:49:59.194Z",
+    "timestamp": "2026-05-31T04:14:38.260Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
   "data": {
     "community_reviews": [
+      {
+        "id": 65,
+        "reviewer_name": "👑 Pham (CKT)",
+        "spot_name": "Meliz Palast",
+        "city": "Dresden",
+        "dish": "Döner",
+        "visit_date": "2026-05-30",
+        "fleisch": 7.4,
+        "gemuese": 6.7,
+        "sosse": 7.2,
+        "brot": 7,
+        "balance": 7.2,
+        "auswahl": 7.1,
+        "portion": 8.1,
+        "hygiene": 8.2,
+        "service": 7.5,
+        "comment_text": "War genau der basic Döner, den ich in Erinnerung hatte. Das Fleisch punktete mit einem guten Verhältnis zwischen kross und saftig aber war sehr übermäßig repräsentiert am Brotende. Soßen und Gemüse blieben leider ebenfalls nur Standard. Die Portionsgröße war aber gut. Keine Überraschungen, aber eben auch keine Enttäuschung.",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1780170001986-b30jc648.jpeg",
+        "is_approved": true,
+        "created_at": "2026-05-30T19:40:05.211819+00:00",
+        "preis": "7,50 €",
+        "verzehrort": "Take-away"
+      },
+      {
+        "id": 64,
+        "reviewer_name": "Lukas Kramer",
+        "spot_name": "Ali Baba Kebap Haus",
+        "city": "Dresden",
+        "dish": "Döner",
+        "visit_date": "2026-05-30",
+        "fleisch": 3.5,
+        "gemuese": 6,
+        "sosse": 4,
+        "brot": 8.5,
+        "balance": 2,
+        "auswahl": 8,
+        "portion": 9,
+        "hygiene": 8,
+        "service": 7,
+        "comment_text": "Saftig im Biss und eine gute Ladung ausgewogener Zutaten.\nDas Brot war knusprig und ist nicht gerissen. Jedoch leidet der Döner von der alten Kinderkrankheit ungemischt gestapelter Zutaten (UWF: unten wirds fleischig). Die Soße ist geschmacklich eher fad und nichts besonderes. Der Döner insgesamt war andererseits eher sehr salzig.",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1780168420056-hhcj7lts.jpeg",
+        "is_approved": true,
+        "created_at": "2026-05-30T19:13:43.012235+00:00",
+        "preis": "7,00 €",
+        "verzehrort": "Dine-in"
+      },
       {
         "id": 63,
         "reviewer_name": "👑 Pham (CKT)",
@@ -798,6 +844,18 @@
         "spot_id": 1708800826,
         "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
         "created_at": "2026-05-30T00:39:38.792952+00:00"
+      },
+      {
+        "id": 60,
+        "spot_id": 1002729168,
+        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
+        "created_at": "2026-05-30T19:28:06.516962+00:00"
+      },
+      {
+        "id": 61,
+        "spot_id": 1963943157,
+        "voter_fingerprint": "45897099-db6b-4895-9c31-3f48972ce260",
+        "created_at": "2026-05-30T20:26:59.091463+00:00"
       }
     ],
     "review_comments": [
