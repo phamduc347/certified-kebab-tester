@@ -1721,7 +1721,8 @@ document.addEventListener('DOMContentLoaded', () => {
         input.max = today;
 
         if (!raw) {
-            input.setCustomValidity('Bitte geben Sie das Besuchsdatum ein.');
+            input.setCustomValidity('Bitte gib das Besuchsdatum ein.');
+            input.classList.add('invalid-field');
             if (showNativeMessage && typeof input.reportValidity === 'function') {
                 input.reportValidity();
             }
@@ -1729,7 +1730,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
-            input.setCustomValidity('Bitte geben Sie ein gueltiges Besuchsdatum ein.');
+            input.setCustomValidity('Bitte gib ein gueltiges Besuchsdatum ein.');
+            input.classList.add('invalid-field');
             if (showNativeMessage && typeof input.reportValidity === 'function') {
                 input.reportValidity();
             }
@@ -1738,6 +1740,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (raw > today) {
             input.setCustomValidity('Besuchsdaten in der Zukunft sind nicht erlaubt.');
+            input.classList.add('invalid-field');
             if (showNativeMessage && typeof input.reportValidity === 'function') {
                 input.reportValidity();
             }
@@ -1745,7 +1748,83 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         input.setCustomValidity('');
+        input.classList.remove('invalid-field');
         return true;
+    }
+
+    function autoResizeTextarea(textarea) {
+        if (!textarea) return;
+
+        const computed = window.getComputedStyle(textarea);
+        const minHeight = Number.parseFloat(computed.minHeight) || 0;
+
+        textarea.style.height = 'auto';
+        textarea.style.overflowY = 'hidden';
+        textarea.style.height = `${Math.max(minHeight, textarea.scrollHeight)}px`;
+    }
+
+    function clearCommunityFieldInvalidState(field) {
+        if (!field) return;
+        field.classList.remove('invalid-field');
+
+        if (field === communityImageInput && customFileUploadBtn) {
+            customFileUploadBtn.classList.remove('invalid-field');
+        }
+
+        if (field.name === 'verzehrort' && communityReviewForm) {
+            const wrapper = communityReviewForm.querySelector('.verzehrort-field');
+            if (wrapper) wrapper.classList.remove('invalid-field');
+        }
+    }
+
+    function markCommunityFieldInvalid(field) {
+        if (!field) return;
+        field.classList.add('invalid-field');
+
+        if (field === communityImageInput && customFileUploadBtn) {
+            customFileUploadBtn.classList.add('invalid-field');
+        }
+
+        if (field.name === 'verzehrort' && communityReviewForm) {
+            const wrapper = communityReviewForm.querySelector('.verzehrort-field');
+            if (wrapper) wrapper.classList.add('invalid-field');
+        }
+    }
+
+    function clearCommunityStepInvalidStates(stepNumber) {
+        if (!communityReviewForm) return;
+
+        const stepElement = communityReviewForm.querySelector(`.community-form-step[data-step="${stepNumber}"]`);
+        if (stepElement) {
+            stepElement.querySelectorAll('.invalid-field').forEach((field) => {
+                field.classList.remove('invalid-field');
+            });
+        }
+
+        if (stepNumber === 1) {
+            const verzehrortField = communityReviewForm.querySelector('.verzehrort-field');
+            if (verzehrortField) verzehrortField.classList.remove('invalid-field');
+        }
+
+        if (stepNumber === 2 && customFileUploadBtn) {
+            customFileUploadBtn.classList.remove('invalid-field');
+        }
+    }
+
+    function ensureCommunityVisitDateDefault() {
+        if (!communityReviewForm) return;
+
+        const visitDateInput = communityReviewForm.querySelector('input[name="visit_date"]');
+        if (!visitDateInput) return;
+
+        const today = getTodayIsoDate();
+        visitDateInput.max = today;
+
+        if (!String(visitDateInput.value || '').trim()) {
+            visitDateInput.value = today;
+        }
+
+        validateCommunityVisitDateInput(visitDateInput);
     }
 
     function validateCommunityScoreInput(input) {
@@ -1937,6 +2016,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return publicData.publicUrl;
     }
 
+    function setCommunityReviewStatus(message = '', tone = 'default') {
+        if (!communityReviewStatus) return;
+
+        communityReviewStatus.textContent = message;
+        communityReviewStatus.classList.remove('is-error');
+
+        if (tone === 'error' && message) {
+            communityReviewStatus.classList.add('is-error');
+        }
+    }
+
     async function handleCommunityReviewSubmit(event) {
         event.preventDefault();
 
@@ -1946,9 +2036,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            if (communityReviewStatus) {
-                communityReviewStatus.textContent = '';
-            }
+            setCommunityReviewStatus('');
             setCommunityFormStep(activeCommunityFormStep + 1, true);
             return;
         }
@@ -1959,7 +2047,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const client = ensureSupabaseClient();
 
         if (!client) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Review-Service aktuell nicht verfügbar.';
+            setCommunityReviewStatus('Review-Service aktuell nicht verfügbar.', 'error');
             return;
         }
 
@@ -1996,82 +2084,82 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Spezifische Validierung für jedes Feld
         if (!reviewerName) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie Ihren Namen ein.';
+            setCommunityReviewStatus('Bitte gib deinen Namen ein.', 'error');
             return;
         }
         if (entryMode === 'existing' && !selectedSpot) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte einen bestehenden Spot aus der Liste auswählen.';
+            setCommunityReviewStatus('Bitte einen bestehenden Spot aus der Liste auswählen.', 'error');
             return;
         }
         if (!spotName) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie den Spot-Namen ein.';
+            setCommunityReviewStatus('Bitte gib den Spot-Namen ein.', 'error');
             return;
         }
         if (!city) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie die Stadt ein.';
+            setCommunityReviewStatus('Bitte gib die Stadt ein.', 'error');
             return;
         }
         if (!dish) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie das Gericht ein.';
+            setCommunityReviewStatus('Bitte gib das Gericht ein.', 'error');
             return;
         }
         if (!preis) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie den Preis ein.';
+            setCommunityReviewStatus('Bitte gib den Preis ein.', 'error');
             return;
         }
         if (!verzehrort) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte wählen Sie den Verzehrort aus.';
+            setCommunityReviewStatus('Bitte waehle den Verzehrort aus.', 'error');
             return;
         }
         if (!visitDate) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie das Besuchsdatum ein.';
+            setCommunityReviewStatus('Bitte gib das Besuchsdatum ein.', 'error');
             return;
         }
         const visitDateInput = form ? form.querySelector('input[name="visit_date"]') : null;
         const validVisitDate = validateCommunityVisitDateInput(visitDateInput, true);
         if (!validVisitDate) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Besuchsdaten in der Zukunft koennen nicht eingereicht werden.';
+            setCommunityReviewStatus('Besuchsdaten in der Zukunft koennen nicht eingereicht werden.', 'error');
             return;
         }
         if (!commentText) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte geben Sie einen Kommentar ein.';
+            setCommunityReviewStatus('Bitte gib einen Kommentar ein.', 'error');
             return;
         }
 
         if (commentText.length < 15) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte mindestens 15 Zeichen beim Kommentar eingeben.';
+            setCommunityReviewStatus('Bitte mindestens 15 Zeichen beim Kommentar eingeben.', 'error');
             return;
         }
 
         if (rawCommentText.length > COMMUNITY_COMMENT_MAX_LENGTH) {
-            if (communityReviewStatus) communityReviewStatus.textContent = `Der Kommentar ist zu lang (${rawCommentText.length}/${COMMUNITY_COMMENT_MAX_LENGTH} Zeichen). Bitte kürzen.`;
+            setCommunityReviewStatus(`Der Kommentar ist zu lang (${rawCommentText.length}/${COMMUNITY_COMMENT_MAX_LENGTH} Zeichen). Bitte kürzen.`, 'error');
             return;
         }
 
         const validScores = validateCommunityScoreInputs(form, true);
         if (!validScores) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte korrigiere die Bewertungsfelder (1-10, max. eine Dezimalstelle).';
+            setCommunityReviewStatus('Bitte korrigiere die Bewertungsfelder (1-10, max. eine Dezimalstelle).', 'error');
             return;
         }
 
         if (!file) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Bitte genau ein Bild hochladen.';
+            setCommunityReviewStatus('Bitte genau ein Bild hochladen.', 'error');
             return;
         }
 
         if (!String(file.type || '').startsWith('image/')) {
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Nur Bilddateien sind erlaubt.';
+            setCommunityReviewStatus('Nur Bilddateien sind erlaubt.', 'error');
             return;
         }
 
         const maxBytes = COMMUNITY_REVIEW_MAX_IMAGE_MB * 1024 * 1024;
         if (file.size > maxBytes) {
-            if (communityReviewStatus) communityReviewStatus.textContent = `Das Bild ist zu groß. Maximal ${COMMUNITY_REVIEW_MAX_IMAGE_MB} MB.`;
+            setCommunityReviewStatus(`Das Bild ist zu groß. Maximal ${COMMUNITY_REVIEW_MAX_IMAGE_MB} MB.`, 'error');
             return;
         }
 
         if (submitButton) submitButton.disabled = true;
-        if (communityReviewStatus) communityReviewStatus.textContent = 'Upload und Speicherung laufen...';
+        setCommunityReviewStatus('Upload und Speicherung laufen...');
 
         try {
             const imageUrl = await uploadCommunityReviewImage(client, file);
@@ -2125,12 +2213,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (submitButton) submitButton.blur();
             syncCommunitySpotInputsFromSelection();
             updateCommunityCommentCounter();
-            if (communityReviewStatus) communityReviewStatus.textContent = 'Danke! Dein Review wurde veröffentlicht.';
+            setCommunityReviewStatus('Danke! Dein Review wurde veröffentlicht.');
             closeCommunitySubmitModal();
             openCommentFeedbackModal();
         } catch (error) {
             const message = error && error.message ? error.message : 'Fehler beim Einreichen des Reviews.';
-            if (communityReviewStatus) communityReviewStatus.textContent = `Fehler: ${message}`;
+            setCommunityReviewStatus(`Fehler: ${message}`, 'error');
         } finally {
             if (submitButton) submitButton.disabled = false;
         }
@@ -2262,8 +2350,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showCommunityStepValidation(message, field) {
-        if (communityReviewStatus) {
-            communityReviewStatus.textContent = message;
+        setCommunityReviewStatus(message, 'error');
+        if (field) {
+            markCommunityFieldInvalid(field);
         }
         if (field && typeof field.focus === 'function') {
             field.focus({ preventScroll: true });
@@ -2272,6 +2361,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function validateCommunityFormStep(stepNumber) {
         if (!communityReviewForm) return true;
+        clearCommunityStepInvalidStates(stepNumber);
 
         const reviewerNameInput = communityReviewForm.querySelector('input[name="reviewer_name"]');
         const visitDateInput = communityReviewForm.querySelector('input[name="visit_date"]');
@@ -2282,12 +2372,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (stepNumber === 1) {
             if (!reviewerNameInput || !reviewerNameInput.value.trim()) {
-                showCommunityStepValidation('Bitte geben Sie Ihren Namen ein.', reviewerNameInput);
+                showCommunityStepValidation('Bitte gib deinen Namen ein.', reviewerNameInput);
                 return false;
             }
 
             if (!visitDateInput || !visitDateInput.value.trim()) {
-                showCommunityStepValidation('Bitte geben Sie das Besuchsdatum ein.', visitDateInput);
+                showCommunityStepValidation('Bitte gib das Besuchsdatum ein.', visitDateInput);
                 return false;
             }
 
@@ -2307,27 +2397,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 if (!communitySpotNameInput || !communitySpotNameInput.value.trim()) {
-                    showCommunityStepValidation('Bitte geben Sie den Spot-Namen ein.', communitySpotNameInput);
+                    showCommunityStepValidation('Bitte gib den Spot-Namen ein.', communitySpotNameInput);
                     return false;
                 }
                 if (!communityCityInput || !communityCityInput.value.trim()) {
-                    showCommunityStepValidation('Bitte geben Sie die Stadt ein.', communityCityInput);
+                    showCommunityStepValidation('Bitte gib die Stadt ein.', communityCityInput);
                     return false;
                 }
             }
 
             if (!dishInput || !dishInput.value.trim()) {
-                showCommunityStepValidation('Bitte geben Sie das Gericht ein.', dishInput);
+                showCommunityStepValidation('Bitte gib das Gericht ein.', dishInput);
                 return false;
             }
 
             if (!preisInput || !preisInput.value.trim()) {
-                showCommunityStepValidation('Bitte geben Sie den Preis ein.', preisInput);
+                showCommunityStepValidation('Bitte gib den Preis ein.', preisInput);
                 return false;
             }
 
             if (!selectedVerzehrort) {
-                showCommunityStepValidation('Bitte wählen Sie den Verzehrort aus.', communityReviewForm.querySelector('input[name="verzehrort"]'));
+                showCommunityStepValidation('Bitte waehle den Verzehrort aus.', communityReviewForm.querySelector('input[name="verzehrort"]'));
                 return false;
             }
         }
@@ -2355,7 +2445,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const commentText = rawCommentText.trim();
 
             if (!commentText) {
-                showCommunityStepValidation('Bitte geben Sie einen Kommentar ein.', commentInput);
+                showCommunityStepValidation('Bitte gib einen Kommentar ein.', commentInput);
                 return false;
             }
 
@@ -2411,6 +2501,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         syncModalOpenState();
+        ensureCommunityVisitDateDefault();
         setCommunityFormStep(1, true);
     }
 
@@ -2418,6 +2509,7 @@ document.addEventListener('DOMContentLoaded', () => {
         populateExistingSpotSelectOptions();
         populateCommunityPriceSelectOptions();
         syncCommunitySpotInputsFromSelection();
+        ensureCommunityVisitDateDefault();
 
         if (openCommunityReviewFormBtn) {
             openCommunityReviewFormBtn.setAttribute('aria-expanded', 'false');
@@ -2427,18 +2519,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (spotEntryModeSelect) {
             spotEntryModeSelect.addEventListener('change', () => {
                 syncCommunitySpotInputsFromSelection();
-                if (communityReviewStatus) {
-                    communityReviewStatus.textContent = '';
-                }
+                setCommunityReviewStatus('');
             });
         }
 
         if (existingSpotSelect) {
             existingSpotSelect.addEventListener('change', () => {
                 syncCommunitySpotInputsFromSelection();
-                if (communityReviewStatus) {
-                    communityReviewStatus.textContent = '';
-                }
+                setCommunityReviewStatus('');
             });
         }
 
@@ -2450,9 +2538,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (communityReviewBackBtn) {
                 communityReviewBackBtn.addEventListener('click', () => {
                     setCommunityFormStep(activeCommunityFormStep - 1, true);
-                    if (communityReviewStatus) {
-                        communityReviewStatus.textContent = '';
-                    }
+                    setCommunityReviewStatus('');
                 });
             }
 
@@ -2461,20 +2547,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     const isCurrentStepValid = validateCommunityFormStep(activeCommunityFormStep);
                     if (!isCurrentStepValid) return;
 
-                    if (communityReviewStatus) {
-                        communityReviewStatus.textContent = '';
-                    }
+                    setCommunityReviewStatus('');
                     setCommunityFormStep(activeCommunityFormStep + 1, true);
                 });
             }
 
             const commentInput = communityReviewForm.querySelector('textarea[name="comment_text"]');
             if (commentInput) {
+                autoResizeTextarea(commentInput);
                 commentInput.addEventListener('input', () => {
                     updateCommunityCommentCounter();
-                    if (communityReviewStatus) {
-                        communityReviewStatus.textContent = '';
-                    }
+                    autoResizeTextarea(commentInput);
+                    clearCommunityFieldInvalidState(commentInput);
+                    setCommunityReviewStatus('');
                 });
             }
 
@@ -2483,9 +2568,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 validateCommunityVisitDateInput(visitDateInput);
                 visitDateInput.addEventListener('input', () => {
                     validateCommunityVisitDateInput(visitDateInput);
-                    if (communityReviewStatus) {
-                        communityReviewStatus.textContent = '';
-                    }
+                    clearCommunityFieldInvalidState(visitDateInput);
+                    setCommunityReviewStatus('');
                 });
                 visitDateInput.addEventListener('blur', () => {
                     validateCommunityVisitDateInput(visitDateInput);
@@ -2495,9 +2579,7 @@ document.addEventListener('DOMContentLoaded', () => {
             scoreInputs.forEach((input) => {
                 input.addEventListener('input', () => {
                     validateCommunityScoreInput(input);
-                    if (communityReviewStatus) {
-                        communityReviewStatus.textContent = '';
-                    }
+                    setCommunityReviewStatus('');
                 });
                 input.addEventListener('blur', () => {
                     validateCommunityScoreInput(input);
@@ -2554,6 +2636,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 communityImageInput.addEventListener('change', () => {
                     const file = communityImageInput.files ? communityImageInput.files[0] : null;
                     if (file && file.type.startsWith('image/')) {
+                        clearCommunityFieldInvalidState(communityImageInput);
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             if (communityImagePreview) {
@@ -2592,7 +2675,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         customFileUploadBtn.style.display = '';
                     }
                     if (communityReviewStatus) {
-                        communityReviewStatus.textContent = '';
+                        setCommunityReviewStatus('');
                     }
                 });
             }
@@ -2617,6 +2700,41 @@ document.addEventListener('DOMContentLoaded', () => {
             const kiGeneratorStatus = communityReviewForm.querySelector('#ki-generator-status');
             const kiLimitDisplay = communityReviewForm.querySelector('#ki-limit-display');
             const commentTextarea = communityReviewForm.querySelector('[name="comment_text"]');
+
+            if (kiGeneratorInput) {
+                autoResizeTextarea(kiGeneratorInput);
+                kiGeneratorInput.addEventListener('input', () => {
+                    autoResizeTextarea(kiGeneratorInput);
+                });
+            }
+
+            const reviewerNameInput = communityReviewForm.querySelector('input[name="reviewer_name"]');
+            const dishInput = communityReviewForm.querySelector('select[name="dish"]');
+            const preisInput = communityReviewForm.querySelector('select[name="preis"]');
+
+            if (reviewerNameInput) {
+                reviewerNameInput.addEventListener('input', () => clearCommunityFieldInvalidState(reviewerNameInput));
+            }
+            if (dishInput) {
+                dishInput.addEventListener('change', () => clearCommunityFieldInvalidState(dishInput));
+            }
+            if (preisInput) {
+                preisInput.addEventListener('change', () => clearCommunityFieldInvalidState(preisInput));
+            }
+            if (existingSpotSelect) {
+                existingSpotSelect.addEventListener('change', () => clearCommunityFieldInvalidState(existingSpotSelect));
+            }
+            if (communitySpotNameInput) {
+                communitySpotNameInput.addEventListener('input', () => clearCommunityFieldInvalidState(communitySpotNameInput));
+            }
+            if (communityCityInput) {
+                communityCityInput.addEventListener('input', () => clearCommunityFieldInvalidState(communityCityInput));
+            }
+            if (communityReviewForm) {
+                communityReviewForm.querySelectorAll('input[name="verzehrort"]').forEach((radio) => {
+                    radio.addEventListener('change', () => clearCommunityFieldInvalidState(radio));
+                });
+            }
 
             const maxKiAttempts = 10;
             function getRemainingKiAttempts() {
@@ -2769,7 +2887,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     kiGeneratorStatus.hidden = true;
                     kiGeneratorStatus.textContent = '';
                 }
+                if (communityReviewForm) {
+                    communityReviewForm.querySelectorAll('.invalid-field').forEach((field) => {
+                        field.classList.remove('invalid-field');
+                    });
+                    const verzehrortWrapper = communityReviewForm.querySelector('.verzehrort-field');
+                    if (verzehrortWrapper) verzehrortWrapper.classList.remove('invalid-field');
+                }
+                if (customFileUploadBtn) {
+                    customFileUploadBtn.classList.remove('invalid-field');
+                }
                 setCommunityFormStep(1, false);
+                ensureCommunityVisitDateDefault();
+                if (commentInput) autoResizeTextarea(commentInput);
+                if (kiGeneratorInput) autoResizeTextarea(kiGeneratorInput);
                 updateKiLimitDisplay();
             });
         }

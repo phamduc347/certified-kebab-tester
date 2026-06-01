@@ -200,6 +200,22 @@ body.dark .community-score-grid label:focus-within {
     border-color: #3b82f6;
 }
 
+body.dark .community-review-form input.invalid-field,
+body.dark .community-review-form textarea.invalid-field,
+body.dark .community-review-form select.invalid-field,
+body.dark .custom-file-upload-btn.invalid-field {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.16);
+}
+
+body.dark .custom-file-upload-btn.invalid-field {
+    color: #fca5a5;
+}
+
+body.dark .verzehrort-field.invalid-field .verzehrort-bubbles {
+    border-color: #ef4444;
+}
+
 body.dark .community-review-actions {
     border-top-color: #2a2a2a;
 }
@@ -3249,6 +3265,24 @@ body.dark .verzehrort-bubble input[type="radio"]:checked + span {
     box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.08);
 }
 
+.community-review-form input.invalid-field,
+.community-review-form textarea.invalid-field,
+.community-review-form select.invalid-field,
+.custom-file-upload-btn.invalid-field {
+    border-color: #b91c1c;
+    box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.08);
+}
+
+.custom-file-upload-btn.invalid-field {
+    color: #b91c1c;
+}
+
+.verzehrort-field.invalid-field .verzehrort-bubbles {
+    border: 1.5px solid #b91c1c;
+    border-radius: 10px;
+    padding: 6px;
+}
+
 .community-review-actions {
     display: flex;
     flex-direction: column;
@@ -3314,6 +3348,15 @@ body.dark .verzehrort-bubble input[type="radio"]:checked + span {
     font-size: 0.78rem;
     color: var(--text-muted);
     text-align: center;
+}
+
+#community-review-status.is-error {
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+body.dark #community-review-status.is-error {
+    color: #fca5a5;
 }
 
 .community-reviews-list-head {
