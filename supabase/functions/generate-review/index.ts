@@ -92,6 +92,31 @@ serve(async (req) => {
       const ipHash = await hashIp(ip);
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
+      // 1. Cooldown Check (30 seconds between requests)
+      const { data: recentRequests, error: recentError } = await supabase
+        .from("api_rate_limits")
+        .select("created_at")
+        .eq("ip_hash", ipHash)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (recentError) {
+        console.error("Recent request query failed:", recentError);
+      } else if (recentRequests && recentRequests.length > 0) {
+        const lastRequestTime = new Date(recentRequests[0].created_at).getTime();
+        const diffSeconds = Math.floor((Date.now() - lastRequestTime) / 1000);
+        const cooldownWindow = 30; // 30 seconds cooldown
+
+        if (diffSeconds < cooldownWindow) {
+          const remaining = cooldownWindow - diffSeconds;
+          return new Response(JSON.stringify({ error: `Bitte warte ${remaining} Sekunden vor der nächsten Generierung.` }), {
+            status: 429,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+
+      // 2. Hourly Rate Limit Check (Option B)
       const { count, error: countError } = await supabase
         .from("api_rate_limits")
         .select("*", { count: "exact", head: true })
