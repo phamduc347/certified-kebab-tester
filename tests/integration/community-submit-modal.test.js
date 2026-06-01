@@ -18,6 +18,11 @@ describe('Community submit modal spot selection', () => {
         expect(script).toContain('const isNewSpot = selectedValue === \'new\';');
         expect(script).toContain('existingSpotSelect.value = String(sortedSpots[0].id);');
         expect(script).toContain('existingSpotSelect.value = \'new\';');
+        expect(script).toContain("setCommunityFormStep(activeCommunityFormStep + 1, true, 'forward');");
+        expect(script).toContain("setCommunityFormStep(activeCommunityFormStep - 1, true, 'backward');");
+        expect(script).toContain("communityStepTransitionDirection = transitionDirection;");
+        expect(script).toContain("is-transition-forward");
+        expect(script).toContain("is-transition-backward");
         expect(script).not.toContain('spot_entry_mode');
     });
 });

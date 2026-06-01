@@ -2979,6 +2979,43 @@ body.dark .review-community-modal-image-container {
     display: flex;
 }
 
+.community-form-step.is-active.is-transition-forward {
+    animation: communityStepSlideInForward 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.community-form-step.is-active.is-transition-backward {
+    animation: communityStepSlideInBackward 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes communityStepSlideInForward {
+    from {
+        opacity: 0;
+        transform: translateX(36px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes communityStepSlideInBackward {
+    from {
+        opacity: 0;
+        transform: translateX(-36px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .community-form-step.is-active.is-transition-forward,
+    .community-form-step.is-active.is-transition-backward {
+        animation: none;
+    }
+}
+
 .community-step-two-layout {
     align-items: stretch;
 }

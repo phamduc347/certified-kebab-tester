@@ -454,6 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const TOTAL_COMMUNITY_FORM_STEPS = 3;
     let activeCommunityFormStep = 1;
+    let communityStepTransitionDirection = 'none';
 
     // Side menu logic removed - using top header nav now
 
@@ -2036,7 +2037,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             setCommunityReviewStatus('');
-            setCommunityFormStep(activeCommunityFormStep + 1, true);
+            setCommunityFormStep(activeCommunityFormStep + 1, true, 'forward');
             return;
         }
 
@@ -2309,6 +2310,24 @@ document.addEventListener('DOMContentLoaded', () => {
             stepElement.classList.toggle('is-active', isActive);
         });
 
+        if (communityReviewForm && (communityStepTransitionDirection === 'forward' || communityStepTransitionDirection === 'backward')) {
+            const activeStepElement = communityReviewForm.querySelector(`.community-form-step[data-step="${activeCommunityFormStep}"]`);
+            if (activeStepElement) {
+                activeStepElement.classList.remove('is-transition-forward');
+                activeStepElement.classList.remove('is-transition-backward');
+                void activeStepElement.offsetWidth;
+                const transitionClass = communityStepTransitionDirection === 'forward'
+                    ? 'is-transition-forward'
+                    : 'is-transition-backward';
+                activeStepElement.classList.add(transitionClass);
+                activeStepElement.addEventListener('animationend', () => {
+                    activeStepElement.classList.remove('is-transition-forward');
+                    activeStepElement.classList.remove('is-transition-backward');
+                }, { once: true });
+            }
+        }
+        communityStepTransitionDirection = 'none';
+
         if (communityFormStepLabel) {
             communityFormStepLabel.textContent = `Schritt ${activeCommunityFormStep} von ${TOTAL_COMMUNITY_FORM_STEPS}`;
         }
@@ -2334,9 +2353,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function setCommunityFormStep(stepNumber, shouldFocus = true) {
+    function setCommunityFormStep(stepNumber, shouldFocus = true, transitionDirection = 'none') {
         const nextStep = Math.min(TOTAL_COMMUNITY_FORM_STEPS, Math.max(1, Number(stepNumber) || 1));
         activeCommunityFormStep = nextStep;
+        communityStepTransitionDirection = transitionDirection === 'forward' || transitionDirection === 'backward'
+            ? transitionDirection
+            : 'none';
         updateCommunityFormStepUi();
 
         if (!shouldFocus || !communityReviewForm) return;
@@ -2531,7 +2553,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (communityReviewBackBtn) {
                 communityReviewBackBtn.addEventListener('click', () => {
-                    setCommunityFormStep(activeCommunityFormStep - 1, true);
+                    setCommunityFormStep(activeCommunityFormStep - 1, true, 'backward');
                     setCommunityReviewStatus('');
                 });
             }
@@ -2542,7 +2564,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!isCurrentStepValid) return;
 
                     setCommunityReviewStatus('');
-                    setCommunityFormStep(activeCommunityFormStep + 1, true);
+                    setCommunityFormStep(activeCommunityFormStep + 1, true, 'forward');
                 });
             }
 
