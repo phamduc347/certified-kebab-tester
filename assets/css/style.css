@@ -3497,24 +3497,15 @@ body.dark #community-review-status.is-error {
 
 @media (max-width: 680px) {
 
-    /* Mobile tuning: keep compact form text, but switch to 16px on focus to avoid iOS auto-zoom. */
+    /* Prevent iOS auto-zoom on input focus: font-size must be >= 16px. */
     .community-review-form input,
     .community-review-form textarea,
     .community-review-form select,
     .review-comments-form input,
     .review-comments-form textarea,
     .review-comments-form select {
-        font-size: 15px;
-        line-height: 1.35;
-    }
-
-    .community-review-form input:focus,
-    .community-review-form textarea:focus,
-    .community-review-form select:focus,
-    .review-comments-form input:focus,
-    .review-comments-form textarea:focus,
-    .review-comments-form select:focus {
         font-size: 16px;
+        line-height: 1.35;
     }
 
     .filter-utilities {
@@ -7761,4 +7752,18 @@ body.dark .ki-generator-status.loading {
 /* Ensure textarea label has no extra styling issues */
 .comment-textarea-label {
     display: block;
+}
+
+/* ── Anti-Zoom: Prevent iOS Safari auto-zoom on input focus ──────────────────
+   iOS/iPadOS Safari zooms in whenever a focused input has font-size < 16px.
+   Setting font-size >= 16px on touch devices is the only accessibility-safe
+   solution (user-scalable=no is an a11y violation and blocked by WCAG 1.4.4).
+   This rule targets all interactive form fields site-wide.
+──────────────────────────────────────────────────────────────────────────── */
+@media (hover: none) and (pointer: coarse) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+    textarea,
+    select {
+        font-size: max(16px, 1em);
+    }
 }
