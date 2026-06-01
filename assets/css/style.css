@@ -195,11 +195,6 @@ body.dark .community-score-grid label {
     color: var(--text-main);
 }
 
-body.dark .community-score-grid label:focus-within {
-    background: #222222;
-    border-color: #3b82f6;
-}
-
 body.dark .community-review-form input.invalid-field,
 body.dark .community-review-form textarea.invalid-field,
 body.dark .community-review-form select.invalid-field,
@@ -3215,11 +3210,6 @@ body.dark .verzehrort-bubble input[type="radio"]:checked + span {
     letter-spacing: 0;
 }
 
-.community-score-grid label:focus-within {
-    border-color: #2563eb;
-    background: #ffffff;
-}
-
 .community-score-grid label .score-slider {
     -webkit-appearance: none;
     width: 100%;
@@ -3727,6 +3717,16 @@ body.dark #community-review-status.is-error {
     .community-score-grid label .score-slider {
         grid-column: 1;
         margin: 0;
+    }
+
+    .community-score-grid label .score-slider::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+    }
+
+    .community-score-grid label .score-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
     }
 
     .community-score-grid label .score-number {
