@@ -2361,6 +2361,11 @@ document.addEventListener('DOMContentLoaded', () => {
             : 'none';
         updateCommunityFormStepUi();
 
+        // Fetch remaining KI attempts from server when entering Step 2 (Image & Comment sub-page)
+        if (nextStep === 2 && typeof window.fetchRemainingKiAttempts === 'function') {
+            window.fetchRemainingKiAttempts();
+        }
+
         if (!shouldFocus || !communityReviewForm) return;
         const activeStepElement = communityReviewForm.querySelector(`.community-form-step[data-step="${activeCommunityFormStep}"]`);
         if (!activeStepElement) return;
@@ -2870,13 +2875,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         if (!data || !data.text) throw new Error("Keine Antwort erhalten.");
 
-                        // Update attempts remaining from response
-                        if (typeof data.remaining === 'number') {
-                            updateKiLimitDisplay(data.remaining);
-                        } else {
-                            await fetchRemainingKiAttempts();
-                        }
-
                         // Set the value in the comment textarea
                         if (commentTextarea) {
                             commentTextarea.value = data.text;
@@ -2892,8 +2890,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     } catch (err) {
                         console.error("Fehler bei der Generierung:", err);
                         showGeneratorStatus("Fehler: " + err.message, "error");
-                        await fetchRemainingKiAttempts();
                     } finally {
+                        await fetchRemainingKiAttempts();
                         setGeneratorLoading(false);
                     }
                 });
