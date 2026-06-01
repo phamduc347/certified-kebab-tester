@@ -3280,6 +3280,8 @@ body.dark .verzehrort-bubble input[type="radio"]:checked + span {
     border: 1px solid #ccc;
     border-radius: 4px;
     -moz-appearance: textfield;
+    pointer-events: none;
+    user-select: none;
 }
 
 .community-score-grid label .score-number::-webkit-outer-spin-button,
