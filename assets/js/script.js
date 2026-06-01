@@ -426,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const communitySubmitPanel = document.getElementById('community-submit-panel');
     const communitySubmitModal = document.getElementById('community-submit-modal');
     const openCommunityReviewFormBtn = document.getElementById('open-community-review-form-btn');
-    const spotEntryModeSelect = document.getElementById('spot-entry-mode');
     const existingSpotSelect = document.getElementById('existing-spot-select');
     const existingSpotWrapper = document.getElementById('existing-spot-wrapper');
     const communitySpotNameInput = document.getElementById('community-spot-name');
@@ -2052,16 +2051,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const formData = new FormData(form);
-        const entryMode = String(formData.get('spot_entry_mode') || 'existing');
-        const existingSpotId = Number(formData.get('existing_spot_id'));
-        const selectedSpot = kebabData.find(s => Number(s.id) === existingSpotId);
+        const existingSpotValue = String(formData.get('existing_spot_id') || '');
+        const isNewSpot = existingSpotValue === 'new';
+        const existingSpotId = Number(existingSpotValue);
+        const selectedSpot = isNewSpot ? null : kebabData.find(s => Number(s.id) === existingSpotId);
         const reviewerName = String(formData.get('reviewer_name') || '').trim();
-        const spotName = entryMode === 'existing'
-            ? String(selectedSpot ? selectedSpot.name : '').trim()
-            : String(formData.get('spot_name') || '').trim();
-        const city = entryMode === 'existing'
-            ? String(selectedSpot ? selectedSpot.city : '').trim()
-            : String(formData.get('city') || '').trim();
+        const spotName = isNewSpot
+            ? String(formData.get('spot_name') || '').trim()
+            : String(selectedSpot ? selectedSpot.name : '').trim();
+        const city = isNewSpot
+            ? String(formData.get('city') || '').trim()
+            : String(selectedSpot ? selectedSpot.city : '').trim();
         const dish = String(formData.get('dish') || '').trim();
         const visitDate = String(formData.get('visit_date') || '').trim();
         const rawCommentText = String(formData.get('comment_text') || '');
@@ -2087,7 +2087,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setCommunityReviewStatus('Bitte gib deinen Namen ein.', 'error');
             return;
         }
-        if (entryMode === 'existing' && !selectedSpot) {
+        if (!isNewSpot && !selectedSpot) {
             setCommunityReviewStatus('Bitte einen bestehenden Spot aus der Liste auswählen.', 'error');
             return;
         }
@@ -2229,12 +2229,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const currentValue = existingSpotSelect.value;
         const sortedSpots = [...kebabData].sort((a, b) => a.name.localeCompare(b.name, 'de'));
-        existingSpotSelect.innerHTML = sortedSpots.map((spot) => (
-            `<option value="${spot.id}">${escapeHtml(spot.name)} (${escapeHtml(spot.city)})</option>`
-        )).join('');
+        existingSpotSelect.innerHTML = [
+            '<option value="new">NEUER DÖNERSPOT</option>',
+            ...sortedSpots.map((spot) => (
+                `<option value="${spot.id}">${escapeHtml(spot.name)} (${escapeHtml(spot.city)})</option>`
+            ))
+        ].join('');
 
-        if (currentValue) {
+        if (currentValue && currentValue !== 'new' && Array.from(existingSpotSelect.options).some((option) => option.value === currentValue)) {
             existingSpotSelect.value = currentValue;
+        } else if (sortedSpots.length > 0) {
+            existingSpotSelect.value = String(sortedSpots[0].id);
+        } else {
+            existingSpotSelect.value = 'new';
         }
     }
 
@@ -2252,54 +2259,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function syncCommunitySpotInputsFromSelection() {
-        if (!spotEntryModeSelect || !communitySpotNameInput || !communityCityInput) return;
+        if (!existingSpotSelect || !communitySpotNameInput || !communityCityInput) return;
 
-        const mode = spotEntryModeSelect.value;
-        const existingSpotId = Number(existingSpotSelect ? existingSpotSelect.value : NaN);
-        const selectedSpot = kebabData.find(s => Number(s.id) === existingSpotId);
+        const selectedValue = String(existingSpotSelect.value || '');
+        const isNewSpot = selectedValue === 'new';
+        const existingSpotId = Number(selectedValue);
+        const selectedSpot = isNewSpot ? null : kebabData.find(s => Number(s.id) === existingSpotId);
 
-        if (mode === 'existing') {
-            // Show spot-select, hide manual name/city fields
-            if (existingSpotWrapper) {
-                existingSpotWrapper.style.display = '';
-            }
-            if (existingSpotSelect) {
-                existingSpotSelect.required = true;
-            }
-            // Hide & clear the manual name/city wrapper
-            if (spotNameCityWrapper) {
-                spotNameCityWrapper.hidden = true;
-            }
-            communitySpotNameInput.required = false;
-            communityCityInput.required = false;
+        if (existingSpotWrapper) {
+            existingSpotWrapper.style.display = '';
+        }
+        if (existingSpotSelect) {
+            existingSpotSelect.required = true;
+        }
 
-            if (selectedSpot) {
-                communitySpotNameInput.value = selectedSpot.name;
-                communityCityInput.value = selectedSpot.city;
-            }
-
-            communitySpotNameInput.readOnly = true;
-            communityCityInput.readOnly = true;
-        } else {
-            // Hide spot-select, show manual name/city fields
-            if (existingSpotWrapper) {
-                existingSpotWrapper.style.display = 'none';
-            }
-            if (existingSpotSelect) {
-                existingSpotSelect.required = false;
-            }
-            // Show & enable the manual name/city wrapper
+        if (isNewSpot) {
             if (spotNameCityWrapper) {
                 spotNameCityWrapper.hidden = false;
             }
             communitySpotNameInput.required = true;
             communityCityInput.required = true;
-
             communitySpotNameInput.readOnly = false;
             communityCityInput.readOnly = false;
             communitySpotNameInput.value = '';
             communityCityInput.value = '';
+            return;
         }
+
+        if (spotNameCityWrapper) {
+            spotNameCityWrapper.hidden = true;
+        }
+        communitySpotNameInput.required = false;
+        communityCityInput.required = false;
+
+        if (selectedSpot) {
+            communitySpotNameInput.value = selectedSpot.name;
+            communityCityInput.value = selectedSpot.city;
+        }
+
+        communitySpotNameInput.readOnly = true;
+        communityCityInput.readOnly = true;
     }
 
     function updateCommunityFormStepUi() {
@@ -2387,21 +2386,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
             }
 
-            const entryMode = String(spotEntryModeSelect ? spotEntryModeSelect.value : 'existing');
-            if (entryMode === 'existing') {
-                const selectedSpotId = Number(existingSpotSelect ? existingSpotSelect.value : NaN);
-                const selectedSpot = kebabData.find((spot) => Number(spot.id) === selectedSpotId);
-                if (!selectedSpot) {
-                    showCommunityStepValidation('Bitte einen bestehenden Spot aus der Liste auswählen.', existingSpotSelect);
-                    return false;
-                }
-            } else {
+            const existingSpotValue = String(existingSpotSelect ? existingSpotSelect.value : '');
+            if (existingSpotValue === 'new') {
                 if (!communitySpotNameInput || !communitySpotNameInput.value.trim()) {
                     showCommunityStepValidation('Bitte gib den Spot-Namen ein.', communitySpotNameInput);
                     return false;
                 }
                 if (!communityCityInput || !communityCityInput.value.trim()) {
                     showCommunityStepValidation('Bitte gib die Stadt ein.', communityCityInput);
+                    return false;
+                }
+            } else {
+                const selectedSpotId = Number(existingSpotValue);
+                const selectedSpot = kebabData.find((spot) => Number(spot.id) === selectedSpotId);
+                if (!selectedSpot) {
+                    showCommunityStepValidation('Bitte einen bestehenden Spot aus der Liste auswählen.', existingSpotSelect);
                     return false;
                 }
             }
@@ -2502,6 +2501,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         syncModalOpenState();
         ensureCommunityVisitDateDefault();
+        populateExistingSpotSelectOptions();
+        syncCommunitySpotInputsFromSelection();
         setCommunityFormStep(1, true);
     }
 
@@ -2514,13 +2515,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (openCommunityReviewFormBtn) {
             openCommunityReviewFormBtn.setAttribute('aria-expanded', 'false');
             openCommunityReviewFormBtn.addEventListener('click', openCommunitySubmitPanel);
-        }
-
-        if (spotEntryModeSelect) {
-            spotEntryModeSelect.addEventListener('change', () => {
-                syncCommunitySpotInputsFromSelection();
-                setCommunityReviewStatus('');
-            });
         }
 
         if (existingSpotSelect) {
