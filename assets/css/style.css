@@ -3199,9 +3199,9 @@ body.dark .verzehrort-bubble input[type="radio"]:checked + span {
     background: var(--bg-secondary, #f9fafb);
     padding: 9px 10px;
     display: grid;
-    grid-template-columns: 64px 1fr 46px;
-    align-items: center;
-    gap: 8px;
+    grid-template-columns: 1fr 46px;
+    align-items: start;
+    gap: 6px 8px;
     font-size: 0.76rem;
     font-weight: 600;
     color: var(--text-main);
@@ -3210,8 +3210,25 @@ body.dark .verzehrort-bubble input[type="radio"]:checked + span {
     letter-spacing: 0;
 }
 
+.community-score-grid label .score-label-title {
+    grid-column: 1 / -1;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.community-score-grid label .score-description {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--text-muted);
+}
+
 .community-score-grid label .score-slider {
     -webkit-appearance: none;
+    grid-column: 1;
     width: 100%;
     cursor: pointer;
     margin: 0;
@@ -3254,6 +3271,8 @@ body.dark .verzehrort-bubble input[type="radio"]:checked + span {
 }
 
 .community-score-grid label .score-number {
+    grid-column: 2;
+    align-self: center;
     text-align: center;
     padding: 4px;
     font-size: 0.8rem;
@@ -3710,7 +3729,8 @@ body.dark #community-review-status.is-error {
         padding: 6px 7px;
     }
 
-    .community-score-grid label span {
+    .community-score-grid label .score-label-title,
+    .community-score-grid label .score-description {
         grid-column: 1 / -1;
     }
 
