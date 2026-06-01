@@ -7,15 +7,15 @@
 Alle fachlichen, technischen und organisatorischen Verhaltensregeln sind in den entsprechenden Instruktionsdateien im Verzeichnis `.github/instructions/` definiert. Diese müssen zwingend beachtet und angewendet werden:
 
 - **Projekt-Richtlinien, Code-Style & Grundlegender Workflow:**
-  Siehe [.github/instructions/project-rules.instructions.md](file:///Users/pham/Antigravity/certified-kebab-tester/.github/instructions/project-rules.instructions.md)
+  Siehe [.github/instructions/project-rules.instructions.md](./.github/instructions/project-rules.instructions.md)
 - **Git-Workflow & Commit-Berechtigungen:**
-  Siehe [.github/instructions/git-workflow.instructions.md](file:///Users/pham/Antigravity/certified-kebab-tester/.github/instructions/git-workflow.instructions.md)
+  Siehe [.github/instructions/git-workflow.instructions.md](./.github/instructions/git-workflow.instructions.md)
 - **Frontend- & UI-Entwicklung:**
-  Siehe [.github/instructions/frontend.instructions.md](file:///Users/pham/Antigravity/certified-kebab-tester/.github/instructions/frontend.instructions.md)
+  Siehe [.github/instructions/frontend.instructions.md](./.github/instructions/frontend.instructions.md)
 - **Datenbank & Supabase-Edge-Functions:**
-  Siehe [.github/instructions/database.instructions.md](file:///Users/pham/Antigravity/certified-kebab-tester/.github/instructions/database.instructions.md)
+  Siehe [.github/instructions/database.instructions.md](./.github/instructions/database.instructions.md)
 - **Deployment-Regeln:**
-  Siehe [.github/instructions/deployment.instructions.md](file:///Users/pham/Antigravity/certified-kebab-tester/.github/instructions/deployment.instructions.md)
+  Siehe [.github/instructions/deployment.instructions.md](./.github/instructions/deployment.instructions.md)
 
 ---
 
