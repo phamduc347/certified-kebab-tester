@@ -11,6 +11,12 @@ function sanitizeInput(text: string): string {
   
   // Truncate to a reasonable limit (500 characters)
   let sanitized = text.slice(0, 500).trim();
+
+  // Allowlist validation: alphanumeric, spaces, umlauts, and common basic punctuation
+  const allowedPattern = /^[a-zA-Z0-9\säöüÄÖÜß.,!?\-:;%€'"]*$/;
+  if (!allowedPattern.test(sanitized)) {
+    throw new Error("Ungültige Zeichen in der Eingabe erkannt (Sicherheitsrichtlinie).");
+  }
   
   // List of forbidden patterns that suggest prompt injection
   const forbiddenPatterns = [
