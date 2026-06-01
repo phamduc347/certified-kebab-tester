@@ -173,7 +173,7 @@ Struktur:
 
     const userText = `Stichpunkte:\n- ${bulletPoints.replace(/\n/g, '\n- ')}`;
 
-    // Call v1beta version of Gemini API using systemInstruction
+    // Call v1beta version of Gemini API using systemInstruction and structured output
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
@@ -183,6 +183,19 @@ Struktur:
           contents: [{ role: "user", parts: [{ text: userText }] }],
           systemInstruction: {
             parts: [{ text: systemInstructionText }]
+          },
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "OBJECT",
+              properties: {
+                reviewText: {
+                  type: "STRING",
+                  description: "Der fertig generierte Reviewkommentar für die Dönerbewertung."
+                }
+              },
+              required: ["reviewText"]
+            }
           }
         })
       }
@@ -195,10 +208,24 @@ Struktur:
       throw new Error(`Gemini-Fehler: ${data.error.message || JSON.stringify(data.error)}`);
     }
 
-    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+    const rawGeneratedText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+
+    if (!rawGeneratedText) {
+      throw new Error("Gemini hat keine Antwort zurückgegeben (Antwort-Candidates-Array ist leer).");
+    }
+
+    // Parse structured JSON response
+    let generatedText = "";
+    try {
+      const parsed = JSON.parse(rawGeneratedText);
+      generatedText = parsed.reviewText || "";
+    } catch (e) {
+      console.error("Fehler beim Parsen der strukturierten Gemini-Antwort:", e, "Raw text:", rawGeneratedText);
+      throw new Error("Das Antwortformat von Gemini war ungültig (kein valides JSON).");
+    }
 
     if (!generatedText) {
-      throw new Error("Gemini hat keine Antwort zurückgegeben (Antwort-Candidates-Array ist leer).");
+      throw new Error("Gemini hat keinen Review-Text in der strukturierten Antwort geliefert.");
     }
 
     return new Response(JSON.stringify({ text: generatedText }), {
