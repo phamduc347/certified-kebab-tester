@@ -40,7 +40,15 @@ Diese Website wird als statische Seite über GitHub Pages gehostet. Um sie zu de
 3. GitHub Pages veröffentlicht die Seite automatisch unter `https://<dein-username>.github.io/<repo-name>/`.
 
 ## Lokale Entwicklung
-Um die Website lokal zu testen, öffne einfach die `index.html` Datei in einem beliebigen Webbrowser. Es wird kein lokaler Server benötigt.
+Für die lokale Entwicklung wird aufgrund von ES-Modulen und CORS-Richtlinien bei API-Aufrufen ein lokaler Webserver empfohlen. Starte diesen z. B. über:
+```bash
+npx serve .
+```
+oder
+```bash
+python3 -m http.server 8000
+```
+Öffne anschließend die Adresse (z. B. `http://localhost:3000` bzw. `http://localhost:8000`) in deinem Browser.
 
 ## Tests ausführen
 - Windows (PowerShell): `./run_tests.ps1`
