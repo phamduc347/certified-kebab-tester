@@ -54,6 +54,10 @@ serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  let supabase: any = null;
+  let ipHash = "";
+  let count = 0;
+
   try {
     const body = await req.json();
     const checkLimitOnly = body.checkLimitOnly === true;
@@ -61,15 +65,10 @@ serve(async (req) => {
     // Rate Limiting Check (Option B)
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-    let ip = "unknown";
-    let ipHash = "";
-    let count = 0;
-    let supabase: any = null;
-    let dbError: any = null;
 
     if (supabaseUrl && supabaseServiceKey) {
       supabase = createClient(supabaseUrl, supabaseServiceKey);
-      ip = req.headers.get("x-real-ip") || "";
+      let ip = req.headers.get("x-real-ip") || "";
       if (!ip) {
         const forwardedFor = req.headers.get("x-forwarded-for") || "";
         if (forwardedFor) {
@@ -91,20 +90,13 @@ serve(async (req) => {
 
       if (countError) {
         console.error("Rate-limit query failed:", countError);
-        dbError = { type: "select", message: countError.message, details: countError.details };
       } else if (fetchedCount !== null) {
         count = fetchedCount;
       }
 
       if (checkLimitOnly) {
-        return new Response(JSON.stringify({ 
-          remaining: Math.max(0, 10 - count),
-          debug: {
-            ip,
-            ipHash,
-            count,
-            dbError
-          }
+        return new Response(JSON.stringify({
+          remaining: Math.max(0, 10 - count)
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -140,6 +132,17 @@ serve(async (req) => {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
+      }
+
+      // Reserve a slot up-front so blocked precheck attempts also count toward the
+      // hourly limit (prevents free abuse of the Gemini classifier call).
+      const { error: insertError } = await supabase
+        .from("api_rate_limits")
+        .insert({ ip_hash: ipHash });
+      if (insertError) {
+        console.error("Failed to log rate-limit entry:", insertError);
+      } else {
+        count += 1;
       }
     } else {
       // If supabase is not configured
@@ -288,40 +291,18 @@ Struktur:
       throw new Error("Gemini hat keinen Review-Text in der strukturierten Antwort geliefert.");
     }
 
-    // Log request in rate limit table (now only on successful generation)
-    let insertErrorMsg: string | null = null;
-    if (supabase && ipHash) {
-      const { error: insertError } = await supabase
-        .from("api_rate_limits")
-        .insert({ ip_hash: ipHash });
-
-      if (insertError) {
-        console.error("Failed to log rate-limit entry:", insertError);
-        insertErrorMsg = insertError.message;
-      }
-    }
-
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       text: generatedText,
-      remaining: supabase ? Math.max(0, 10 - (count + 1)) : 10,
-      debug: {
-        ip,
-        ipHash,
-        count,
-        insertError: insertErrorMsg
-      }
+      remaining: supabase ? Math.max(0, 10 - count) : 10
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ 
-      error: err.message,
-      debug: {
-        ip: typeof ip !== "undefined" ? ip : "unknown",
-        ipHash: typeof ipHash !== "undefined" ? ipHash : ""
-      }
-    }), {
-      status: 400,
+    const message = err instanceof Error ? err.message : String(err);
+    // Map upstream/parsing failures to 502; everything else stays 400 (bad input).
+    const isUpstream = /Gemini|Sicherheitsprüfung fehlgeschlagen|Antwortformat von Gemini/i.test(message);
+    return new Response(JSON.stringify({ error: message }), {
+      status: isUpstream ? 502 : 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

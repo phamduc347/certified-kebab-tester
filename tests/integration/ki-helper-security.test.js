@@ -48,6 +48,12 @@ describe('KI-Schreibhilfe Prompt Injection Protection', () => {
         // Assert that it implements checkLimitOnly early return and remaining attempts counting
         expect(edgeFnSource).toContain('checkLimitOnly = body.checkLimitOnly === true');
         expect(edgeFnSource).toContain('remaining: Math.max(0, 10 - count)');
-        expect(edgeFnSource).toContain('remaining: supabase ? Math.max(0, 10 - (count + 1)) : 10');
+        expect(edgeFnSource).toContain('remaining: supabase ? Math.max(0, 10 - count) : 10');
+
+        // Slot is reserved up-front so blocked precheck attempts also count toward the limit
+        expect(edgeFnSource).toContain('Reserve a slot up-front');
+
+        // Debug payload must not be leaked to the client
+        expect(edgeFnSource).not.toContain('debug: {');
     });
 });
