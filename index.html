@@ -613,148 +613,155 @@
                     <p class="community-reviews-hint"><strong>Hinweis:</strong> Alle Bewertungen werden vom CKT-Team geprüft und können ggf. gelöscht werden.</p>
                     <form id="community-review-form" class="community-review-form">
                         <div class="community-modal-divider"></div>
-                        <div class="community-desktop-two-cols">
-                            <!-- Left Column: Inputs & Selection -->
-                            <div class="community-desktop-col-left">
-                                <!-- Block 1: Wer bist du & wann? -->
-                                <div class="community-review-grid two-cols">
-                                    <label>Dein Name
-                                        <input type="text" name="reviewer_name" maxlength="40" required>
-                                    </label>
-                                    <label>Besuchsdatum
-                                        <input type="date" name="visit_date" required>
-                                    </label>
-                                </div>
+                        <div class="community-review-progress" aria-label="Formularfortschritt">
+                            <div class="community-review-progress-head">
+                                <span id="community-form-step-label">Schritt 1 von 3</span>
+                            </div>
+                            <div class="community-review-progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1" aria-valuetext="Schritt 1 von 3">
+                                <span class="community-review-progress-segment is-active" data-progress-step="1"></span>
+                                <span class="community-review-progress-segment" data-progress-step="2"></span>
+                                <span class="community-review-progress-segment" data-progress-step="3"></span>
+                            </div>
+                        </div>
 
-                                <!-- Block 2: Welcher Spot? -->
-                                <div class="community-review-grid two-cols">
-                                    <label>Review-Typ
-                                        <select name="spot_entry_mode" id="spot-entry-mode" required>
-                                            <option value="existing">Bestehender Spot</option>
-                                            <option value="new">Neuer Spot</option>
-                                        </select>
-                                    </label>
-                                    <label id="existing-spot-wrapper">Dönerspot auswählen
-                                        <select name="existing_spot_id" id="existing-spot-select" required></select>
-                                    </label>
-                                </div>
-
-                                <div class="community-review-grid two-cols" id="spot-name-city-wrapper" hidden>
-                                    <label>Spot-Name
-                                        <input type="text" name="spot_name" id="community-spot-name" maxlength="80">
-                                    </label>
-                                    <label>Stadt
-                                        <input type="text" name="city" id="community-city" maxlength="60">
-                                    </label>
-                                </div>
-
-                                <!-- Block 4: Was & wie viel? -->
-                                <div class="community-review-grid two-cols">
-                                    <label>Gericht
-                                        <select name="dish" id="community-dish-select" required>
-                                            <option value="Döner" selected>Döner</option>
-                                            <option value="Dürüm">Dürüm</option>
-                                            <option value="Gemüse-Döner">Gemüse-Döner</option>
-                                            <option value="Steak-Döner">Steak-Döner</option>
-                                            <option value="Veggie-Döner">Veggie-Döner</option>
-                                            <option value="Vegan-Döner">Vegan-Döner</option>
-                                        </select>
-                                    </label>
-                                    <label>Preis
-                                        <select name="preis" id="community-preis-select" required>
-                                            <!-- Dynamic price options will be populated here -->
-                                        </select>
-                                    </label>
-                                </div>
-
-                                <div class="verzehrort-field">
-                                    <span class="verzehrort-label">Verzehrort</span>
-                                    <div class="verzehrort-bubbles" role="group" aria-label="Verzehrort auswählen">
-                                        <label class="verzehrort-bubble">
-                                            <input type="radio" name="verzehrort" value="Dine-in" checked>
-                                            <span>🍽 Dine-in</span>
-                                        </label>
-                                        <label class="verzehrort-bubble">
-                                            <input type="radio" name="verzehrort" value="Take-away">
-                                            <span>🥡 Take-away</span>
-                                        </label>
-                                        <label class="verzehrort-bubble">
-                                            <input type="radio" name="verzehrort" value="Delivery">
-                                            <span>🛵 Delivery</span>
-                                        </label>
-                                    </div>
-                                </div>
+                        <div class="community-form-step is-active" data-step="1">
+                            <div class="community-review-grid two-cols">
+                                <label>Dein Name
+                                    <input type="text" name="reviewer_name" maxlength="40" required>
+                                </label>
+                                <label>Besuchsdatum
+                                    <input type="date" name="visit_date" required>
+                                </label>
                             </div>
 
-                            <!-- Right Column: Media & Commentary -->
-                            <div class="community-desktop-col-right">
-                                <!-- Block 3: Foto -->
-                                <div class="community-photo-section">
-                                    <span class="photo-label">Bild vom Döner (erforderlich)</span>
-                                    <div class="community-photo-preview-wrapper" id="community-photo-preview-wrapper" hidden>
-                                        <div class="community-image-preview-container" id="community-image-preview-container">
-                                            <img src="" alt="Vorschau" id="community-image-preview">
-                                            <button type="button" class="remove-preview-btn" id="remove-preview-btn" title="Bild entfernen">×</button>
-                                        </div>
-                                    </div>
-                                    <input type="file" name="visit_image" id="community-image-input" accept="image/*" required>
-                                    <label for="community-image-input" class="custom-file-upload-btn">Bild auswählen</label>
+                            <div class="community-review-grid two-cols">
+                                <label>Review-Typ
+                                    <select name="spot_entry_mode" id="spot-entry-mode" required>
+                                        <option value="existing">Bestehender Spot</option>
+                                        <option value="new">Neuer Spot</option>
+                                    </select>
+                                </label>
+                                <label id="existing-spot-wrapper">Dönerspot auswählen
+                                    <select name="existing_spot_id" id="existing-spot-select" required></select>
+                                </label>
+                            </div>
+
+                            <div class="community-review-grid two-cols" id="spot-name-city-wrapper" hidden>
+                                <label>Spot-Name
+                                    <input type="text" name="spot_name" id="community-spot-name" maxlength="80">
+                                </label>
+                                <label>Stadt
+                                    <input type="text" name="city" id="community-city" maxlength="60">
+                                </label>
+                            </div>
+
+                            <div class="community-review-grid two-cols">
+                                <label>Gericht
+                                    <select name="dish" id="community-dish-select" required>
+                                        <option value="Döner" selected>Döner</option>
+                                        <option value="Dürüm">Dürüm</option>
+                                        <option value="Gemüse-Döner">Gemüse-Döner</option>
+                                        <option value="Steak-Döner">Steak-Döner</option>
+                                        <option value="Veggie-Döner">Veggie-Döner</option>
+                                        <option value="Vegan-Döner">Vegan-Döner</option>
+                                    </select>
+                                </label>
+                                <label>Preis
+                                    <select name="preis" id="community-preis-select" required>
+                                        <!-- Dynamic price options will be populated here -->
+                                    </select>
+                                </label>
+                            </div>
+
+                            <div class="verzehrort-field">
+                                <span class="verzehrort-label">Verzehrort</span>
+                                <div class="verzehrort-bubbles" role="group" aria-label="Verzehrort auswählen">
+                                    <label class="verzehrort-bubble">
+                                        <input type="radio" name="verzehrort" value="Dine-in" checked>
+                                        <span>🍽 Dine-in</span>
+                                    </label>
+                                    <label class="verzehrort-bubble">
+                                        <input type="radio" name="verzehrort" value="Take-away">
+                                        <span>🥡 Take-away</span>
+                                    </label>
+                                    <label class="verzehrort-bubble">
+                                        <input type="radio" name="verzehrort" value="Delivery">
+                                        <span>🛵 Delivery</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Block 5: Kommentar -->
-                        <div class="community-desktop-comment-wrapper">
-                            <div class="comment-header-row">
-                                <span class="comment-label-text">Kommentar</span>
-                                <button type="button" id="copy-ai-prompt-btn" class="comment-helper-btn desktop-only-btn" title="Kopiert einen KI-Prompt in die Zwischenablage">
-                                    <svg class="icon-sparkle" viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
-                                        <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z"/>
-                                    </svg>
-                                    <span>KI-Schreibhilfe</span>
-                                </button>
-                            </div>
-
-                            <div class="comment-main-layout">
-                                <div class="comment-textarea-container">
-                                    <textarea name="comment_text" id="community-comment-text" maxlength="1000" placeholder="Wie war dein Besuch?" required></textarea>
-                                    <div class="comment-footer-row">
-                                        <button type="button" id="copy-ai-prompt-btn-mobile" class="comment-helper-btn mobile-only-btn" title="Kopiert einen KI-Prompt in die Zwischenablage">
-                                            <svg class="icon-sparkle" viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
-                                                <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z"/>
-                                            </svg>
-                                            <span>KI-Schreibhilfe</span>
-                                        </button>
-                                        <p id="community-comment-counter" class="community-comment-counter" aria-live="polite">0/1000 Zeichen</p>
-                                    </div>
-                                </div>
-
-                                <div id="ki-helper-info" class="ki-helper-info" hidden>
-                                    <div class="ki-helper-info-content">
-                                        <!-- Option 1: Direkt auf der Seite generieren -->
-                                        <div class="ki-direct-generator">
-                                            <p class="ki-section-desc">Gib Stichpunkte ein und generiere den Text direkt hier:</p>
-                                            <textarea id="ki-generator-input" placeholder="Fleisch knusprig, leckere Kräutersoße, Salat frisch..."></textarea>
-                                            <div class="ki-direct-actions">
-                                                <button type="button" id="ki-submit-generate-btn" class="ki-submit-generate-btn">
-                                                    <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
-                                                        <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z"/>
-                                                    </svg>
-                                                    <span>Text generieren</span>
-                                                </button>
-                                                <span id="ki-limit-display" class="ki-limit-display">10/10 Generierungen frei</span>
+                        <div class="community-form-step" data-step="2" hidden>
+                            <div class="community-desktop-two-cols community-step-two-layout">
+                                <div class="community-desktop-col-left">
+                                    <div class="community-photo-section">
+                                        <span class="photo-label">Bild vom Döner (erforderlich)</span>
+                                        <div class="community-photo-preview-wrapper" id="community-photo-preview-wrapper" hidden>
+                                            <div class="community-image-preview-container" id="community-image-preview-container">
+                                                <img src="" alt="Vorschau" id="community-image-preview">
+                                                <button type="button" class="remove-preview-btn" id="remove-preview-btn" title="Bild entfernen">×</button>
                                             </div>
-                                            <p id="ki-generator-status" class="ki-generator-status" hidden></p>
+                                        </div>
+                                        <input type="file" name="visit_image" id="community-image-input" accept="image/*" required>
+                                        <label for="community-image-input" class="custom-file-upload-btn">Bild auswählen</label>
+                                    </div>
+                                </div>
+
+                                <div class="community-desktop-col-right">
+                                    <div class="community-desktop-comment-wrapper">
+                                        <div class="comment-header-row">
+                                            <span class="comment-label-text">Kommentar</span>
+                                            <button type="button" id="copy-ai-prompt-btn" class="comment-helper-btn desktop-only-btn" title="Kopiert einen KI-Prompt in die Zwischenablage">
+                                                <svg class="icon-sparkle" viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                                                    <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z"/>
+                                                </svg>
+                                                <span>KI-Schreibhilfe</span>
+                                            </button>
+                                        </div>
+
+                                        <div class="comment-main-layout">
+                                            <div class="comment-textarea-container">
+                                                <textarea name="comment_text" id="community-comment-text" maxlength="1000" placeholder="Wie war dein Besuch?" required></textarea>
+                                                <div class="comment-footer-row">
+                                                    <button type="button" id="copy-ai-prompt-btn-mobile" class="comment-helper-btn mobile-only-btn" title="Kopiert einen KI-Prompt in die Zwischenablage">
+                                                        <svg class="icon-sparkle" viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                                                            <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z"/>
+                                                        </svg>
+                                                        <span>KI-Schreibhilfe</span>
+                                                    </button>
+                                                    <p id="community-comment-counter" class="community-comment-counter" aria-live="polite">0/1000 Zeichen</p>
+                                                </div>
+                                            </div>
+
+                                            <div id="ki-helper-info" class="ki-helper-info" hidden>
+                                                <div class="ki-helper-info-content">
+                                                    <div class="ki-direct-generator">
+                                                        <p class="ki-section-desc">Gib Stichpunkte ein und generiere den Text direkt hier:</p>
+                                                        <textarea id="ki-generator-input" placeholder="Fleisch knusprig, leckere Kräutersoße, Salat frisch..."></textarea>
+                                                        <div class="ki-direct-actions">
+                                                            <button type="button" id="ki-submit-generate-btn" class="ki-submit-generate-btn">
+                                                                <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                                                                    <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z"/>
+                                                                </svg>
+                                                                <span>Text generieren</span>
+                                                            </button>
+                                                            <span id="ki-limit-display" class="ki-limit-display">10/10 Generierungen frei</span>
+                                                        </div>
+                                                        <p id="ki-generator-status" class="ki-generator-status" hidden></p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Block 6: Bewertungen -->
-                        <div class="community-score-section">
-                            <h4 class="community-score-title">Bewertungen (9 Kriterien)</h4>
-                            <div class="community-score-grid">
+                        <div class="community-form-step" data-step="3" hidden>
+                            <div class="community-score-section">
+                                <h4 class="community-score-title">Bewertungen (9 Kriterien)</h4>
+                                <div class="community-score-grid">
                                 <label>
                                     <span>🥩 Fleisch</span>
                                     <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
@@ -800,13 +807,18 @@
                                     <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
                                     <input type="number" name="service" class="score-number" min="1" max="10" step="0.1" value="5" required>
                                 </label>
+                                </div>
+                                <p class="community-score-hint">Bitte Werte von 1 bis 10 mit maximal einer Dezimalstelle
+                                    eingeben (z. B. 8 oder 8.5).</p>
                             </div>
-                            <p class="community-score-hint">Bitte Werte von 1 bis 10 mit maximal einer Dezimalstelle
-                                eingeben (z. B. 8 oder 8.5).</p>
                         </div>
 
                         <div class="community-review-actions">
-                            <button type="submit" id="community-review-submit">Review einreichen</button>
+                            <div class="community-review-nav-buttons">
+                                <button type="button" id="community-review-back">Zurück</button>
+                                <button type="button" id="community-review-next">Weiter</button>
+                                <button type="submit" id="community-review-submit" hidden>Review einreichen</button>
+                            </div>
                             <span id="community-review-status" aria-live="polite"></span>
                         </div>
 

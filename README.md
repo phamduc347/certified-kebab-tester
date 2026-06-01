@@ -29,6 +29,7 @@ Falls du das Projekt neu aufsetzen oder in ein eigenes Supabase-Projekt migriere
 
 ### Community Reviews mit Bild-Upload (neu)
 - Nutzer koennen einen kompletten Review-Beitrag mit Bewertungskriterien und genau einem Bild einreichen.
+- Das Submit-Modal ist als 3-Schritt-Flow aufgebaut (Basisdaten -> Bild & Kommentar -> Bewertung) inklusive Fortschrittsanzeige.
 - Bilder werden im Bucket `community-review-images` gespeichert.
 
 ## Deployment via GitHub Pages

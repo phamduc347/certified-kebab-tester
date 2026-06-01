@@ -439,8 +439,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const communityImagePreview = document.getElementById('community-image-preview');
     const removePreviewBtn = document.getElementById('remove-preview-btn');
     const customFileUploadBtn = document.querySelector('.custom-file-upload-btn');
+    const communityFormStepLabel = document.getElementById('community-form-step-label');
+    const communityReviewBackBtn = document.getElementById('community-review-back');
+    const communityReviewNextBtn = document.getElementById('community-review-next');
+    const communityReviewSubmitBtn = document.getElementById('community-review-submit');
+    const communityReviewProgressTrack = communityReviewForm ? communityReviewForm.querySelector('.community-review-progress-track') : null;
+    const communityReviewProgressSegments = communityReviewForm
+        ? Array.from(communityReviewForm.querySelectorAll('.community-review-progress-segment'))
+        : [];
+    const communityFormSteps = communityReviewForm
+        ? Array.from(communityReviewForm.querySelectorAll('.community-form-step'))
+        : [];
     const btnGrid = document.getElementById('btn-grid');
     const btnList = document.getElementById('btn-list');
+
+    const TOTAL_COMMUNITY_FORM_STEPS = 3;
+    let activeCommunityFormStep = 1;
 
     // Side menu logic removed - using top header nav now
 
@@ -1926,6 +1940,19 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleCommunityReviewSubmit(event) {
         event.preventDefault();
 
+        if (activeCommunityFormStep !== TOTAL_COMMUNITY_FORM_STEPS) {
+            const isCurrentStepValid = validateCommunityFormStep(activeCommunityFormStep);
+            if (!isCurrentStepValid) {
+                return;
+            }
+
+            if (communityReviewStatus) {
+                communityReviewStatus.textContent = '';
+            }
+            setCommunityFormStep(activeCommunityFormStep + 1, true);
+            return;
+        }
+
         const form = event.currentTarget;
         const submitButton = form.querySelector('#community-review-submit');
         const fileInput = form.querySelector('input[name="visit_image"]');
@@ -2187,6 +2214,173 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function updateCommunityFormStepUi() {
+        communityFormSteps.forEach((stepElement) => {
+            const stepValue = Number(stepElement.dataset.step);
+            const isActive = stepValue === activeCommunityFormStep;
+            stepElement.hidden = !isActive;
+            stepElement.classList.toggle('is-active', isActive);
+        });
+
+        if (communityFormStepLabel) {
+            communityFormStepLabel.textContent = `Schritt ${activeCommunityFormStep} von ${TOTAL_COMMUNITY_FORM_STEPS}`;
+        }
+
+        if (communityReviewProgressTrack) {
+            communityReviewProgressTrack.setAttribute('aria-valuenow', String(activeCommunityFormStep));
+            communityReviewProgressTrack.setAttribute('aria-valuetext', `Schritt ${activeCommunityFormStep} von ${TOTAL_COMMUNITY_FORM_STEPS}`);
+        }
+
+        communityReviewProgressSegments.forEach((segment) => {
+            const segmentStep = Number(segment.dataset.progressStep);
+            segment.classList.toggle('is-active', segmentStep <= activeCommunityFormStep);
+        });
+
+        if (communityReviewBackBtn) {
+            communityReviewBackBtn.hidden = activeCommunityFormStep === 1;
+        }
+        if (communityReviewNextBtn) {
+            communityReviewNextBtn.hidden = activeCommunityFormStep === TOTAL_COMMUNITY_FORM_STEPS;
+        }
+        if (communityReviewSubmitBtn) {
+            communityReviewSubmitBtn.hidden = activeCommunityFormStep !== TOTAL_COMMUNITY_FORM_STEPS;
+        }
+    }
+
+    function setCommunityFormStep(stepNumber, shouldFocus = true) {
+        const nextStep = Math.min(TOTAL_COMMUNITY_FORM_STEPS, Math.max(1, Number(stepNumber) || 1));
+        activeCommunityFormStep = nextStep;
+        updateCommunityFormStepUi();
+
+        if (!shouldFocus || !communityReviewForm) return;
+        const activeStepElement = communityReviewForm.querySelector(`.community-form-step[data-step="${activeCommunityFormStep}"]`);
+        if (!activeStepElement) return;
+        const firstField = activeStepElement.querySelector('input:not([type="hidden"]), select, textarea, button');
+        if (firstField && typeof firstField.focus === 'function') {
+            firstField.focus({ preventScroll: true });
+        }
+    }
+
+    function showCommunityStepValidation(message, field) {
+        if (communityReviewStatus) {
+            communityReviewStatus.textContent = message;
+        }
+        if (field && typeof field.focus === 'function') {
+            field.focus({ preventScroll: true });
+        }
+    }
+
+    function validateCommunityFormStep(stepNumber) {
+        if (!communityReviewForm) return true;
+
+        const reviewerNameInput = communityReviewForm.querySelector('input[name="reviewer_name"]');
+        const visitDateInput = communityReviewForm.querySelector('input[name="visit_date"]');
+        const dishInput = communityReviewForm.querySelector('select[name="dish"]');
+        const preisInput = communityReviewForm.querySelector('select[name="preis"]');
+        const commentInput = communityReviewForm.querySelector('textarea[name="comment_text"]');
+        const selectedVerzehrort = communityReviewForm.querySelector('input[name="verzehrort"]:checked');
+
+        if (stepNumber === 1) {
+            if (!reviewerNameInput || !reviewerNameInput.value.trim()) {
+                showCommunityStepValidation('Bitte geben Sie Ihren Namen ein.', reviewerNameInput);
+                return false;
+            }
+
+            if (!visitDateInput || !visitDateInput.value.trim()) {
+                showCommunityStepValidation('Bitte geben Sie das Besuchsdatum ein.', visitDateInput);
+                return false;
+            }
+
+            const validVisitDate = validateCommunityVisitDateInput(visitDateInput, true);
+            if (!validVisitDate) {
+                showCommunityStepValidation('Besuchsdaten in der Zukunft koennen nicht eingereicht werden.', visitDateInput);
+                return false;
+            }
+
+            const entryMode = String(spotEntryModeSelect ? spotEntryModeSelect.value : 'existing');
+            if (entryMode === 'existing') {
+                const selectedSpotId = Number(existingSpotSelect ? existingSpotSelect.value : NaN);
+                const selectedSpot = kebabData.find((spot) => Number(spot.id) === selectedSpotId);
+                if (!selectedSpot) {
+                    showCommunityStepValidation('Bitte einen bestehenden Spot aus der Liste auswählen.', existingSpotSelect);
+                    return false;
+                }
+            } else {
+                if (!communitySpotNameInput || !communitySpotNameInput.value.trim()) {
+                    showCommunityStepValidation('Bitte geben Sie den Spot-Namen ein.', communitySpotNameInput);
+                    return false;
+                }
+                if (!communityCityInput || !communityCityInput.value.trim()) {
+                    showCommunityStepValidation('Bitte geben Sie die Stadt ein.', communityCityInput);
+                    return false;
+                }
+            }
+
+            if (!dishInput || !dishInput.value.trim()) {
+                showCommunityStepValidation('Bitte geben Sie das Gericht ein.', dishInput);
+                return false;
+            }
+
+            if (!preisInput || !preisInput.value.trim()) {
+                showCommunityStepValidation('Bitte geben Sie den Preis ein.', preisInput);
+                return false;
+            }
+
+            if (!selectedVerzehrort) {
+                showCommunityStepValidation('Bitte wählen Sie den Verzehrort aus.', communityReviewForm.querySelector('input[name="verzehrort"]'));
+                return false;
+            }
+        }
+
+        if (stepNumber === 2) {
+            const file = communityImageInput && communityImageInput.files ? communityImageInput.files[0] : null;
+
+            if (!file) {
+                showCommunityStepValidation('Bitte genau ein Bild hochladen.', communityImageInput);
+                return false;
+            }
+
+            if (!String(file.type || '').startsWith('image/')) {
+                showCommunityStepValidation('Nur Bilddateien sind erlaubt.', communityImageInput);
+                return false;
+            }
+
+            const maxBytes = COMMUNITY_REVIEW_MAX_IMAGE_MB * 1024 * 1024;
+            if (file.size > maxBytes) {
+                showCommunityStepValidation(`Das Bild ist zu groß. Maximal ${COMMUNITY_REVIEW_MAX_IMAGE_MB} MB.`, communityImageInput);
+                return false;
+            }
+
+            const rawCommentText = commentInput ? String(commentInput.value || '') : '';
+            const commentText = rawCommentText.trim();
+
+            if (!commentText) {
+                showCommunityStepValidation('Bitte geben Sie einen Kommentar ein.', commentInput);
+                return false;
+            }
+
+            if (commentText.length < 15) {
+                showCommunityStepValidation('Bitte mindestens 15 Zeichen beim Kommentar eingeben.', commentInput);
+                return false;
+            }
+
+            if (rawCommentText.length > COMMUNITY_COMMENT_MAX_LENGTH) {
+                showCommunityStepValidation(`Der Kommentar ist zu lang (${rawCommentText.length}/${COMMUNITY_COMMENT_MAX_LENGTH} Zeichen). Bitte kürzen.`, commentInput);
+                return false;
+            }
+        }
+
+        if (stepNumber === 3) {
+            const validScores = validateCommunityScoreInputs(communityReviewForm, true);
+            if (!validScores) {
+                showCommunityStepValidation('Bitte korrigiere die Bewertungsfelder (1-10, max. eine Dezimalstelle).', communityReviewForm.querySelector('.score-number.invalid-score') || communityReviewForm.querySelector('.score-number'));
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     function closeCommunitySubmitModal() {
         if (!communitySubmitModal) return;
 
@@ -2199,6 +2393,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 openCommunityReviewFormBtn.focus();
             }
         }
+
+        setCommunityFormStep(1, false);
 
         syncModalOpenState();
     }
@@ -2215,11 +2411,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         syncModalOpenState();
-
-        const firstField = communityReviewForm ? communityReviewForm.querySelector('input[name="reviewer_name"]') : null;
-        if (firstField) {
-            firstField.focus({ preventScroll: true });
-        }
+        setCommunityFormStep(1, true);
     }
 
     function initCommunityReviews() {
@@ -2253,6 +2445,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (communityReviewForm) {
             communityReviewForm.addEventListener('submit', handleCommunityReviewSubmit);
             updateCommunityCommentCounter();
+            updateCommunityFormStepUi();
+
+            if (communityReviewBackBtn) {
+                communityReviewBackBtn.addEventListener('click', () => {
+                    setCommunityFormStep(activeCommunityFormStep - 1, true);
+                    if (communityReviewStatus) {
+                        communityReviewStatus.textContent = '';
+                    }
+                });
+            }
+
+            if (communityReviewNextBtn) {
+                communityReviewNextBtn.addEventListener('click', () => {
+                    const isCurrentStepValid = validateCommunityFormStep(activeCommunityFormStep);
+                    if (!isCurrentStepValid) return;
+
+                    if (communityReviewStatus) {
+                        communityReviewStatus.textContent = '';
+                    }
+                    setCommunityFormStep(activeCommunityFormStep + 1, true);
+                });
+            }
 
             const commentInput = communityReviewForm.querySelector('textarea[name="comment_text"]');
             if (commentInput) {
@@ -2555,6 +2769,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     kiGeneratorStatus.hidden = true;
                     kiGeneratorStatus.textContent = '';
                 }
+                setCommunityFormStep(1, false);
                 updateKiLimitDisplay();
             });
         }
