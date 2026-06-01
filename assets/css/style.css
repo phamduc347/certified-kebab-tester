@@ -3734,6 +3734,16 @@ body.dark #community-review-status.is-error {
         grid-column: 1 / -1;
     }
 
+    .community-score-grid label .score-description {
+        font-size: 0.68rem;
+        line-height: 1.28;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .community-score-grid label .score-slider {
         grid-column: 1;
         margin: 0;
