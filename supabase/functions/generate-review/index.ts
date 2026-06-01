@@ -57,6 +57,21 @@ serve(async (req) => {
   let supabase: any = null;
   let ipHash = "";
   let count = 0;
+  let insertedRowId: number | null = null;
+
+  const refundSlot = async () => {
+    if (!supabase || insertedRowId === null) return;
+    const idToDelete = insertedRowId;
+    insertedRowId = null;
+    count = Math.max(0, count - 1);
+    const { error: deleteError } = await supabase
+      .from("api_rate_limits")
+      .delete()
+      .eq("id", idToDelete);
+    if (deleteError) {
+      console.error("Failed to refund rate-limit entry:", deleteError);
+    }
+  };
 
   try {
     const body = await req.json();
@@ -102,31 +117,7 @@ serve(async (req) => {
         });
       }
 
-      // 1. Cooldown Check (30 seconds between requests, only if not checkLimitOnly)
-      const { data: recentRequests, error: recentError } = await supabase
-        .from("api_rate_limits")
-        .select("created_at")
-        .eq("ip_hash", ipHash)
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      if (recentError) {
-        console.error("Recent request query failed:", recentError);
-      } else if (recentRequests && recentRequests.length > 0) {
-        const lastRequestTime = new Date(recentRequests[0].created_at).getTime();
-        const diffSeconds = Math.floor((Date.now() - lastRequestTime) / 1000);
-        const cooldownWindow = 30; // 30 seconds cooldown
-
-        if (diffSeconds < cooldownWindow) {
-          const remaining = cooldownWindow - diffSeconds;
-          return new Response(JSON.stringify({ error: `Bitte warte ${remaining} Sekunden vor der nächsten Generierung.` }), {
-            status: 429,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-      }
-
-      // 2. Hourly Rate Limit Check
+      // Hourly Rate Limit Check
       if (count >= 10) {
         return new Response(JSON.stringify({ error: "Zu viele Anfragen. Bitte versuche es später noch einmal." }), {
           status: 429,
@@ -136,12 +127,16 @@ serve(async (req) => {
 
       // Reserve a slot up-front so blocked precheck attempts also count toward the
       // hourly limit (prevents free abuse of the Gemini classifier call).
-      const { error: insertError } = await supabase
+      // On upstream/Gemini failures we refund the slot via deleteRateLimitRow().
+      const { data: inserted, error: insertError } = await supabase
         .from("api_rate_limits")
-        .insert({ ip_hash: ipHash });
+        .insert({ ip_hash: ipHash })
+        .select("id")
+        .single();
       if (insertError) {
         console.error("Failed to log rate-limit entry:", insertError);
       } else {
+        insertedRowId = inserted?.id ?? null;
         count += 1;
       }
     } else {
@@ -202,6 +197,8 @@ Gib unter keinen Umständen Erklärungen oder andere Wörter aus.`;
 
     const preCheckData = await preCheckResponse.json();
     if (preCheckData.error) {
+      // Upstream failure (e.g. Gemini overloaded) → do not count this attempt.
+      await refundSlot();
       throw new Error(`Sicherheitsprüfung fehlgeschlagen: ${preCheckData.error.message || JSON.stringify(preCheckData.error)}`);
     }
 
@@ -268,12 +265,14 @@ Struktur:
     
     // Check if Gemini API returned an error
     if (data.error) {
+      await refundSlot();
       throw new Error(`Gemini-Fehler: ${data.error.message || JSON.stringify(data.error)}`);
     }
 
     const rawGeneratedText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
 
     if (!rawGeneratedText) {
+      await refundSlot();
       throw new Error("Gemini hat keine Antwort zurückgegeben (Antwort-Candidates-Array ist leer).");
     }
 
@@ -284,10 +283,12 @@ Struktur:
       generatedText = parsed.reviewText || "";
     } catch (e) {
       console.error("Fehler beim Parsen der strukturierten Gemini-Antwort:", e, "Raw text:", rawGeneratedText);
+      await refundSlot();
       throw new Error("Das Antwortformat von Gemini war ungültig (kein valides JSON).");
     }
 
     if (!generatedText) {
+      await refundSlot();
       throw new Error("Gemini hat keinen Review-Text in der strukturierten Antwort geliefert.");
     }
 

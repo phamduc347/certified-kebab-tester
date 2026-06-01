@@ -37,13 +37,11 @@ describe('KI-Schreibhilfe Prompt Injection Protection', () => {
         // Assert that it correctly blocks request if classifier outputs "JA" or empty (blocked)
         expect(edgeFnSource).toContain('preCheckText.includes("JA") || preCheckText === ""');
 
-        // Assert that it implements Option B: DB-based IP rate limiting and cooldown
+        // Assert that it implements Option B: DB-based IP rate limiting
         expect(edgeFnSource).toContain('async function hashIp');
         expect(edgeFnSource).toContain('api_rate_limits');
         expect(edgeFnSource).toContain('createClient(');
         expect(edgeFnSource).toContain('x-real-ip');
-        expect(edgeFnSource).toContain('cooldownWindow = 30');
-        expect(edgeFnSource).toContain('order("created_at", { ascending: false })');
 
         // Assert that it implements checkLimitOnly early return and remaining attempts counting
         expect(edgeFnSource).toContain('checkLimitOnly = body.checkLimitOnly === true');
@@ -52,6 +50,12 @@ describe('KI-Schreibhilfe Prompt Injection Protection', () => {
 
         // Slot is reserved up-front so blocked precheck attempts also count toward the limit
         expect(edgeFnSource).toContain('Reserve a slot up-front');
+
+        // Upstream/Gemini failures must refund the reserved slot
+        expect(edgeFnSource).toContain('refundSlot');
+
+        // Cooldown was removed for UX reasons
+        expect(edgeFnSource).not.toContain('cooldownWindow');
 
         // Debug payload must not be leaked to the client
         expect(edgeFnSource).not.toContain('debug: {');
