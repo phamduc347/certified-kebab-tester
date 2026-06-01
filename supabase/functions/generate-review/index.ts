@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -34,6 +35,13 @@ function sanitizeInput(text: string): string {
   return sanitized;
 }
 
+async function hashIp(ip: string): Promise<string> {
+  const msgUint8 = new TextEncoder().encode(ip);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -67,6 +75,40 @@ serve(async (req) => {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Rate Limiting Check (Option B)
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    if (supabaseUrl && supabaseServiceKey) {
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      const ip = req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for") || "unknown";
+      const ipHash = await hashIp(ip);
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+
+      const { count, error: countError } = await supabase
+        .from("api_rate_limits")
+        .select("*", { count: "exact", head: true })
+        .eq("ip_hash", ipHash)
+        .gte("created_at", oneHourAgo);
+
+      if (countError) {
+        console.error("Rate-limit query failed:", countError);
+      } else if (count !== null && count >= 10) {
+        return new Response(JSON.stringify({ error: "Zu viele Anfragen. Bitte versuche es später noch einmal." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Log request in rate limit table
+      const { error: insertError } = await supabase
+        .from("api_rate_limits")
+        .insert({ ip_hash: ipHash });
+
+      if (insertError) {
+        console.error("Failed to log rate-limit entry:", insertError);
+      }
     }
 
     const classificationInstruction = `Du bist ein Sicherheitsfilter für ein Kebab-Review-System.

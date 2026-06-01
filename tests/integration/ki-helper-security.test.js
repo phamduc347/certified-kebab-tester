@@ -33,5 +33,11 @@ describe('KI-Schreibhilfe Prompt Injection Protection', () => {
 
         // Assert that it correctly blocks request if classifier outputs "JA" or empty (blocked)
         expect(edgeFnSource).toContain('preCheckText.includes("JA") || preCheckText === ""');
+
+        // Assert that it implements Option B: DB-based IP rate limiting
+        expect(edgeFnSource).toContain('async function hashIp');
+        expect(edgeFnSource).toContain('api_rate_limits');
+        expect(edgeFnSource).toContain('createClient(');
+        expect(edgeFnSource).toContain('x-real-ip');
     });
 });
