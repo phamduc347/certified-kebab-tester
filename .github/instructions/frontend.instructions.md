@@ -11,3 +11,4 @@ applyTo: "**/*.{html,css,js}"
 - Trenne Struktur (HTML), Stil (CSS) und Verhalten (JS).
 - Vermeide unnoetige Inline-Styles und Inline-Skripte.
 - Beruecksichtige A11y (z. B. alt-Texte, Label, Fokus-Zustaende).
+- Neue UI Komponenten muessen sowohl für den light, als auch für den dark mode funktionieren

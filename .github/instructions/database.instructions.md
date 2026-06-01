@@ -11,3 +11,4 @@ applyTo: "**/*.{sql,js}"
 - Schema-Aenderungen rueckwaertskompatibel planen.
 - SQL-Objekte eindeutig und konsistent benennen.
 - Vor Release Migrationen in Testumgebung pruefen.
+- Supabase edge functions deployments duerfen niemals eigenständig deployed werden, sondern muessen immer vom user ueber supabase dashboard oder das lokale terminal initiiert werden.

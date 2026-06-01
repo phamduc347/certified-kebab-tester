@@ -14,3 +14,4 @@ applyTo: "**/*"
 - Fuehre vor Merge einen kurzen Selbst-Review durch.
 - Git-Befehler können als Einzeiler oder im Batch gegeben werden.
 - Stelle sicher, dass alle technischen Änderungen (Dateien schreiben/ändern) abgeschlossen sind, bevor ein Commit-Befehl vorgeschlagen wird.
+- Eigenständige commits dürfen nach einer Erlaubnis nur ein mal pro commit durchgeführt werden. Danach darf das LLM keine weiteren commits durchführen ohne eine erneute Erlaubnis.
