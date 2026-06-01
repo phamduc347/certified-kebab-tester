@@ -30,12 +30,12 @@ describe('KI-Schreibhilfe Prompt Injection Protection', () => {
         expect(edgeFnSource).toContain('Du bist ein Sicherheitsfilter für ein Kebab-Review-System.');
 
         // Assert that it runs the pre-check classifier fetch call
-        expect(edgeFnSource).toContain('const preCheckResponse = await fetch(');
+        expect(edgeFnSource).toContain('const preCheckResponse = await fetchWithTimeout(');
         expect(edgeFnSource).toContain('systemInstruction: {');
         expect(edgeFnSource).toContain('parts: [{ text: classificationInstruction }]');
 
         // Assert that it correctly blocks request if classifier outputs "JA" or empty (blocked)
-        expect(edgeFnSource).toContain('preCheckText.includes("JA") || preCheckText === ""');
+        expect(edgeFnSource).toContain('preCheckVerdict === "JA" || preCheckVerdict === ""');
 
         // Assert that it implements Option B: DB-based IP rate limiting
         expect(edgeFnSource).toContain('async function hashIp');
