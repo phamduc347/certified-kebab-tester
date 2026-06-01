@@ -13,6 +13,9 @@ describe('KI-Schreibhilfe Prompt Injection Protection', () => {
         expect(scriptSource).toContain('body: { bulletPoints }');
         // Assert that client-side prompt building has been removed
         expect(scriptSource).not.toContain('Du schreibst einen kurzen Reviewkommentar für eine Dönerbewertung.');
+        // Assert that the frontend can check the IP rate limit
+        expect(scriptSource).toContain('checkLimitOnly: true');
+        expect(scriptSource).toContain('window.fetchRemainingKiAttempts = fetchRemainingKiAttempts');
     });
 
     it('should implement the Dual-LLM pattern (pre-check classifier) in the backend', () => {
@@ -41,5 +44,10 @@ describe('KI-Schreibhilfe Prompt Injection Protection', () => {
         expect(edgeFnSource).toContain('x-real-ip');
         expect(edgeFnSource).toContain('cooldownWindow = 30');
         expect(edgeFnSource).toContain('order("created_at", { ascending: false })');
+
+        // Assert that it implements checkLimitOnly early return and remaining attempts counting
+        expect(edgeFnSource).toContain('checkLimitOnly = body.checkLimitOnly === true');
+        expect(edgeFnSource).toContain('remaining: Math.max(0, 10 - count)');
+        expect(edgeFnSource).toContain('remaining: supabase ? Math.max(0, 10 - (count + 1)) : 10');
     });
 });

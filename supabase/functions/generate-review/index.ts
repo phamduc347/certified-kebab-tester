@@ -56,6 +56,80 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
+    const checkLimitOnly = body.checkLimitOnly === true;
+
+    // Rate Limiting Check (Option B)
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    let ipHash = "";
+    let count = 0;
+    let supabase: any = null;
+
+    if (supabaseUrl && supabaseServiceKey) {
+      supabase = createClient(supabaseUrl, supabaseServiceKey);
+      const ip = req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for") || "unknown";
+      ipHash = await hashIp(ip);
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+
+      // Get count first (for both checkLimitOnly and actual generation)
+      const { count: fetchedCount, error: countError } = await supabase
+        .from("api_rate_limits")
+        .select("*", { count: "exact", head: true })
+        .eq("ip_hash", ipHash)
+        .gte("created_at", oneHourAgo);
+
+      if (countError) {
+        console.error("Rate-limit query failed:", countError);
+      } else if (fetchedCount !== null) {
+        count = fetchedCount;
+      }
+
+      if (checkLimitOnly) {
+        return new Response(JSON.stringify({ remaining: Math.max(0, 10 - count) }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // 1. Cooldown Check (30 seconds between requests, only if not checkLimitOnly)
+      const { data: recentRequests, error: recentError } = await supabase
+        .from("api_rate_limits")
+        .select("created_at")
+        .eq("ip_hash", ipHash)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (recentError) {
+        console.error("Recent request query failed:", recentError);
+      } else if (recentRequests && recentRequests.length > 0) {
+        const lastRequestTime = new Date(recentRequests[0].created_at).getTime();
+        const diffSeconds = Math.floor((Date.now() - lastRequestTime) / 1000);
+        const cooldownWindow = 30; // 30 seconds cooldown
+
+        if (diffSeconds < cooldownWindow) {
+          const remaining = cooldownWindow - diffSeconds;
+          return new Response(JSON.stringify({ error: `Bitte warte ${remaining} Sekunden vor der nächsten Generierung.` }), {
+            status: 429,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+
+      // 2. Hourly Rate Limit Check
+      if (count >= 10) {
+        return new Response(JSON.stringify({ error: "Zu viele Anfragen. Bitte versuche es später noch einmal." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } else {
+      // If supabase is not configured
+      if (checkLimitOnly) {
+        return new Response(JSON.stringify({ remaining: 10 }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     const rawBulletPoints = body.bulletPoints || body.prompt || "";
     
     if (!rawBulletPoints || rawBulletPoints.trim() === "") {
@@ -81,65 +155,6 @@ serve(async (req) => {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
-    }
-
-    // Rate Limiting Check (Option B)
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-    if (supabaseUrl && supabaseServiceKey) {
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
-      const ip = req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for") || "unknown";
-      const ipHash = await hashIp(ip);
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-
-      // 1. Cooldown Check (30 seconds between requests)
-      const { data: recentRequests, error: recentError } = await supabase
-        .from("api_rate_limits")
-        .select("created_at")
-        .eq("ip_hash", ipHash)
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      if (recentError) {
-        console.error("Recent request query failed:", recentError);
-      } else if (recentRequests && recentRequests.length > 0) {
-        const lastRequestTime = new Date(recentRequests[0].created_at).getTime();
-        const diffSeconds = Math.floor((Date.now() - lastRequestTime) / 1000);
-        const cooldownWindow = 30; // 30 seconds cooldown
-
-        if (diffSeconds < cooldownWindow) {
-          const remaining = cooldownWindow - diffSeconds;
-          return new Response(JSON.stringify({ error: `Bitte warte ${remaining} Sekunden vor der nächsten Generierung.` }), {
-            status: 429,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-      }
-
-      // 2. Hourly Rate Limit Check (Option B)
-      const { count, error: countError } = await supabase
-        .from("api_rate_limits")
-        .select("*", { count: "exact", head: true })
-        .eq("ip_hash", ipHash)
-        .gte("created_at", oneHourAgo);
-
-      if (countError) {
-        console.error("Rate-limit query failed:", countError);
-      } else if (count !== null && count >= 10) {
-        return new Response(JSON.stringify({ error: "Zu viele Anfragen. Bitte versuche es später noch einmal." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      // Log request in rate limit table
-      const { error: insertError } = await supabase
-        .from("api_rate_limits")
-        .insert({ ip_hash: ipHash });
-
-      if (insertError) {
-        console.error("Failed to log rate-limit entry:", insertError);
-      }
     }
 
     const classificationInstruction = `Du bist ein Sicherheitsfilter für ein Kebab-Review-System.
@@ -253,7 +268,21 @@ Struktur:
       throw new Error("Gemini hat keinen Review-Text in der strukturierten Antwort geliefert.");
     }
 
-    return new Response(JSON.stringify({ text: generatedText }), {
+    // Log request in rate limit table (now only on successful generation)
+    if (supabase && ipHash) {
+      const { error: insertError } = await supabase
+        .from("api_rate_limits")
+        .insert({ ip_hash: ipHash });
+
+      if (insertError) {
+        console.error("Failed to log rate-limit entry:", insertError);
+      }
+    }
+
+    return new Response(JSON.stringify({ 
+      text: generatedText,
+      remaining: supabase ? Math.max(0, 10 - (count + 1)) : 10
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {

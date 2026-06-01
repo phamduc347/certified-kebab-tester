@@ -2526,6 +2526,11 @@ document.addEventListener('DOMContentLoaded', () => {
         populateExistingSpotSelectOptions();
         syncCommunitySpotInputsFromSelection();
         setCommunityFormStep(1, true);
+
+        // Fetch remaining attempts from server when modal is opened
+        if (typeof window.fetchRemainingKiAttempts === 'function') {
+            window.fetchRemainingKiAttempts();
+        }
     }
 
     function initCommunityReviews() {
@@ -2752,29 +2757,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            const maxKiAttempts = 10;
-            function getRemainingKiAttempts() {
-                const stored = sessionStorage.getItem('kebab_tester_ki_attempts');
-                if (stored === null) {
-                    sessionStorage.setItem('kebab_tester_ki_attempts', maxKiAttempts.toString());
-                    return maxKiAttempts;
+            let remainingKiAttempts = 10;
+
+            function updateKiLimitDisplay(remaining) {
+                if (typeof remaining === 'number') {
+                    remainingKiAttempts = remaining;
                 }
-                return parseInt(stored, 10);
-            }
-
-            function decrementKiAttempts() {
-                const current = getRemainingKiAttempts();
-                const nextVal = Math.max(0, current - 1);
-                sessionStorage.setItem('kebab_tester_ki_attempts', nextVal.toString());
-                return nextVal;
-            }
-
-            function updateKiLimitDisplay() {
                 if (!kiLimitDisplay) return;
-                const remaining = getRemainingKiAttempts();
-                kiLimitDisplay.textContent = `${remaining}/10 Generierungen frei`;
+                kiLimitDisplay.textContent = `${remainingKiAttempts}/10 Generierungen frei`;
                 
-                if (remaining <= 0) {
+                if (remainingKiAttempts <= 0) {
                     if (kiSubmitGenerateBtn) {
                         kiSubmitGenerateBtn.disabled = true;
                     }
@@ -2797,8 +2789,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            async function fetchRemainingKiAttempts() {
+                const client = ensureSupabaseClient();
+                if (!client) return;
+
+                try {
+                    const { data, error } = await client.functions.invoke('generate-review', {
+                        body: { checkLimitOnly: true }
+                    });
+                    if (!error && data && typeof data.remaining === 'number') {
+                        updateKiLimitDisplay(data.remaining);
+                    }
+                } catch (e) {
+                    console.error("Fehler beim Abrufen des KI-Limits vom Server:", e);
+                }
+            }
+
+            // Expose globally so it can be called on modal open
+            window.fetchRemainingKiAttempts = fetchRemainingKiAttempts;
+
             // Initialize display on load
-            updateKiLimitDisplay();
+            fetchRemainingKiAttempts();
 
             function showGeneratorStatus(msg, type) {
                 if (!kiGeneratorStatus) return;
@@ -2809,8 +2820,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             function setGeneratorLoading(isLoading) {
                 if (!kiSubmitGenerateBtn) return;
-                const remaining = getRemainingKiAttempts();
-                kiSubmitGenerateBtn.disabled = isLoading || remaining <= 0;
+                kiSubmitGenerateBtn.disabled = isLoading || remainingKiAttempts <= 0;
                 const btnSpan = kiSubmitGenerateBtn.querySelector('span');
                 if (btnSpan) {
                     btnSpan.textContent = isLoading ? "Generiere..." : "Text generieren";
@@ -2828,18 +2838,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         return;
                     }
 
-                    const remaining = getRemainingKiAttempts();
-                    if (remaining <= 0) {
-                        showGeneratorStatus("Limit erreicht. Du hast keine verbleibenden Versuche in dieser Sitzung.", "error");
+                    if (remainingKiAttempts <= 0) {
+                        showGeneratorStatus("Limit erreicht. Du hast keine verbleibenden Versuche in dieser Stunde.", "error");
                         return;
                     }
 
                     try {
                         setGeneratorLoading(true);
-                        
-                        // Decrement attempts immediately on starting generation
-                        decrementKiAttempts();
-                        updateKiLimitDisplay();
                         
                         // Get Supabase client
                         const client = ensureSupabaseClient();
@@ -2865,6 +2870,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         if (!data || !data.text) throw new Error("Keine Antwort erhalten.");
 
+                        // Update attempts remaining from response
+                        if (typeof data.remaining === 'number') {
+                            updateKiLimitDisplay(data.remaining);
+                        } else {
+                            await fetchRemainingKiAttempts();
+                        }
+
                         // Set the value in the comment textarea
                         if (commentTextarea) {
                             commentTextarea.value = data.text;
@@ -2880,6 +2892,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } catch (err) {
                         console.error("Fehler bei der Generierung:", err);
                         showGeneratorStatus("Fehler: " + err.message, "error");
+                        await fetchRemainingKiAttempts();
                     } finally {
                         setGeneratorLoading(false);
                     }
