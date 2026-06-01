@@ -61,13 +61,24 @@ serve(async (req) => {
     // Rate Limiting Check (Option B)
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    let ip = "unknown";
     let ipHash = "";
     let count = 0;
     let supabase: any = null;
+    let dbError: any = null;
 
     if (supabaseUrl && supabaseServiceKey) {
       supabase = createClient(supabaseUrl, supabaseServiceKey);
-      const ip = req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for") || "unknown";
+      ip = req.headers.get("x-real-ip") || "";
+      if (!ip) {
+        const forwardedFor = req.headers.get("x-forwarded-for") || "";
+        if (forwardedFor) {
+          ip = forwardedFor.split(",")[0].trim();
+        }
+      }
+      if (!ip) {
+        ip = "unknown";
+      }
       ipHash = await hashIp(ip);
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
@@ -80,12 +91,21 @@ serve(async (req) => {
 
       if (countError) {
         console.error("Rate-limit query failed:", countError);
+        dbError = { type: "select", message: countError.message, details: countError.details };
       } else if (fetchedCount !== null) {
         count = fetchedCount;
       }
 
       if (checkLimitOnly) {
-        return new Response(JSON.stringify({ remaining: Math.max(0, 10 - count) }), {
+        return new Response(JSON.stringify({ 
+          remaining: Math.max(0, 10 - count),
+          debug: {
+            ip,
+            ipHash,
+            count,
+            dbError
+          }
+        }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
@@ -269,6 +289,7 @@ Struktur:
     }
 
     // Log request in rate limit table (now only on successful generation)
+    let insertErrorMsg: string | null = null;
     if (supabase && ipHash) {
       const { error: insertError } = await supabase
         .from("api_rate_limits")
@@ -276,17 +297,30 @@ Struktur:
 
       if (insertError) {
         console.error("Failed to log rate-limit entry:", insertError);
+        insertErrorMsg = insertError.message;
       }
     }
 
     return new Response(JSON.stringify({ 
       text: generatedText,
-      remaining: supabase ? Math.max(0, 10 - (count + 1)) : 10
+      remaining: supabase ? Math.max(0, 10 - (count + 1)) : 10,
+      debug: {
+        ip,
+        ipHash,
+        count,
+        insertError: insertErrorMsg
+      }
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ 
+      error: err.message,
+      debug: {
+        ip: typeof ip !== "undefined" ? ip : "unknown",
+        ipHash: typeof ipHash !== "undefined" ? ipHash : ""
+      }
+    }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
