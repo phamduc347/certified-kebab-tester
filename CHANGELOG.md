@@ -5,6 +5,16 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 und dieses Projekt hält sich an [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-06-02
+
+### Hinzugefügt
+- **Automatische Kategoriebewertungen über KI-Schreibhilfe**: Automatische Ableitung von Bewertungen (Werte zwischen 1.0 und 10.0) für alle 9 Dönerkriterien basierend auf den vom Benutzer eingegebenen Stichpunkten.
+- **Integrationstests**: Integrationstests zur Validierung der Bewertungsableitung im Frontend und Backend (`tests/integration/ki-helper-rating-derivation.test.js`).
+
+### Geändert
+- **Supabase Edge-Function (`generate-review`)**: Prompt und JSON-Schema erweitert, um strukturierte Bewertungen (`scores`) zurückzugeben.
+- **UI-Synchronisierung**: Automatische Aktualisierung der Slider und Zahlenwerte sowie farbigen Füllstände bei erfolgreicher Textgenerierung.
+
 ## [1.1.0] - 2026-05-30
 
 ### Hinzugefügt

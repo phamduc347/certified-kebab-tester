@@ -2882,6 +2882,33 @@ document.addEventListener('DOMContentLoaded', () => {
                             commentTextarea.dispatchEvent(new Event('input', { bubbles: true }));
                         }
 
+                        // Update sliders and number inputs based on derived category scores
+                        if (data.scores) {
+                            const scoreKeys = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
+                            scoreKeys.forEach((key) => {
+                                const scoreVal = data.scores[key];
+                                if (scoreVal !== undefined && scoreVal !== null) {
+                                    const numVal = parseFloat(scoreVal);
+                                    if (!isNaN(numVal) && isFinite(numVal)) {
+                                        const numberInput = communityReviewForm.querySelector(`.community-score-grid input[name="${key}"]`);
+                                        if (numberInput) {
+                                            const label = numberInput.closest('label');
+                                            const slider = label ? label.querySelector('.score-slider') : null;
+                                            const clamped = Math.min(10, Math.max(1, numVal));
+                                            const normalized = clamped.toFixed(1).replace(/\.0$/, '');
+
+                                            numberInput.value = normalized;
+                                            if (slider) {
+                                                slider.value = normalized;
+                                                updateCommunityScoreSliderFill(slider, clamped);
+                                            }
+                                            validateCommunityScoreInput(numberInput);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
                         showGeneratorStatus("Erfolgreich generiert!", "success");
                         setTimeout(() => {
                             if (kiGeneratorStatus) kiGeneratorStatus.hidden = true;

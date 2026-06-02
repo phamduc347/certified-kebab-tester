@@ -230,10 +230,10 @@ Gib unter keinen Umständen Erklärungen oder andere Wörter aus.`;
       });
     }
 
-    const systemInstructionText = `Du schreibst einen kurzen Reviewkommentar für eine Dönerbewertung.
+    const systemInstructionText = `Du schreibst einen kurzen Reviewkommentar für eine Dönerbewertung und leitest zusätzlich für die 9 Bewertungskriterien (fleisch, gemuese, sosse, brot, balance, auswahl, portion, hygiene, service) jeweils eine Bewertung zwischen 1.0 und 10.0 ab, basierend auf den Stichpunkten des Nutzers.
 
-Regeln:
-• Gib ausschließlich den fertigen Kommentar zurück.
+Regeln für den Kommentar:
+• Gib ausschließlich den fertigen Kommentar im Feld "reviewText" zurück.
 • Keine Einleitung, keine Erklärungen, keine Anführungszeichen.
 • Maximal 1000 Zeichen.
 • Stil: kurz, prägnant, trocken, leicht humorvoll, intelligent, nicht cringe.
@@ -246,10 +246,14 @@ Regeln:
 • Wenn ein Stichpunkt leer ist, darf dieser Aspekt im Kommentar nicht erwähnt werden.
 • Der Kommentar soll wie von einer echten Person wirken.
 
-Struktur:
+Struktur des Kommentars:
 1. Kurzer Gesamteindruck.
 2. Konkrete Beobachtungen ausschließlich basierend auf den Stichpunkten.
-3. Abschluss mit trockener oder nüchterner Pointe.`;
+3. Abschluss mit trockener oder nüchterner Pointe.
+
+Regeln für die Bewertungen (scores):
+• Leite für jede Kategorie einen Wert zwischen 1.0 und 10.0 ab, der der Stimmung in den Stichpunkten entspricht (z. B. "Fleisch war ausgezeichnet" -> 8.5 bis 10.0; "Soße war okay" -> 5.0 bis 6.5; "Brot war trocken" -> 2.0 bis 4.0).
+• Falls eine Kategorie in den Stichpunkten nicht erwähnt wird oder keine Rückschlüsse zulässt, setze sie im Objekt "scores" auf null oder lasse sie ganz weg.`;
 
     const userText = `Stichpunkte:\n- ${bulletPoints.replace(/\n/g, '\n- ')}`;
 
@@ -272,6 +276,21 @@ Struktur:
                 reviewText: {
                   type: "STRING",
                   description: "Der fertig generierte Reviewkommentar für die Dönerbewertung."
+                },
+                scores: {
+                  type: "OBJECT",
+                  description: "Die abgeleiteten Bewertungen für die 9 Kriterien. Nur enthalten, wenn in Stichpunkten erwähnt.",
+                  properties: {
+                    fleisch: { type: "NUMBER", description: "Wert zwischen 1.0 und 10.0 oder null." },
+                    gemuese: { type: "NUMBER", description: "Wert zwischen 1.0 und 10.0 oder null." },
+                    sosse: { type: "NUMBER", description: "Wert zwischen 1.0 und 10.0 oder null." },
+                    brot: { type: "NUMBER", description: "Wert zwischen 1.0 und 10.0 oder null." },
+                    balance: { type: "NUMBER", description: "Wert zwischen 1.0 und 10.0 oder null." },
+                    auswahl: { type: "NUMBER", description: "Wert zwischen 1.0 und 10.0 oder null." },
+                    portion: { type: "NUMBER", description: "Wert zwischen 1.0 und 10.0 oder null." },
+                    hygiene: { type: "NUMBER", description: "Wert zwischen 1.0 und 10.0 oder null." },
+                    service: { type: "NUMBER", description: "Wert zwischen 1.0 und 10.0 oder null." }
+                  }
                 }
               },
               required: ["reviewText"]
@@ -298,9 +317,11 @@ Struktur:
 
     // Parse structured JSON response
     let generatedText = "";
+    let scores = null;
     try {
       const parsed = JSON.parse(rawGeneratedText);
       generatedText = parsed.reviewText || "";
+      scores = parsed.scores || null;
     } catch (e) {
       console.error("Fehler beim Parsen der strukturierten Gemini-Antwort:", e, "Raw text:", rawGeneratedText);
       await refundSlot();
@@ -314,6 +335,7 @@ Struktur:
 
     return new Response(JSON.stringify({
       text: generatedText,
+      scores,
       remaining: supabase ? Math.max(0, 10 - count) : 10
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
