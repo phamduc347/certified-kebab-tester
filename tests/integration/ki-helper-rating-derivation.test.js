@@ -51,6 +51,13 @@ describe('KI-Schreibhilfe Rating Derivation', () => {
         expect(scriptSource).toContain('lastAiScores = null;');
         expect(scriptSource).toContain('else if (lastAiScores) {');
         expect(scriptSource).toContain('animateSlidersToTarget(lastAiScores);');
+
+        // Check automatic retry logic on Gemini overload
+        expect(scriptSource).toContain('let attempts = 3;');
+        expect(scriptSource).toContain('for (let attempt = 1; attempt <= attempts; attempt++) {');
+        expect(scriptSource).toContain('KI überlastet. Automatische Wiederholung');
+        expect(scriptSource).toContain('Verbindungsproblem. Automatische Wiederholung');
+        expect(scriptSource).toContain('setTimeout(resolve, 1500)');
     });
 
     it('should define the schema for scores in the Gemini response Schema', () => {

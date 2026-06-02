@@ -2871,23 +2871,60 @@ document.addEventListener('DOMContentLoaded', () => {
                             throw new Error("Supabase-Client ist nicht initialisiert.");
                         }
 
-                        const { data, error } = await client.functions.invoke('generate-review', {
-                            body: { bulletPoints }
-                        });
+                        let attempts = 3;
+                        let lastError = null;
+                        let responseData = null;
 
-                        if (error) {
-                            let errorMsg = error.message;
+                        for (let attempt = 1; attempt <= attempts; attempt++) {
                             try {
-                                if (error.context && typeof error.context.json === 'function') {
-                                    const errJson = await error.context.json();
-                                    if (errJson && errJson.error) {
-                                        errorMsg = errJson.error;
-                                    }
+                                if (attempt > 1) {
+                                    showGeneratorStatus(`Verbindung wird aufgebaut... Versuch ${attempt} von ${attempts}`, "loading");
                                 }
-                            } catch (e) {}
-                            throw new Error(errorMsg);
+
+                                const { data, error } = await client.functions.invoke('generate-review', {
+                                    body: { bulletPoints }
+                                });
+
+                                if (error) {
+                                    let errorMsg = error.message;
+                                    try {
+                                        if (error.context && typeof error.context.json === 'function') {
+                                            const errJson = await error.context.json();
+                                            if (errJson && errJson.error) {
+                                                errorMsg = errJson.error;
+                                            }
+                                        }
+                                    } catch (e) {}
+                                    throw new Error(errorMsg);
+                                }
+
+                                if (!data || !data.text) {
+                                    throw new Error("Keine Antwort erhalten.");
+                                }
+
+                                responseData = data;
+                                break;
+                            } catch (err) {
+                                console.warn(`KI-Generierungsversuch ${attempt} fehlgeschlagen:`, err);
+                                lastError = err;
+                                
+                                if (attempt < attempts) {
+                                    const isOverloaded = /overloaded|busy|limit|quota|exhausted|429|503|temp/i.test(err.message);
+                                    const delayMsg = isOverloaded
+                                        ? `KI überlastet. Automatische Wiederholung (Versuch ${attempt + 1}/${attempts}) läuft...`
+                                        : `Verbindungsproblem. Automatische Wiederholung (Versuch ${attempt + 1}/${attempts}) läuft...`;
+                                    
+                                    showGeneratorStatus(delayMsg, "loading");
+                                    await new Promise(resolve => setTimeout(resolve, 1500));
+                                }
+                            }
                         }
-                        if (!data || !data.text) throw new Error("Keine Antwort erhalten.");
+
+                        if (!responseData) {
+                            throw lastError || new Error("Verbindung fehlgeschlagen.");
+                        }
+
+                        const data = responseData;
 
                         // Set the value in the comment textarea
                         if (commentTextarea) {
