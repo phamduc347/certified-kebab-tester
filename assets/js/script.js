@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Persistente Referenzen zur Vermeidung von Memory Leaks
+    let hasAiGeneratedScores = false;
     let globalTimelineOutsideClickHandler = null;
     let plChartObserver = null;
     let heatmapObserver = null;
@@ -2366,6 +2367,12 @@ document.addEventListener('DOMContentLoaded', () => {
             window.fetchRemainingKiAttempts();
         }
 
+        // Open the KI Score Notice Modal when entering Step 3 if AI generated scores
+        if (nextStep === 3 && hasAiGeneratedScores) {
+            openKiScoreNoticeModal();
+            hasAiGeneratedScores = false;
+        }
+
         if (!shouldFocus || !communityReviewForm) return;
         const activeStepElement = communityReviewForm.querySelector(`.community-form-step[data-step="${activeCommunityFormStep}"]`);
         if (!activeStepElement) return;
@@ -2883,6 +2890,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
 
                         // Update sliders and number inputs based on derived category scores
+                        let updatedAnyScore = false;
                         if (data.scores) {
                             const scoreKeys = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
                             scoreKeys.forEach((key) => {
@@ -2903,10 +2911,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                                 updateCommunityScoreSliderFill(slider, clamped);
                                             }
                                             validateCommunityScoreInput(numberInput);
+                                            updatedAnyScore = true;
                                         }
                                     }
                                 }
                             });
+                        }
+
+                        if (updatedAnyScore) {
+                            hasAiGeneratedScores = true;
                         }
 
                         showGeneratorStatus("Erfolgreich generiert!", "success");
@@ -2941,6 +2954,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     kiGeneratorStatus.hidden = true;
                     kiGeneratorStatus.textContent = '';
                 }
+
                 if (communityReviewForm) {
                     communityReviewForm.querySelectorAll('.invalid-field').forEach((field) => {
                         field.classList.remove('invalid-field');
@@ -5997,6 +6011,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentFeedbackConfirm = commentFeedbackModal
         ? commentFeedbackModal.querySelector('.comment-feedback-confirm')
         : null;
+    const kiScoreNoticeModal = document.getElementById('ki-score-notice-modal');
+    const kiScoreConfirmBtn = kiScoreNoticeModal
+        ? kiScoreNoticeModal.querySelector('.ki-score-confirm')
+        : null;
 
     if (lightbox && lightboxImg) {
         document.addEventListener('click', (e) => {
@@ -6041,7 +6059,8 @@ document.addEventListener('DOMContentLoaded', () => {
             (communitySubmitModal && communitySubmitModal.classList.contains('active')) ||
             (communityReviewModal && communityReviewModal.classList.contains('active')) ||
             (reviewShareModal && reviewShareModal.classList.contains('active')) ||
-            (featureNotesModal && featureNotesModal.classList.contains('active'));
+            (featureNotesModal && featureNotesModal.classList.contains('active')) ||
+            (kiScoreNoticeModal && kiScoreNoticeModal.classList.contains('active'));
         document.body.classList.toggle('modal-open', Boolean(hasActiveModal));
     };
 
@@ -6127,6 +6146,20 @@ document.addEventListener('DOMContentLoaded', () => {
         syncModalOpenState();
     };
 
+    function openKiScoreNoticeModal() {
+        if (!kiScoreNoticeModal) return;
+        kiScoreNoticeModal.classList.add('active');
+        kiScoreNoticeModal.setAttribute('aria-hidden', 'false');
+        syncModalOpenState();
+    }
+
+    function closeKiScoreNoticeModal() {
+        if (!kiScoreNoticeModal) return;
+        kiScoreNoticeModal.classList.remove('active');
+        kiScoreNoticeModal.setAttribute('aria-hidden', 'true');
+        syncModalOpenState();
+    }
+
     const closeCommunityReviewModal = () => {
         if (!communityReviewModal || !communityReviewModalContent) return;
         communityReviewModal.classList.remove('active');
@@ -6190,6 +6223,18 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && commentFeedbackModal.classList.contains('active')) {
                 closeCommentFeedbackModal();
+            }
+        });
+    }
+
+    if (kiScoreNoticeModal) {
+        kiScoreNoticeModal.querySelector('.modal-overlay')?.addEventListener('click', closeKiScoreNoticeModal);
+        kiScoreNoticeModal.querySelector('.modal-close')?.addEventListener('click', closeKiScoreNoticeModal);
+        kiScoreConfirmBtn?.addEventListener('click', closeKiScoreNoticeModal);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && kiScoreNoticeModal.classList.contains('active')) {
+                closeKiScoreNoticeModal();
             }
         });
     }
