@@ -1722,10 +1722,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const raw = String(input.value || '').trim();
         const today = getTodayIsoDate();
         input.max = today;
+        const errorEl = document.getElementById('visit-date-error');
 
         if (!raw) {
             input.setCustomValidity('Bitte gib das Besuchsdatum ein.');
             input.classList.add('invalid-field');
+            if (errorEl) {
+                errorEl.textContent = 'Bitte gib das Besuchsdatum ein.';
+                errorEl.classList.add('is-visible');
+            }
             if (showNativeMessage && typeof input.reportValidity === 'function') {
                 input.reportValidity();
             }
@@ -1735,6 +1740,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
             input.setCustomValidity('Bitte gib ein gueltiges Besuchsdatum ein.');
             input.classList.add('invalid-field');
+            if (errorEl) {
+                errorEl.textContent = 'Bitte gib ein gueltiges Besuchsdatum ein.';
+                errorEl.classList.add('is-visible');
+            }
             if (showNativeMessage && typeof input.reportValidity === 'function') {
                 input.reportValidity();
             }
@@ -1744,6 +1753,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (raw > today) {
             input.setCustomValidity('Besuchsdaten in der Zukunft sind nicht erlaubt.');
             input.classList.add('invalid-field');
+            if (errorEl) {
+                errorEl.textContent = 'Besuchsdaten in der Zukunft sind nicht möglich.';
+                errorEl.classList.add('is-visible');
+            }
             if (showNativeMessage && typeof input.reportValidity === 'function') {
                 input.reportValidity();
             }
@@ -1752,6 +1765,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         input.setCustomValidity('');
         input.classList.remove('invalid-field');
+        if (errorEl) {
+            errorEl.textContent = '';
+            errorEl.classList.remove('is-visible');
+        }
         return true;
     }
 
@@ -1769,6 +1786,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearCommunityFieldInvalidState(field) {
         if (!field) return;
         field.classList.remove('invalid-field');
+
+        if (field.name === 'visit_date') {
+            const errorEl = document.getElementById('visit-date-error');
+            if (errorEl) {
+                errorEl.textContent = '';
+                errorEl.classList.remove('is-visible');
+            }
+        }
 
         if (field === communityImageInput && customFileUploadBtn) {
             customFileUploadBtn.classList.remove('invalid-field');
@@ -1807,6 +1832,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (stepNumber === 1) {
             const verzehrortField = communityReviewForm.querySelector('.verzehrort-field');
             if (verzehrortField) verzehrortField.classList.remove('invalid-field');
+            const errorEl = document.getElementById('visit-date-error');
+            if (errorEl) {
+                errorEl.textContent = '';
+                errorEl.classList.remove('is-visible');
+            }
         }
 
         if (stepNumber === 2 && customFileUploadBtn) {

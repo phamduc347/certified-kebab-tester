@@ -211,6 +211,10 @@ body.dark .verzehrort-field.invalid-field .verzehrort-bubbles {
     border-color: #ef4444;
 }
 
+body.dark .field-error-message {
+    color: #fca5a5;
+}
+
 body.dark .community-review-actions {
     border-top-color: #2a2a2a;
 }
@@ -3365,6 +3369,20 @@ body.dark .verzehrort-bubble input[type="radio"]:checked + span {
     border: 1.5px solid #b91c1c;
     border-radius: 10px;
     padding: 6px;
+}
+
+.field-error-message {
+    color: #b91c1c;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 4px;
+    display: none;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.field-error-message.is-visible {
+    display: block;
 }
 
 .community-review-actions {
