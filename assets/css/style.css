@@ -5579,12 +5579,12 @@ body.dark .ki-score-confirm {
     contain: paint;
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 28px 52px rgba(15, 23, 42, 0.3);
-    background: #0F1923;
+    background: #1C1917;
     display: flex;
     align-items: flex-end;
     transition: min-height 0.34s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.34s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.34s ease;
-    --story-accent: #FFB800;
-    --story-bg: #0F1923;
+    --story-accent: #FF9F1C;
+    --story-bg: #1C1917;
     --story-text: #ffffff;
 }
 
