@@ -4579,15 +4579,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         backgroundColor: null,
                         useCORS: true,
                         width: 1080,
-                        height: 1920,
-                        scale: 2
+                        height: 1920
                     });
                 } finally {
                     document.body.removeChild(exportCard);
                 }
 
                 const imageBlob = await new Promise((resolve) => {
-                    canvas.toBlob(resolve, 'image/png');
+                    canvas.toBlob(resolve, 'image/jpeg', 0.9);
                 });
 
                 return imageBlob;
@@ -4649,42 +4648,40 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
 
                         let imageBlob = reviewShareModal._cachedBlob;
+                        if (!imageBlob && reviewShareModal._currentRenderPromise) {
+                            imageBlob = await reviewShareModal._currentRenderPromise;
+                        }
                         if (!imageBlob) {
-                            if (reviewShareModal._currentRenderPromise) {
-                                imageBlob = await reviewShareModal._currentRenderPromise;
-                            } else {
-                                const storyCard = reviewShareModalContent.querySelector('.review-share-story-card');
-                                if (!storyCard || typeof window.html2canvas !== 'function') {
-                                    throw new Error('share-image-export-unavailable');
-                                }
-
-                                const exportCard = storyCard.cloneNode(true);
-                                exportCard.classList.add('is-export');
-                                exportCard.style.position = 'absolute';
-                                exportCard.style.left = '-9999px';
-                                exportCard.style.top = '0';
-                                exportCard.style.width = '1080px';
-                                exportCard.style.height = '1920px';
-
-                                document.body.appendChild(exportCard);
-
-                                let canvas;
-                                try {
-                                    canvas = await window.html2canvas(exportCard, {
-                                        backgroundColor: null,
-                                        useCORS: true,
-                                        width: 1080,
-                                        height: 1920,
-                                        scale: 2
-                                    });
-                                } finally {
-                                    document.body.removeChild(exportCard);
-                                }
-
-                                imageBlob = await new Promise((resolve) => {
-                                    canvas.toBlob(resolve, 'image/png');
-                                });
+                            const storyCard = reviewShareModalContent.querySelector('.review-share-story-card');
+                            if (!storyCard || typeof window.html2canvas !== 'function') {
+                                throw new Error('share-image-export-unavailable');
                             }
+
+                            const exportCard = storyCard.cloneNode(true);
+                            exportCard.classList.add('is-export');
+                            exportCard.style.position = 'absolute';
+                            exportCard.style.left = '-9999px';
+                            exportCard.style.top = '0';
+                            exportCard.style.width = '1080px';
+                            exportCard.style.height = '1920px';
+
+                            document.body.appendChild(exportCard);
+
+                            let canvas;
+                            try {
+                                canvas = await window.html2canvas(exportCard, {
+                                    backgroundColor: null,
+                                    useCORS: true,
+                                    width: 1080,
+                                    height: 1920
+                                });
+                            } finally {
+                                document.body.removeChild(exportCard);
+                            }
+
+                            imageBlob = await new Promise((resolve) => {
+                                canvas.toBlob(resolve, 'image/jpeg', 0.9);
+                            });
                         }
 
                         if (!imageBlob) {
@@ -4701,10 +4698,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             .replace(/[^a-z0-9]+/g, '-')
                             .replace(/^-+|-+$/g, '') || 'spot';
 
-                        const filename = `kebab-review-${safeSpotName}.png`;
+                        const filename = `kebab-review-${safeSpotName}.jpg`;
 
                         if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
-                            const shareFile = new File([imageBlob], filename, { type: 'image/png' });
+                            const shareFile = new File([imageBlob], filename, { type: 'image/jpeg' });
                             const canShareFile = typeof navigator.canShare === 'function'
                                 ? navigator.canShare({ files: [shareFile] })
                                 : true;
@@ -4730,7 +4727,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             URL.revokeObjectURL(downloadLink.href);
                         }, 100);
 
-                        applyShareButtonState(button, 'PNG gespeichert', 'is-success');
+                        applyShareButtonState(button, 'Bild gespeichert', 'is-success');
                         return;
                     }
                 } catch (error) {

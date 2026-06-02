@@ -17,10 +17,13 @@ describe('Share popup PNG download template', () => {
         expect(source).toContain("await window.html2canvas(exportCard");
         expect(source).toContain("width: 1080");
         expect(source).toContain("height: 1920");
-        expect(source).toContain("scale: 2");
+        // Performance: scale:2 entfernt (1080x1920 reicht fuer Story-Format)
+        expect(source).not.toContain("scale: 2");
+        // Performance: JPEG statt PNG fuer schnelleres Encoding
+        expect(source).toContain("canvas.toBlob(resolve, 'image/jpeg', 0.9)");
         expect(source).toContain("imageBlob.size > 30 * 1024 * 1024");
         expect(source).toContain("typeof navigator !== 'undefined' && typeof navigator.share === 'function'");
-        expect(source).toContain("const shareFile = new File([imageBlob], filename, { type: 'image/png' });");
+        expect(source).toContain("const shareFile = new File([imageBlob], filename, { type: 'image/jpeg' });");
         expect(source).toContain('files: [shareFile]');
         expect(source).toContain("applyShareButtonState(button, 'Story-Karte geteilt', 'is-success')");
         expect(source).toContain("URL.createObjectURL(imageBlob)");
