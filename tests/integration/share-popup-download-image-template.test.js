@@ -29,5 +29,14 @@ describe('Share popup PNG download template', () => {
         expect(source).toContain("URL.createObjectURL(imageBlob)");
         expect(source).toContain('downloadLink.download = filename;');
         expect(source).toContain("await copyCommunityReviewShareText(shareSpotName, shareReviewerName, payload.shareLink)");
+
+        // Assert story card DOM flickering prevention styles exist in CSS
+        const cssPath = path.resolve(process.cwd(), '../assets/css/style.css');
+        const cssSource = fs.readFileSync(cssPath, 'utf-8');
+        expect(cssSource).toContain('.review-share-story-card::before');
+        expect(cssSource).toContain('.review-share-story-card .review-share-story-image');
+        expect(cssSource).toContain('opacity: 0');
+        expect(cssSource).toContain('.review-share-story-card.is-export::before');
+        expect(cssSource).toContain('opacity: 1 !important');
     });
 });

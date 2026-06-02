@@ -5526,10 +5526,13 @@ body.dark .ki-score-confirm {
 }
 
 .review-share-modal-content.is-photo-focus-mode .review-share-story-card {
-    width: 350px;
-    height: 622px;
     aspect-ratio: 9 / 16;
-    flex: 0 0 auto;
+    width: auto;
+    height: 62vh;
+    height: 62dvh;
+    max-height: 622px;
+    max-width: 100%;
+    flex: 0 1 auto;
     min-height: 0;
     transform: none;
 }
@@ -5587,7 +5590,7 @@ body.dark .ki-score-confirm {
 
 /* Top brand ribbon */
 .review-share-story-card::before {
-    content: 'CERTIFIED KEBAB TESTER';
+    content: 'CHECK OUT THIS REVIEW!';
     position: absolute;
     top: 0;
     left: 0;
@@ -5606,16 +5609,23 @@ body.dark .ki-score-confirm {
     border-bottom-right-radius: 0;
 }
 
-/* Vertical yellow accent stripe on the right */
-.review-share-story-card::after {
-    content: '';
-    position: absolute;
-    top: 26%;
-    bottom: 18%;
-    right: 0;
-    width: 6px;
-    background: var(--story-accent);
-    z-index: 3;
+/* Hide raw HTML story preview elements by default to prevent visual flickering before image is rendered */
+.review-share-story-card::before,
+.review-share-story-card .review-share-story-image,
+.review-share-story-card .review-share-story-overlay,
+.review-share-story-card .review-share-story-qr,
+.review-share-story-card .review-share-story-content {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Ensure they are fully visible for high-res rendering/export */
+.review-share-story-card.is-export::before,
+.review-share-story-card.is-export .review-share-story-image,
+.review-share-story-card.is-export .review-share-story-overlay,
+.review-share-story-card.is-export .review-share-story-qr,
+.review-share-story-card.is-export .review-share-story-content {
+    opacity: 1 !important;
 }
 
 .review-share-story-rendered-preview {
@@ -5630,6 +5640,14 @@ body.dark .ki-score-confirm {
 
 .review-share-story-rendered-preview.is-visible {
     opacity: 1;
+}
+
+.review-share-story-rendered-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: inherit;
 }
 
 .review-share-story-loading {
@@ -5786,6 +5804,7 @@ body.dark .ki-score-confirm {
     flex-wrap: wrap;
     gap: 6px;
     margin-top: 2px;
+    margin-right: clamp(80px, 24%, 120px);
 }
 
 .review-share-story-pill {
@@ -5831,6 +5850,7 @@ body.dark .ki-score-confirm {
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    margin-right: clamp(80px, 24%, 120px);
 }
 
 .review-share-story-cta {
@@ -6025,13 +6045,14 @@ body.dark .review-share-panel-toggle[aria-pressed='true'] {
     }
 
     .review-share-modal-content.is-photo-focus-mode .review-share-story-card {
-        width: 100%;
-        height: auto;
-        aspect-ratio: auto;
-        flex: 1 1 auto;
-        min-height: clamp(420px, 78svh, 900px);
-        min-height: clamp(420px, 78dvh, 900px);
-        height: auto;
+        aspect-ratio: 9 / 16;
+        width: auto;
+        height: 52vh;
+        height: 52dvh;
+        max-width: 100%;
+        margin: 0 auto;
+        flex: 0 1 auto;
+        min-height: 0;
     }
 
     .review-share-sidebar {
@@ -6986,12 +7007,6 @@ body.dark .tooltip-cluster-row:active {
     letter-spacing: 0.22em !important;
 }
 
-.review-share-story-card.is-export::after {
-    width: 14px !important;
-    top: 30% !important;
-    bottom: 18% !important;
-}
-
 .review-share-story-card.is-export .review-share-story-image {
     height: 48% !important;
 }
@@ -7048,6 +7063,7 @@ body.dark .tooltip-cluster-row:active {
 .review-share-story-card.is-export .review-share-story-badges {
     gap: 14px !important;
     margin-bottom: 12px !important;
+    margin-right: 320px !important;
 }
 
 .review-share-story-card.is-export .review-share-story-pill {
@@ -7076,6 +7092,7 @@ body.dark .tooltip-cluster-row:active {
     padding-left: 22px !important;
     border-left-width: 8px !important;
     -webkit-line-clamp: 4 !important;
+    margin-right: 320px !important;
 }
 
 .review-share-story-card.is-export .review-share-story-cta {

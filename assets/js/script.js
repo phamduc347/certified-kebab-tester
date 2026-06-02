@@ -4605,7 +4605,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (previewContainer) {
                 const img = document.createElement('img');
                 img.alt = 'Rendered Preview';
-                img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit;';
+                img.style.cssText = 'width: 100%; height: 100%; object-fit: contain; display: block; border-radius: inherit;';
                 previewContainer.innerHTML = '';
                 previewContainer.appendChild(img);
 
@@ -4679,7 +4679,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (previewContainer) {
                         const img = document.createElement('img');
                         img.alt = 'Rendered Preview';
-                        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit;';
+                        img.style.cssText = 'width: 100%; height: 100%; object-fit: contain; display: block; border-radius: inherit;';
                         img.onload = () => {
                             const loadingOverlay = reviewShareModalContent.querySelector('.review-share-story-loading');
                             if (loadingOverlay) {
