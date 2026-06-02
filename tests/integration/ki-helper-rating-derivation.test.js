@@ -23,14 +23,34 @@ describe('KI-Schreibhilfe Rating Derivation', () => {
         expect(scriptSource).toContain('hasAiGeneratedScores = true;');
         expect(scriptSource).toContain('openKiScoreNoticeModal();');
 
-        // Check if closing the modal starts the animation
+        // Check if closing the modal starts the animation and sparkles
         expect(scriptSource).toContain('animateSlidersToTarget(pendingAiScores);');
+        expect(scriptSource).toContain('triggerMagicSparkles();');
         
         // Check the animation loop inside animateSlidersToTarget
         expect(scriptSource).toContain('function animateSlidersToTarget(targetScores) {');
         expect(scriptSource).toContain('requestAnimationFrame(step);');
         expect(scriptSource).toContain('updateCommunityScoreSliderFill(slider, clamped);');
         expect(scriptSource).toContain('validateCommunityScoreInput(numberInput);');
+
+        // Check triggerMagicSparkles function logic
+        expect(scriptSource).toContain('function triggerMagicSparkles() {');
+        expect(scriptSource).toContain('document.createElement(\'div\')');
+        expect(scriptSource).toContain('sparkle.className = \'ki-magic-sparkle\'');
+        expect(scriptSource).toContain('starSvgs');
+
+        // Check CSS definitions for sparkles
+        const cssPath = path.resolve(process.cwd(), '../assets/css/style.css');
+        const cssSource = fs.readFileSync(cssPath, 'utf-8');
+        expect(cssSource).toContain('.ki-magic-sparkle');
+        expect(cssSource).toContain('@keyframes sparkleFloatFade');
+
+        // Check repeated navigation support
+        expect(scriptSource).toContain('let lastAiScores = null;');
+        expect(scriptSource).toContain('lastAiScores = data.scores;');
+        expect(scriptSource).toContain('lastAiScores = null;');
+        expect(scriptSource).toContain('else if (lastAiScores) {');
+        expect(scriptSource).toContain('animateSlidersToTarget(lastAiScores);');
     });
 
     it('should define the schema for scores in the Gemini response Schema', () => {

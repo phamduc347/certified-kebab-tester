@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Persistente Referenzen zur Vermeidung von Memory Leaks
     let hasAiGeneratedScores = false;
     let pendingAiScores = null;
+    let lastAiScores = null;
     let globalTimelineOutsideClickHandler = null;
     let plChartObserver = null;
     let heatmapObserver = null;
@@ -2369,9 +2370,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Open the KI Score Notice Modal when entering Step 3 if AI generated scores
-        if (nextStep === 3 && hasAiGeneratedScores) {
-            openKiScoreNoticeModal();
-            hasAiGeneratedScores = false;
+        if (nextStep === 3) {
+            if (hasAiGeneratedScores) {
+                openKiScoreNoticeModal();
+                hasAiGeneratedScores = false;
+            } else if (lastAiScores) {
+                animateSlidersToTarget(lastAiScores);
+                triggerMagicSparkles();
+            }
         }
 
         if (!shouldFocus || !communityReviewForm) return;
@@ -2897,6 +2903,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             updatedAnyScore = scoreKeys.some(key => data.scores[key] !== undefined && data.scores[key] !== null);
                             if (updatedAnyScore) {
                                 pendingAiScores = data.scores;
+                                lastAiScores = data.scores;
                                 hasAiGeneratedScores = true;
                             }
                         }
@@ -2934,6 +2941,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     kiGeneratorStatus.textContent = '';
                 }
                 pendingAiScores = null;
+                lastAiScores = null;
                 hasAiGeneratedScores = false;
 
                 if (communityReviewForm) {
@@ -6142,6 +6150,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (pendingAiScores) {
             animateSlidersToTarget(pendingAiScores);
+            triggerMagicSparkles();
             pendingAiScores = null;
         }
     }
@@ -6151,13 +6160,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const scoreKeys = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
         const duration = 800; // 800ms animation
-        const startTime = performance.now();
 
-        // Get initial values
+        // Reset animated keys to 5.0 instantly to prepare for the visual animation
+        scoreKeys.forEach(key => {
+            const targetVal = targetScores[key];
+            if (targetVal === undefined || targetVal === null) return;
+            
+            const numberInput = communityReviewForm.querySelector(`.community-score-grid input[name="${key}"]`);
+            if (numberInput) {
+                const label = numberInput.closest('label');
+                const slider = label ? label.querySelector('.score-slider') : null;
+                numberInput.value = '5';
+                if (slider) {
+                    slider.value = '5';
+                    updateCommunityScoreSliderFill(slider, 5.0);
+                }
+                validateCommunityScoreInput(numberInput);
+            }
+        });
+
+        const startTime = performance.now();
         const initialValues = {};
         scoreKeys.forEach(key => {
-            const numberInput = communityReviewForm.querySelector(`.community-score-grid input[name="${key}"]`);
-            initialValues[key] = numberInput ? parseFloat(numberInput.value) || 5.0 : 5.0;
+            initialValues[key] = 5.0;
         });
 
         function step(now) {
@@ -6196,6 +6221,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         requestAnimationFrame(step);
+    }
+
+    function triggerMagicSparkles() {
+        const step3 = document.querySelector('.community-form-step[data-step="3"]');
+        if (!step3) return;
+
+        const colors = [
+            '#FBBF24', // soft gold
+            '#F59E0B', // deep amber
+            '#A78BFA', // soft violet/purple
+            '#8B5CF6', // violet
+            '#EC4899', // rose pink
+            '#ffffff'  // clean white
+        ];
+
+        const starSvgs = [
+            // 4-point star / sparkle
+            '<svg viewBox="0 0 24 24"><path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z"/></svg>',
+            // 5-point star
+            '<svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.858 1.4-8.168L.132 9.21l8.2-1.192L12 .587z"/></svg>',
+            // 8-point star / diamond sparkle
+            '<svg viewBox="0 0 24 24"><path d="M12 0l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/></svg>'
+        ];
+
+        const particleCount = 35;
+
+        for (let i = 0; i < particleCount; i++) {
+            setTimeout(() => {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'ki-magic-sparkle';
+                sparkle.setAttribute('aria-hidden', 'true');
+                
+                const svgIndex = Math.floor(Math.random() * starSvgs.length);
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const size = Math.random() * 16 + 12; // 12px to 28px
+                
+                sparkle.innerHTML = starSvgs[svgIndex];
+                sparkle.style.color = color;
+                sparkle.style.width = `${size}px`;
+                sparkle.style.height = `${size}px`;
+                
+                // Spawn coordinates distributed across Step 3 container
+                const startX = Math.random() * 80 + 10; // 10% to 90%
+                const startY = Math.random() * 70 + 15; // 15% to 85%
+                sparkle.style.left = `${startX}%`;
+                sparkle.style.top = `${startY}%`;
+
+                // Set CSS variables for transition movement
+                const driftX = (Math.random() - 0.5) * 120; // -60px to 60px
+                const driftY = -100 - Math.random() * 120;  // -100px to -220px (upwards drift)
+                const rotation = (Math.random() - 0.5) * 480; // random rotation angle
+
+                sparkle.style.setProperty('--drift-x', `${driftX}px`);
+                sparkle.style.setProperty('--drift-y', `${driftY}px`);
+                sparkle.style.setProperty('--rotation', `${rotation}deg`);
+
+                step3.appendChild(sparkle);
+
+                // Clean up DOM node after animation finishes
+                setTimeout(() => {
+                    sparkle.remove();
+                }, 1300);
+            }, i * 25); // stagger spawning over ~800ms
+        }
     }
 
     const closeCommunityReviewModal = () => {
