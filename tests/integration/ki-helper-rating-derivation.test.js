@@ -18,18 +18,19 @@ describe('KI-Schreibhilfe Rating Derivation', () => {
         // Check if the script contains the key categories array
         expect(scriptSource).toContain("const scoreKeys = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service']");
         
-        // Check if it iterates and sets value of slider/input based on data.scores
-        expect(scriptSource).toContain('if (data.scores) {');
-        expect(scriptSource).toContain('const scoreVal = data.scores[key];');
-        expect(scriptSource).toContain('const numberInput = communityReviewForm.querySelector(`.community-score-grid input[name="${key}"]`);');
-        expect(scriptSource).toContain('updateCommunityScoreSliderFill(slider, clamped);');
-        expect(scriptSource).toContain('validateCommunityScoreInput(numberInput);');
-
-        // Check if notice modal is triggered
-        expect(scriptSource).toContain('let hasAiGeneratedScores = false;');
+        // Check if it stashes target scores stashing and triggers the modal
+        expect(scriptSource).toContain('pendingAiScores = data.scores;');
         expect(scriptSource).toContain('hasAiGeneratedScores = true;');
         expect(scriptSource).toContain('openKiScoreNoticeModal();');
-        expect(scriptSource).toContain('closeKiScoreNoticeModal();');
+
+        // Check if closing the modal starts the animation
+        expect(scriptSource).toContain('animateSlidersToTarget(pendingAiScores);');
+        
+        // Check the animation loop inside animateSlidersToTarget
+        expect(scriptSource).toContain('function animateSlidersToTarget(targetScores) {');
+        expect(scriptSource).toContain('requestAnimationFrame(step);');
+        expect(scriptSource).toContain('updateCommunityScoreSliderFill(slider, clamped);');
+        expect(scriptSource).toContain('validateCommunityScoreInput(numberInput);');
     });
 
     it('should define the schema for scores in the Gemini response Schema', () => {

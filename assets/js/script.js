@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Persistente Referenzen zur Vermeidung von Memory Leaks
     let hasAiGeneratedScores = false;
+    let pendingAiScores = null;
     let globalTimelineOutsideClickHandler = null;
     let plChartObserver = null;
     let heatmapObserver = null;
@@ -2889,37 +2890,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             commentTextarea.dispatchEvent(new Event('input', { bubbles: true }));
                         }
 
-                        // Update sliders and number inputs based on derived category scores
+                        // Stash derived category scores to animate them when the notice modal is closed
                         let updatedAnyScore = false;
                         if (data.scores) {
                             const scoreKeys = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
-                            scoreKeys.forEach((key) => {
-                                const scoreVal = data.scores[key];
-                                if (scoreVal !== undefined && scoreVal !== null) {
-                                    const numVal = parseFloat(scoreVal);
-                                    if (!isNaN(numVal) && isFinite(numVal)) {
-                                        const numberInput = communityReviewForm.querySelector(`.community-score-grid input[name="${key}"]`);
-                                        if (numberInput) {
-                                            const label = numberInput.closest('label');
-                                            const slider = label ? label.querySelector('.score-slider') : null;
-                                            const clamped = Math.min(10, Math.max(1, numVal));
-                                            const normalized = clamped.toFixed(1).replace(/\.0$/, '');
-
-                                            numberInput.value = normalized;
-                                            if (slider) {
-                                                slider.value = normalized;
-                                                updateCommunityScoreSliderFill(slider, clamped);
-                                            }
-                                            validateCommunityScoreInput(numberInput);
-                                            updatedAnyScore = true;
-                                        }
-                                    }
-                                }
-                            });
-                        }
-
-                        if (updatedAnyScore) {
-                            hasAiGeneratedScores = true;
+                            updatedAnyScore = scoreKeys.some(key => data.scores[key] !== undefined && data.scores[key] !== null);
+                            if (updatedAnyScore) {
+                                pendingAiScores = data.scores;
+                                hasAiGeneratedScores = true;
+                            }
                         }
 
                         showGeneratorStatus("Erfolgreich generiert!", "success");
@@ -2954,6 +2933,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     kiGeneratorStatus.hidden = true;
                     kiGeneratorStatus.textContent = '';
                 }
+                pendingAiScores = null;
+                hasAiGeneratedScores = false;
 
                 if (communityReviewForm) {
                     communityReviewForm.querySelectorAll('.invalid-field').forEach((field) => {
@@ -6158,6 +6139,63 @@ document.addEventListener('DOMContentLoaded', () => {
         kiScoreNoticeModal.classList.remove('active');
         kiScoreNoticeModal.setAttribute('aria-hidden', 'true');
         syncModalOpenState();
+
+        if (pendingAiScores) {
+            animateSlidersToTarget(pendingAiScores);
+            pendingAiScores = null;
+        }
+    }
+
+    function animateSlidersToTarget(targetScores) {
+        if (!targetScores || !communityReviewForm) return;
+
+        const scoreKeys = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service'];
+        const duration = 800; // 800ms animation
+        const startTime = performance.now();
+
+        // Get initial values
+        const initialValues = {};
+        scoreKeys.forEach(key => {
+            const numberInput = communityReviewForm.querySelector(`.community-score-grid input[name="${key}"]`);
+            initialValues[key] = numberInput ? parseFloat(numberInput.value) || 5.0 : 5.0;
+        });
+
+        function step(now) {
+            const elapsed = now - startTime;
+            const progress = Math.min(1, elapsed / duration);
+            
+            // Easing function (easeOutQuad)
+            const easeProgress = progress * (2 - progress);
+
+            scoreKeys.forEach(key => {
+                const targetVal = targetScores[key];
+                if (targetVal === undefined || targetVal === null) return;
+                
+                const startVal = initialValues[key];
+                const currentVal = startVal + (targetVal - startVal) * easeProgress;
+
+                const numberInput = communityReviewForm.querySelector(`.community-score-grid input[name="${key}"]`);
+                if (numberInput) {
+                    const label = numberInput.closest('label');
+                    const slider = label ? label.querySelector('.score-slider') : null;
+                    const clamped = Math.min(10, Math.max(1, currentVal));
+                    const normalized = clamped.toFixed(1).replace(/\.0$/, '');
+
+                    numberInput.value = normalized;
+                    if (slider) {
+                        slider.value = normalized;
+                        updateCommunityScoreSliderFill(slider, clamped);
+                    }
+                    validateCommunityScoreInput(numberInput);
+                }
+            });
+
+            if (progress < 1) {
+                requestAnimationFrame(step);
+            }
+        }
+
+        requestAnimationFrame(step);
     }
 
     const closeCommunityReviewModal = () => {
