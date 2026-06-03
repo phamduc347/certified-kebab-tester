@@ -9,7 +9,9 @@ import {
     normalizeCommentText,
     getColorForScore,
     parseVal,
-    renderStarsScore
+    renderStarsScore,
+    formatCommentDate,
+    renderStars
 } from '../../assets/js/utils.js';
 
 
@@ -148,5 +150,80 @@ describe('renderStarsScore (score string parser)', () => {
 
     it('parses whole number scores', () => {
         expect(renderStarsScore('80,00%')).toBeCloseTo(80.0);
+    });
+});
+
+// ── formatCommentDate ────────────────────────────────────────────────────────
+describe('formatCommentDate', () => {
+    it('returns empty string for null/undefined/empty input', () => {
+        expect(formatCommentDate(null)).toBe('');
+        expect(formatCommentDate(undefined)).toBe('');
+        expect(formatCommentDate('')).toBe('');
+    });
+
+    it('returns empty string for invalid date strings', () => {
+        expect(formatCommentDate('nicht-ein-datum')).toBe('');
+        expect(formatCommentDate('2026-13-99T00:00:00Z')).toBe('');
+    });
+
+    it('formats valid ISO date to DD.MM.YYYY, HH:MM (de-DE)', () => {
+        // Locale/TZ-tolerant: just assert overall shape
+        const result = formatCommentDate('2026-05-08T14:30:00Z');
+        expect(result).toMatch(/^\d{2}\.\d{2}\.\d{4},\s\d{2}:\d{2}$/);
+    });
+
+    it('returns a non-empty string for any parseable Date input', () => {
+        const result = formatCommentDate(new Date('2026-01-15T08:00:00Z').toISOString());
+        expect(result.length).toBeGreaterThan(0);
+    });
+
+    it('contains the year of the input date', () => {
+        const result = formatCommentDate('2025-06-15T10:00:00Z');
+        expect(result).toContain('2025');
+    });
+});
+
+// ── renderStars (HTML template) ─────────────────────────────────────────────
+describe('renderStars', () => {
+    it('returns empty string for null/undefined/empty input', () => {
+        expect(renderStars(null)).toBe('');
+        expect(renderStars(undefined)).toBe('');
+        expect(renderStars('')).toBe('');
+    });
+
+    it('returns HTML containing star-rating wrapper', () => {
+        const html = renderStars('92,10%');
+        expect(html).toContain('star-rating');
+        expect(html).toContain('stars-outer');
+        expect(html).toContain('stars-inner');
+    });
+
+    it('uses score string as title attribute', () => {
+        const html = renderStars('85,00%');
+        expect(html).toContain('title="85,00%"');
+    });
+
+    it('encodes German decimal score as inner-width percent', () => {
+        const html = renderStars('92,10%');
+        expect(html).toContain('width: 92.1%');
+    });
+
+    it('encodes 100% score as full inner width', () => {
+        const html = renderStars('100,00%');
+        expect(html).toContain('width: 100%');
+    });
+
+    it('handles plain number string without percent sign', () => {
+        const html = renderStars('80,00');
+        expect(html).toContain('width: 80%');
+    });
+
+    it('always renders five outer star characters', () => {
+        const html = renderStars('50,00%');
+        // Outer block should contain exactly 5 star spans
+        const outerBlock = html.match(/stars-outer[\s\S]*?<div class="stars-inner"/);
+        expect(outerBlock).not.toBeNull();
+        const starMatches = outerBlock[0].match(/★/g) || [];
+        expect(starMatches.length).toBe(5);
     });
 });
