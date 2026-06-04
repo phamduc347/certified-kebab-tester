@@ -2399,14 +2399,30 @@ document.addEventListener('DOMContentLoaded', () => {
             window.fetchRemainingKiAttempts();
         }
 
-        // Open the KI Score Notice Modal when entering Step 3 if AI generated scores
+        // Handle Step 3 (Ratings) transitions, including AI warning and slider animation
         if (nextStep === 3) {
-            if (hasAiGeneratedScores) {
-                openKiScoreNoticeModal();
-                hasAiGeneratedScores = false;
-            } else if (lastAiScores) {
-                animateSlidersToTarget(lastAiScores);
-                triggerMagicSparkles();
+            const inlineNotice = document.getElementById('ki-score-inline-notice');
+            if (lastAiScores) {
+                if (inlineNotice) {
+                    inlineNotice.hidden = false;
+                    inlineNotice.style.display = 'flex';
+                }
+                if (hasAiGeneratedScores) {
+                    if (pendingAiScores) {
+                        animateSlidersToTarget(pendingAiScores);
+                        triggerMagicSparkles();
+                        pendingAiScores = null;
+                    }
+                    hasAiGeneratedScores = false;
+                } else {
+                    animateSlidersToTarget(lastAiScores);
+                    triggerMagicSparkles();
+                }
+            } else {
+                if (inlineNotice) {
+                    inlineNotice.hidden = true;
+                    inlineNotice.style.display = 'none';
+                }
             }
         }
 
@@ -3010,6 +3026,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 pendingAiScores = null;
                 lastAiScores = null;
                 hasAiGeneratedScores = false;
+                const inlineNotice = document.getElementById('ki-score-inline-notice');
+                if (inlineNotice) {
+                    inlineNotice.hidden = true;
+                    inlineNotice.style.display = 'none';
+                }
 
                 if (communityReviewForm) {
                     communityReviewForm.querySelectorAll('.invalid-field').forEach((field) => {
@@ -6067,10 +6088,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentFeedbackConfirm = commentFeedbackModal
         ? commentFeedbackModal.querySelector('.comment-feedback-confirm')
         : null;
-    const kiScoreNoticeModal = document.getElementById('ki-score-notice-modal');
-    const kiScoreConfirmBtn = kiScoreNoticeModal
-        ? kiScoreNoticeModal.querySelector('.ki-score-confirm')
-        : null;
+    // const kiScoreNoticeModal = document.getElementById('ki-score-notice-modal');
+    // const kiScoreConfirmBtn = kiScoreNoticeModal
+    //     ? kiScoreNoticeModal.querySelector('.ki-score-confirm')
+    //     : null;
 
     if (lightbox && lightboxImg) {
         document.addEventListener('click', (e) => {
@@ -6115,8 +6136,8 @@ document.addEventListener('DOMContentLoaded', () => {
             (communitySubmitModal && communitySubmitModal.classList.contains('active')) ||
             (communityReviewModal && communityReviewModal.classList.contains('active')) ||
             (reviewShareModal && reviewShareModal.classList.contains('active')) ||
-            (featureNotesModal && featureNotesModal.classList.contains('active')) ||
-            (kiScoreNoticeModal && kiScoreNoticeModal.classList.contains('active'));
+            (featureNotesModal && featureNotesModal.classList.contains('active'));
+            // (kiScoreNoticeModal && kiScoreNoticeModal.classList.contains('active'));
         document.body.classList.toggle('modal-open', Boolean(hasActiveModal));
     };
 
@@ -6203,23 +6224,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function openKiScoreNoticeModal() {
-        if (!kiScoreNoticeModal) return;
-        kiScoreNoticeModal.classList.add('active');
-        kiScoreNoticeModal.setAttribute('aria-hidden', 'false');
-        syncModalOpenState();
+        // Commented out: no-op
     }
 
     function closeKiScoreNoticeModal() {
-        if (!kiScoreNoticeModal) return;
-        kiScoreNoticeModal.classList.remove('active');
-        kiScoreNoticeModal.setAttribute('aria-hidden', 'true');
-        syncModalOpenState();
-
-        if (pendingAiScores) {
-            animateSlidersToTarget(pendingAiScores);
-            triggerMagicSparkles();
-            pendingAiScores = null;
-        }
+        // Commented out: no-op
     }
 
     function animateSlidersToTarget(targetScores) {
@@ -6421,17 +6430,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (kiScoreNoticeModal) {
-        kiScoreNoticeModal.querySelector('.modal-overlay')?.addEventListener('click', closeKiScoreNoticeModal);
-        kiScoreNoticeModal.querySelector('.modal-close')?.addEventListener('click', closeKiScoreNoticeModal);
-        kiScoreConfirmBtn?.addEventListener('click', closeKiScoreNoticeModal);
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && kiScoreNoticeModal.classList.contains('active')) {
-                closeKiScoreNoticeModal();
-            }
-        });
-    }
+    // if (kiScoreNoticeModal) {
+    //     kiScoreNoticeModal.querySelector('.modal-overlay')?.addEventListener('click', closeKiScoreNoticeModal);
+    //     kiScoreNoticeModal.querySelector('.modal-close')?.addEventListener('click', closeKiScoreNoticeModal);
+    //     kiScoreConfirmBtn?.addEventListener('click', closeKiScoreNoticeModal);
+    // 
+    //     document.addEventListener('keydown', (e) => {
+    //         if (e.key === 'Escape' && kiScoreNoticeModal.classList.contains('active')) {
+    //             closeKiScoreNoticeModal();
+    //         }
+    //     });
+    // }
 
     if (communitySubmitModal) {
         communitySubmitModal.querySelector('.modal-overlay')?.addEventListener('click', closeCommunitySubmitModal);

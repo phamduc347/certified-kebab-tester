@@ -11,17 +11,17 @@ describe('KI-Schreibhilfe Rating Derivation', () => {
         const scriptSource = fs.readFileSync(SCRIPT_PATH, 'utf-8');
         const htmlSource = fs.readFileSync(HTML_PATH, 'utf-8');
 
-        // Check if the HTML contains the notice modal
-        expect(htmlSource).toContain('id="ki-score-notice-modal"');
-        expect(htmlSource).toContain('class="ki-score-confirm"');
+        // Check if the HTML contains the inline warning banner
+        expect(htmlSource).toContain('id="ki-score-inline-notice"');
+        expect(htmlSource).toContain('class="ki-score-inline-notice"');
 
         // Check if the script contains the key categories array
         expect(scriptSource).toContain("const scoreKeys = ['fleisch', 'gemuese', 'sosse', 'brot', 'balance', 'auswahl', 'portion', 'hygiene', 'service']");
         
-        // Check if it stashes target scores stashing and triggers the modal
+        // Check if it stashes target scores and triggers the inline notice
         expect(scriptSource).toContain('pendingAiScores = data.scores;');
         expect(scriptSource).toContain('hasAiGeneratedScores = true;');
-        expect(scriptSource).toContain('openKiScoreNoticeModal();');
+        expect(scriptSource).toContain('ki-score-inline-notice');
 
         // Check if closing the modal starts the animation and sparkles
         expect(scriptSource).toContain('animateSlidersToTarget(pendingAiScores);');
@@ -49,7 +49,6 @@ describe('KI-Schreibhilfe Rating Derivation', () => {
         expect(scriptSource).toContain('let lastAiScores = null;');
         expect(scriptSource).toContain('lastAiScores = data.scores;');
         expect(scriptSource).toContain('lastAiScores = null;');
-        expect(scriptSource).toContain('else if (lastAiScores) {');
         expect(scriptSource).toContain('animateSlidersToTarget(lastAiScores);');
 
         // Check automatic retry logic on Gemini overload

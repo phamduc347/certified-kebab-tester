@@ -5401,6 +5401,52 @@ body.dark .ki-score-confirm {
     color: #121214;
 }
 
+/* ── KI-Schreibhilfe – Inline Notice ──────────────────────────────── */
+.ki-score-inline-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: rgba(139, 92, 246, 0.04);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    animation: inlineNoticeReveal 0.3s ease both;
+}
+
+body.dark .ki-score-inline-notice {
+    background: rgba(167, 139, 250, 0.06);
+    border-color: rgba(167, 139, 250, 0.20);
+}
+
+.ki-score-inline-notice p {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: #6d28d9;
+}
+
+body.dark .ki-score-inline-notice p {
+    color: #c084fc;
+}
+
+.ki-score-inline-icon {
+    font-size: 1rem;
+    line-height: 1;
+    margin-top: 1px;
+}
+
+@keyframes inlineNoticeReveal {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 .review-share-modal-container {
     max-width: 840px;
