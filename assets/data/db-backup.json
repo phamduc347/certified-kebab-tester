@@ -1,11 +1,57 @@
 {
   "info": {
-    "timestamp": "2026-06-05T04:09:52.505Z",
+    "timestamp": "2026-06-06T03:53:16.916Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
   "data": {
     "community_reviews": [
+      {
+        "id": 68,
+        "reviewer_name": "Lukas Kramer",
+        "spot_name": "King Döner",
+        "city": "Dresden",
+        "dish": "Döner",
+        "visit_date": "2026-06-05",
+        "fleisch": 8.6,
+        "gemuese": 6.8,
+        "sosse": 6.3,
+        "brot": 6.5,
+        "balance": 7,
+        "auswahl": 7,
+        "portion": 7.6,
+        "hygiene": 7,
+        "service": 6.5,
+        "comment_text": "Überraschend, erfrischend, dennoch oberes Mittelfeld. Ich würde sagen der Döner steht für einen richtig guten Standarddöner. Kein Schnickschnack. Basic aber gut. Fleisch ordentlich knusprig.\nBesser noch mit Käse.",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1780683057150-80d4x5yg.jpeg",
+        "is_approved": true,
+        "created_at": "2026-06-05T18:11:04.547571+00:00",
+        "preis": "8,00 €",
+        "verzehrort": "Dine-in"
+      },
+      {
+        "id": 67,
+        "reviewer_name": "👑 Pham (CKT)",
+        "spot_name": "Bingöl-Grill \"Am Alten Markt\"",
+        "city": "Magdeburg",
+        "dish": "Döner",
+        "visit_date": "2026-06-05",
+        "fleisch": 7.1,
+        "gemuese": 8.3,
+        "sosse": 7.1,
+        "brot": 3.6,
+        "balance": 7.9,
+        "auswahl": 7.8,
+        "portion": 8.5,
+        "hygiene": 7.9,
+        "service": 6.4,
+        "comment_text": "Ein Döner, der mit seiner sehr guten Portion überzeugt. Das Fleisch war okay mit einem guten Krossverhältnis, die Soße solide, aber unauffällig. Positiv sticht das Gemüse hervor, welches mit Kräutern, Sauer-Note und sogar Mais punktete. Weniger erfreulich war das trockene Standard-Dreiecksbrot. Immerhin stimmte die Balance. Für Individualisten gab es Sumac und Chilipulver direkt am Tresen. Der Service war eher mittelmäßig freundlich. Man wird satt, und das ist ja auch schon mal was.\n\n📝 Fakten zu Bingöl: \n- Seit 1997: Eines der ältesten türkischen Grillhäuser Magdeburgs.\n- Top-Lagen: Kult-Filialen am Hauptbahnhof (City Carré) und Alten Markt.\n- Gründer „Rambo“: Bekannter Mitinhaber Kamber Algünerhan verstarb im Juni 2025.",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1780663546335-dhxju11p.jpeg",
+        "is_approved": true,
+        "created_at": "2026-06-05T12:45:52.88601+00:00",
+        "preis": "8,00 €",
+        "verzehrort": "Take-away"
+      },
       {
         "id": 65,
         "reviewer_name": "👑 Pham (CKT)",
@@ -862,6 +908,18 @@
         "spot_id": 1044982121,
         "voter_fingerprint": "d963f948-0d20-4940-aa47-4c3e3144d14f",
         "created_at": "2026-06-01T11:50:38.688416+00:00"
+      },
+      {
+        "id": 63,
+        "spot_id": 1492317194,
+        "voter_fingerprint": "ddc2c74f-a226-4b89-be92-aa08c87afeff",
+        "created_at": "2026-06-05T09:28:57.647548+00:00"
+      },
+      {
+        "id": 64,
+        "spot_id": 1538893872,
+        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
+        "created_at": "2026-06-05T19:08:48.103182+00:00"
       }
     ],
     "review_comments": [
