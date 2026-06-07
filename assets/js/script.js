@@ -1623,6 +1623,137 @@ document.addEventListener('DOMContentLoaded', () => {
         openCommentFeedbackModal();
     }
 
+    async function handleReviewCommentSubmit(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const form = event.currentTarget;
+        const reviewTargetId = Number(form.dataset.reviewTargetId);
+        const authorInput = form.querySelector('input[name="author"]');
+        const commentInput = form.querySelector('textarea[name="comment"]');
+        const websiteInput = form.querySelector('input[name="website"]');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const status = form.querySelector('.comment-form-status');
+        const nameError = form.querySelector('.review-comment-name-error');
+
+        const client = ensureSupabaseClient();
+        if (!client) {
+            if (status) status.textContent = 'Kommentarservice aktuell nicht verfügbar.';
+            return;
+        }
+
+        const authorValue = (authorInput?.value || '').trim();
+        const commentValue = (commentInput?.value || '').trim();
+        const websiteValue = (websiteInput?.value || '').trim();
+
+        // Name ist Pflichtfeld
+        if (!authorValue) {
+            if (nameError) {
+                nameError.textContent = 'Bitte gib deinen Namen ein.';
+            }
+            if (authorInput) {
+                authorInput.classList.add('is-invalid');
+                authorInput.focus();
+            }
+            return;
+        }
+        if (nameError) nameError.textContent = '';
+        if (authorInput) authorInput.classList.remove('is-invalid');
+
+        if (!commentValue) {
+            if (status) status.textContent = 'Bitte Kommentar eingeben.';
+            return;
+        }
+
+        if (commentValue.length < 3) {
+            if (status) status.textContent = 'Kommentar ist zu kurz.';
+            return;
+        }
+
+        // Honeypot check
+        if (websiteValue) {
+            if (status) status.textContent = 'Danke!';
+            form.reset();
+            return;
+        }
+
+        // Spam-Schutz: gleiche Logik wie bei Spot-Kommentaren
+        const blockReason = getClientSpamBlockReason(reviewTargetId, commentValue);
+        if (blockReason) {
+            if (status) status.textContent = blockReason;
+            return;
+        }
+
+        if (submitButton) submitButton.disabled = true;
+        if (status) status.textContent = 'Senden...';
+
+        const { error } = await client
+            .from('review_comments')
+            .insert({
+                spot_id: reviewTargetId,
+                author: authorValue.slice(0, 40),
+                comment_text: commentValue.slice(0, 500)
+            });
+
+        if (submitButton) submitButton.disabled = false;
+
+        if (error) {
+            if (status) status.textContent = error.message ? `Fehler: ${error.message}` : 'Fehler beim Speichern.';
+            return;
+        }
+
+        markClientCommentSubmitted(reviewTargetId, commentValue);
+
+        // Pushcut notification
+        fetch('https://api.pushcut.io/VcqntPOAR-xGOoaXyGdur/notifications/Certified%20Kebab%20Tester%20-%20Comment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: `${authorValue} kommentiert ein Community-Review`,
+                text: `"${commentValue}"`
+            })
+        }).catch(() => { });
+
+        // Optimistisch im UI hinzufügen
+        const newComment = {
+            spot_id: reviewTargetId,
+            author: authorValue,
+            comment_text: commentValue,
+            created_at: new Date().toISOString()
+        };
+        if (!commentsBySpot.has(reviewTargetId)) {
+            commentsBySpot.set(reviewTargetId, []);
+        }
+        commentsBySpot.get(reviewTargetId).unshift(newComment);
+
+        // Kommentarliste im Modal aktualisieren
+        const commentsSection = form.closest('.review-modal-comments');
+        if (commentsSection) {
+            const listEl = commentsSection.querySelector('.review-comments-list');
+            const countEl = commentsSection.querySelector('.review-comments-count');
+            const emptyEl = commentsSection.querySelector('.review-comments-empty');
+            if (emptyEl) emptyEl.remove();
+
+            const newItem = document.createElement('article');
+            newItem.className = 'review-comment-item review-comment-item--new';
+            newItem.innerHTML = `
+                <div class="review-comment-head">
+                    <span class="review-comment-author">${escapeHtml(authorValue)}</span>
+                    <span class="review-comment-date">Gerade eben</span>
+                </div>
+                <p class="review-comment-text">${escapeHtml(commentValue)}</p>
+            `;
+            if (listEl) listEl.prepend(newItem);
+            if (countEl) countEl.textContent = String(commentsBySpot.get(reviewTargetId).length);
+        }
+
+        if (commentInput) commentInput.value = '';
+        if (authorInput) authorInput.value = '';
+        if (status) status.textContent = '';
+
+        openReviewCommentFeedbackModal();
+    }
+
     async function handleReviewHelpfulClick(event) {
         const likeButton = event.currentTarget;
         if (!likeButton) return;
@@ -3381,6 +3512,78 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    function renderReviewModalCommentsSection(review) {
+        const reviewTargetId = buildReviewLikeTargetId(review);
+        const comments = commentsBySpot.get(reviewTargetId) || [];
+        const setupMissing = !supabaseClient;
+        const loading = supabaseClient && !commentsReady;
+
+        let stateText = '';
+        if (loading) {
+            stateText = 'Kommentare werden geladen...';
+        } else if (commentsLoadError) {
+            stateText = 'Kommentare konnten nicht geladen werden.';
+        }
+
+        const commentsHtml = comments.length > 0
+            ? comments.map((comment) => {
+                const author = escapeHtml(comment.author || 'Anonym');
+                const text = escapeHtml(comment.comment_text || '');
+                const createdAt = formatCommentDate(comment.created_at);
+                return `
+                    <article class="review-comment-item">
+                        <div class="review-comment-head">
+                            <span class="review-comment-author">${author}</span>
+                            ${createdAt ? `<span class="review-comment-date">${createdAt}</span>` : ''}
+                        </div>
+                        <p class="review-comment-text">${text}</p>
+                    </article>
+                `;
+            }).join('')
+            : '<p class="review-comments-empty">Noch keine Kommentare. Sei der Erste!</p>';
+
+        return `
+            <section class="review-comments review-modal-comments" aria-label="Kommentare zu diesem Review" data-review-target-id="${reviewTargetId}">
+                <div class="review-comments-header">
+                    <h4>Kommentare</h4>
+                    <span class="review-comments-count">${comments.length}</span>
+                </div>
+                ${stateText ? `<p class="review-comments-state">${stateText}</p>` : ''}
+                <div class="review-comments-list">${commentsHtml}</div>
+                ${!setupMissing ? `
+                <form class="review-comments-form review-modal-comments-form" data-review-target-id="${reviewTargetId}">
+                    <div class="comment-honeypot" aria-hidden="true">
+                        <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+                    </div>
+                    <div class="review-comment-name-row">
+                        <input
+                            class="review-comment-input review-comment-name-input"
+                            type="text"
+                            name="author"
+                            maxlength="40"
+                            placeholder="Dein Name*"
+                            required
+                            aria-label="Dein Name (Pflichtfeld)"
+                        />
+                        <span class="review-comment-name-error" aria-live="polite"></span>
+                    </div>
+                    <textarea
+                        class="review-comment-textarea"
+                        name="comment"
+                        maxlength="500"
+                        placeholder="Dein Kommentar..."
+                        required
+                    ></textarea>
+                    <div class="review-comments-actions">
+                        <button type="submit" class="review-comment-submit">Kommentar senden</button>
+                        <span class="comment-form-status" aria-live="polite"></span>
+                    </div>
+                </form>
+                ` : '<p class="review-comments-state">Kommentare sind aktuell nicht verfügbar.</p>'}
+            </section>
+        `;
+    }
+
     function renderCommunityReviewModalBody(review, spotId) {
         const data = getCommunityReviewPresentation(review, spotId);
 
@@ -3452,6 +3655,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 aria-label="Community-Review-Link kopieren"
                             ><span class="review-share-icon" aria-hidden="true">&#128279;</span><span class="review-share-label">Review teilen</span></button>
                         </div>
+                        ${renderReviewModalCommentsSection(review)}
                     </div>
                 </div>
             </article>
@@ -3541,6 +3745,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         communityReviewModalContent.innerHTML = renderCommunityReviewModalBody(selectedReview, spotId);
         bindReviewActionButtons(communityReviewModalContent);
+
+        // Bind review comment form
+        const reviewCommentForm = communityReviewModalContent.querySelector('.review-modal-comments-form');
+        if (reviewCommentForm) {
+            reviewCommentForm.addEventListener('submit', handleReviewCommentSubmit);
+            reviewCommentForm.addEventListener('click', (e) => e.stopPropagation());
+            reviewCommentForm.addEventListener('keydown', (e) => e.stopPropagation());
+        }
+        const reviewCommentsSection = communityReviewModalContent.querySelector('.review-modal-comments');
+        if (reviewCommentsSection) {
+            reviewCommentsSection.addEventListener('click', (e) => e.stopPropagation());
+            reviewCommentsSection.addEventListener('keydown', (e) => e.stopPropagation());
+        }
+
         communityReviewModal.classList.add('active');
         communityReviewModal.setAttribute('aria-hidden', 'false');
         syncModalOpenState();
@@ -6170,9 +6388,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const openImpressum = document.getElementById('open-impressum');
 
     const syncModalOpenState = () => {
+        const reviewCommentFeedbackModal = document.getElementById('review-comment-feedback-modal');
         const hasActiveModal =
             (legalModal && legalModal.classList.contains('active')) ||
             (commentFeedbackModal && commentFeedbackModal.classList.contains('active')) ||
+            (reviewCommentFeedbackModal && reviewCommentFeedbackModal.classList.contains('active')) ||
             (communitySubmitModal && communitySubmitModal.classList.contains('active')) ||
             (communityReviewModal && communityReviewModal.classList.contains('active')) ||
             (reviewShareModal && reviewShareModal.classList.contains('active')) ||
@@ -6260,6 +6480,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeCommentFeedbackModal = () => {
         if (!commentFeedbackModal) return;
         commentFeedbackModal.classList.remove('active');
+        syncModalOpenState();
+    };
+
+    const openReviewCommentFeedbackModal = () => {
+        const modal = document.getElementById('review-comment-feedback-modal');
+        if (!modal) return;
+        modal.classList.add('active');
+        syncModalOpenState();
+    };
+
+    const closeReviewCommentFeedbackModal = () => {
+        const modal = document.getElementById('review-comment-feedback-modal');
+        if (!modal) return;
+        modal.classList.remove('active');
         syncModalOpenState();
     };
 
@@ -6466,6 +6700,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && commentFeedbackModal.classList.contains('active')) {
                 closeCommentFeedbackModal();
+            }
+        });
+    }
+
+    // Review Comment Feedback Modal
+    const reviewCommentFeedbackModal = document.getElementById('review-comment-feedback-modal');
+    if (reviewCommentFeedbackModal) {
+        reviewCommentFeedbackModal.querySelector('.modal-overlay')?.addEventListener('click', closeReviewCommentFeedbackModal);
+        reviewCommentFeedbackModal.querySelector('.modal-close')?.addEventListener('click', closeReviewCommentFeedbackModal);
+        reviewCommentFeedbackModal.querySelector('.review-comment-feedback-confirm')?.addEventListener('click', closeReviewCommentFeedbackModal);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && reviewCommentFeedbackModal.classList.contains('active')) {
+                closeReviewCommentFeedbackModal();
             }
         });
     }
