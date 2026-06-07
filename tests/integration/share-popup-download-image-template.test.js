@@ -11,10 +11,11 @@ describe('Share popup PNG download template', () => {
         expect(source).toContain('class="review-share-action-btn review-share-download-btn"');
         expect(source).toContain('data-share-action="download-image"');
         expect(source).toContain("if (action === 'download-image')");
-        expect(source).toContain("typeof window.html2canvas !== 'function'");
+        // Performance: html2canvas wird über ensureHtml2Canvas() async geladen (defer + pre-warm)
+        expect(source).toContain("ensureHtml2Canvas");
         expect(source).toContain("cloneNode(true)");
         expect(source).toContain("classList.add('is-export')");
-        expect(source).toContain("await window.html2canvas(exportCard");
+        expect(source).toContain("await h2c(exportCard");
         expect(source).toContain("width: 1080");
         expect(source).toContain("height: 1920");
         // Performance: scale:2 entfernt (1080x1920 reicht fuer Story-Format)

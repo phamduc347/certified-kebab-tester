@@ -3478,6 +3478,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         reviewShareButtons.forEach((button) => {
+            // Pre-warm html2canvas on hover/touch so it's ready when clicked
+            button.addEventListener('mouseenter', prewarmHtml2Canvas, { once: true, passive: true });
+            button.addEventListener('touchstart', prewarmHtml2Canvas, { once: true, passive: true });
+
             button.addEventListener('click', (event) => {
                 event.stopPropagation();
                 const shareSpotId = Number(button.dataset.shareSpotId);
@@ -4606,6 +4610,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const shareCardsCache = {};
     let activeReviewShareTrigger = null;
 
+    // Returns a promise that resolves when html2canvas is available.
+    // Since html2canvas is loaded with `defer`, it may not be ready immediately.
+    let _html2canvasReadyPromise = null;
+    function ensureHtml2Canvas() {
+        if (_html2canvasReadyPromise) return _html2canvasReadyPromise;
+        _html2canvasReadyPromise = new Promise((resolve) => {
+            if (typeof window.html2canvas === 'function') {
+                resolve(window.html2canvas);
+                return;
+            }
+            // Poll until available (max ~10s)
+            let attempts = 0;
+            const poll = setInterval(() => {
+                attempts++;
+                if (typeof window.html2canvas === 'function') {
+                    clearInterval(poll);
+                    resolve(window.html2canvas);
+                } else if (attempts > 200) {
+                    clearInterval(poll);
+                    resolve(null); // give up
+                }
+            }, 50);
+        });
+        return _html2canvasReadyPromise;
+    }
+
+    // Pre-warm: trigger html2canvas loading as soon as possible (called on share-button hover)
+    function prewarmHtml2Canvas() {
+        ensureHtml2Canvas(); // just kick off the promise, result ignored
+    }
+
     function openReviewShareStoryModal(payload) {
         const reviewShareModal = document.getElementById('review-share-modal');
         const reviewShareModalContent = document.getElementById('review-share-modal-content');
@@ -4676,10 +4711,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 showImage();
             }
         } else {
-            // Pre-render the 4K card in the background for display in modal and instant download
+            // Pre-render the card in the background for display in modal and instant download
             const backgroundRenderPromise = (async () => {
+                // Wait for html2canvas to be available (it's loaded with defer)
+                const h2c = await ensureHtml2Canvas();
+                if (!h2c) return null;
+
                 const storyCard = reviewShareModalContent.querySelector('.review-share-story-card');
-                if (!storyCard || typeof window.html2canvas !== 'function') return null;
+                if (!storyCard) return null;
 
                 const exportCard = storyCard.cloneNode(true);
                 exportCard.classList.add('is-export');
@@ -4693,7 +4732,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let canvas;
                 try {
-                    canvas = await window.html2canvas(exportCard, {
+                    canvas = await h2c(exportCard, {
                         backgroundColor: null,
                         useCORS: true,
                         width: 1080,
@@ -4771,7 +4810,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         if (!imageBlob) {
                             const storyCard = reviewShareModalContent.querySelector('.review-share-story-card');
-                            if (!storyCard || typeof window.html2canvas !== 'function') {
+                            const h2c = await ensureHtml2Canvas();
+                            if (!storyCard || !h2c) {
                                 throw new Error('share-image-export-unavailable');
                             }
 
@@ -4787,7 +4827,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                             let canvas;
                             try {
-                                canvas = await window.html2canvas(exportCard, {
+                                canvas = await h2c(exportCard, {
                                     backgroundColor: null,
                                     useCORS: true,
                                     width: 1080,

@@ -28,17 +28,17 @@
         const savedTheme = localStorage.getItem('theme');
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const shouldBeDark = savedTheme === 'dark' || (savedTheme === null && systemPrefersDark);
-        
+
         if (shouldBeDark) {
             document.documentElement.classList.add('dark-init');
         }
 
         // Emergency Loader Failsafe
-        setTimeout(function() {
+        setTimeout(function () {
             var loader = document.getElementById('page-loader');
             if (loader && !loader.classList.contains('fade-out')) {
                 loader.classList.add('fade-out');
-                setTimeout(function() { loader.remove(); }, 600);
+                setTimeout(function () { loader.remove(); }, 600);
             }
         }, 6000);
     </script>
@@ -74,27 +74,35 @@
             </nav>
             <div class="header-actions">
                 <button id="feature-notes-btn" class="feature-notes-btn" aria-label="Feature Notes" type="button">
-                    <svg class="icon-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    <svg class="icon-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                     </svg>
                     <span class="notification-badge"></span>
                 </button>
                 <button id="darkmode-btn" class="darkmode-btn" aria-label="Darkmode umschalten" type="button">
                     <!-- Moon: shown in light mode -->
-                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                     </svg>
                     <!-- Sun: shown in dark mode -->
-                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"/>
-                        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5" />
+                        <line x1="12" y1="1" x2="12" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="23" />
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                        <line x1="1" y1="12" x2="3" y2="12" />
+                        <line x1="21" y1="12" x2="23" y2="12" />
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
                     </svg>
                 </button>
-                <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu" aria-expanded="false" aria-controls="header-nav">
+                <button id="hamburger-btn" class="hamburger-btn" aria-label="Menu" aria-expanded="false"
+                    aria-controls="header-nav">
                     <span></span>
                     <span></span>
                 </button>
@@ -114,7 +122,7 @@
                     <a href="#spots" class="hero-btn primary">Entdecke alle Reviews</a>
                     <a href="#weightings" class="hero-btn secondary">Unser Bewertungssystem</a>
                 </div>
-                
+
                 <!-- Minimalist Timeline -->
                 <div class="hero-timeline-container" id="hero-timeline" style="display: none;">
                     <div class="hero-timeline-wrapper">
@@ -130,7 +138,7 @@
                     </div>
                     <div class="hero-timeline-tooltip" id="hero-timeline-tooltip"></div>
                 </div>
-                
+
                 <div class="hero-disclaimer">Privates Projekt zur reinen Unterhaltung. Keine kommerzielle Absicht.</div>
             </div>
             <div class="hero-scroll-indicator">
@@ -196,13 +204,16 @@
                         <p class="mobile-filter-section-title">Gericht</p>
                         <div class="filter-group" id="filter-dish-group"></div>
                         <div class="mobile-filter-actions">
-                            <button id="mobile-filter-reset-btn" class="mobile-filter-reset-btn" type="button">ZURÜCKSETZEN</button>
-                            <button id="mobile-filter-clear-btn" class="mobile-filter-clear-btn" type="button">ALLE ABWÄHLEN</button>
+                            <button id="mobile-filter-reset-btn" class="mobile-filter-reset-btn"
+                                type="button">ZURÜCKSETZEN</button>
+                            <button id="mobile-filter-clear-btn" class="mobile-filter-clear-btn" type="button">ALLE
+                                ABWÄHLEN</button>
                         </div>
                     </div>
                     <div class="filter-utilities">
                         <div class="spot-search-wrapper filter-search-wrapper">
-                            <input type="text" id="review-filter-search" class="spot-search-input" placeholder="Suche nach Dönerspots, Städten oder Reviewern">
+                            <input type="text" id="review-filter-search" class="spot-search-input"
+                                placeholder="Suche nach Dönerspots, Städten oder Reviewern">
                         </div>
                         <select id="review-sort-select" class="review-sort-select desktop-review-sort-select">
                             <option value="score-desc">Score: Absteigend</option>
@@ -210,8 +221,10 @@
                             <option value="pl-index">Beste Preis-Leistung</option>
                             <option value="newest">Neuheiten</option>
                         </select>
-                        <button id="mobile-filter-toggle-btn" class="mobile-filter-toggle-btn" type="button" aria-label="Filter öffnen" aria-controls="mobile-filter-panel" aria-expanded="false">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <button id="mobile-filter-toggle-btn" class="mobile-filter-toggle-btn" type="button"
+                            aria-label="Filter öffnen" aria-controls="mobile-filter-panel" aria-expanded="false">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M4 6h16"></path>
                                 <path d="M7 12h10"></path>
                                 <path d="M10 18h4"></path>
@@ -540,7 +553,8 @@
                 <span class="comment-feedback-eyebrow">Review veröffentlicht</span>
                 <h2>Danke für dein Review.</h2>
                 <p>Dein Review wurde akzeptiert und veröffentlicht.</p>
-                <p>Das CKT-Team behält sich jedoch das Recht vor, Einträge zu prüfen und bei unangebrachten Bildern oder irreführenden Bewertungen zu deaktivieren.</p>
+                <p>Das CKT-Team behält sich jedoch das Recht vor, Einträge zu prüfen und bei unangebrachten Bildern oder
+                    irreführenden Bewertungen zu deaktivieren.</p>
                 <button type="button" class="comment-feedback-confirm">Verstanden</button>
             </div>
         </div>
@@ -554,7 +568,7 @@
             <div class="modal-content ki-score-modal-content">
                 <span class="ki-score-eyebrow">✨ KI-Schreibhilfe</span>
                 <h2>Bewertungen ausgefüllt</h2>
-                <p>Die KI hat die Regler für die Bewertungskriterien automatisch basierend auf deinen Stichpunkten angepasst.</p>
+                <p>Die KI hat die Bewertungskriterien automatisch basierend auf deinen Stichpunkten angepasst.</p>
                 <p>Bitte überprüfe die Werte noch einmal, bevor du dein Review absendest.</p>
                 <button type="button" class="ki-score-confirm">Ok, danke</button>
             </div>
@@ -572,7 +586,7 @@
                     <h2>✨Was ist neu bei CKT?</h2>
                     <p class="feature-notes-subtitle">Die neuesten Features und Verbesserungen.</p>
                 </div>
-                
+
                 <div class="feature-notes-section">
                     <div class="changelog-list">
                         <div class="changelog-item">
@@ -580,9 +594,11 @@
                             <div class="changelog-details">
                                 <h4>✨ KI-Schreibhilfe 2.0</h4>
                                 <span class="changelog-date">30.05.2026</span>
-                                <p>Generiere deine Döner-Bewertungen direkt im Formular mit Google Gemini 2.5 Flash aus kurzen Stichpunkten.</p>
+                                <p>Generiere deine Döner-Bewertungen direkt im Formular mit Google Gemini 2.5 Flash aus
+                                    kurzen Stichpunkten.</p>
                                 <div class="changelog-actions">
-                                    <button id="feature-notes-ki-helper-btn" type="button" class="community-submit-trigger">Jetzt testen</button>
+                                    <button id="feature-notes-ki-helper-btn" type="button"
+                                        class="community-submit-trigger">Jetzt testen</button>
                                 </div>
                             </div>
                         </div>
@@ -593,7 +609,8 @@
                                 <span class="changelog-date">29.05.2026</span>
                                 <p>Überarbeitet und verbessert für eine einfachere Nutzung.</p>
                                 <div class="changelog-actions">
-                                    <button id="feature-notes-review-form-btn" type="button" class="community-submit-trigger">Jetzt testen</button>
+                                    <button id="feature-notes-review-form-btn" type="button"
+                                        class="community-submit-trigger">Jetzt testen</button>
                                 </div>
                             </div>
                         </div>
@@ -604,7 +621,8 @@
                                 <span class="changelog-date">25.05.2026</span>
                                 <p>Teile deine Lieblingsreviews als Link oder Story-Karte für Social Media!</p>
                                 <div class="changelog-actions">
-                                    <button id="feature-notes-share-best-spot-btn" type="button" class="community-submit-trigger">Jetzt testen</button>
+                                    <button id="feature-notes-share-best-spot-btn" type="button"
+                                        class="community-submit-trigger">Jetzt testen</button>
                                 </div>
                             </div>
                         </div>
@@ -612,7 +630,7 @@
                 </div>
 
 
-                
+
 
             </div>
         </div>
@@ -626,14 +644,16 @@
             <div class="modal-content community-submit-modal-content">
                 <article class="community-reviews-card community-submit-card" id="community-submit-panel">
                     <h3>Dein Döner-Review</h3>
-                    <p class="community-reviews-hint"><strong>Hinweis:</strong> Alle Bewertungen werden vom CKT-Team geprüft und können ggf. gelöscht werden.</p>
+                    <p class="community-reviews-hint"><strong>Hinweis:</strong> Alle Bewertungen werden vom CKT-Team
+                        geprüft und können ggf. gelöscht werden.</p>
                     <form id="community-review-form" class="community-review-form">
                         <div class="community-modal-divider"></div>
                         <div class="community-review-progress" aria-label="Formularfortschritt">
                             <div class="community-review-progress-head">
                                 <span id="community-form-step-label">Schritt 1 von 3</span>
                             </div>
-                            <div class="community-review-progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1" aria-valuetext="Schritt 1 von 3">
+                            <div class="community-review-progress-track" role="progressbar" aria-valuemin="1"
+                                aria-valuemax="3" aria-valuenow="1" aria-valuetext="Schritt 1 von 3">
                                 <span class="community-review-progress-segment is-active" data-progress-step="1"></span>
                                 <span class="community-review-progress-segment" data-progress-step="2"></span>
                                 <span class="community-review-progress-segment" data-progress-step="3"></span>
@@ -708,14 +728,19 @@
                                 <div class="community-desktop-col-left">
                                     <div class="community-photo-section">
                                         <span class="photo-label">Bild vom Döner (erforderlich)</span>
-                                        <div class="community-photo-preview-wrapper" id="community-photo-preview-wrapper" hidden>
-                                            <div class="community-image-preview-container" id="community-image-preview-container">
+                                        <div class="community-photo-preview-wrapper"
+                                            id="community-photo-preview-wrapper" hidden>
+                                            <div class="community-image-preview-container"
+                                                id="community-image-preview-container">
                                                 <img src="" alt="Vorschau" id="community-image-preview">
-                                                <button type="button" class="remove-preview-btn" id="remove-preview-btn" title="Bild entfernen">×</button>
+                                                <button type="button" class="remove-preview-btn" id="remove-preview-btn"
+                                                    title="Bild entfernen">×</button>
                                             </div>
                                         </div>
-                                        <input type="file" name="visit_image" id="community-image-input" accept="image/*" required>
-                                        <label for="community-image-input" class="custom-file-upload-btn">Bild auswählen</label>
+                                        <input type="file" name="visit_image" id="community-image-input"
+                                            accept="image/*" required>
+                                        <label for="community-image-input" class="custom-file-upload-btn">Bild
+                                            auswählen</label>
                                     </div>
                                 </div>
 
@@ -723,9 +748,13 @@
                                     <div class="community-desktop-comment-wrapper">
                                         <div class="comment-header-row">
                                             <span class="comment-label-text">Kommentar</span>
-                                            <button type="button" id="copy-ai-prompt-btn" class="comment-helper-btn desktop-only-btn" title="Kopiert einen KI-Prompt in die Zwischenablage">
-                                                <svg class="icon-sparkle" viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
-                                                    <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z"/>
+                                            <button type="button" id="copy-ai-prompt-btn"
+                                                class="comment-helper-btn desktop-only-btn"
+                                                title="Kopiert einen KI-Prompt in die Zwischenablage">
+                                                <svg class="icon-sparkle" viewBox="0 0 24 24" fill="currentColor"
+                                                    width="12" height="12">
+                                                    <path
+                                                        d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z" />
                                                 </svg>
                                                 <span>KI-Schreibhilfe</span>
                                             </button>
@@ -733,33 +762,47 @@
 
                                         <div class="comment-main-layout">
                                             <div class="comment-textarea-container">
-                                                <textarea name="comment_text" id="community-comment-text" maxlength="1000" placeholder="Wie war dein Besuch?" required></textarea>
+                                                <textarea name="comment_text" id="community-comment-text"
+                                                    maxlength="1000" placeholder="Wie war dein Besuch?"
+                                                    required></textarea>
                                                 <div class="comment-footer-row">
-                                                    <button type="button" id="copy-ai-prompt-btn-mobile" class="comment-helper-btn mobile-only-btn" title="Kopiert einen KI-Prompt in die Zwischenablage">
-                                                        <svg class="icon-sparkle" viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
-                                                            <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z"/>
+                                                    <button type="button" id="copy-ai-prompt-btn-mobile"
+                                                        class="comment-helper-btn mobile-only-btn"
+                                                        title="Kopiert einen KI-Prompt in die Zwischenablage">
+                                                        <svg class="icon-sparkle" viewBox="0 0 24 24"
+                                                            fill="currentColor" width="12" height="12">
+                                                            <path
+                                                                d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z" />
                                                         </svg>
                                                         <span>KI-Schreibhilfe</span>
                                                     </button>
-                                                    <p id="community-comment-counter" class="community-comment-counter" aria-live="polite">0/1000 Zeichen</p>
+                                                    <p id="community-comment-counter" class="community-comment-counter"
+                                                        aria-live="polite">0/1000 Zeichen</p>
                                                 </div>
                                             </div>
 
                                             <div id="ki-helper-info" class="ki-helper-info" hidden>
                                                 <div class="ki-helper-info-content">
                                                     <div class="ki-direct-generator">
-                                                        <p class="ki-section-desc">Gib Stichpunkte ein und lass dir deinen Kommentar generieren:</p>
-                                                        <textarea id="ki-generator-input" maxlength="500" placeholder="Fleisch sehr gut, Soße eher mid, Salat frisch..."></textarea>
+                                                        <p class="ki-section-desc">Gib Stichpunkte ein und lass dir
+                                                            deinen Kommentar generieren:</p>
+                                                        <textarea id="ki-generator-input" maxlength="500"
+                                                            placeholder="Fleisch sehr gut, Soße eher mid, Salat frisch..."></textarea>
                                                         <div class="ki-direct-actions">
-                                                            <button type="button" id="ki-submit-generate-btn" class="ki-submit-generate-btn">
-                                                                <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
-                                                                    <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z"/>
+                                                            <button type="button" id="ki-submit-generate-btn"
+                                                                class="ki-submit-generate-btn">
+                                                                <svg viewBox="0 0 24 24" fill="currentColor" width="12"
+                                                                    height="12">
+                                                                    <path
+                                                                        d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z" />
                                                                 </svg>
                                                                 <span>Kommentar generieren</span>
                                                             </button>
-                                                            <span id="ki-limit-display" class="ki-limit-display">10/10 Generierungen frei</span>
+                                                            <span id="ki-limit-display" class="ki-limit-display">10/10
+                                                                Generierungen frei</span>
                                                         </div>
-                                                        <p id="ki-generator-status" class="ki-generator-status" hidden></p>
+                                                        <p id="ki-generator-status" class="ki-generator-status" hidden>
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -775,63 +818,80 @@
                                 <!-- Lila Hinweistext banner -->
                                 <div id="ki-score-inline-notice" class="ki-score-inline-notice" hidden>
                                     <span class="ki-score-inline-icon">✨</span>
-                                    <p>Die KI hat die Regler für die Bewertungskriterien automatisch basierend auf deinen Stichpunkten angepasst. Bitte überprüfe die Werte noch einmal, bevor du dein Review absendest.</p>
+                                    <p>Die KI hat die Regler für die Bewertungskriterien automatisch basierend auf
+                                        deinen Stichpunkten angepasst. Bitte überprüfe die Werte noch einmal, bevor du
+                                        dein Review absendest.</p>
                                 </div>
                                 <div class="community-score-grid">
-                                <label>
-                                    <span class="score-label-title">🥩 Fleisch</span>
-                                    <p class="score-description">Geschmack und Konsistenz des Fleisches.</p>
-                                    <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
-                                    <input type="number" name="fleisch" class="score-number" min="1" max="10" step="0.1" value="5" readonly tabindex="-1" required>
-                                </label>
-                                <label>
-                                    <span class="score-label-title">🥬 Gemüse</span>
-                                    <p class="score-description">Frische, Vielfalt und Schnitt des Gemüses.</p>
-                                    <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
-                                    <input type="number" name="gemuese" class="score-number" min="1" max="10" step="0.1" value="5" readonly tabindex="-1" required>
-                                </label>
-                                <label>
-                                    <span class="score-label-title">🍶 Soße</span>
-                                    <p class="score-description">Geschmack, Konsistenz und Intensität der Soßen sowie deren Verteilung im Döner.</p>
-                                    <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
-                                    <input type="number" name="sosse" class="score-number" min="1" max="10" step="0.1" value="5" readonly tabindex="-1" required>
-                                </label>
-                                <label>
-                                    <span class="score-label-title">🥖 Brot</span>
-                                    <p class="score-description">Geschmack, Konsistenz und Stabilität des Brotes.</p>
-                                    <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
-                                    <input type="number" name="brot" class="score-number" min="1" max="10" step="0.1" value="5" readonly tabindex="-1" required>
-                                </label>
-                                <label>
-                                    <span class="score-label-title">⚖️ Balance</span>
-                                    <p class="score-description">Ausgewogenes Verhältnis zwischen Fleisch, Gemüse, Soße und Brot.</p>
-                                    <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
-                                    <input type="number" name="balance" class="score-number" min="1" max="10" step="0.1" value="5" readonly tabindex="-1" required>
-                                </label>
-                                <label>
-                                    <span class="score-label-title">📋 Auswahl</span>
-                                    <p class="score-description">Vielfalt an Optionen und besondere Zutaten (z. B. Fleischsorten, Soßen, besondere Kräuter oder Gewürze).</p>
-                                    <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
-                                    <input type="number" name="auswahl" class="score-number" min="1" max="10" step="0.1" value="5" readonly tabindex="-1" required>
-                                </label>
-                                <label>
-                                    <span class="score-label-title">🍽️ Portion</span>
-                                    <p class="score-description">Größe und Sättigungsfaktor.</p>
-                                    <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
-                                    <input type="number" name="portion" class="score-number" min="1" max="10" step="0.1" value="5" readonly tabindex="-1" required>
-                                </label>
-                                <label>
-                                    <span class="score-label-title">✨ Hygiene</span>
-                                    <p class="score-description">Sauberkeit im Laden, Arbeitsbereich und im Umgang mit Lebensmitteln.</p>
-                                    <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
-                                    <input type="number" name="hygiene" class="score-number" min="1" max="10" step="0.1" value="5" readonly tabindex="-1" required>
-                                </label>
-                                <label>
-                                    <span class="score-label-title">👨‍🍳 Service</span>
-                                    <p class="score-description">Freundlichkeit, Schnelligkeit und Kundenorientierung des Personals.</p>
-                                    <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
-                                    <input type="number" name="service" class="score-number" min="1" max="10" step="0.1" value="5" readonly tabindex="-1" required>
-                                </label>
+                                    <label>
+                                        <span class="score-label-title">🥩 Fleisch</span>
+                                        <p class="score-description">Geschmack und Konsistenz des Fleisches.</p>
+                                        <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                        <input type="number" name="fleisch" class="score-number" min="1" max="10"
+                                            step="0.1" value="5" readonly tabindex="-1" required>
+                                    </label>
+                                    <label>
+                                        <span class="score-label-title">🥬 Gemüse</span>
+                                        <p class="score-description">Frische, Vielfalt und Schnitt des Gemüses.</p>
+                                        <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                        <input type="number" name="gemuese" class="score-number" min="1" max="10"
+                                            step="0.1" value="5" readonly tabindex="-1" required>
+                                    </label>
+                                    <label>
+                                        <span class="score-label-title">🍶 Soße</span>
+                                        <p class="score-description">Geschmack, Konsistenz und Intensität der Soßen
+                                            sowie deren Verteilung im Döner.</p>
+                                        <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                        <input type="number" name="sosse" class="score-number" min="1" max="10"
+                                            step="0.1" value="5" readonly tabindex="-1" required>
+                                    </label>
+                                    <label>
+                                        <span class="score-label-title">🥖 Brot</span>
+                                        <p class="score-description">Geschmack, Konsistenz und Stabilität des Brotes.
+                                        </p>
+                                        <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                        <input type="number" name="brot" class="score-number" min="1" max="10"
+                                            step="0.1" value="5" readonly tabindex="-1" required>
+                                    </label>
+                                    <label>
+                                        <span class="score-label-title">⚖️ Balance</span>
+                                        <p class="score-description">Ausgewogenes Verhältnis zwischen Fleisch, Gemüse,
+                                            Soße und Brot.</p>
+                                        <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                        <input type="number" name="balance" class="score-number" min="1" max="10"
+                                            step="0.1" value="5" readonly tabindex="-1" required>
+                                    </label>
+                                    <label>
+                                        <span class="score-label-title">📋 Auswahl</span>
+                                        <p class="score-description">Vielfalt an Optionen und besondere Zutaten (z. B.
+                                            Fleischsorten, Soßen, besondere Kräuter oder Gewürze).</p>
+                                        <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                        <input type="number" name="auswahl" class="score-number" min="1" max="10"
+                                            step="0.1" value="5" readonly tabindex="-1" required>
+                                    </label>
+                                    <label>
+                                        <span class="score-label-title">🍽️ Portion</span>
+                                        <p class="score-description">Größe und Sättigungsfaktor.</p>
+                                        <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                        <input type="number" name="portion" class="score-number" min="1" max="10"
+                                            step="0.1" value="5" readonly tabindex="-1" required>
+                                    </label>
+                                    <label>
+                                        <span class="score-label-title">✨ Hygiene</span>
+                                        <p class="score-description">Sauberkeit im Laden, Arbeitsbereich und im Umgang
+                                            mit Lebensmitteln.</p>
+                                        <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                        <input type="number" name="hygiene" class="score-number" min="1" max="10"
+                                            step="0.1" value="5" readonly tabindex="-1" required>
+                                    </label>
+                                    <label>
+                                        <span class="score-label-title">👨‍🍳 Service</span>
+                                        <p class="score-description">Freundlichkeit, Schnelligkeit und
+                                            Kundenorientierung des Personals.</p>
+                                        <input type="range" class="score-slider" min="0" max="10" step="0.1" value="5">
+                                        <input type="number" name="service" class="score-number" min="1" max="10"
+                                            step="0.1" value="5" readonly tabindex="-1" required>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -851,27 +911,27 @@
         </div>
     </div>
 
-        <!-- Community Review Modal -->
-        <div id="community-review-modal" class="modal" aria-hidden="true">
-            <div class="modal-overlay"></div>
-            <div class="modal-container community-review-modal-container">
-                <button class="modal-close" aria-label="Close community review"><span></span><span></span></button>
-                <div id="community-review-modal-content" class="modal-content community-review-modal-content">
-                    <!-- Content injected via JS -->
-                </div>
+    <!-- Community Review Modal -->
+    <div id="community-review-modal" class="modal" aria-hidden="true">
+        <div class="modal-overlay"></div>
+        <div class="modal-container community-review-modal-container">
+            <button class="modal-close" aria-label="Close community review"><span></span><span></span></button>
+            <div id="community-review-modal-content" class="modal-content community-review-modal-content">
+                <!-- Content injected via JS -->
             </div>
         </div>
+    </div>
 
-        <!-- Review Share Modal -->
-        <div id="review-share-modal" class="modal" aria-hidden="true">
-            <div class="modal-overlay"></div>
-            <div class="modal-container review-share-modal-container">
-                <button class="modal-close" aria-label="Close share modal"><span></span><span></span></button>
-                <div id="review-share-modal-content" class="modal-content review-share-modal-content">
-                    <!-- Content injected via JS -->
-                </div>
+    <!-- Review Share Modal -->
+    <div id="review-share-modal" class="modal" aria-hidden="true">
+        <div class="modal-overlay"></div>
+        <div class="modal-container review-share-modal-container">
+            <button class="modal-close" aria-label="Close share modal"><span></span><span></span></button>
+            <div id="review-share-modal-content" class="modal-content review-share-modal-content">
+                <!-- Content injected via JS -->
             </div>
         </div>
+    </div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
