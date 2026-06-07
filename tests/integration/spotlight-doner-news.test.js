@@ -66,7 +66,7 @@ describe('Spotlight Döner News subsection', () => {
         expect(source).toContain('isLikelyPlaceholderNewsImage');
         expect(source).toContain('isGoogleHost');
         expect(source).toContain('!isLikelyPlaceholderNewsImage(article.imageUrl)');
-        expect(source).toContain('domain && !isGoogleHost(domain)');
+        expect(source).toContain('articleDomain && !isGoogleHost(articleDomain)');
     });
 
     it('animates collapse when hiding extra doner news items', () => {

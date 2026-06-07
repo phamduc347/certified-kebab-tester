@@ -7288,10 +7288,64 @@ document.addEventListener('DOMContentLoaded', () => {
             return isMobileNewsViewport() ? DONER_NEWS_MOBILE_INITIAL_ITEMS : DONER_NEWS_DESKTOP_INITIAL_ITEMS;
         };
 
+        // Well-known German news source → domain mapping for favicon fallback
+        const NEWS_SOURCE_DOMAIN_MAP = {
+            'bild': 'bild.de', 'spiegel': 'spiegel.de', 'spiegel online': 'spiegel.de',
+            'faz': 'faz.net', 'frankfurter allgemeine': 'faz.net',
+            'süddeutsche zeitung': 'sueddeutsche.de', 'sz': 'sueddeutsche.de',
+            'zeit': 'zeit.de', 'zeit online': 'zeit.de', 'die zeit': 'zeit.de',
+            'welt': 'welt.de', 'die welt': 'welt.de',
+            'stern': 'stern.de', 'focus': 'focus.de', 'focus online': 'focus.de',
+            'taz': 'taz.de', 't-online': 't-online.de',
+            'n-tv': 'n-tv.de', 'ntv': 'n-tv.de',
+            'rtl': 'rtl.de', 'zdf': 'zdf.de', 'ard': 'ard.de',
+            'tagesschau': 'tagesschau.de',
+            'berliner zeitung': 'berliner-zeitung.de',
+            'berliner morgenpost': 'morgenpost.de', 'morgenpost': 'morgenpost.de',
+            'tagesspiegel': 'tagesspiegel.de', 'handelsblatt': 'handelsblatt.de',
+            'rnd': 'rnd.de', 'watson': 'watson.de',
+            'chip': 'chip.de', 'heise': 'heise.de', 'golem': 'golem.de',
+            'mopo': 'mopo.de', 'hamburger morgenpost': 'mopo.de',
+            'hamburger abendblatt': 'abendblatt.de', 'abendblatt': 'abendblatt.de',
+            'merkur': 'merkur.de', 'münchner merkur': 'merkur.de', 'tz': 'tz.de',
+            'express': 'express.de', 'ksta': 'ksta.de',
+            'kölner stadt-anzeiger': 'ksta.de',
+            'rheinische post': 'rp-online.de', 'rp online': 'rp-online.de',
+            'stuttgarter zeitung': 'stuttgarter-zeitung.de',
+            'badische zeitung': 'badische-zeitung.de',
+            'mdr': 'mdr.de', 'ndr': 'ndr.de', 'wdr': 'wdr.de',
+            'br': 'br.de', 'swr': 'swr.de', 'hr': 'hr.de', 'rbb': 'rbb24.de',
+            'deutschlandfunk': 'deutschlandfunk.de',
+            'euronews': 'euronews.com', 'dw': 'dw.com', 'deutsche welle': 'dw.com',
+            'the guardian': 'theguardian.com', 'bbc': 'bbc.com',
+            'reuters': 'reuters.com', 'vice': 'vice.com',
+        };
+
+        const resolveSourceDomain = (source) => {
+            if (!source) return '';
+            const normalized = source.trim().toLowerCase();
+            if (NEWS_SOURCE_DOMAIN_MAP[normalized]) return NEWS_SOURCE_DOMAIN_MAP[normalized];
+            // Partial match
+            for (const [key, domain] of Object.entries(NEWS_SOURCE_DOMAIN_MAP)) {
+                if (normalized.includes(key) || key.includes(normalized)) return domain;
+            }
+            // Heuristic: clean name and try as .de domain
+            const cleaned = normalized.replace(/\s+/g, '').replace(/\.de$|\.com$|\.net$|\.org$/i, '');
+            if (cleaned && cleaned !== 'googlenews' && cleaned !== 'google news') return cleaned + '.de';
+            return '';
+        };
+
+        const buildNewsFallbackSvg = (initial) => {
+            const letter = (initial || 'N').charAt(0).toUpperCase();
+            // Use neutral colors that work in both light and dark mode
+            return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72"><rect width="72" height="72" rx="8" fill="%23e0e0e0"/><text x="36" y="44" font-family="Inter,system-ui,sans-serif" font-size="26" font-weight="800" fill="%23888" text-anchor="middle">${letter}</text></svg>`)}`;
+        };
+
         const isGoogleHost = (hostname) => {
             const host = String(hostname || '').toLowerCase();
             return /(?:^|\.)google\.[a-z.]+$/i.test(host) || host.endsWith('.googleusercontent.com');
         };
+
 
         const isLikelyPlaceholderNewsImage = (url) => {
             const value = String(url || '').trim();
@@ -7327,13 +7381,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pubDateTs = new Date(String(rawDate)).getTime();
                 const imageUrlRaw = String(entry?.imageUrl || '').trim();
                 const imageUrl = isLikelyPlaceholderNewsImage(imageUrlRaw) ? '' : imageUrlRaw;
+                const sourceDomain = String(entry?.sourceDomain || '').trim();
 
                 return {
                     title,
                     link,
                     source,
                     pubDateTs,
-                    imageUrl
+                    imageUrl,
+                    sourceDomain
                 };
             }).filter((entry) => {
                 if (!entry.title || !entry.link) return false;
@@ -7452,19 +7508,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 const safeLink = sanitizeUrl(article.link, fallbackSearchUrl);
                 const animationDelay = `style="animation-delay: ${index * 60}ms;"`;
 
-                let domain = '';
-                try { domain = new URL(article.link).hostname.replace(/^www\./, ''); } catch (_) { domain = ''; }
-                const faviconUrl = domain && !isGoogleHost(domain)
-                    ? `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(domain)}`
-                    : '';
-                const safeImage = article.imageUrl && !isLikelyPlaceholderNewsImage(article.imageUrl)
+                // === 4-Tier Image Fallback Chain ===
+                // Tier 1: OG article image (from Edge Function or RSS)
+                const ogImage = article.imageUrl && !isLikelyPlaceholderNewsImage(article.imageUrl)
                     ? sanitizeUrl(article.imageUrl, '')
                     : '';
-                const imageSrc = safeImage || faviconUrl;
-                const imageClass = safeImage ? 'doner-news-item-thumb' : 'doner-news-item-thumb doner-news-item-thumb-favicon';
-                const mediaBlock = imageSrc
-                    ? `<div class="doner-news-item-media"><img class="${imageClass}" src="${escapeHtml(imageSrc)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.style.display='none';"></div>`
+
+                // Tier 2: Favicon from resolved article domain
+                let articleDomain = '';
+                try { articleDomain = new URL(article.link).hostname.replace(/^www\./, ''); } catch (_) { /* ignore */ }
+                const articleFaviconUrl = articleDomain && !isGoogleHost(articleDomain)
+                    ? `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(articleDomain)}`
                     : '';
+
+                // Tier 3: Favicon from source name (using lookup table + Edge Function sourceDomain)
+                const knownDomain = article.sourceDomain || resolveSourceDomain(article.source);
+                const sourceFaviconUrl = knownDomain
+                    ? `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(knownDomain)}`
+                    : '';
+
+                // Tier 4: SVG initial letter (always available)
+                const fallbackSvg = buildNewsFallbackSvg(article.source);
+
+                // Build the cascading fallback chain
+                const bestFaviconUrl = articleFaviconUrl || sourceFaviconUrl;
+                const primarySrc = ogImage || bestFaviconUrl || fallbackSvg;
+                const isArticleImage = !!ogImage;
+                const thumbClass = isArticleImage
+                    ? 'doner-news-item-thumb'
+                    : 'doner-news-item-thumb doner-news-item-thumb-favicon';
+
+                // Build onerror chain: try favicon first, then SVG
+                let onerrorAttr;
+                if (isArticleImage && bestFaviconUrl) {
+                    // OG image failed → try favicon → then SVG
+                    const escapedFavicon = escapeHtml(bestFaviconUrl);
+                    onerrorAttr = `onerror="this.classList.add('doner-news-item-thumb-favicon');this.onerror=function(){this.src='${fallbackSvg}';this.onerror=null;};this.src='${escapedFavicon}';"`;
+                } else if (isArticleImage) {
+                    // OG image failed → SVG directly
+                    onerrorAttr = `onerror="this.classList.add('doner-news-item-thumb-favicon');this.src='${fallbackSvg}';this.onerror=null;"`;
+                } else if (bestFaviconUrl) {
+                    // Favicon failed → SVG
+                    onerrorAttr = `onerror="this.src='${fallbackSvg}';this.onerror=null;"`;
+                } else {
+                    // Already showing SVG — no onerror needed
+                    onerrorAttr = '';
+                }
+
+                const mediaBlock = `<div class="doner-news-item-media"><img class="${thumbClass}" src="${escapeHtml(primarySrc)}" alt="" loading="lazy" referrerpolicy="no-referrer" ${onerrorAttr}></div>`;
 
                 return `
                     <a class="doner-news-item" href="${safeLink}" target="_blank" rel="noopener noreferrer" ${animationDelay}>

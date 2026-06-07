@@ -9,7 +9,98 @@ const DEFAULT_QUERY = "Döner News";
 const DEFAULT_LIMIT = 6;
 const DEFAULT_MAX_AGE_DAYS = 7;
 const REQUEST_TIMEOUT_MS = 10000;
-const OG_FETCH_TIMEOUT_MS = 4000;
+const OG_FETCH_TIMEOUT_MS = 5000;
+
+// Well-known German news source → domain mapping for favicon fallback
+const SOURCE_DOMAIN_MAP: Record<string, string> = {
+  "bild": "bild.de",
+  "spiegel": "spiegel.de",
+  "spiegel online": "spiegel.de",
+  "faz": "faz.net",
+  "frankfurter allgemeine": "faz.net",
+  "süddeutsche zeitung": "sueddeutsche.de",
+  "sz": "sueddeutsche.de",
+  "zeit": "zeit.de",
+  "zeit online": "zeit.de",
+  "die zeit": "zeit.de",
+  "welt": "welt.de",
+  "die welt": "welt.de",
+  "stern": "stern.de",
+  "focus": "focus.de",
+  "focus online": "focus.de",
+  "taz": "taz.de",
+  "t-online": "t-online.de",
+  "n-tv": "n-tv.de",
+  "ntv": "n-tv.de",
+  "rtl": "rtl.de",
+  "zdf": "zdf.de",
+  "ard": "ard.de",
+  "tagesschau": "tagesschau.de",
+  "berliner zeitung": "berliner-zeitung.de",
+  "berliner morgenpost": "morgenpost.de",
+  "morgenpost": "morgenpost.de",
+  "tagesspiegel": "tagesspiegel.de",
+  "handelsblatt": "handelsblatt.de",
+  "rnd": "rnd.de",
+  "watson": "watson.de",
+  "chip": "chip.de",
+  "heise": "heise.de",
+  "golem": "golem.de",
+  "mopo": "mopo.de",
+  "hamburger morgenpost": "mopo.de",
+  "hamburger abendblatt": "abendblatt.de",
+  "abendblatt": "abendblatt.de",
+  "ruhr nachrichten": "ruhrnachrichten.de",
+  "westfälische nachrichten": "wn.de",
+  "merkur": "merkur.de",
+  "münchner merkur": "merkur.de",
+  "tz": "tz.de",
+  "express": "express.de",
+  "kölner stadt-anzeiger": "ksta.de",
+  "ksta": "ksta.de",
+  "rheinische post": "rp-online.de",
+  "rp online": "rp-online.de",
+  "stuttgarter zeitung": "stuttgarter-zeitung.de",
+  "stuttgarter nachrichten": "stuttgarter-nachrichten.de",
+  "badische zeitung": "badische-zeitung.de",
+  "nordbayern": "nordbayern.de",
+  "nürnberger nachrichten": "nordbayern.de",
+  "freie presse": "freiepresse.de",
+  "mdr": "mdr.de",
+  "ndr": "ndr.de",
+  "wdr": "wdr.de",
+  "br": "br.de",
+  "swr": "swr.de",
+  "hr": "hr.de",
+  "rbb": "rbb24.de",
+  "deutschlandfunk": "deutschlandfunk.de",
+  "euronews": "euronews.com",
+  "dw": "dw.com",
+  "deutsche welle": "dw.com",
+  "the guardian": "theguardian.com",
+  "bbc": "bbc.com",
+  "reuters": "reuters.com",
+  "ap": "apnews.com",
+  "vice": "vice.com",
+};
+
+function resolveSourceDomain(source: string): string {
+  if (!source) return "";
+  const normalized = source.trim().toLowerCase();
+  if (SOURCE_DOMAIN_MAP[normalized]) return SOURCE_DOMAIN_MAP[normalized];
+
+  // Try partial match (e.g. "BILD.de" → "bild")
+  for (const [key, domain] of Object.entries(SOURCE_DOMAIN_MAP)) {
+    if (normalized.includes(key) || key.includes(normalized)) return domain;
+  }
+
+  // Heuristic: strip common suffixes and try as domain
+  const cleaned = normalized.replace(/\s+/g, "").replace(/\.de$|\.com$|\.net$|\.org$/i, "");
+  if (cleaned && cleaned !== "googlenews" && cleaned !== "google news") {
+    return cleaned + ".de";
+  }
+  return "";
+}
 
 async function fetchWithTimeout(url: string, timeoutMs = REQUEST_TIMEOUT_MS, init?: RequestInit): Promise<Response> {
   const controller = new AbortController();
@@ -18,9 +109,9 @@ async function fetchWithTimeout(url: string, timeoutMs = REQUEST_TIMEOUT_MS, ini
     return await fetch(url, {
       ...(init || {}),
       headers: {
-        "user-agent": "Mozilla/5.0 (compatible; certified-kebab-tester-news-fetcher/1.0)",
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "accept-language": "de-DE,de;q=0.9,en;q=0.8",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "accept-language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
         ...((init?.headers as Record<string, string>) || {}),
       },
       signal: controller.signal,
@@ -38,16 +129,25 @@ function isGoogleNewsHost(hostname: string): boolean {
 function extractRealArticleUrl(html: string, baseUrl: string): string {
   if (!html) return "";
 
+  // 1. Meta refresh redirect
   const metaRefresh = html.match(/<meta\s+http-equiv=["']?refresh["']?[^>]*content=["'][^"']*url=([^"'>]+)["']/i);
   if (metaRefresh && metaRefresh[1]) {
     try { return new URL(metaRefresh[1].trim(), baseUrl).toString(); } catch (_) { /* ignore */ }
   }
 
+  // 2. data-n-au attribute (Google News specific)
   const dataNAu = html.match(/data-n-au=["']([^"']+)["']/i);
   if (dataNAu && dataNAu[1]) {
     try { return new URL(dataNAu[1], baseUrl).toString(); } catch (_) { /* ignore */ }
   }
 
+  // 3. jsaction redirect data attribute
+  const jsData = html.match(/data-redirect=["']([^"']+)["']/i);
+  if (jsData && jsData[1]) {
+    try { return new URL(jsData[1], baseUrl).toString(); } catch (_) { /* ignore */ }
+  }
+
+  // 4. Canonical or AMP URL
   const linkRel = html.match(/<link[^>]+rel=["'](?:canonical|amphtml)["'][^>]+href=["'](https?:\/\/[^"']+)["']/i);
   if (linkRel && linkRel[1]) {
     try {
@@ -56,6 +156,7 @@ function extractRealArticleUrl(html: string, baseUrl: string): string {
     } catch (_) { /* ignore */ }
   }
 
+  // 5. First non-Google anchor href
   const anchorRegex = /<a[^>]+href=["'](https?:\/\/[^"']+)["']/gi;
   let match: RegExpExecArray | null;
   while ((match = anchorRegex.exec(html)) !== null) {
@@ -104,6 +205,10 @@ function isPlaceholderNewsImage(imageUrl: string): boolean {
   if (normalized.includes("gstatic.com/images/branding")) return true;
   if (normalized.includes("gstatic.com/favicon")) return true;
 
+  // Very small images (1x1 tracking pixels, tiny logos)
+  const sizeMatch = normalized.match(/[?&](?:w|width|sz)=(\d+)/);
+  if (sizeMatch && parseInt(sizeMatch[1]) < 32) return true;
+
   try {
     const parsed = new URL(raw);
     const host = parsed.hostname.toLowerCase();
@@ -136,19 +241,30 @@ function decodeGoogleNewsUrl(googleUrl: string): string {
     const parsed = new URL(googleUrl);
     if (!isGoogleNewsHost(parsed.hostname)) return "";
     const segments = parsed.pathname.split("/");
-    const encoded = segments.find((s) => s.startsWith("CBM") || s.startsWith("AU_"));
+
+    // Try all known encoding prefixes
+    const encoded = segments.find((s) => s.startsWith("CBM") || s.startsWith("AU_") || s.startsWith("CCA"));
     if (!encoded) return "";
 
     const bytes = decodeBase64Url(encoded);
     if (!bytes) return "";
 
     const text = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
-    const match = text.match(/https?:\/\/[^\x00-\x1f"<>\\^`{|}\s]+/);
-    if (!match) return "";
 
-    let url = match[0];
-    url = url.replace(/[\x80-\xff].*$/u, "");
-    return url;
+    // Extract all URLs from decoded text and pick the first non-Google one
+    const urlRegex = /https?:\/\/[^\x00-\x1f"<>\\^`{|}\s]+/g;
+    let match: RegExpExecArray | null;
+    while ((match = urlRegex.exec(text)) !== null) {
+      let url = match[0].replace(/[\x80-\xff].*$/u, "");
+      // Clean trailing junk characters
+      url = url.replace(/[)\]}>'"]+$/, "");
+      try {
+        const candidate = new URL(url);
+        if (!isGoogleNewsHost(candidate.hostname)) return url;
+      } catch (_) { /* skip invalid URLs */ }
+    }
+
+    return "";
   } catch (_) {
     return "";
   }
@@ -160,11 +276,13 @@ async function resolveAndFetchOgImage(link: string): Promise<string> {
     let candidateHost = "";
     try { candidateHost = new URL(candidateUrl).hostname; } catch (_) { /* ignore */ }
 
+    // Step 1: Decode Google News redirect URL
     if (isGoogleNewsHost(candidateHost)) {
       const decoded = decodeGoogleNewsUrl(candidateUrl);
       if (decoded) candidateUrl = decoded;
     }
 
+    // Step 2: Fetch the article page
     const initial = await fetchWithTimeout(candidateUrl, OG_FETCH_TIMEOUT_MS);
     if (!initial.ok) return "";
     let finalUrl = initial.url || candidateUrl;
@@ -173,6 +291,7 @@ async function resolveAndFetchOgImage(link: string): Promise<string> {
     let finalHost = "";
     try { finalHost = new URL(finalUrl).hostname; } catch (_) { /* ignore */ }
 
+    // Step 3: If we're still on Google, extract real URL from the intermediate page
     if (isGoogleNewsHost(finalHost)) {
       const realUrl = extractRealArticleUrl(html, finalUrl);
       if (realUrl) {
@@ -186,6 +305,7 @@ async function resolveAndFetchOgImage(link: string): Promise<string> {
       }
     }
 
+    // Step 4: Extract OG image from the final page
     const metaImage = extractMetaImage(html, finalUrl);
     return isPlaceholderNewsImage(metaImage) ? "" : metaImage;
   } catch (_) {
@@ -194,23 +314,42 @@ async function resolveAndFetchOgImage(link: string): Promise<string> {
 }
 
 async function enrichWithImages(items: NewsItem[]): Promise<NewsItem[]> {
-  return await Promise.all(items.map(async (item) => {
+  // Process items in parallel with individual error isolation
+  const enriched = await Promise.allSettled(items.map(async (item) => {
     let resolvedLink = item.link;
+    let resolvedDomain = "";
+
+    // Decode Google News redirect to get the real article URL
     try {
       const host = new URL(item.link).hostname;
       if (isGoogleNewsHost(host)) {
         const decoded = decodeGoogleNewsUrl(item.link);
-        if (decoded) resolvedLink = decoded;
+        if (decoded) {
+          resolvedLink = decoded;
+          try { resolvedDomain = new URL(decoded).hostname.replace(/^www\./, ""); } catch (_) { /* ignore */ }
+        }
+      } else {
+        resolvedDomain = host.replace(/^www\./, "");
       }
     } catch (_) { /* ignore */ }
 
     const hasValidImage = !!item.imageUrl && !isPlaceholderNewsImage(item.imageUrl);
-    const next: NewsItem = resolvedLink !== item.link ? { ...item, link: resolvedLink } : item;
+    const next: NewsItem = {
+      ...item,
+      link: resolvedLink,
+      // Attach source domain for client-side favicon fallback
+      sourceDomain: resolvedDomain || resolveSourceDomain(item.source),
+    };
     if (hasValidImage) return next;
 
+    // Try to fetch OG image from the real article
     const imageUrl = await resolveAndFetchOgImage(next.link);
     return imageUrl ? { ...next, imageUrl } : next;
   }));
+
+  return enriched.map((result, i) =>
+    result.status === "fulfilled" ? result.value : items[i]
+  );
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -229,6 +368,7 @@ type NewsItem = {
   source: string;
   publishedAt: string;
   imageUrl?: string;
+  sourceDomain?: string;
 };
 
 function extractImageFromHtml(html: string): string {
