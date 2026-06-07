@@ -7338,7 +7338,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const buildNewsFallbackSvg = (initial) => {
             const letter = (initial || 'N').charAt(0).toUpperCase();
             // Use neutral colors that work in both light and dark mode
-            return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72"><rect width="72" height="72" rx="8" fill="%23e0e0e0"/><text x="36" y="44" font-family="Inter,system-ui,sans-serif" font-size="26" font-weight="800" fill="%23888" text-anchor="middle">${letter}</text></svg>`)}`;
+            return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72"><rect width="72" height="72" rx="8" fill="#e0e0e0"/><text x="36" y="44" font-family="Inter,system-ui,sans-serif" font-size="26" font-weight="800" fill="#888" text-anchor="middle">${letter}</text></svg>`)}`;
         };
 
         const isGoogleHost = (hostname) => {
@@ -7376,12 +7376,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return items.map((entry) => {
                 const title = String(entry?.title || '').trim();
                 const link = String(entry?.link || '').trim();
-                const source = String(entry?.source || 'Google News').trim();
                 const rawDate = entry?.pubDateRaw || entry?.publishedAt || entry?.pubDate || '';
                 const pubDateTs = new Date(String(rawDate)).getTime();
                 const imageUrlRaw = String(entry?.imageUrl || '').trim();
                 const imageUrl = isLikelyPlaceholderNewsImage(imageUrlRaw) ? '' : imageUrlRaw;
                 const sourceDomain = String(entry?.sourceDomain || '').trim();
+
+                let source = String(entry?.source || '').trim();
+                if (!source || source === 'Google News') {
+                    // Try to extract from title
+                    const titleMatch = title.match(/\s+-\s+([^-]+)$/);
+                    if (titleMatch && titleMatch[1]) {
+                        source = titleMatch[1].trim();
+                    }
+                }
+                if (!source) source = 'Google News';
+
+                const resolvedDomain = sourceDomain || resolveSourceDomain(source);
 
                 return {
                     title,
@@ -7389,7 +7400,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     source,
                     pubDateTs,
                     imageUrl,
-                    sourceDomain
+                    sourceDomain: resolvedDomain
                 };
             }).filter((entry) => {
                 if (!entry.title || !entry.link) return false;
@@ -7414,12 +7425,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 const title = String(item.querySelector('title')?.textContent || '').trim();
                 const link = String(item.querySelector('link')?.textContent || '').trim();
                 const pubDateRaw = String(item.querySelector('pubDate')?.textContent || '').trim();
-                const source = String(item.querySelector('source')?.textContent || 'Google News').trim();
                 const pubDateTs = new Date(pubDateRaw).getTime();
                 const description = String(item.querySelector('description')?.textContent || '');
                 const imgMatch = description.match(/<img[^>]+src=["']([^"']+)["']/i);
                 const imageUrlRaw = imgMatch ? imgMatch[1] : '';
                 const imageUrl = isLikelyPlaceholderNewsImage(imageUrlRaw) ? '' : imageUrlRaw;
+
+                let source = String(item.querySelector('source')?.textContent || '').trim();
+                if (!source || source === 'Google News') {
+                    const fontMatch = description.match(/<font[^>]*>([\s\S]*?)<\/font>/i);
+                    if (fontMatch && fontMatch[1]) {
+                        source = fontMatch[1].trim();
+                    }
+                    if (!source || source === 'Google News') {
+                        const titleMatch = title.match(/\s+-\s+([^-]+)$/);
+                        if (titleMatch && titleMatch[1]) {
+                            source = titleMatch[1].trim();
+                        }
+                    }
+                }
+                if (!source) source = 'Google News';
+
+                const sourceDomain = resolveSourceDomain(source);
 
                 return {
                     title,
@@ -7427,7 +7454,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     source,
                     pubDateRaw,
                     pubDateTs,
-                    imageUrl
+                    imageUrl,
+                    sourceDomain
                 };
             }).filter((entry) => {
                 if (!entry.title || !entry.link) return false;

@@ -338,7 +338,7 @@ async function enrichWithImages(items: NewsItem[]): Promise<NewsItem[]> {
       ...item,
       link: resolvedLink,
       // Attach source domain for client-side favicon fallback
-      sourceDomain: resolvedDomain || resolveSourceDomain(item.source),
+      sourceDomain: resolvedDomain || item.sourceDomain || resolveSourceDomain(item.source),
     };
     if (hasValidImage) return next;
 
@@ -385,43 +385,81 @@ function normalizeAndLimit(items: NewsItem[], limit: number): NewsItem[] {
 }
 
 function parseGoogleRss(xmlText: string, maxAgeDays: number): NewsItem[] {
-  const xml = new DOMParser().parseFromString(xmlText, "application/xml");
-  if (xml.querySelector("parsererror")) {
-    throw new Error("rss-parse-failed");
-  }
+  if (!xmlText) return [];
 
-  const entries = Array.from(xml.querySelectorAll("item")).map((item) => {
-    const title = String(item.querySelector("title")?.textContent || "").trim();
-    const link = String(item.querySelector("link")?.textContent || "").trim();
-    const source = String(item.querySelector("source")?.textContent || "Google News").trim();
-    const pubDateRaw = String(item.querySelector("pubDate")?.textContent || "").trim();
+  const items: NewsItem[] = [];
+  // Match item blocks case-insensitively
+  const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
+  let match: RegExpExecArray | null;
+
+  const extractTagContent = (block: string, tagName: string): string => {
+    const regex = new RegExp(`<${tagName}(?:\\s+[^>]*)*>([\\s\\S]*?)<\/${tagName}>`, "i");
+    const m = block.match(regex);
+    if (m && m[1]) {
+      return m[1]
+        .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gi, "$1")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .trim();
+    }
+    return "";
+  };
+
+  const getAttr = (block: string, tag: string, attr: string): string => {
+    const escapedTag = tag.replace(":", "\\:");
+    const regex = new RegExp(`<${escapedTag}\\s+[^>]*\\b${attr}=["']([^"']+)["']`, "i");
+    const m = block.match(regex);
+    return m ? m[1].trim() : "";
+  };
+
+  while ((match = itemRegex.exec(xmlText)) !== null) {
+    const block = match[1];
+    const title = extractTagContent(block, "title");
+    const link = extractTagContent(block, "link");
+    const source = extractTagContent(block, "source") || "Google News";
+    
+    let sourceUrl = "";
+    const sourceTagMatch = block.match(/<source\s+[^>]*\burl=["']([^"']+)["']/i);
+    if (sourceTagMatch && sourceTagMatch[1]) {
+      sourceUrl = sourceTagMatch[1].trim();
+    }
+
+    const pubDateRaw = extractTagContent(block, "pubDate");
     const pubDateTs = new Date(pubDateRaw).getTime();
-    const description = String(item.querySelector("description")?.textContent || "");
-    const mediaContent = item.querySelector("media\\:content, content")?.getAttribute("url") || "";
-    const mediaThumb = item.querySelector("media\\:thumbnail, thumbnail")?.getAttribute("url") || "";
-    const enclosure = item.querySelector("enclosure")?.getAttribute("url") || "";
+    const description = extractTagContent(block, "description");
+
+    const mediaContent = getAttr(block, "media:content", "url") || getAttr(block, "content", "url");
+    const mediaThumb = getAttr(block, "media:thumbnail", "url") || getAttr(block, "thumbnail", "url");
+    const enclosure = getAttr(block, "enclosure", "url");
     const imageCandidate = mediaContent || mediaThumb || enclosure || extractImageFromHtml(description);
     const imageUrl = isPlaceholderNewsImage(imageCandidate) ? "" : imageCandidate;
 
-    return {
+    items.push({
       title,
       link,
       source,
       publishedAt: pubDateRaw,
       pubDateTs,
       imageUrl,
-    };
-  }).filter((entry) => {
+      sourceDomain: sourceUrl ? new URL(sourceUrl).hostname.replace(/^www\./, "") : "",
+    });
+  }
+
+  const filtered = items.filter((entry) => {
     if (!entry.title || !entry.link) return false;
     return isRecent(entry.pubDateTs, maxAgeDays);
   });
 
-  return normalizeAndLimit(entries.map(({ title, link, source, publishedAt, imageUrl }) => ({
+  return normalizeAndLimit(filtered.map(({ title, link, source, publishedAt, imageUrl, sourceDomain }) => ({
     title,
     link,
     source,
     publishedAt,
     imageUrl,
+    sourceDomain,
   })), DEFAULT_LIMIT);
 }
 

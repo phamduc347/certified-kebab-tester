@@ -2563,8 +2563,15 @@ body.dark .review-community-modal-card .review-helpful-btn.is-liked {
 
 /* Optimistic new comment: subtle entrance animation */
 @keyframes reviewCommentSlideIn {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .review-comment-item--new {
@@ -3057,6 +3064,7 @@ body.dark .review-community-modal-image-container {
         opacity: 0;
         transform: translateX(36px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -3068,6 +3076,7 @@ body.dark .review-community-modal-image-container {
         opacity: 0;
         transform: translateX(-36px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -3075,6 +3084,7 @@ body.dark .review-community-modal-image-container {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     .community-form-step.is-active.is-transition-forward,
     .community-form-step.is-active.is-transition-backward {
         animation: none;
@@ -3103,13 +3113,16 @@ body.dark .review-community-modal-image-container {
         opacity: 0;
         transform: translate(0, 0) scale(0) rotate(0deg);
     }
+
     15% {
         opacity: 0.9;
         transform: translate(0, 0) scale(1.2) rotate(45deg);
     }
+
     45% {
         opacity: 1;
     }
+
     100% {
         opacity: 0;
         transform: translate(var(--drift-x, 0px), var(--drift-y, -150px)) scale(0.3) rotate(var(--rotation, 360deg));
@@ -3140,8 +3153,15 @@ body.dark .review-community-modal-image-container {
 }
 
 @keyframes spotFieldsReveal {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ── Verzehrort Bubble Picker ─────────────────────────────────────── */
@@ -3157,7 +3177,8 @@ body.dark .review-community-modal-image-container {
     text-transform: uppercase;
     letter-spacing: 0.6px;
     color: var(--text-muted);
-    text-align: center; /* Center label */
+    text-align: center;
+    /* Center label */
 }
 
 .verzehrort-bubbles {
@@ -3165,7 +3186,8 @@ body.dark .review-community-modal-image-container {
     gap: 6px;
     flex-wrap: wrap;
     padding-top: 2px;
-    justify-content: center; /* Center bubbles */
+    justify-content: center;
+    /* Center bubbles */
 }
 
 .verzehrort-bubble {
@@ -3206,7 +3228,7 @@ body.dark .review-community-modal-image-container {
     background: rgba(37, 99, 235, 0.06);
 }
 
-.verzehrort-bubble input[type="radio"]:checked + span {
+.verzehrort-bubble input[type="radio"]:checked+span {
     border-color: #2563eb;
     background: #2563eb;
     color: #ffffff;
@@ -3225,7 +3247,7 @@ body.dark .verzehrort-bubble:hover span {
     background: rgba(59, 130, 246, 0.08);
 }
 
-body.dark .verzehrort-bubble input[type="radio"]:checked + span {
+body.dark .verzehrort-bubble input[type="radio"]:checked+span {
     border-color: #3b82f6;
     background: #2563eb;
     color: #ffffff;
@@ -5506,6 +5528,7 @@ body.dark .ki-score-inline-notice p {
         opacity: 0;
         transform: translateY(-8px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -6550,6 +6573,7 @@ body.dark .doner-news-item-media {
         min-height: 56px;
         border-radius: 6px;
     }
+
     .doner-news-item-thumb-favicon {
         width: 24px;
         height: 24px;
@@ -6652,13 +6676,25 @@ body.dark .doner-news-skeleton {
 }
 
 @keyframes doner-news-shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 @keyframes doner-news-fade-in {
-    0% { opacity: 0; transform: translateY(4px); }
-    100% { opacity: 1; transform: translateY(0); }
+    0% {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .doner-news-expand-btn {
@@ -6676,8 +6712,15 @@ body.dark .doner-news-skeleton {
 }
 
 @keyframes doner-news-fade-out {
-    0% { opacity: 1; transform: translateY(0) scale(1); }
-    100% { opacity: 0; transform: translateY(-4px) scale(0.98); }
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.98);
+    }
 }
 
 body.low-perf-mode .doner-news-skeleton,
@@ -7549,18 +7592,21 @@ body.dark .tooltip-cluster-row:active {
     padding-top: 1.5rem;
     border-top: 1.5px solid var(--border-color, rgba(255, 255, 255, 0.08));
 }
+
 .review-community-trend-header {
     margin-bottom: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: baseline;
 }
+
 .review-community-trend-header h4 {
     font-size: 1.1rem;
     font-weight: 600;
     margin: 0;
     color: var(--text-main, #f8fafc);
 }
+
 .review-community-trend-chart-container {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
@@ -7569,44 +7615,54 @@ body.dark .tooltip-cluster-row:active {
     position: relative;
     overflow: visible;
 }
+
 .review-community-trend-svg {
     overflow: visible;
 }
+
 .trend-dot {
     fill: var(--color-primary, #f59e0b);
     stroke: var(--bg-main, #0f172a);
     stroke-width: 2px;
     transition: r 0.2s ease, fill 0.2s ease;
 }
+
 .trend-dot-hover-area {
     fill: transparent;
     cursor: pointer;
 }
+
 .trend-dot-group:hover .trend-dot {
     r: 7px;
     fill: #ffffff;
 }
+
 .trend-dot-group:hover .trend-tooltip {
     display: block !important;
 }
+
 .trend-tooltip {
     pointer-events: none;
     z-index: 10;
 }
+
 .trend-tooltip-rect {
     fill: var(--bg-secondary, #f9fafb);
     stroke: var(--border-color, #e5e7eb);
     stroke-width: 1px;
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
 }
+
 body.dark .trend-tooltip-rect,
 html.dark-init body .trend-tooltip-rect {
     fill: rgba(15, 23, 42, 0.95);
     stroke: rgba(255, 255, 255, 0.15);
 }
+
 .trend-tooltip-text-reviewer {
     fill: var(--text-main, #000000);
 }
+
 .trend-tooltip-text-date {
     fill: var(--text-muted, #6b7280);
 }
@@ -7623,16 +7679,19 @@ html.dark-init body .trend-tooltip-rect {
     gap: 0.25rem;
     vertical-align: middle;
 }
+
 .trend-arrow-indicator.up {
     color: #22c55e;
     background: rgba(34, 197, 94, 0.1);
     border: 1.5px solid rgba(34, 197, 94, 0.2);
 }
+
 .trend-arrow-indicator.down {
     color: #ef4444;
     background: rgba(239, 68, 68, 0.1);
     border: 1.5px solid rgba(239, 68, 68, 0.2);
 }
+
 .trend-arrow-indicator.neutral {
     color: var(--text-main, #000000);
     background: rgba(148, 163, 184, 0.1);
@@ -7643,7 +7702,8 @@ html.dark-init body .trend-tooltip-rect {
 .community-photo-section {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center horizontally! */
+    align-items: center;
+    /* Center horizontally! */
     gap: 8px;
 }
 
@@ -7691,7 +7751,7 @@ html.dark-init body .trend-tooltip-rect {
 }
 
 /* Focus outline for keyboard navigation */
-.community-photo-section input[type="file"]:focus + .custom-file-upload-btn {
+.community-photo-section input[type="file"]:focus+.custom-file-upload-btn {
     border-color: #2563eb;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
@@ -7708,7 +7768,7 @@ body.dark .custom-file-upload-btn:hover {
     background-color: rgba(59, 130, 246, 0.06);
 }
 
-body.dark .community-photo-section input[type="file"]:focus + .custom-file-upload-btn {
+body.dark .community-photo-section input[type="file"]:focus+.custom-file-upload-btn {
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
@@ -7720,7 +7780,8 @@ body.dark .community-photo-section input[type="file"]:focus + .custom-file-uploa
 .community-image-preview-container {
     position: relative;
     width: 100%;
-    aspect-ratio: 16 / 9; /* 16:9 aspect ratio */
+    aspect-ratio: 16 / 9;
+    /* 16:9 aspect ratio */
     border: 1.5px solid var(--border-color);
     border-radius: 10px;
     overflow: hidden;
@@ -7728,7 +7789,7 @@ body.dark .community-photo-section input[type="file"]:focus + .custom-file-uploa
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     animation: previewReveal 0.2s ease both;
 }
 
@@ -7769,8 +7830,15 @@ body.dark .community-photo-section input[type="file"]:focus + .custom-file-uploa
 }
 
 @keyframes previewReveal {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* ── Community Submit Modal Layout (Desktop & Mobile) ─────────────── */
@@ -7861,9 +7929,11 @@ body.dark .community-photo-section input[type="file"]:focus + .custom-file-uploa
     0% {
         box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
     }
+
     70% {
         box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
     }
+
     100% {
         box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
     }
@@ -8439,6 +8509,7 @@ body.dark .ki-generator-status.loading {
    This rule targets all interactive form fields site-wide.
 ──────────────────────────────────────────────────────────────────────────── */
 @media (hover: none) and (pointer: coarse) {
+
     input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
     textarea,
     select {
