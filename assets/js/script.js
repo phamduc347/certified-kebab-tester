@@ -1539,17 +1539,83 @@ document.addEventListener('DOMContentLoaded', () => {
         renderGrid();
     }
 
+    function getCommentSubmissionPayload(form) {
+        const authorInput = form.querySelector('input[name="author"]');
+        const commentInput = form.querySelector('textarea[name="comment"]');
+        const websiteInput = form.querySelector('input[name="website"]');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const status = form.querySelector('.comment-form-status');
+
+        return {
+            authorInput,
+            commentInput,
+            websiteInput,
+            submitButton,
+            status,
+            authorValue: (authorInput?.value || '').trim() || 'Anonym',
+            commentValue: (commentInput?.value || '').trim(),
+            websiteValue: (websiteInput?.value || '').trim()
+        };
+    }
+
+    function validateCommentSubmissionPayload(payload, targetId, form) {
+        const { status, commentValue, websiteValue } = payload;
+
+        if (!commentValue) {
+            if (status) status.textContent = 'Bitte Kommentar eingeben.';
+            return false;
+        }
+
+        if (commentValue.length < 3) {
+            if (status) status.textContent = 'Kommentar ist zu kurz.';
+            return false;
+        }
+
+        if (websiteValue) {
+            if (status) status.textContent = 'Danke!';
+            form.reset();
+            return false;
+        }
+
+        const blockReason = getClientSpamBlockReason(targetId, commentValue);
+        if (blockReason) {
+            if (status) status.textContent = blockReason;
+            return false;
+        }
+
+        return true;
+    }
+
+    function appendOptimisticCommentToSection(commentsSection, authorValue, commentValue, nextCount) {
+        if (!commentsSection) return;
+
+        const listEl = commentsSection.querySelector('.review-comments-list');
+        const countEl = commentsSection.querySelector('.review-comments-count');
+        const emptyEl = commentsSection.querySelector('.review-comments-empty');
+        if (emptyEl) emptyEl.remove();
+
+        const newItem = document.createElement('article');
+        newItem.className = 'review-comment-item review-comment-item--new';
+        newItem.innerHTML = `
+            <div class="review-comment-head">
+                <span class="review-comment-author">${escapeHtml(authorValue)}</span>
+                <span class="review-comment-date">Gerade eben</span>
+            </div>
+            <p class="review-comment-text">${escapeHtml(commentValue)}</p>
+        `;
+
+        if (listEl) listEl.prepend(newItem);
+        if (countEl) countEl.textContent = String(nextCount);
+    }
+
     async function handleCommentSubmit(event) {
         event.preventDefault();
         event.stopPropagation();
 
         const form = event.currentTarget;
         const spotId = Number(form.dataset.spotId);
-        const authorInput = form.querySelector('input[name="author"]');
-        const commentInput = form.querySelector('textarea[name="comment"]');
-        const websiteInput = form.querySelector('input[name="website"]');
-        const submitButton = form.querySelector('button[type="submit"]');
-        const status = form.querySelector('.comment-form-status');
+        const payload = getCommentSubmissionPayload(form);
+        const { authorInput, commentInput, submitButton, status, authorValue, commentValue } = payload;
 
         const client = ensureSupabaseClient();
         if (!client) {
@@ -1557,29 +1623,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const authorValue = (authorInput?.value || '').trim() || 'Anonym';
-        const commentValue = (commentInput?.value || '').trim();
-        const websiteValue = (websiteInput?.value || '').trim();
-
-        if (!commentValue) {
-            if (status) status.textContent = 'Bitte Kommentar eingeben.';
-            return;
-        }
-
-        if (commentValue.length < 3) {
-            if (status) status.textContent = 'Kommentar ist zu kurz.';
-            return;
-        }
-
-        if (websiteValue) {
-            if (status) status.textContent = 'Danke!';
-            form.reset();
-            return;
-        }
-
-        const blockReason = getClientSpamBlockReason(spotId, commentValue);
-        if (blockReason) {
-            if (status) status.textContent = blockReason;
+        const validation = validateCommentSubmissionPayload(payload, spotId, form);
+        if (!validation) {
             return;
         }
 
@@ -1602,6 +1647,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         markClientCommentSubmitted(spotId, commentValue);
+
+        const newComment = {
+            spot_id: spotId,
+            author: authorValue,
+            comment_text: commentValue,
+            created_at: new Date().toISOString()
+        };
+        if (!commentsBySpot.has(spotId)) {
+            commentsBySpot.set(spotId, []);
+        }
+        commentsBySpot.get(spotId).unshift(newComment);
+
+        const commentsSection = form.closest('.review-comments');
+        appendOptimisticCommentToSection(
+            commentsSection,
+            authorValue,
+            commentValue,
+            commentsBySpot.get(spotId).length
+        );
 
         const spot = kebabData.find(s => s.id === spotId);
         const spotName = spot ? spot.name : `Spot #${spotId}`;
@@ -1629,12 +1693,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const form = event.currentTarget;
         const reviewTargetId = Number(form.dataset.reviewTargetId);
-        const authorInput = form.querySelector('input[name="author"]');
-        const commentInput = form.querySelector('textarea[name="comment"]');
-        const websiteInput = form.querySelector('input[name="website"]');
-        const submitButton = form.querySelector('button[type="submit"]');
-        const status = form.querySelector('.comment-form-status');
-        const nameError = form.querySelector('.review-comment-name-error');
+        const payload = getCommentSubmissionPayload(form);
+        const { authorInput, commentInput, submitButton, status, authorValue, commentValue } = payload;
 
         const client = ensureSupabaseClient();
         if (!client) {
@@ -1642,45 +1702,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const authorValue = (authorInput?.value || '').trim();
-        const commentValue = (commentInput?.value || '').trim();
-        const websiteValue = (websiteInput?.value || '').trim();
-
-        // Name ist Pflichtfeld
-        if (!authorValue) {
-            if (nameError) {
-                nameError.textContent = 'Bitte gib deinen Namen ein.';
-            }
-            if (authorInput) {
-                authorInput.classList.add('is-invalid');
-                authorInput.focus();
-            }
-            return;
-        }
-        if (nameError) nameError.textContent = '';
-        if (authorInput) authorInput.classList.remove('is-invalid');
-
-        if (!commentValue) {
-            if (status) status.textContent = 'Bitte Kommentar eingeben.';
-            return;
-        }
-
-        if (commentValue.length < 3) {
-            if (status) status.textContent = 'Kommentar ist zu kurz.';
-            return;
-        }
-
-        // Honeypot check
-        if (websiteValue) {
-            if (status) status.textContent = 'Danke!';
-            form.reset();
-            return;
-        }
-
-        // Spam-Schutz: gleiche Logik wie bei Spot-Kommentaren
-        const blockReason = getClientSpamBlockReason(reviewTargetId, commentValue);
-        if (blockReason) {
-            if (status) status.textContent = blockReason;
+        const validation = validateCommentSubmissionPayload(payload, reviewTargetId, form);
+        if (!validation) {
             return;
         }
 
@@ -1728,24 +1751,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Kommentarliste im Modal aktualisieren
         const commentsSection = form.closest('.review-modal-comments');
-        if (commentsSection) {
-            const listEl = commentsSection.querySelector('.review-comments-list');
-            const countEl = commentsSection.querySelector('.review-comments-count');
-            const emptyEl = commentsSection.querySelector('.review-comments-empty');
-            if (emptyEl) emptyEl.remove();
-
-            const newItem = document.createElement('article');
-            newItem.className = 'review-comment-item review-comment-item--new';
-            newItem.innerHTML = `
-                <div class="review-comment-head">
-                    <span class="review-comment-author">${escapeHtml(authorValue)}</span>
-                    <span class="review-comment-date">Gerade eben</span>
-                </div>
-                <p class="review-comment-text">${escapeHtml(commentValue)}</p>
-            `;
-            if (listEl) listEl.prepend(newItem);
-            if (countEl) countEl.textContent = String(commentsBySpot.get(reviewTargetId).length);
-        }
+        appendOptimisticCommentToSection(
+            commentsSection,
+            authorValue,
+            commentValue,
+            commentsBySpot.get(reviewTargetId).length
+        );
 
         if (commentInput) commentInput.value = '';
         if (authorInput) authorInput.value = '';
