@@ -7258,8 +7258,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const DONER_NEWS_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
         const DONER_NEWS_REQUEST_TIMEOUT_MS = 5000;
         const DONER_NEWS_INVOKE_TIMEOUT_MS = 3500;
-        const DONER_NEWS_CACHE_KEY = 'doner_news_cache_v1';
-        const DONER_NEWS_CACHE_TTL_MS = 10 * 60 * 1000;
         let allNewsItems = [];
         let visibleNewsCount = DONER_NEWS_INITIAL_ITEMS;
 
@@ -7360,31 +7358,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return response;
             } finally {
                 clearTimeout(timeoutId);
-            }
-        };
-
-        const readNewsCache = () => {
-            try {
-                const raw = localStorage.getItem(DONER_NEWS_CACHE_KEY);
-                if (!raw) return null;
-                const parsed = JSON.parse(raw);
-                const ts = Number(parsed?.ts);
-                const items = normalizeItems(parsed?.items || []);
-                if (!Number.isFinite(ts) || items.length === 0) return null;
-                return { ts, items };
-            } catch (_) {
-                return null;
-            }
-        };
-
-        const writeNewsCache = (items) => {
-            try {
-                localStorage.setItem(DONER_NEWS_CACHE_KEY, JSON.stringify({
-                    ts: Date.now(),
-                    items: items.slice(0, DONER_NEWS_MAX_ITEMS)
-                }));
-            } catch (_) {
-                // ignore localStorage failures
             }
         };
 
@@ -7537,26 +7510,16 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const loadNews = async () => {
-            const cached = readNewsCache();
-            if (cached) {
-                renderNewsItems(cached.items);
-                const cacheAgeMs = Date.now() - cached.ts;
-                if (cacheAgeMs <= DONER_NEWS_CACHE_TTL_MS) {
-                    statusEl.textContent = `Aktuell ${cached.items.length} Artikel (aus Cache).`;
-                    return;
-                }
-                statusEl.textContent = 'Aktualisiere Artikel...';
+            const supabaseItems = await fetchViaSupabaseFunction();
+            if (supabaseItems.length > 0) {
+                renderNewsItems(supabaseItems);
+                return;
             }
 
-            const [supabaseItems, directItems] = await Promise.all([
-                fetchViaSupabaseFunction(),
-                fetchViaDirectCandidates()
-            ]);
-
-            const bestItems = (supabaseItems.length >= directItems.length ? supabaseItems : directItems);
-            if (bestItems.length > 0) {
-                renderNewsItems(bestItems);
-                writeNewsCache(bestItems);
+            // Notfall-Fallback: Direkter Browser-Fetch (i. d. R. CORS-blockiert, ohne Bilder)
+            const directItems = await fetchViaDirectCandidates();
+            if (directItems.length > 0) {
+                renderNewsItems(directItems);
                 return;
             }
 

@@ -31,6 +31,43 @@ async function fetchWithTimeout(url: string, timeoutMs = REQUEST_TIMEOUT_MS, ini
   }
 }
 
+function isGoogleNewsHost(hostname: string): boolean {
+  return /(?:^|\.)google\.[a-z.]+$/i.test(hostname) || /(?:^|\.)googleusercontent\.com$/i.test(hostname);
+}
+
+function extractRealArticleUrl(html: string, baseUrl: string): string {
+  if (!html) return "";
+
+  const metaRefresh = html.match(/<meta\s+http-equiv=["']?refresh["']?[^>]*content=["'][^"']*url=([^"'>]+)["']/i);
+  if (metaRefresh && metaRefresh[1]) {
+    try { return new URL(metaRefresh[1].trim(), baseUrl).toString(); } catch (_) { /* ignore */ }
+  }
+
+  const dataNAu = html.match(/data-n-au=["']([^"']+)["']/i);
+  if (dataNAu && dataNAu[1]) {
+    try { return new URL(dataNAu[1], baseUrl).toString(); } catch (_) { /* ignore */ }
+  }
+
+  const linkRel = html.match(/<link[^>]+rel=["'](?:canonical|amphtml)["'][^>]+href=["'](https?:\/\/[^"']+)["']/i);
+  if (linkRel && linkRel[1]) {
+    try {
+      const candidate = new URL(linkRel[1]);
+      if (!isGoogleNewsHost(candidate.hostname)) return candidate.toString();
+    } catch (_) { /* ignore */ }
+  }
+
+  const anchorRegex = /<a[^>]+href=["'](https?:\/\/[^"']+)["']/gi;
+  let match: RegExpExecArray | null;
+  while ((match = anchorRegex.exec(html)) !== null) {
+    try {
+      const candidate = new URL(match[1]);
+      if (!isGoogleNewsHost(candidate.hostname)) return candidate.toString();
+    } catch (_) { /* ignore */ }
+  }
+
+  return "";
+}
+
 function extractMetaImage(html: string, baseUrl: string): string {
   if (!html) return "";
   const patterns = [
@@ -56,10 +93,27 @@ function extractMetaImage(html: string, baseUrl: string): string {
 
 async function resolveAndFetchOgImage(link: string): Promise<string> {
   try {
-    const response = await fetchWithTimeout(link, OG_FETCH_TIMEOUT_MS);
-    if (!response.ok) return "";
-    const finalUrl = response.url || link;
-    const html = await response.text();
+    const initial = await fetchWithTimeout(link, OG_FETCH_TIMEOUT_MS);
+    if (!initial.ok) return "";
+    let finalUrl = initial.url || link;
+    let html = await initial.text();
+
+    let finalHost = "";
+    try { finalHost = new URL(finalUrl).hostname; } catch (_) { /* ignore */ }
+
+    if (isGoogleNewsHost(finalHost)) {
+      const realUrl = extractRealArticleUrl(html, finalUrl);
+      if (realUrl) {
+        try {
+          const second = await fetchWithTimeout(realUrl, OG_FETCH_TIMEOUT_MS);
+          if (second.ok) {
+            finalUrl = second.url || realUrl;
+            html = await second.text();
+          }
+        } catch (_) { /* ignore, fall through to current html */ }
+      }
+    }
+
     return extractMetaImage(html, finalUrl);
   } catch (_) {
     return "";
