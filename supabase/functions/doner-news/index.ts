@@ -9,20 +9,69 @@ const DEFAULT_QUERY = "Döner News";
 const DEFAULT_LIMIT = 6;
 const DEFAULT_MAX_AGE_DAYS = 7;
 const REQUEST_TIMEOUT_MS = 10000;
+const OG_FETCH_TIMEOUT_MS = 4000;
 
-async function fetchWithTimeout(url: string, timeoutMs = REQUEST_TIMEOUT_MS): Promise<Response> {
+async function fetchWithTimeout(url: string, timeoutMs = REQUEST_TIMEOUT_MS, init?: RequestInit): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(url, {
+      ...(init || {}),
       headers: {
-        "user-agent": "certified-kebab-tester-news-fetcher/1.0",
+        "user-agent": "Mozilla/5.0 (compatible; certified-kebab-tester-news-fetcher/1.0)",
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "accept-language": "de-DE,de;q=0.9,en;q=0.8",
+        ...((init?.headers as Record<string, string>) || {}),
       },
       signal: controller.signal,
+      redirect: "follow",
     });
   } finally {
     clearTimeout(timer);
   }
+}
+
+function extractMetaImage(html: string, baseUrl: string): string {
+  if (!html) return "";
+  const patterns = [
+    /<meta[^>]+property=["']og:image(?::secure_url)?["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+name=["']og:image["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
+    /<meta[^>]+name=["']twitter:image(?::src)?["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i,
+    /<link[^>]+rel=["']image_src["'][^>]+href=["']([^"']+)["']/i,
+  ];
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (match && match[1]) {
+      try {
+        return new URL(match[1], baseUrl).toString();
+      } catch (_) {
+        return match[1];
+      }
+    }
+  }
+  return "";
+}
+
+async function resolveAndFetchOgImage(link: string): Promise<string> {
+  try {
+    const response = await fetchWithTimeout(link, OG_FETCH_TIMEOUT_MS);
+    if (!response.ok) return "";
+    const finalUrl = response.url || link;
+    const html = await response.text();
+    return extractMetaImage(html, finalUrl);
+  } catch (_) {
+    return "";
+  }
+}
+
+async function enrichWithImages(items: NewsItem[]): Promise<NewsItem[]> {
+  return await Promise.all(items.map(async (item) => {
+    if (item.imageUrl) return item;
+    const imageUrl = await resolveAndFetchOgImage(item.link);
+    return imageUrl ? { ...item, imageUrl } : item;
+  }));
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -168,6 +217,10 @@ serve(async (req) => {
       } catch (_err) {
         // Try the next source.
       }
+    }
+
+    if (items.length > 0) {
+      items = await enrichWithImages(items);
     }
 
     return new Response(JSON.stringify({
