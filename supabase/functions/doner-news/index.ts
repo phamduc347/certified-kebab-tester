@@ -91,11 +91,56 @@ function extractMetaImage(html: string, baseUrl: string): string {
   return "";
 }
 
+function decodeBase64Url(input: string): Uint8Array | null {
+  try {
+    let normalized = input.replace(/-/g, "+").replace(/_/g, "/");
+    while (normalized.length % 4 !== 0) normalized += "=";
+    const binary = atob(normalized);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes;
+  } catch (_) {
+    return null;
+  }
+}
+
+function decodeGoogleNewsUrl(googleUrl: string): string {
+  try {
+    const parsed = new URL(googleUrl);
+    if (!isGoogleNewsHost(parsed.hostname)) return "";
+    const segments = parsed.pathname.split("/");
+    const encoded = segments.find((s) => s.startsWith("CBM") || s.startsWith("AU_"));
+    if (!encoded) return "";
+
+    const bytes = decodeBase64Url(encoded);
+    if (!bytes) return "";
+
+    const text = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+    const match = text.match(/https?:\/\/[^\x00-\x1f"<>\\^`{|}\s]+/);
+    if (!match) return "";
+
+    let url = match[0];
+    url = url.replace(/[\x80-\xff].*$/u, "");
+    return url;
+  } catch (_) {
+    return "";
+  }
+}
+
 async function resolveAndFetchOgImage(link: string): Promise<string> {
   try {
-    const initial = await fetchWithTimeout(link, OG_FETCH_TIMEOUT_MS);
+    let candidateUrl = link;
+    let candidateHost = "";
+    try { candidateHost = new URL(candidateUrl).hostname; } catch (_) { /* ignore */ }
+
+    if (isGoogleNewsHost(candidateHost)) {
+      const decoded = decodeGoogleNewsUrl(candidateUrl);
+      if (decoded) candidateUrl = decoded;
+    }
+
+    const initial = await fetchWithTimeout(candidateUrl, OG_FETCH_TIMEOUT_MS);
     if (!initial.ok) return "";
-    let finalUrl = initial.url || link;
+    let finalUrl = initial.url || candidateUrl;
     let html = await initial.text();
 
     let finalHost = "";
@@ -122,9 +167,19 @@ async function resolveAndFetchOgImage(link: string): Promise<string> {
 
 async function enrichWithImages(items: NewsItem[]): Promise<NewsItem[]> {
   return await Promise.all(items.map(async (item) => {
-    if (item.imageUrl) return item;
-    const imageUrl = await resolveAndFetchOgImage(item.link);
-    return imageUrl ? { ...item, imageUrl } : item;
+    let resolvedLink = item.link;
+    try {
+      const host = new URL(item.link).hostname;
+      if (isGoogleNewsHost(host)) {
+        const decoded = decodeGoogleNewsUrl(item.link);
+        if (decoded) resolvedLink = decoded;
+      }
+    } catch (_) { /* ignore */ }
+
+    const next: NewsItem = resolvedLink !== item.link ? { ...item, link: resolvedLink } : item;
+    if (next.imageUrl) return next;
+    const imageUrl = await resolveAndFetchOgImage(next.link);
+    return imageUrl ? { ...next, imageUrl } : next;
   }));
 }
 
