@@ -174,11 +174,22 @@
 
             <div class="doner-news-subsection" aria-labelledby="doner-news-heading">
                 <div class="doner-news-header">
-                    <h3 id="doner-news-heading">Döner News</h3>
+                    <div class="doner-news-header-left">
+                        <span class="doner-news-badge"><span class="pulse-dot"></span> LIVE</span>
+                        <h3 id="doner-news-heading">Döner News</h3>
+                    </div>
+                    <span id="doner-news-count" class="doner-news-count-chip" hidden></span>
                 </div>
                 <p id="doner-news-status" class="doner-news-status" aria-live="polite">Lade aktuelle Artikel...</p>
-                <div id="doner-news-list" class="doner-news-list"></div>
-                <button id="doner-news-expand-btn" class="doner-news-expand-btn" type="button" hidden>Weitere Artikel laden</button>
+                <div id="doner-news-list" class="doner-news-list" aria-busy="true">
+                    <div class="doner-news-skeleton"></div>
+                    <div class="doner-news-skeleton"></div>
+                    <div class="doner-news-skeleton"></div>
+                </div>
+                <button id="doner-news-expand-btn" class="doner-news-expand-btn" type="button" aria-expanded="false" aria-controls="doner-news-list" hidden>
+                    <span class="doner-news-expand-label">Weitere einblenden</span>
+                    <span class="doner-news-expand-chevron" aria-hidden="true">▾</span>
+                </button>
             </div>
 
             <!-- Next Up Map Section -->

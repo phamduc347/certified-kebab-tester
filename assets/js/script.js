@@ -7289,12 +7289,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const source = String(entry?.source || 'Google News').trim();
                 const rawDate = entry?.pubDateRaw || entry?.publishedAt || entry?.pubDate || '';
                 const pubDateTs = new Date(String(rawDate)).getTime();
+                const imageUrl = String(entry?.imageUrl || '').trim();
 
                 return {
                     title,
                     link,
                     source,
-                    pubDateTs
+                    pubDateTs,
+                    imageUrl
                 };
             }).filter((entry) => {
                 if (!entry.title || !entry.link) return false;
@@ -7321,13 +7323,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pubDateRaw = String(item.querySelector('pubDate')?.textContent || '').trim();
                 const source = String(item.querySelector('source')?.textContent || 'Google News').trim();
                 const pubDateTs = new Date(pubDateRaw).getTime();
+                const description = String(item.querySelector('description')?.textContent || '');
+                const imgMatch = description.match(/<img[^>]+src=["']([^"']+)["']/i);
+                const imageUrl = imgMatch ? imgMatch[1] : '';
 
                 return {
                     title,
                     link,
                     source,
                     pubDateRaw,
-                    pubDateTs
+                    pubDateTs,
+                    imageUrl
                 };
             }).filter((entry) => {
                 if (!entry.title || !entry.link) return false;
@@ -7389,41 +7395,90 @@ document.addEventListener('DOMContentLoaded', () => {
             ]);
         };
 
+        const countChipEl = document.getElementById('doner-news-count');
+
+        const formatRelativeDate = (timestamp) => {
+            if (!Number.isFinite(timestamp)) return '';
+            const diffMs = Date.now() - timestamp;
+            const diffMin = Math.round(diffMs / 60000);
+            const diffHr = Math.round(diffMs / 3600000);
+            const diffDay = Math.round(diffMs / 86400000);
+            if (diffMin < 1) return 'gerade eben';
+            if (diffMin < 60) return `vor ${diffMin} Min.`;
+            if (diffHr < 24) return `vor ${diffHr} Std.`;
+            if (diffDay === 1) return 'gestern';
+            if (diffDay <= 7) return `vor ${diffDay} Tagen`;
+            return new Date(timestamp).toLocaleDateString('de-DE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        };
+
         const renderVisibleNewsItems = () => {
+            listEl.removeAttribute('aria-busy');
+
             if (allNewsItems.length === 0) {
                 statusEl.textContent = 'Keine aktuellen Artikel aus der letzten Woche gefunden.';
                 listEl.innerHTML = '';
+                if (countChipEl) countChipEl.hidden = true;
                 expandBtn.hidden = true;
                 return;
             }
 
-            statusEl.textContent = `Aktuell ${allNewsItems.length} Artikel aus der letzten Woche.`;
+            statusEl.textContent = 'Top-Themen rund um Döner aus der letzten Woche.';
+            if (countChipEl) {
+                countChipEl.hidden = false;
+                countChipEl.textContent = `${allNewsItems.length} Artikel`;
+            }
             const visibleItems = allNewsItems.slice(0, visibleNewsCount);
-            listEl.innerHTML = visibleItems.map((article) => {
+            listEl.innerHTML = visibleItems.map((article, index) => {
                 const safeTitle = escapeHtml(article.title);
                 const safeSource = escapeHtml(article.source || 'Google News');
-                const safeDate = escapeHtml(new Date(article.pubDateTs).toLocaleDateString('de-DE', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                }));
+                const safeDate = escapeHtml(formatRelativeDate(article.pubDateTs));
                 const safeLink = sanitizeUrl(article.link, fallbackSearchUrl);
+                const animationDelay = `style="animation-delay: ${index * 60}ms;"`;
+
+                let domain = '';
+                try { domain = new URL(article.link).hostname.replace(/^www\./, ''); } catch (_) { domain = ''; }
+                const faviconUrl = domain ? `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(domain)}` : '';
+                const safeImage = article.imageUrl ? sanitizeUrl(article.imageUrl, '') : '';
+                const imageSrc = safeImage || faviconUrl;
+                const imageClass = safeImage ? 'doner-news-item-thumb' : 'doner-news-item-thumb doner-news-item-thumb-favicon';
+                const mediaBlock = imageSrc
+                    ? `<div class="doner-news-item-media"><img class="${imageClass}" src="${escapeHtml(imageSrc)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.style.display='none';"></div>`
+                    : '';
 
                 return `
-                    <article class="doner-news-item">
-                        <a class="doner-news-item-title" href="${safeLink}" target="_blank" rel="noopener noreferrer">${safeTitle}</a>
-                        <div class="doner-news-item-meta">${safeSource} · ${safeDate}</div>
-                    </article>
+                    <a class="doner-news-item" href="${safeLink}" target="_blank" rel="noopener noreferrer" ${animationDelay}>
+                        <div class="doner-news-item-body">
+                            <div class="doner-news-item-title">${safeTitle}</div>
+                            <div class="doner-news-item-meta">
+                                <span class="doner-news-item-source">${safeSource}</span>
+                                <span class="doner-news-item-meta-divider"></span>
+                                <span class="doner-news-item-date">${safeDate}</span>
+                            </div>
+                        </div>
+                        ${mediaBlock}
+                    </a>
                 `;
             }).join('');
 
-            const remainingItems = allNewsItems.length - visibleItems.length;
-            if (remainingItems > 0) {
-                const nextBatchSize = Math.min(DONER_NEWS_EXPAND_COUNT, remainingItems);
-                expandBtn.textContent = `Weitere ${nextBatchSize} Artikel laden`;
+            const expandLabel = expandBtn.querySelector('.doner-news-expand-label');
+            const canToggle = allNewsItems.length > DONER_NEWS_INITIAL_ITEMS;
+            if (canToggle) {
+                const isExpanded = visibleNewsCount >= allNewsItems.length;
+                const nextLabel = isExpanded ? 'Weitere ausblenden' : 'Weitere einblenden';
+                if (expandLabel) {
+                    expandLabel.textContent = nextLabel;
+                } else {
+                    expandBtn.textContent = nextLabel;
+                }
+                expandBtn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
                 expandBtn.hidden = false;
             } else {
                 expandBtn.hidden = true;
+                expandBtn.setAttribute('aria-expanded', 'false');
             }
         };
 
@@ -7434,7 +7489,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         expandBtn.addEventListener('click', () => {
-            visibleNewsCount = Math.min(allNewsItems.length, visibleNewsCount + DONER_NEWS_EXPAND_COUNT);
+            const isExpanded = visibleNewsCount >= allNewsItems.length;
+            visibleNewsCount = isExpanded ? DONER_NEWS_INITIAL_ITEMS : allNewsItems.length;
             renderVisibleNewsItems();
         });
 
@@ -7506,6 +7562,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             statusEl.innerHTML = `News-Feed derzeit nicht erreichbar. <a href="${fallbackSearchUrl}" target="_blank" rel="noopener noreferrer">Google News öffnen</a>.`;
             listEl.innerHTML = '';
+            listEl.removeAttribute('aria-busy');
+            if (countChipEl) countChipEl.hidden = true;
             expandBtn.hidden = true;
         };
 

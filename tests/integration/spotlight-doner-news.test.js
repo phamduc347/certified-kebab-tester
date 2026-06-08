@@ -31,8 +31,9 @@ describe('Spotlight Döner News subsection', () => {
     it('prefers supabase edge function before browser-side direct feed fallback', () => {
         const source = fs.readFileSync(SCRIPT_PATH, 'utf-8');
 
-        expect(source).toContain("client.functions.invoke('doner-news'");
-        expect(source).toContain('fallback to direct fetch candidates');
+        expect(source).toContain("invokeWithTimeout(client, 'doner-news'");
+        expect(source).toContain('fetchViaSupabaseFunction');
+        expect(source).toContain('fetchViaDirectCandidates');
     });
 
     it('keeps fallback behavior when feed is unavailable', () => {

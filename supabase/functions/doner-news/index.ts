@@ -40,7 +40,14 @@ type NewsItem = {
   link: string;
   source: string;
   publishedAt: string;
+  imageUrl?: string;
 };
+
+function extractImageFromHtml(html: string): string {
+  if (!html) return "";
+  const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return match ? match[1] : "";
+}
 
 function normalizeAndLimit(items: NewsItem[], limit: number): NewsItem[] {
   return items
@@ -61,6 +68,11 @@ function parseGoogleRss(xmlText: string, maxAgeDays: number): NewsItem[] {
     const source = String(item.querySelector("source")?.textContent || "Google News").trim();
     const pubDateRaw = String(item.querySelector("pubDate")?.textContent || "").trim();
     const pubDateTs = new Date(pubDateRaw).getTime();
+    const description = String(item.querySelector("description")?.textContent || "");
+    const mediaContent = item.querySelector("media\\:content, content")?.getAttribute("url") || "";
+    const mediaThumb = item.querySelector("media\\:thumbnail, thumbnail")?.getAttribute("url") || "";
+    const enclosure = item.querySelector("enclosure")?.getAttribute("url") || "";
+    const imageUrl = mediaContent || mediaThumb || enclosure || extractImageFromHtml(description);
 
     return {
       title,
@@ -68,17 +80,19 @@ function parseGoogleRss(xmlText: string, maxAgeDays: number): NewsItem[] {
       source,
       publishedAt: pubDateRaw,
       pubDateTs,
+      imageUrl,
     };
   }).filter((entry) => {
     if (!entry.title || !entry.link) return false;
     return isRecent(entry.pubDateTs, maxAgeDays);
   });
 
-  return normalizeAndLimit(entries.map(({ title, link, source, publishedAt }) => ({
+  return normalizeAndLimit(entries.map(({ title, link, source, publishedAt, imageUrl }) => ({
     title,
     link,
     source,
     publishedAt,
+    imageUrl,
   })), DEFAULT_LIMIT);
 }
 
@@ -90,6 +104,10 @@ function parseRss2Json(payload: any, maxAgeDays: number, limit: number): NewsIte
     const source = String(item?.source || "Google News").trim();
     const pubDateRaw = String(item?.pubDate || "").trim();
     const pubDateTs = new Date(pubDateRaw).getTime();
+    const thumbnail = String(item?.thumbnail || "").trim();
+    const enclosureLink = String(item?.enclosure?.link || "").trim();
+    const description = String(item?.description || "");
+    const imageUrl = thumbnail || enclosureLink || extractImageFromHtml(description);
 
     return {
       title,
@@ -97,17 +115,19 @@ function parseRss2Json(payload: any, maxAgeDays: number, limit: number): NewsIte
       source,
       publishedAt: pubDateRaw,
       pubDateTs,
+      imageUrl,
     };
   }).filter((entry: any) => {
     if (!entry.title || !entry.link) return false;
     return isRecent(entry.pubDateTs, maxAgeDays);
   });
 
-  return normalizeAndLimit(mapped.map(({ title, link, source, publishedAt }: any) => ({
+  return normalizeAndLimit(mapped.map(({ title, link, source, publishedAt, imageUrl }: any) => ({
     title,
     link,
     source,
     publishedAt,
+    imageUrl,
   })), limit);
 }
 
