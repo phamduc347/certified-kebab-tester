@@ -3374,11 +3374,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function debounce(fn, delay = 120) {
+        let timerId = null;
+        return (...args) => {
+            if (timerId) {
+                clearTimeout(timerId);
+            }
+            timerId = setTimeout(() => {
+                timerId = null;
+                fn(...args);
+            }, delay);
+        };
+    }
+
     const searchInput = document.getElementById('spot-search');
     if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
+        const handleSpotSearchInput = debounce((e) => {
             renderToggles(e.target.value);
-        });
+        }, 100);
+
+        searchInput.addEventListener('input', handleSpotSearchInput);
     }
 
     function getColorForScore(score) {
@@ -4156,20 +4171,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const dishGroup = document.getElementById('filter-dish-group');
         if (!cityGroup || !dishGroup) return;
 
+        const cityCounts = new Map(cities.map((city) => [city, 0]));
+        const dishCounts = new Map(dishes.map((dish) => [dish, 0]));
+
+        kebabData.forEach((spot) => {
+            const spotCity = String(spot && spot.city ? spot.city : '');
+            const variants = getSpotDishVariants(spot);
+
+            const dishMatch = activeDishes.size === 0 || Array.from(variants).some((dish) => activeDishes.has(dish));
+            if (dishMatch && cityCounts.has(spotCity)) {
+                cityCounts.set(spotCity, (cityCounts.get(spotCity) || 0) + 1);
+            }
+
+            const cityMatch = activeCities.size === 0 || activeCities.has(spotCity);
+            if (cityMatch) {
+                variants.forEach((dish) => {
+                    if (dishCounts.has(dish)) {
+                        dishCounts.set(dish, (dishCounts.get(dish) || 0) + 1);
+                    }
+                });
+            }
+        });
+
         cityGroup.innerHTML = '';
         dishGroup.innerHTML = '';
 
         cities.forEach(city => {
-            const cityCount = kebabData.filter((spot) => {
-                if (spot.city !== city) return false;
-                if (activeDishes.size === 0) return true;
-
-                const variants = getSpotDishVariants(spot);
-                for (const dish of variants) {
-                    if (activeDishes.has(dish)) return true;
-                }
-                return false;
-            }).length;
+            const cityCount = cityCounts.get(city) || 0;
             const btn = document.createElement('button');
             btn.className = `filter-bubble filter-city ${activeCities.has(city) ? 'active' : ''}`;
             btn.innerHTML = `${city} <span class="filter-count">${cityCount}</span> <span class="filter-x">×</span>`;
@@ -4189,11 +4217,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         dishes.forEach(dish => {
-            const dishCount = kebabData.filter((spot) => {
-                const cityMatch = activeCities.size === 0 || activeCities.has(spot.city);
-                if (!cityMatch) return false;
-                return getSpotDishVariants(spot).has(dish);
-            }).length;
+            const dishCount = dishCounts.get(dish) || 0;
             const btn = document.createElement('button');
             btn.className = `filter-bubble filter-dish ${activeDishes.has(dish) ? 'active' : ''}`;
             btn.innerHTML = `${dish} <span class="filter-count">${dishCount}</span> <span class="filter-x">×</span>`;
@@ -6016,11 +6040,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const reviewFilterSearchInput = document.getElementById('review-filter-search');
     if (reviewFilterSearchInput) {
-        reviewFilterSearchInput.addEventListener('input', (e) => {
+        const handleReviewFilterSearchInput = debounce((e) => {
             reviewFilterQuery = String(e.target.value || '').trim();
             visibleCount = SPOTS_PER_PAGE;
             renderGrid();
-        });
+        }, 120);
+
+        reviewFilterSearchInput.addEventListener('input', handleReviewFilterSearchInput);
     }
 
     if (mobileFilterToggleBtn) {
