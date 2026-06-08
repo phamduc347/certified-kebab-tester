@@ -7059,6 +7059,25 @@ body.dark .tooltip-action-hint {
     border-radius: 2px;
 }
 
+/* Adaptive fallback for weaker devices */
+body.low-perf-mode .header,
+body.low-perf-mode .modal-overlay,
+body.low-perf-mode .review-share-modal-overlay,
+body.low-perf-mode .sidebar-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+body.low-perf-mode .hero-glow-1,
+body.low-perf-mode .hero-glow-2 {
+    filter: blur(36px);
+}
+
+body.low-perf-mode .next-up-ticker {
+    animation: none;
+    transform: none;
+}
+
 body.dark .tooltip-cluster-list::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.15);
 }

@@ -73,6 +73,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let spotlightClickHandler = null;
     let spotlightWheelHandler = null;
 
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const hasLowCpuBudget = typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 4;
+    const hasLowMemoryBudget = typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 4;
+    const lowPerfMode = prefersReducedMotion || hasLowCpuBudget || hasLowMemoryBudget;
+
+    if (lowPerfMode) {
+        document.body.classList.add('low-perf-mode');
+    }
+
 
     // ── Dark Mode ──────────────────────────────────────────────────────
     const darkmodeBtn = document.getElementById('darkmode-btn');
@@ -348,7 +357,9 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.restore();
         }
 
-        const COUNT = window.innerWidth < 768 ? 8 : 18;
+        const COUNT = lowPerfMode
+            ? (window.innerWidth < 768 ? 4 : 10)
+            : (window.innerWidth < 768 ? 8 : 18);
 
         function randomKebab() {
             const side = Math.random() < 0.5 ? 'left' : 'right';
@@ -4058,31 +4069,65 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    function attachReviewCardHandlers(card) {
-        const communityPanel = card.querySelector('.review-community-panel');
-        const reviewPreviewButtons = card.querySelectorAll('.review-community-preview-btn');
+    let gridDelegatedHandlersBound = false;
+    function setupGridDelegatedHandlers() {
+        if (gridDelegatedHandlersBound || !gridContainer) return;
+        gridDelegatedHandlersBound = true;
 
-        bindReviewActionButtons(card);
+        gridContainer.addEventListener('click', (event) => {
+            const loadMoreBtn = event.target.closest('.load-more-btn');
+            if (loadMoreBtn && gridContainer.contains(loadMoreBtn)) {
+                visibleCount += SPOTS_PER_PAGE;
+                renderGrid();
+                return;
+            }
 
-        reviewPreviewButtons.forEach((button) => {
-            button.addEventListener('click', (event) => {
+            if (event.target.closest('.maps-button')) {
+                return;
+            }
+
+            const header = event.target.closest('.spot-card-header');
+            if (header && gridContainer.contains(header)) {
+                const card = header.closest('.spot-card');
+                if (!card) return;
+
+                const isOpening = !card.classList.contains('expanded');
+                card.classList.toggle('expanded');
+                syncConfirmedReviewsPanelState(card, isOpening);
+
+                if (isOpening) {
+                    setTimeout(() => {
+                        scrollToElementFlush(card);
+                    }, 50);
+                }
+                return;
+            }
+
+            const reviewPreviewBtn = event.target.closest('.review-community-preview-btn');
+            if (reviewPreviewBtn && gridContainer.contains(reviewPreviewBtn)) {
                 event.stopPropagation();
-                openCommunityReviewPopup(button.dataset.spotId, button.dataset.reviewId, button);
-            });
-        });
+                openCommunityReviewPopup(reviewPreviewBtn.dataset.spotId, reviewPreviewBtn.dataset.reviewId, reviewPreviewBtn);
+                return;
+            }
 
-        const trendDots = card.querySelectorAll('.trend-dot-hover-area');
-        trendDots.forEach((dot) => {
-            dot.addEventListener('click', (event) => {
+            const trendDot = event.target.closest('.trend-dot-hover-area');
+            if (trendDot && gridContainer.contains(trendDot)) {
                 event.stopPropagation();
-                openCommunityReviewPopup(dot.dataset.spotId, dot.dataset.reviewId, dot);
-            });
-        });
+                openCommunityReviewPopup(trendDot.dataset.spotId, trendDot.dataset.reviewId, trendDot);
+                return;
+            }
 
-        if (communityPanel) {
-            communityPanel.addEventListener('click', (event) => event.stopPropagation());
-            communityPanel.addEventListener('keydown', (event) => event.stopPropagation());
-        }
+            const helpfulBtn = event.target.closest('.review-helpful-btn');
+            if (helpfulBtn && gridContainer.contains(helpfulBtn)) {
+                event.preventDefault();
+                event.stopPropagation();
+                void handleReviewHelpfulClick({
+                    currentTarget: helpfulBtn,
+                    preventDefault: () => { },
+                    stopPropagation: () => { }
+                });
+            }
+        });
     }
 
     function syncConfirmedReviewsPanelState(card, shouldOpenPanel) {
@@ -5346,28 +5391,6 @@ document.addEventListener('DOMContentLoaded', () => {
             initSlideshow(card, slides);
         }
 
-        const header = card.querySelector('.spot-card-header');
-
-        header.addEventListener('click', (e) => {
-            if (e.target.closest('.maps-button')) {
-                return;
-            }
-
-            const isOpening = !card.classList.contains('expanded');
-            card.classList.toggle('expanded');
-            syncConfirmedReviewsPanelState(card, isOpening);
-
-            if (isOpening) {
-                setTimeout(() => {
-                    scrollToElementFlush(card);
-                }, 50);
-            }
-        });
-
-        if (includeEngagement) {
-            attachReviewCardHandlers(card);
-        }
-
         return card;
     }
 
@@ -5429,6 +5452,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const toShow = filteredData.slice(0, visibleCount);
 
+        const fragment = document.createDocumentFragment();
+
         toShow.forEach((spot, index) => {
             const card = createReviewCardElement(spot, index, {
                 cardIdPrefix: 'spot',
@@ -5439,7 +5464,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 includeVerzehrort: true,
                 displayRank: index + 1
             });
-            gridContainer.appendChild(card);
+            fragment.appendChild(card);
         });
 
         // Load More button
@@ -5448,12 +5473,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const loadMoreBtn = document.createElement('button');
             loadMoreBtn.className = 'load-more-btn';
             loadMoreBtn.textContent = `${remaining} weitere anzeigen`;
-            loadMoreBtn.addEventListener('click', () => {
-                visibleCount += SPOTS_PER_PAGE;
-                renderGrid();
-            });
-            gridContainer.appendChild(loadMoreBtn);
+            fragment.appendChild(loadMoreBtn);
         }
+
+        gridContainer.appendChild(fragment);
     }
 
     function refreshDataViews() {
@@ -6016,6 +6039,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialization
     initChart();
+    setupGridDelegatedHandlers();
     refreshFilterOptions(false);
     renderGrid();
     renderToggles();
