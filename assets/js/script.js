@@ -7257,6 +7257,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const DONER_NEWS_MAX_ITEMS = DONER_NEWS_INITIAL_ITEMS + DONER_NEWS_EXPAND_COUNT;
         const DONER_NEWS_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
         const DONER_NEWS_REQUEST_TIMEOUT_MS = 5000;
+        const DONER_NEWS_INVOKE_TIMEOUT_MS = 3500;
+        const DONER_NEWS_CACHE_KEY = 'doner_news_cache_v1';
+        const DONER_NEWS_CACHE_TTL_MS = 10 * 60 * 1000;
         let allNewsItems = [];
         let visibleNewsCount = DONER_NEWS_INITIAL_ITEMS;
 
@@ -7354,6 +7357,38 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+        const readNewsCache = () => {
+            try {
+                const raw = localStorage.getItem(DONER_NEWS_CACHE_KEY);
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                const ts = Number(parsed?.ts);
+                const items = normalizeItems(parsed?.items || []);
+                if (!Number.isFinite(ts) || items.length === 0) return null;
+                return { ts, items };
+            } catch (_) {
+                return null;
+            }
+        };
+
+        const writeNewsCache = (items) => {
+            try {
+                localStorage.setItem(DONER_NEWS_CACHE_KEY, JSON.stringify({
+                    ts: Date.now(),
+                    items: items.slice(0, DONER_NEWS_MAX_ITEMS)
+                }));
+            } catch (_) {
+                // ignore localStorage failures
+            }
+        };
+
+        const invokeWithTimeout = async (client, functionName, body, timeoutMs) => {
+            return await Promise.race([
+                client.functions.invoke(functionName, { body }),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('invoke-timeout')), timeoutMs))
+            ]);
+        };
+
         const renderVisibleNewsItems = () => {
             if (allNewsItems.length === 0) {
                 statusEl.textContent = 'Keine aktuellen Artikel aus der letzten Woche gefunden.';
@@ -7403,47 +7438,70 @@ document.addEventListener('DOMContentLoaded', () => {
             renderVisibleNewsItems();
         });
 
-        const loadNews = async () => {
+        const fetchViaSupabaseFunction = async () => {
             const client = ensureSupabaseClient();
-            if (client) {
-                try {
-                    const { data, error } = await client.functions.invoke('doner-news', {
-                        body: {
-                            query: DONER_NEWS_QUERY,
-                            maxAgeDays: 7,
-                            limit: DONER_NEWS_MAX_ITEMS
-                        }
-                    });
+            if (!client) return [];
 
-                    if (!error && Array.isArray(data?.items)) {
-                        renderNewsItems(normalizeItems(data.items));
-                        return;
-                    }
-                } catch (_) {
-                    // fallback to direct fetch candidates
-                }
+            try {
+                const { data, error } = await invokeWithTimeout(client, 'doner-news', {
+                    query: DONER_NEWS_QUERY,
+                    maxAgeDays: 7,
+                    limit: DONER_NEWS_MAX_ITEMS
+                }, DONER_NEWS_INVOKE_TIMEOUT_MS);
+
+                if (error || !Array.isArray(data?.items)) return [];
+                return normalizeItems(data.items);
+            } catch (_) {
+                return [];
             }
+        };
 
-            for (const candidate of feedCandidates) {
+        const fetchViaDirectCandidates = async () => {
+            const attempts = feedCandidates.map(async (candidate) => {
                 try {
                     const response = await fetchWithTimeout(candidate.url, DONER_NEWS_REQUEST_TIMEOUT_MS);
-                    if (!response.ok) continue;
+                    if (!response.ok) return [];
 
-                    let parsedItems = [];
                     if (candidate.type === 'json') {
                         const payload = await response.json();
-                        parsedItems = parseJsonItems(payload);
-                    } else {
-                        const xmlText = await response.text();
-                        if (!xmlText || !xmlText.includes('<rss')) continue;
-                        parsedItems = parseRssItems(xmlText);
+                        return parseJsonItems(payload);
                     }
 
-                    renderNewsItems(parsedItems);
-                    return;
+                    const xmlText = await response.text();
+                    if (!xmlText || !xmlText.includes('<rss')) return [];
+                    return parseRssItems(xmlText);
                 } catch (_) {
-                    // try next candidate
+                    return [];
                 }
+            });
+
+            const results = await Promise.all(attempts);
+            const valid = results.find((items) => Array.isArray(items) && items.length > 0);
+            return valid || [];
+        };
+
+        const loadNews = async () => {
+            const cached = readNewsCache();
+            if (cached) {
+                renderNewsItems(cached.items);
+                const cacheAgeMs = Date.now() - cached.ts;
+                if (cacheAgeMs <= DONER_NEWS_CACHE_TTL_MS) {
+                    statusEl.textContent = `Aktuell ${cached.items.length} Artikel (aus Cache).`;
+                    return;
+                }
+                statusEl.textContent = 'Aktualisiere Artikel...';
+            }
+
+            const [supabaseItems, directItems] = await Promise.all([
+                fetchViaSupabaseFunction(),
+                fetchViaDirectCandidates()
+            ]);
+
+            const bestItems = (supabaseItems.length >= directItems.length ? supabaseItems : directItems);
+            if (bestItems.length > 0) {
+                renderNewsItems(bestItems);
+                writeNewsCache(bestItems);
+                return;
             }
 
             statusEl.innerHTML = `News-Feed derzeit nicht erreichbar. <a href="${fallbackSearchUrl}" target="_blank" rel="noopener noreferrer">Google News öffnen</a>.`;
