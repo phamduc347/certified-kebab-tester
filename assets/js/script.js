@@ -7244,6 +7244,216 @@ document.addEventListener('DOMContentLoaded', () => {
         ticker.innerHTML = tickerContent + tickerContent;
     })();
 
+    // ── Döner News (Google News) ──────────────────────────────────
+    (function initDonerNews() {
+        const listEl = document.getElementById('doner-news-list');
+        const statusEl = document.getElementById('doner-news-status');
+        const expandBtn = document.getElementById('doner-news-expand-btn');
+        if (!listEl || !statusEl || !expandBtn) return;
+
+        const DONER_NEWS_QUERY = 'Döner News';
+        const DONER_NEWS_INITIAL_ITEMS = 3;
+        const DONER_NEWS_EXPAND_COUNT = 4;
+        const DONER_NEWS_MAX_ITEMS = DONER_NEWS_INITIAL_ITEMS + DONER_NEWS_EXPAND_COUNT;
+        const DONER_NEWS_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+        const DONER_NEWS_REQUEST_TIMEOUT_MS = 5000;
+        let allNewsItems = [];
+        let visibleNewsCount = DONER_NEWS_INITIAL_ITEMS;
+
+        const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(`${DONER_NEWS_QUERY} when:7d`)}&hl=de&gl=DE&ceid=DE:de`;
+        const fallbackSearchUrl = `https://news.google.com/search?q=${encodeURIComponent(DONER_NEWS_QUERY)}&hl=de&gl=DE&ceid=DE:de`;
+
+        const feedCandidates = [
+            {
+                url: rssUrl,
+                type: 'xml'
+            },
+            {
+                url: `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
+                type: 'xml'
+            },
+            {
+                url: `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`,
+                type: 'json'
+            }
+        ];
+
+        const normalizeItems = (items) => {
+            if (!Array.isArray(items)) return [];
+            return items.map((entry) => {
+                const title = String(entry?.title || '').trim();
+                const link = String(entry?.link || '').trim();
+                const source = String(entry?.source || 'Google News').trim();
+                const rawDate = entry?.pubDateRaw || entry?.publishedAt || entry?.pubDate || '';
+                const pubDateTs = new Date(String(rawDate)).getTime();
+
+                return {
+                    title,
+                    link,
+                    source,
+                    pubDateTs
+                };
+            }).filter((entry) => {
+                if (!entry.title || !entry.link) return false;
+                return isRecent(entry.pubDateTs);
+            }).sort((a, b) => b.pubDateTs - a.pubDateTs).slice(0, DONER_NEWS_MAX_ITEMS);
+        };
+
+        const isRecent = (timestamp) => {
+            if (!Number.isFinite(timestamp)) return false;
+            return (Date.now() - timestamp) <= DONER_NEWS_MAX_AGE_MS;
+        };
+
+        const parseRssItems = (xmlText) => {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+            if (xmlDoc.querySelector('parsererror')) {
+                throw new Error('rss-parse-failed');
+            }
+
+            const now = Date.now();
+            const items = Array.from(xmlDoc.querySelectorAll('item')).map((item) => {
+                const title = String(item.querySelector('title')?.textContent || '').trim();
+                const link = String(item.querySelector('link')?.textContent || '').trim();
+                const pubDateRaw = String(item.querySelector('pubDate')?.textContent || '').trim();
+                const source = String(item.querySelector('source')?.textContent || 'Google News').trim();
+                const pubDateTs = new Date(pubDateRaw).getTime();
+
+                return {
+                    title,
+                    link,
+                    source,
+                    pubDateRaw,
+                    pubDateTs
+                };
+            }).filter((entry) => {
+                if (!entry.title || !entry.link) return false;
+                return isRecent(entry.pubDateTs);
+            }).sort((a, b) => b.pubDateTs - a.pubDateTs);
+
+            return items.slice(0, DONER_NEWS_MAX_ITEMS);
+        };
+
+        const parseJsonItems = (payload) => {
+            const jsonItems = Array.isArray(payload?.items) ? payload.items : [];
+            return normalizeItems(jsonItems);
+        };
+
+        const fetchWithTimeout = async (url, timeoutMs) => {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+            try {
+                const response = await fetch(url, {
+                    cache: 'no-store',
+                    signal: controller.signal
+                });
+                return response;
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        };
+
+        const renderVisibleNewsItems = () => {
+            if (allNewsItems.length === 0) {
+                statusEl.textContent = 'Keine aktuellen Artikel aus der letzten Woche gefunden.';
+                listEl.innerHTML = '';
+                expandBtn.hidden = true;
+                return;
+            }
+
+            statusEl.textContent = `Aktuell ${allNewsItems.length} Artikel aus der letzten Woche.`;
+            const visibleItems = allNewsItems.slice(0, visibleNewsCount);
+            listEl.innerHTML = visibleItems.map((article) => {
+                const safeTitle = escapeHtml(article.title);
+                const safeSource = escapeHtml(article.source || 'Google News');
+                const safeDate = escapeHtml(new Date(article.pubDateTs).toLocaleDateString('de-DE', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                }));
+                const safeLink = sanitizeUrl(article.link, fallbackSearchUrl);
+
+                return `
+                    <article class="doner-news-item">
+                        <a class="doner-news-item-title" href="${safeLink}" target="_blank" rel="noopener noreferrer">${safeTitle}</a>
+                        <div class="doner-news-item-meta">${safeSource} · ${safeDate}</div>
+                    </article>
+                `;
+            }).join('');
+
+            const remainingItems = allNewsItems.length - visibleItems.length;
+            if (remainingItems > 0) {
+                const nextBatchSize = Math.min(DONER_NEWS_EXPAND_COUNT, remainingItems);
+                expandBtn.textContent = `Weitere ${nextBatchSize} Artikel laden`;
+                expandBtn.hidden = false;
+            } else {
+                expandBtn.hidden = true;
+            }
+        };
+
+        const renderNewsItems = (newsItems) => {
+            allNewsItems = Array.isArray(newsItems) ? newsItems.slice(0, DONER_NEWS_MAX_ITEMS) : [];
+            visibleNewsCount = DONER_NEWS_INITIAL_ITEMS;
+            renderVisibleNewsItems();
+        };
+
+        expandBtn.addEventListener('click', () => {
+            visibleNewsCount = Math.min(allNewsItems.length, visibleNewsCount + DONER_NEWS_EXPAND_COUNT);
+            renderVisibleNewsItems();
+        });
+
+        const loadNews = async () => {
+            const client = ensureSupabaseClient();
+            if (client) {
+                try {
+                    const { data, error } = await client.functions.invoke('doner-news', {
+                        body: {
+                            query: DONER_NEWS_QUERY,
+                            maxAgeDays: 7,
+                            limit: DONER_NEWS_MAX_ITEMS
+                        }
+                    });
+
+                    if (!error && Array.isArray(data?.items)) {
+                        renderNewsItems(normalizeItems(data.items));
+                        return;
+                    }
+                } catch (_) {
+                    // fallback to direct fetch candidates
+                }
+            }
+
+            for (const candidate of feedCandidates) {
+                try {
+                    const response = await fetchWithTimeout(candidate.url, DONER_NEWS_REQUEST_TIMEOUT_MS);
+                    if (!response.ok) continue;
+
+                    let parsedItems = [];
+                    if (candidate.type === 'json') {
+                        const payload = await response.json();
+                        parsedItems = parseJsonItems(payload);
+                    } else {
+                        const xmlText = await response.text();
+                        if (!xmlText || !xmlText.includes('<rss')) continue;
+                        parsedItems = parseRssItems(xmlText);
+                    }
+
+                    renderNewsItems(parsedItems);
+                    return;
+                } catch (_) {
+                    // try next candidate
+                }
+            }
+
+            statusEl.innerHTML = `News-Feed derzeit nicht erreichbar. <a href="${fallbackSearchUrl}" target="_blank" rel="noopener noreferrer">Google News öffnen</a>.`;
+            listEl.innerHTML = '';
+            expandBtn.hidden = true;
+        };
+
+        loadNews();
+    })();
+
     /*
     // ── Next Up Map ───────────────────────────────────────────────
     (function initNextUpMap() {
