@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 echo "--------------------------------------"
 echo "🚀 Certified Kebab Tester - Unit Tests"
@@ -45,8 +45,6 @@ if [ ! -d "node_modules" ]; then
     echo ""
 fi
 
-echo "🔄 Synchronisiere Utilities aus script.js..."
-node helpers/sync-utils.cjs
-
-# Force a stable, non-TTY reporter so output is visible in all terminals.
-"$NPM_CMD" test
+# sync-utils läuft automatisch via "pretest"-Hook in tests/package.json.
+# Zusätzliche Argumente werden an Vitest durchgereicht (z. B. ./run_tests.sh tests/unit/utils.test.js).
+"$NPM_CMD" test -- "$@"
