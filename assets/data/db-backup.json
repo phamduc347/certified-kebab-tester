@@ -1,11 +1,34 @@
 {
   "info": {
-    "timestamp": "2026-06-08T04:24:00.239Z",
+    "timestamp": "2026-06-09T03:55:31.036Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
   "data": {
     "community_reviews": [
+      {
+        "id": 69,
+        "reviewer_name": "Long",
+        "spot_name": "Ugis Gemüsekebab",
+        "city": "Wien",
+        "dish": "Döner",
+        "visit_date": "2026-06-06",
+        "fleisch": 9.7,
+        "gemuese": 9.8,
+        "sosse": 10,
+        "brot": 9.4,
+        "balance": 9.6,
+        "auswahl": 7.5,
+        "portion": 9.3,
+        "hygiene": 9.7,
+        "service": 9.7,
+        "comment_text": "Nach mehreren Besuchen steht mein Favorit endgültig fest: Hähnchenfleisch, Grillgemüse und die Sweet-Chipotle-Soße. Diese Kombination ist bei UGI’S einfach unschlagbar.\n\nDas saftige Hähnchenfleisch harmoniert perfekt mit dem aromatischen Grillgemüse. Die Sweet-Chipotle-Soße setzt dem Ganzen die Krone auf: leicht süß, angenehm rauchig und mit genau der richtigen Schärfe. Jeder Bissen schmeckt besser als der vorherige.\n\nBesonders das Grillgemüse macht den Döner zu etwas Besonderem und verleiht ihm eine zusätzliche geschmackliche Tiefe. Zusammen mit der Soße entsteht eine Kombination, die perfekt abgestimmt ist. Die Zutaten wirken stets frisch und hochwertig, was den hervorragenden Geschmack zusätzlich unterstreicht.\n\nFür mich gehört UGI’S zu den besten Döner-Adressen in Wien. Wer Hähnchendöner mit Grillgemüse liebt, sollte diese Kombination unbedingt probieren.",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1780922532686-olgh2qfa.jpeg",
+        "is_approved": true,
+        "created_at": "2026-06-08T12:42:15.803629+00:00",
+        "preis": "7,90 €",
+        "verzehrort": "Dine-in"
+      },
       {
         "id": 68,
         "reviewer_name": "Lukas Kramer",
@@ -312,13 +335,13 @@
         "city": "Dresden",
         "dish": "Döner",
         "visit_date": "2026-05-05",
-        "fleisch": 8,
-        "gemuese": 7.5,
-        "sosse": 8.2,
-        "brot": 8,
-        "balance": 7.3,
+        "fleisch": 7.4,
+        "gemuese": 7.2,
+        "sosse": 7.3,
+        "brot": 7.6,
+        "balance": 6.2,
         "auswahl": 7.7,
-        "portion": 8.3,
+        "portion": 7.5,
         "hygiene": 8.5,
         "service": 8.8,
         "comment_text": "Dieses mal leider bescheiden obwohl der Döner schnell geliefert wurde.\nDie Soße war gut aber leider zu wenig und schlecht verteilt. Gemüse war auch mittelmäßig. \nDa IBO mein Blockdöner ist, kenne ich den guten Service aber geschmacklich heute eher schlechter als sonst. Schade!",
@@ -920,6 +943,42 @@
         "spot_id": 1538893872,
         "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
         "created_at": "2026-06-05T19:08:48.103182+00:00"
+      },
+      {
+        "id": 65,
+        "spot_id": 1538893872,
+        "voter_fingerprint": "d963f948-0d20-4940-aa47-4c3e3144d14f",
+        "created_at": "2026-06-08T07:51:10.26647+00:00"
+      },
+      {
+        "id": 66,
+        "spot_id": 1160923443,
+        "voter_fingerprint": "d963f948-0d20-4940-aa47-4c3e3144d14f",
+        "created_at": "2026-06-08T09:37:07.371453+00:00"
+      },
+      {
+        "id": 67,
+        "spot_id": 633821585,
+        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
+        "created_at": "2026-06-08T12:44:38.668716+00:00"
+      },
+      {
+        "id": 68,
+        "spot_id": 1736426438,
+        "voter_fingerprint": "ce49d4fb-ff10-47b1-9c56-56bb16c23168",
+        "created_at": "2026-06-08T12:44:40.970297+00:00"
+      },
+      {
+        "id": 69,
+        "spot_id": 1736426438,
+        "voter_fingerprint": "5a70b97f-0c1d-4b15-9590-4dd0be7afb96",
+        "created_at": "2026-06-08T13:00:01.823895+00:00"
+      },
+      {
+        "id": 70,
+        "spot_id": 633821585,
+        "voter_fingerprint": "5a70b97f-0c1d-4b15-9590-4dd0be7afb96",
+        "created_at": "2026-06-08T13:00:11.072244+00:00"
       }
     ],
     "review_comments": [
