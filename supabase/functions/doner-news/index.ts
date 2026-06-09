@@ -91,6 +91,33 @@ function extractMetaImage(html: string, baseUrl: string): string {
   return "";
 }
 
+function isPlaceholderNewsImage(imageUrl: string): boolean {
+  if (!imageUrl) return true;
+  const raw = String(imageUrl).trim();
+  if (!raw) return true;
+
+  const normalized = raw.toLowerCase();
+  if (normalized.includes("/s2/favicons")) return true;
+  if (normalized.includes("/favicon")) return true;
+  if (normalized.includes("apple-touch-icon")) return true;
+  if (normalized.includes("googlelogo") || normalized.includes("news_icon")) return true;
+  if (normalized.includes("gstatic.com/images/branding")) return true;
+  if (normalized.includes("gstatic.com/favicon")) return true;
+
+  try {
+    const parsed = new URL(raw);
+    const host = parsed.hostname.toLowerCase();
+    const path = parsed.pathname.toLowerCase();
+    if ((host === "news.google.com" || host.endsWith(".news.google.com")) && path.includes("/favicon")) {
+      return true;
+    }
+  } catch (_) {
+    // Ignore parse errors and rely on string heuristics above.
+  }
+
+  return false;
+}
+
 function decodeBase64Url(input: string): Uint8Array | null {
   try {
     let normalized = input.replace(/-/g, "+").replace(/_/g, "/");
@@ -159,7 +186,8 @@ async function resolveAndFetchOgImage(link: string): Promise<string> {
       }
     }
 
-    return extractMetaImage(html, finalUrl);
+    const metaImage = extractMetaImage(html, finalUrl);
+    return isPlaceholderNewsImage(metaImage) ? "" : metaImage;
   } catch (_) {
     return "";
   }
@@ -176,8 +204,10 @@ async function enrichWithImages(items: NewsItem[]): Promise<NewsItem[]> {
       }
     } catch (_) { /* ignore */ }
 
+    const hasValidImage = !!item.imageUrl && !isPlaceholderNewsImage(item.imageUrl);
     const next: NewsItem = resolvedLink !== item.link ? { ...item, link: resolvedLink } : item;
-    if (next.imageUrl) return next;
+    if (hasValidImage) return next;
+
     const imageUrl = await resolveAndFetchOgImage(next.link);
     return imageUrl ? { ...next, imageUrl } : next;
   }));
@@ -230,7 +260,8 @@ function parseGoogleRss(xmlText: string, maxAgeDays: number): NewsItem[] {
     const mediaContent = item.querySelector("media\\:content, content")?.getAttribute("url") || "";
     const mediaThumb = item.querySelector("media\\:thumbnail, thumbnail")?.getAttribute("url") || "";
     const enclosure = item.querySelector("enclosure")?.getAttribute("url") || "";
-    const imageUrl = mediaContent || mediaThumb || enclosure || extractImageFromHtml(description);
+    const imageCandidate = mediaContent || mediaThumb || enclosure || extractImageFromHtml(description);
+    const imageUrl = isPlaceholderNewsImage(imageCandidate) ? "" : imageCandidate;
 
     return {
       title,
@@ -265,7 +296,8 @@ function parseRss2Json(payload: any, maxAgeDays: number, limit: number): NewsIte
     const thumbnail = String(item?.thumbnail || "").trim();
     const enclosureLink = String(item?.enclosure?.link || "").trim();
     const description = String(item?.description || "");
-    const imageUrl = thumbnail || enclosureLink || extractImageFromHtml(description);
+    const imageCandidate = thumbnail || enclosureLink || extractImageFromHtml(description);
+    const imageUrl = isPlaceholderNewsImage(imageCandidate) ? "" : imageCandidate;
 
     return {
       title,

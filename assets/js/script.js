@@ -7252,14 +7252,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!listEl || !statusEl || !expandBtn) return;
 
         const DONER_NEWS_QUERY = 'Döner News';
-        const DONER_NEWS_INITIAL_ITEMS = 3;
+        const DONER_NEWS_DESKTOP_INITIAL_ITEMS = 4;
+        const DONER_NEWS_MOBILE_INITIAL_ITEMS = 3;
         const DONER_NEWS_EXPAND_COUNT = 4;
-        const DONER_NEWS_MAX_ITEMS = DONER_NEWS_INITIAL_ITEMS + DONER_NEWS_EXPAND_COUNT;
+        const DONER_NEWS_MAX_ITEMS = DONER_NEWS_DESKTOP_INITIAL_ITEMS + DONER_NEWS_EXPAND_COUNT;
         const DONER_NEWS_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
         const DONER_NEWS_REQUEST_TIMEOUT_MS = 5000;
         const DONER_NEWS_INVOKE_TIMEOUT_MS = 3500;
+        const DONER_NEWS_COLLAPSE_ANIMATION_MS = lowPerfMode ? 0 : 220;
+        const DONER_NEWS_COLLAPSE_STAGGER_MS = lowPerfMode ? 0 : 30;
         let allNewsItems = [];
-        let visibleNewsCount = DONER_NEWS_INITIAL_ITEMS;
+        let visibleNewsCount = 0;
+        let isCollapseAnimating = false;
 
         const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(`${DONER_NEWS_QUERY} when:7d`)}&hl=de&gl=DE&ceid=DE:de`;
         const fallbackSearchUrl = `https://news.google.com/search?q=${encodeURIComponent(DONER_NEWS_QUERY)}&hl=de&gl=DE&ceid=DE:de`;
@@ -7279,6 +7283,40 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         ];
 
+        const isMobileNewsViewport = () => window.matchMedia('(max-width: 768px)').matches;
+        const getInitialVisibleNewsCount = () => {
+            return isMobileNewsViewport() ? DONER_NEWS_MOBILE_INITIAL_ITEMS : DONER_NEWS_DESKTOP_INITIAL_ITEMS;
+        };
+
+        const isGoogleHost = (hostname) => {
+            const host = String(hostname || '').toLowerCase();
+            return /(?:^|\.)google\.[a-z.]+$/i.test(host) || host.endsWith('.googleusercontent.com');
+        };
+
+        const isLikelyPlaceholderNewsImage = (url) => {
+            const value = String(url || '').trim();
+            if (!value) return true;
+
+            const lower = value.toLowerCase();
+            if (lower.includes('/s2/favicons')) return true;
+            if (lower.includes('/favicon')) return true;
+            if (lower.includes('apple-touch-icon')) return true;
+            if (lower.includes('googlelogo') || lower.includes('news_icon')) return true;
+            if (lower.includes('gstatic.com/images/branding')) return true;
+            if (lower.includes('gstatic.com/favicon')) return true;
+
+            try {
+                const parsed = new URL(value);
+                if (isGoogleHost(parsed.hostname) && parsed.pathname.toLowerCase().includes('/favicon')) {
+                    return true;
+                }
+            } catch (_) {
+                // Ignore parse errors; string heuristics above already applied.
+            }
+
+            return false;
+        };
+
         const normalizeItems = (items) => {
             if (!Array.isArray(items)) return [];
             return items.map((entry) => {
@@ -7287,7 +7325,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const source = String(entry?.source || 'Google News').trim();
                 const rawDate = entry?.pubDateRaw || entry?.publishedAt || entry?.pubDate || '';
                 const pubDateTs = new Date(String(rawDate)).getTime();
-                const imageUrl = String(entry?.imageUrl || '').trim();
+                const imageUrlRaw = String(entry?.imageUrl || '').trim();
+                const imageUrl = isLikelyPlaceholderNewsImage(imageUrlRaw) ? '' : imageUrlRaw;
 
                 return {
                     title,
@@ -7323,7 +7362,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pubDateTs = new Date(pubDateRaw).getTime();
                 const description = String(item.querySelector('description')?.textContent || '');
                 const imgMatch = description.match(/<img[^>]+src=["']([^"']+)["']/i);
-                const imageUrl = imgMatch ? imgMatch[1] : '';
+                const imageUrlRaw = imgMatch ? imgMatch[1] : '';
+                const imageUrl = isLikelyPlaceholderNewsImage(imageUrlRaw) ? '' : imageUrlRaw;
 
                 return {
                     title,
@@ -7414,8 +7454,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let domain = '';
                 try { domain = new URL(article.link).hostname.replace(/^www\./, ''); } catch (_) { domain = ''; }
-                const faviconUrl = domain ? `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(domain)}` : '';
-                const safeImage = article.imageUrl ? sanitizeUrl(article.imageUrl, '') : '';
+                const faviconUrl = domain && !isGoogleHost(domain)
+                    ? `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(domain)}`
+                    : '';
+                const safeImage = article.imageUrl && !isLikelyPlaceholderNewsImage(article.imageUrl)
+                    ? sanitizeUrl(article.imageUrl, '')
+                    : '';
                 const imageSrc = safeImage || faviconUrl;
                 const imageClass = safeImage ? 'doner-news-item-thumb' : 'doner-news-item-thumb doner-news-item-thumb-favicon';
                 const mediaBlock = imageSrc
@@ -7438,10 +7482,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }).join('');
 
             const expandLabel = expandBtn.querySelector('.doner-news-expand-label');
-            const canToggle = allNewsItems.length > DONER_NEWS_INITIAL_ITEMS;
+            const initialVisibleNewsCount = getInitialVisibleNewsCount();
+            const canToggle = allNewsItems.length > initialVisibleNewsCount;
             if (canToggle) {
                 const isExpanded = visibleNewsCount >= allNewsItems.length;
-                const nextLabel = isExpanded ? 'Weitere ausblenden' : 'Weitere einblenden';
+                const nextLabel = isExpanded ? 'Weniger anzeigen' : 'Weitere anzeigen';
                 if (expandLabel) {
                     expandLabel.textContent = nextLabel;
                 } else {
@@ -7457,14 +7502,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const renderNewsItems = (newsItems) => {
             allNewsItems = Array.isArray(newsItems) ? newsItems.slice(0, DONER_NEWS_MAX_ITEMS) : [];
-            visibleNewsCount = DONER_NEWS_INITIAL_ITEMS;
+            visibleNewsCount = getInitialVisibleNewsCount();
             renderVisibleNewsItems();
         };
 
         expandBtn.addEventListener('click', () => {
+            if (isCollapseAnimating) return;
             const isExpanded = visibleNewsCount >= allNewsItems.length;
-            visibleNewsCount = isExpanded ? DONER_NEWS_INITIAL_ITEMS : allNewsItems.length;
-            renderVisibleNewsItems();
+
+            if (!isExpanded) {
+                visibleNewsCount = allNewsItems.length;
+                renderVisibleNewsItems();
+                return;
+            }
+
+            const targetVisibleCount = getInitialVisibleNewsCount();
+            const extraItems = Array.from(listEl.querySelectorAll('.doner-news-item')).slice(targetVisibleCount);
+
+            if (extraItems.length === 0 || DONER_NEWS_COLLAPSE_ANIMATION_MS <= 0) {
+                visibleNewsCount = targetVisibleCount;
+                renderVisibleNewsItems();
+                return;
+            }
+
+            isCollapseAnimating = true;
+            expandBtn.disabled = true;
+
+            extraItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * DONER_NEWS_COLLAPSE_STAGGER_MS}ms`;
+                item.classList.add('doner-news-item-collapsing');
+            });
+
+            const totalAnimationMs = DONER_NEWS_COLLAPSE_ANIMATION_MS + ((extraItems.length - 1) * DONER_NEWS_COLLAPSE_STAGGER_MS);
+            window.setTimeout(() => {
+                visibleNewsCount = targetVisibleCount;
+                renderVisibleNewsItems();
+                expandBtn.disabled = false;
+                isCollapseAnimating = false;
+            }, totalAnimationMs + 20);
+        });
+
+        window.addEventListener('resize', () => {
+            if (allNewsItems.length === 0) return;
+            const isExpanded = visibleNewsCount >= allNewsItems.length;
+            if (isExpanded) return;
+
+            const nextInitialCount = getInitialVisibleNewsCount();
+            if (visibleNewsCount !== nextInitialCount) {
+                visibleNewsCount = nextInitialCount;
+                renderVisibleNewsItems();
+            }
         });
 
         const fetchViaSupabaseFunction = async () => {
