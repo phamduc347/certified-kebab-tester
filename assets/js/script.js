@@ -6829,6 +6829,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const featureNotesReviewFormBtn = document.getElementById('feature-notes-review-form-btn');
     const featureNotesShareBestSpotBtn = document.getElementById('feature-notes-share-best-spot-btn');
     const featureNotesKiHelperBtn = document.getElementById('feature-notes-ki-helper-btn');
+    const featureNotesCommentsBtn = document.getElementById('feature-notes-comments-btn');
+    const featureNotesNewsBtn = document.getElementById('feature-notes-news-btn');
 
     function openBestSpotShareFromFeatureNotes() {
         if (!Array.isArray(kebabData) || kebabData.length === 0) return;
@@ -6898,7 +6900,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (badge) {
             badge.style.display = 'none';
         }
-        localStorage.setItem('has_seen_v4.7_features', 'true');
+        localStorage.setItem('has_seen_v1.2.0_features', 'true');
         syncModalOpenState();
     }
 
@@ -6913,7 +6915,7 @@ document.addEventListener('DOMContentLoaded', () => {
         featureNotesBtn.addEventListener('click', openFeatureNotesModal);
         
         // Check localStorage to hide badge initially
-        if (localStorage.getItem('has_seen_v4.7_features') === 'true') {
+        if (localStorage.getItem('has_seen_v1.2.0_features') === 'true') {
             const badge = featureNotesBtn.querySelector('.notification-badge');
             if (badge) {
                 badge.style.display = 'none';
@@ -6945,6 +6947,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         featureNotesShareBestSpotBtn?.addEventListener('click', openBestSpotShareFromFeatureNotes);
+
+        featureNotesCommentsBtn?.addEventListener('click', () => {
+            closeFeatureNotesModal();
+            
+            // Find the first spot that has community reviews
+            const spotWithReviews = kebabData.find(spot => {
+                const reviews = getSortedCommunityReviewsForSpot(spot.id);
+                return reviews.length > 0;
+            });
+
+            if (spotWithReviews) {
+                const reviews = getSortedCommunityReviewsForSpot(spotWithReviews.id);
+                const targetReview = reviews[0];
+                if (targetReview) {
+                    // Scroll to the spot card
+                    document.getElementById(`spot-${spotWithReviews.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Open the community review popup card
+                    openCommunityReviewPopup(spotWithReviews.id, targetReview.id);
+                    return;
+                }
+            }
+
+            document.getElementById('spots')?.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        featureNotesNewsBtn?.addEventListener('click', () => {
+            closeFeatureNotesModal();
+            document.getElementById('doner-news-section')?.scrollIntoView({ behavior: 'smooth' });
+        });
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && featureNotesModal.classList.contains('active')) {

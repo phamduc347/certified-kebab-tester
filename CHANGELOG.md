@@ -5,6 +5,19 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/)
 und dieses Projekt hält sich an [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-06-09
+
+### Hinzugefügt
+- **Community-Kommentare & Bewertungen**: Benutzer können nun eigene Kommentare und Bewertungen zu Döner-Spots abgeben. Inklusive Spam-Schutz (Cooldown, Ratenbegrenzung und Duplikaterkennung) und Validierung des Besuchsdatums (Warnung bei zukünftigen Daten).
+- **Spotlight Döner News**: Ein neuer Bereich im Spotlight, der aktuelle Nachrichten rund um das Thema Döner anzeigt. Die Artikel werden über eine Supabase Edge-Function geladen.
+- **Robustes Image-Fallback für News**: 4-Tier Fallback-Kette (OG-Image -> Article Favicon -> Publisher Favicon -> Initials SVG) und Google-Redirect-Auflösung im Backend für eine zuverlässige Bildanzeige auf Desktop und Mobilgeräten.
+- **Fehlertoleranter Deno RSS-Parser**: Eigener Regex-basierter XML-Parser in der Edge-Function, um Browser-spezifische `DOMParser`-Abstürze in der Deno-Laufzeitumgebung zu verhindern.
+
+### Geändert
+- **Verbesserte Fehlerbehandlung für Gemini**: Automatischer 3-Sekunden-Retry-Loop bei Überlastung der Google Gemini API.
+- **Design-Anpassungen & Story Card**: Update des Story-Card-Designs auf Option B (Clay & Tangerine Orange) mit responsiver Skalierung.
+- **Cache-Buster**: Aktualisierung der Stylesheet- und Skript-Versionen in `index.html` zur unmittelbaren Bereitstellung.
+
 ## [1.1.1] - 2026-06-02
 
 ### Hinzugefügt
