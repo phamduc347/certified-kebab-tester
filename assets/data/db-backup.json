@@ -1,6 +1,6 @@
 {
   "info": {
-    "timestamp": "2026-06-09T03:55:31.036Z",
+    "timestamp": "2026-06-10T04:06:55.766Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
@@ -567,11 +567,11 @@
         "visit_date": "2025-05-02",
         "fleisch": 9.1,
         "gemuese": 9.4,
-        "sosse": 8.9,
-        "brot": 8.7,
-        "balance": 8.8,
+        "sosse": 8.4,
+        "brot": 7.5,
+        "balance": 8.6,
         "auswahl": 9.3,
-        "portion": 9,
+        "portion": 8.1,
         "hygiene": 9.3,
         "service": 8.7,
         "comment_text": "Wahrscheinlich der Bekannteste Spot in Dresden. Insgesamt einfach solid.\nMir war lediglich die ersten Male das Brot zu knusprig bzw. trocken.",
