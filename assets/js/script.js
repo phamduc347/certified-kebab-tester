@@ -57,6 +57,129 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    (function preRenderDonerNewsFromCache() {
+        const DONER_NEWS_CACHE_KEY = 'doner-news-cache-v1';
+        const DONER_NEWS_CACHE_TTL_MS = 30 * 60 * 1000;
+        const listEl = document.getElementById('doner-news-list');
+        const statusEl = document.getElementById('doner-news-status');
+        if (!listEl || !statusEl) return;
+
+        let payload;
+        try {
+            const raw = localStorage.getItem(DONER_NEWS_CACHE_KEY);
+            if (!raw) return;
+            payload = JSON.parse(raw);
+        } catch (_) {
+            return;
+        }
+
+        const timestamp = Number(payload?.timestamp);
+        const items = Array.isArray(payload?.items) ? payload.items : [];
+        if (!Number.isFinite(timestamp) || items.length === 0) return;
+
+        const now = Date.now();
+        const isFresh = (now - timestamp) <= DONER_NEWS_CACHE_TTL_MS;
+
+        const isGoogleHost = (hostname) => {
+            const host = String(hostname || '').toLowerCase();
+            return /(?:^|\.)google\.[a-z.]+$/i.test(host) || host.endsWith('.googleusercontent.com');
+        };
+
+        const isLikelyPlaceholderNewsImage = (url) => {
+            const value = String(url || '').trim();
+            if (!value) return true;
+            const lower = value.toLowerCase();
+            if (lower.includes('/s2/favicons')) return true;
+            if (lower.includes('/favicon')) return true;
+            if (lower.includes('apple-touch-icon')) return true;
+            if (lower.includes('googlelogo') || lower.includes('news_icon')) return true;
+            if (lower.includes('gstatic.com/images/branding')) return true;
+            if (lower.includes('gstatic.com/favicon')) return true;
+            try {
+                const parsed = new URL(value);
+                if (isGoogleHost(parsed.hostname) && parsed.pathname.toLowerCase().includes('/favicon')) return true;
+            } catch (_) {
+                // Ignore parse errors.
+            }
+            return false;
+        };
+
+        const buildNewsFallbackSvg = (initial) => {
+            const letter = (initial || 'N').charAt(0).toUpperCase();
+            return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72"><rect width="72" height="72" rx="8" fill="#e0e0e0"/><text x="36" y="44" font-family="Inter,system-ui,sans-serif" font-size="26" font-weight="800" fill="#888" text-anchor="middle">${letter}</text></svg>`)}`;
+        };
+
+        const quickItems = items.slice(0, 4).map((item) => {
+            const title = escapeHtml(String(item?.title || '').trim());
+            const source = escapeHtml(String(item?.source || 'Google News').trim() || 'Google News');
+            const link = sanitizeUrl(String(item?.link || '').trim(), '#');
+            const ts = Number(item?.pubDateTs);
+            const date = Number.isFinite(ts)
+                ? escapeHtml(new Date(ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }))
+                : '';
+            if (!title || !link) return '';
+
+            const rawLink = String(item?.link || '').trim();
+            const rawImage = String(item?.imageUrl || '').trim();
+            const sourceDomain = String(item?.sourceDomain || '').trim();
+
+            const ogImage = rawImage && !isLikelyPlaceholderNewsImage(rawImage)
+                ? sanitizeUrl(rawImage, '')
+                : '';
+
+            let articleDomain = '';
+            try { articleDomain = new URL(rawLink).hostname.replace(/^www\./, ''); } catch (_) { /* ignore */ }
+            const articleFaviconUrl = articleDomain && !isGoogleHost(articleDomain)
+                ? `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(articleDomain)}`
+                : '';
+            const sourceFaviconUrl = sourceDomain
+                ? `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(sourceDomain)}`
+                : '';
+
+            const fallbackSvg = buildNewsFallbackSvg(String(item?.source || 'N'));
+            const bestFaviconUrl = articleFaviconUrl || sourceFaviconUrl;
+            const primarySrc = ogImage || bestFaviconUrl || fallbackSvg;
+            const isArticleImage = !!ogImage;
+            const thumbClass = isArticleImage
+                ? 'doner-news-item-thumb'
+                : 'doner-news-item-thumb doner-news-item-thumb-favicon';
+
+            let onerrorAttr;
+            if (isArticleImage && bestFaviconUrl) {
+                const escapedFavicon = escapeHtml(bestFaviconUrl);
+                onerrorAttr = `onerror="this.classList.add('doner-news-item-thumb-favicon');this.onerror=function(){this.src='${fallbackSvg}';this.onerror=null;};this.src='${escapedFavicon}';"`;
+            } else if (isArticleImage) {
+                onerrorAttr = `onerror="this.classList.add('doner-news-item-thumb-favicon');this.src='${fallbackSvg}';this.onerror=null;"`;
+            } else if (bestFaviconUrl) {
+                onerrorAttr = `onerror="this.src='${fallbackSvg}';this.onerror=null;"`;
+            } else {
+                onerrorAttr = '';
+            }
+
+            const mediaBlock = `<div class="doner-news-item-media"><img class="${thumbClass}" src="${escapeHtml(primarySrc)}" alt="" loading="lazy" referrerpolicy="no-referrer" ${onerrorAttr}></div>`;
+
+            return `
+                <a class="doner-news-item" href="${link}" target="_blank" rel="noopener noreferrer">
+                    <div class="doner-news-item-body">
+                        <div class="doner-news-item-title">${title}</div>
+                        <div class="doner-news-item-meta">
+                            <span class="doner-news-item-source">${source}</span>
+                            ${date ? '<span class="doner-news-item-meta-divider"></span>' : ''}
+                            ${date ? `<span class="doner-news-item-date">${date}</span>` : ''}
+                        </div>
+                    </div>
+                    ${mediaBlock}
+                </a>
+            `;
+        }).filter(Boolean);
+
+        if (quickItems.length === 0) return;
+
+        listEl.innerHTML = quickItems.join('');
+        listEl.removeAttribute('aria-busy');
+        statusEl.textContent = 'Top-Themen rund um Döner aus der letzten Woche.';
+    })();
+
     // Persistente Referenzen zur Vermeidung von Memory Leaks
     let hasAiGeneratedScores = false;
     let pendingAiScores = null;
@@ -7280,7 +7403,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const listEl = document.getElementById('doner-news-list');
         const statusEl = document.getElementById('doner-news-status');
         const expandBtn = document.getElementById('doner-news-expand-btn');
-        if (!listEl || !statusEl || !expandBtn) return;
+        const refreshBtn = document.getElementById('doner-news-refresh-btn');
+        if (!listEl || !statusEl || !expandBtn || !refreshBtn) return;
 
         const DONER_NEWS_QUERY = 'Döner News';
         const DONER_NEWS_DESKTOP_INITIAL_ITEMS = 4;
@@ -7292,9 +7416,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const DONER_NEWS_INVOKE_TIMEOUT_MS = 3500;
         const DONER_NEWS_COLLAPSE_ANIMATION_MS = lowPerfMode ? 0 : 220;
         const DONER_NEWS_COLLAPSE_STAGGER_MS = lowPerfMode ? 0 : 30;
+        const DONER_NEWS_CACHE_KEY = 'doner-news-cache-v1';
+        const DONER_NEWS_CACHE_TTL_MS = 30 * 60 * 1000;
         let allNewsItems = [];
         let visibleNewsCount = 0;
         let isCollapseAnimating = false;
+        let isNewsLoading = false;
+        let newsStatusText = 'Top-Themen rund um Döner aus der letzten Woche.';
 
         const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(`${DONER_NEWS_QUERY} when:7d`)}&hl=de&gl=DE&ceid=DE:de`;
         const fallbackSearchUrl = `https://news.google.com/search?q=${encodeURIComponent(DONER_NEWS_QUERY)}&hl=de&gl=DE&ceid=DE:de`;
@@ -7501,13 +7629,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return normalizeItems(jsonItems);
         };
 
-        const fetchWithTimeout = async (url, timeoutMs) => {
+        const fetchWithTimeout = async (url, timeoutMs, requestCache = 'default') => {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
             try {
                 const response = await fetch(url, {
-                    cache: 'no-store',
+                    cache: requestCache,
                     signal: controller.signal
                 });
                 return response;
@@ -7523,7 +7651,60 @@ document.addEventListener('DOMContentLoaded', () => {
             ]);
         };
 
-        const countChipEl = document.getElementById('doner-news-count');
+        const setRefreshButtonLoading = (isLoading) => {
+            refreshBtn.disabled = isLoading;
+            refreshBtn.textContent = isLoading ? 'Aktualisiere...' : 'Aktualisieren';
+            refreshBtn.setAttribute('aria-busy', isLoading ? 'true' : 'false');
+        };
+
+        const readCachedNewsItems = ({ allowStale = false } = {}) => {
+            try {
+                const raw = localStorage.getItem(DONER_NEWS_CACHE_KEY);
+                if (!raw) return [];
+                const payload = JSON.parse(raw);
+                const timestamp = Number(payload?.timestamp);
+                const items = Array.isArray(payload?.items) ? payload.items : [];
+                if (!Number.isFinite(timestamp) || items.length === 0) return [];
+                const isFresh = (Date.now() - timestamp) <= DONER_NEWS_CACHE_TTL_MS;
+                if (!allowStale && !isFresh) return [];
+                return {
+                    items: normalizeItems(items),
+                    isFresh,
+                    timestamp
+                };
+            } catch (_) {
+                return null;
+            }
+        };
+
+        const areNewsItemListsEqual = (left, right) => {
+            if (!Array.isArray(left) || !Array.isArray(right)) return false;
+            if (left.length !== right.length) return false;
+
+            for (let i = 0; i < left.length; i += 1) {
+                const a = left[i];
+                const b = right[i];
+                if (!a || !b) return false;
+                if (a.title !== b.title) return false;
+                if (a.link !== b.link) return false;
+                if (a.pubDateTs !== b.pubDateTs) return false;
+                if (a.source !== b.source) return false;
+            }
+
+            return true;
+        };
+
+        const writeCachedNewsItems = (items) => {
+            if (!Array.isArray(items) || items.length === 0) return;
+            try {
+                localStorage.setItem(DONER_NEWS_CACHE_KEY, JSON.stringify({
+                    timestamp: Date.now(),
+                    items: items.slice(0, DONER_NEWS_MAX_ITEMS)
+                }));
+            } catch (_) {
+                // Ignore quota/storage errors. Live rendering still works.
+            }
+        };
 
         const formatRelativeDate = (timestamp) => {
             if (!Number.isFinite(timestamp)) return '';
@@ -7549,16 +7730,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (allNewsItems.length === 0) {
                 statusEl.textContent = 'Keine aktuellen Artikel aus der letzten Woche gefunden.';
                 listEl.innerHTML = '';
-                if (countChipEl) countChipEl.hidden = true;
                 expandBtn.hidden = true;
                 return;
             }
 
-            statusEl.textContent = 'Top-Themen rund um Döner aus der letzten Woche.';
-            if (countChipEl) {
-                countChipEl.hidden = false;
-                countChipEl.textContent = `${allNewsItems.length} Artikel`;
-            }
+            statusEl.textContent = newsStatusText;
             const visibleItems = allNewsItems.slice(0, visibleNewsCount);
             listEl.innerHTML = visibleItems.map((article, index) => {
                 const safeTitle = escapeHtml(article.title);
@@ -7650,7 +7826,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        const renderNewsItems = (newsItems) => {
+        const renderNewsItems = (newsItems, statusText = null) => {
+            if (typeof statusText === 'string' && statusText.trim().length > 0) {
+                newsStatusText = statusText;
+            } else {
+                newsStatusText = 'Top-Themen rund um Döner aus der letzten Woche.';
+            }
             allNewsItems = Array.isArray(newsItems) ? newsItems.slice(0, DONER_NEWS_MAX_ITEMS) : [];
             visibleNewsCount = getInitialVisibleNewsCount();
             renderVisibleNewsItems();
@@ -7722,10 +7903,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        const fetchViaDirectCandidates = async () => {
+        const fetchViaDirectCandidates = async (requestCache = 'default') => {
             const attempts = feedCandidates.map(async (candidate) => {
                 try {
-                    const response = await fetchWithTimeout(candidate.url, DONER_NEWS_REQUEST_TIMEOUT_MS);
+                    const response = await fetchWithTimeout(candidate.url, DONER_NEWS_REQUEST_TIMEOUT_MS, requestCache);
                     if (!response.ok) return [];
 
                     if (candidate.type === 'json') {
@@ -7746,26 +7927,73 @@ document.addEventListener('DOMContentLoaded', () => {
             return valid || [];
         };
 
-        const loadNews = async () => {
-            const supabaseItems = await fetchViaSupabaseFunction();
-            if (supabaseItems.length > 0) {
-                renderNewsItems(supabaseItems);
-                return;
-            }
+        const loadNews = async ({ forceRefresh = false } = {}) => {
+            if (isNewsLoading) return;
 
-            // Notfall-Fallback: Direkter Browser-Fetch (i. d. R. CORS-blockiert, ohne Bilder)
-            const directItems = await fetchViaDirectCandidates();
-            if (directItems.length > 0) {
-                renderNewsItems(directItems);
-                return;
-            }
+            isNewsLoading = true;
+            setRefreshButtonLoading(true);
 
-            statusEl.innerHTML = `News-Feed derzeit nicht erreichbar. <a href="${fallbackSearchUrl}" target="_blank" rel="noopener noreferrer">Google News öffnen</a>.`;
-            listEl.innerHTML = '';
-            listEl.removeAttribute('aria-busy');
-            if (countChipEl) countChipEl.hidden = true;
-            expandBtn.hidden = true;
+            try {
+                const cachedPayload = readCachedNewsItems({ allowStale: true });
+                const hasCachedItems = Array.isArray(cachedPayload?.items) && cachedPayload.items.length > 0;
+
+                if (!forceRefresh && hasCachedItems) {
+                    renderNewsItems(cachedPayload.items, 'Top-Themen rund um Döner aus der letzten Woche.');
+                } else if (forceRefresh) {
+                    statusEl.textContent = 'Aktualisiere Artikel...';
+                    listEl.setAttribute('aria-busy', 'true');
+                }
+
+                const supabaseItems = await fetchViaSupabaseFunction();
+                if (supabaseItems.length > 0) {
+                    writeCachedNewsItems(supabaseItems);
+                    const shouldRerender = !hasCachedItems || forceRefresh || !areNewsItemListsEqual(cachedPayload.items, supabaseItems);
+                    if (shouldRerender) {
+                        renderNewsItems(supabaseItems, forceRefresh ? 'Artikel wurden aktualisiert.' : 'Top-Themen rund um Döner aus der letzten Woche.');
+                    } else if (!forceRefresh) {
+                        newsStatusText = 'Top-Themen rund um Döner aus der letzten Woche.';
+                        statusEl.textContent = newsStatusText;
+                    }
+                    return;
+                }
+
+                // Notfall-Fallback: Direkter Browser-Fetch (i. d. R. CORS-blockiert, ohne Bilder)
+                const directItems = await fetchViaDirectCandidates(forceRefresh ? 'no-store' : 'default');
+                if (directItems.length > 0) {
+                    writeCachedNewsItems(directItems);
+                    const shouldRerender = !hasCachedItems || forceRefresh || !areNewsItemListsEqual(cachedPayload.items, directItems);
+                    if (shouldRerender) {
+                        renderNewsItems(directItems, forceRefresh ? 'Artikel wurden aktualisiert.' : 'Top-Themen rund um Döner aus der letzten Woche.');
+                    } else if (!forceRefresh) {
+                        newsStatusText = 'Top-Themen rund um Döner aus der letzten Woche.';
+                        statusEl.textContent = newsStatusText;
+                    }
+                    return;
+                }
+
+                if (hasCachedItems) {
+                    if (forceRefresh) {
+                        renderNewsItems(cachedPayload.items, 'Live-Feed nicht erreichbar. Zeige zuletzt gespeicherte Artikel aus dem Browser-Cache.');
+                    } else {
+                        newsStatusText = 'Top-Themen rund um Döner aus der letzten Woche.';
+                        statusEl.textContent = newsStatusText;
+                    }
+                    return;
+                }
+
+                statusEl.innerHTML = `News-Feed derzeit nicht erreichbar. <a href="${fallbackSearchUrl}" target="_blank" rel="noopener noreferrer">Google News öffnen</a>.`;
+                listEl.innerHTML = '';
+                listEl.removeAttribute('aria-busy');
+                expandBtn.hidden = true;
+            } finally {
+                isNewsLoading = false;
+                setRefreshButtonLoading(false);
+            }
         };
+
+        refreshBtn.addEventListener('click', () => {
+            loadNews({ forceRefresh: true });
+        });
 
         loadNews();
     })();

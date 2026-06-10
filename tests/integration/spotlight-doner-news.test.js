@@ -14,6 +14,8 @@ describe('Spotlight Döner News subsection', () => {
         expect(html).toContain('id="doner-news-heading"');
         expect(html).toContain('id="doner-news-status"');
         expect(html).toContain('id="doner-news-list"');
+        expect(html).toContain('id="doner-news-refresh-btn"');
+        expect(html).toContain('>Aktualisieren</button>');
         expect(html).toContain('id="doner-news-expand-btn"');
         expect(html).toContain('class="load-more-btn doner-news-expand-btn"');
         expect(html).toContain('>Weitere anzeigen</button>');
@@ -42,6 +44,14 @@ describe('Spotlight Döner News subsection', () => {
         expect(source).toContain('when:7d');
         expect(source).toContain('https://news.google.com/rss/search?q=');
         expect(source).toContain('DONER_NEWS_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000');
+        expect(source).toContain("const DONER_NEWS_CACHE_KEY = 'doner-news-cache-v1';");
+        expect(source).toContain('const DONER_NEWS_CACHE_TTL_MS = 30 * 60 * 1000;');
+        expect(source).toContain('localStorage.getItem(DONER_NEWS_CACHE_KEY)');
+        expect(source).toContain('localStorage.setItem(DONER_NEWS_CACHE_KEY');
+        expect(source).toContain('loadNews({ forceRefresh: true });');
+        expect(source).toContain('const cachedPayload = readCachedNewsItems({ allowStale: true });');
+        expect(source).toContain("statusEl.textContent = 'Aktualisiere Artikel...';");
+        expect(source).toContain("renderNewsItems(supabaseItems, forceRefresh ? 'Artikel wurden aktualisiert.' : 'Top-Themen rund um Döner aus der letzten Woche.');");
     });
 
     it('prefers supabase edge function before browser-side direct feed fallback', () => {

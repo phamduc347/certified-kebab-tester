@@ -6478,7 +6478,7 @@ body.dark .review-share-panel-toggle[aria-pressed='true'] {
     color: var(--text-main);
 }
 
-.doner-news-count-chip {
+.doner-news-refresh-btn {
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.05em;
@@ -6486,7 +6486,21 @@ body.dark .review-share-panel-toggle[aria-pressed='true'] {
     color: var(--text-muted);
     border: 1px solid var(--border-color);
     border-radius: 999px;
-    padding: 4px 10px;
+    background: transparent;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.doner-news-refresh-btn:hover {
+    border-color: var(--text-main);
+    color: var(--text-main);
+    background: var(--bg-secondary);
+}
+
+.doner-news-refresh-btn:disabled {
+    cursor: default;
+    opacity: 0.7;
 }
 
 .doner-news-status {
