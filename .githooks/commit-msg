@@ -1,0 +1,31 @@
+#!/bin/sh
+
+MSG_FILE="$1"
+SUBJECT_LINE=$(grep -vE '^[[:space:]]*(#|$)' "$MSG_FILE" | head -n 1)
+
+MAX_LENGTH=72
+ALLOWED_PREFIXES='feat|fix|docs|chore|deploy|refactor|test|style|perf|ci|build|revert'
+
+if [ -z "$SUBJECT_LINE" ]; then
+  echo "[commit-msg] Commit message darf nicht leer sein."
+  exit 1
+fi
+
+if ! echo "$SUBJECT_LINE" | grep -Eq "^(${ALLOWED_PREFIXES}): [a-z0-9]"; then
+  echo "[commit-msg] Ungueltiges Prefix oder Format. Erlaubt: feat|fix|docs|chore|deploy|refactor|test|style|perf|ci|build|revert"
+  echo "[commit-msg] Erwartetes Format: <prefix>: <kleiner text>"
+  exit 1
+fi
+
+if echo "$SUBJECT_LINE" | grep -q '[[:upper:]]'; then
+  echo "[commit-msg] Betreff darf nur Kleinbuchstaben enthalten."
+  exit 1
+fi
+
+SUBJECT_LENGTH=$(printf "%s" "$SUBJECT_LINE" | wc -c | tr -d '[:space:]')
+if [ "$SUBJECT_LENGTH" -gt "$MAX_LENGTH" ]; then
+  echo "[commit-msg] Betreff ist zu lang ($SUBJECT_LENGTH Zeichen, max. $MAX_LENGTH)."
+  exit 1
+fi
+
+exit 0

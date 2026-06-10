@@ -55,3 +55,15 @@ python3 -m http.server 8000
 - macOS/Linux (Bash): `./run_tests.sh`
 
 Beide Skripte führen die Unit-Tests im `tests`-Ordner aus und nutzen einen stabilen Reporter, damit die Ausgabe in verschiedenen Terminaltypen zuverlässig sichtbar ist.
+
+## Git Commit-Message Hook
+Im Repo liegt ein `commit-msg` Hook unter `.githooks/commit-msg`, der den Commit-Betreff prueft:
+- Erlaubte Praefixe: `feat`, `fix`, `docs`, `chore`, `deploy`, `refactor`, `test`, `style`, `perf`, `ci`, `build`, `revert`
+- Format: `<prefix>: <text>`
+- Nur Kleinbuchstaben im Betreff
+- Maximale Laenge des Betreffs: 72 Zeichen
+
+Aktivierung (einmal pro lokalem Clone):
+```bash
+git config core.hooksPath .githooks
+```
