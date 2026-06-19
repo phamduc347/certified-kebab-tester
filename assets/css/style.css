@@ -6744,8 +6744,7 @@ body.dark .doner-news-skeleton {
     }
 }
 
-body.low-perf-mode .doner-news-skeleton,
-body.low-perf-mode .doner-news-item {
+body.low-perf-mode .doner-news-skeleton {
     animation: none;
 }
 
