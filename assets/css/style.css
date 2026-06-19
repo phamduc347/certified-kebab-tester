@@ -1415,7 +1415,8 @@ section {
     padding: 24px 32px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    /* flex-start statt center: Inhalt klebt oben, .latest-body wird per margin-top: auto ans Ende gepusht */
+    justify-content: flex-start;
     background: linear-gradient(to right, #ffffff, #fafafa);
     overflow: hidden;
 }
@@ -1441,6 +1442,11 @@ section {
     font-size: 1.8rem;
     margin-bottom: 6px;
     line-height: 1.1;
+    /* Sicherheitsnetz: max. 2 Zeilen, damit lange Namen nie den Button verschieben */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .latest-info h3 a {
@@ -1488,7 +1494,8 @@ section {
     align-items: flex-end;
     border-top: 1px solid var(--border-color);
     padding-top: 20px;
-    margin-top: 16px;
+    /* margin-top: auto pinnt den Button-Bereich ans absolute Ende des Containers */
+    margin-top: auto;
 }
 
 .latest-details {
