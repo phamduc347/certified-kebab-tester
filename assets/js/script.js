@@ -1255,7 +1255,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Render markers
-        stacks.forEach((item) => {
+        stacks.forEach((item, markerIndex) => {
             const marker = document.createElement('div');
             marker.className = 'hero-timeline-marker';
 
@@ -1267,6 +1267,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const avgScore = (totalScore / item.reviews.length).toFixed(1);
             marker.style.left = `${item.percent}%`;
             marker.style.setProperty('--stack-offset', `${item.stackIndex * 12}px`);
+            marker.style.setProperty('--marker-delay', `${markerIndex * 75}ms`);
 
             // Set browser native title attribute with spot information
             if (item.isCluster) {
