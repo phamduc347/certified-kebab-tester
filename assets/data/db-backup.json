@@ -1,11 +1,34 @@
 {
   "info": {
-    "timestamp": "2026-06-23T03:55:55.163Z",
+    "timestamp": "2026-06-24T03:57:10.174Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
   "data": {
     "community_reviews": [
+      {
+        "id": 72,
+        "reviewer_name": "👑 Pham (CKT)",
+        "spot_name": "Bosporus Döner & Pizzeria",
+        "city": "Dresden",
+        "dish": "Döner",
+        "visit_date": "2026-06-23",
+        "fleisch": 7.3,
+        "gemuese": 7.3,
+        "sosse": 5.9,
+        "brot": 9.1,
+        "balance": 5,
+        "auswahl": 6.4,
+        "portion": 7.1,
+        "hygiene": 8.4,
+        "service": 8.9,
+        "comment_text": "Der Döner punktet beim Vorortverzehr mit einem wirklich guten Brot, außen knusprig und innen weich, dazu frisches Gemüse. Das Fleisch ist solide, aber geschmacklich ohne Besonderheit. Leider überfordert die Soße mit ihrer Menge und Deftigkeit, was die Gesamtbalance drückt.. (die Masse erkennt man auf dem Bild). Was wiederum gar nicht gegeben ist sind Gewürze, frische Kräuter oder Zitrone. Immerhin war der Service sehr nett! Nichtsdestotrotz - Ich habe leider das Gefühl, dass die Konkurrenz an Bosporus vorbei zieht.",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1782251663972-kuu5e3d8.jpeg",
+        "is_approved": true,
+        "created_at": "2026-06-23T21:54:25.599195+00:00",
+        "preis": "7,00 €",
+        "verzehrort": "Dine-in"
+      },
       {
         "id": 71,
         "reviewer_name": "👑 Pham (CKT)",
@@ -13,16 +36,16 @@
         "city": "Dresden",
         "dish": "Döner",
         "visit_date": "2026-06-20",
-        "fleisch": 7.9,
+        "fleisch": 8.3,
         "gemuese": 9.5,
         "sosse": 9.2,
         "brot": 7.7,
-        "balance": 8,
-        "auswahl": 8,
-        "portion": 6.8,
+        "balance": 8.4,
+        "auswahl": 8.9,
+        "portion": 7.4,
         "hygiene": 7.7,
         "service": 7.5,
-        "comment_text": "Dieser Döner ruft Erinnerungen an Rüyam aus Berlin wach. Das Fleisch ist solide, doch Gemüse und Soßen sind hier die Stars. Das Gemüse punktet mit saurer Einlage und frischen Kräutern wie Petersilie und Minze. Die Soße ist zwar etwas fester, geschmacklich aber hervorragend, dazu gab es extra Zumach und Zitrone. Die Portion könnte größer sein, passt aber zum Preis. Ein sehr guter Neuzugang in Dresden. Ich bin begeistert!",
+        "comment_text": "Dieser Döner auf der Alaunstraße ruft Erinnerungen an Rüyam aus Berlin wach. Das Fleisch ist solide, doch Gemüse und Soßen sind hier die maßgebenden Faktoren. Das Gemüse punktet mit leckergeiler Säure und frischen Kräutern wie Petersilie und Minze. Die Soße ist etwas fester, geschmacklich aber hervorragend, dazu gab es extra Zumach und Zitrone. Babamäßig. Die Portion könnte allerdings größer sein, ist aber in Ornung für den Preis von 6,50€. Ein sehr guter Neuzugang in Dresden. Ich bin begeistert!",
         "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1781980281769-isp29f3d.jpeg",
         "is_approved": true,
         "created_at": "2026-06-20T18:31:23.093633+00:00",
@@ -1025,6 +1048,18 @@
         "spot_id": 633821585,
         "voter_fingerprint": "5a70b97f-0c1d-4b15-9590-4dd0be7afb96",
         "created_at": "2026-06-08T13:00:11.072244+00:00"
+      },
+      {
+        "id": 71,
+        "spot_id": 1535882155,
+        "voter_fingerprint": "e1a098b4-b379-4791-82a7-e2ec682c5d9f",
+        "created_at": "2026-06-23T09:28:03.366501+00:00"
+      },
+      {
+        "id": 72,
+        "spot_id": 1743491907,
+        "voter_fingerprint": "cf5ff957-afce-42de-ad19-450fc644f581",
+        "created_at": "2026-06-23T21:56:46.399211+00:00"
       }
     ],
     "review_comments": [
