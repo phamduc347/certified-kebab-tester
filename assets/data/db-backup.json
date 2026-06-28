@@ -1,11 +1,34 @@
 {
   "info": {
-    "timestamp": "2026-06-27T03:51:02.739Z",
+    "timestamp": "2026-06-28T04:12:46.792Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
   "data": {
     "community_reviews": [
+      {
+        "id": 73,
+        "reviewer_name": "👑 Pham (CKT)",
+        "spot_name": "Hugoo Gemüse Döner",
+        "city": "Leipzig",
+        "dish": "Gemüse-Döner",
+        "visit_date": "2026-06-26",
+        "fleisch": 9.3,
+        "gemuese": 9.8,
+        "sosse": 8.8,
+        "brot": 9.1,
+        "balance": 7.3,
+        "auswahl": 7.3,
+        "portion": 8,
+        "hygiene": 8.7,
+        "service": 8.7,
+        "comment_text": "Hugoo Leipzig bestätigt seine Top-Bewertung. Alles auf höchstem Niveau. Besonders das Gemüse überzeugt erneut mit seiner starken Säure, welche das deftige Fleisch und die gegrillten Komponenten hervorragend ausgleicht. Ich habe zudem das Gefühl, dass die Portion größer ist. Lediglich die Kräuter fehlten und die Balance war nicht ganz stimmig - viel Gemüse on top und fast nur Fleisch am Ende. Nichtsdestotrotz ein ausgezeichnetes Erlebnis in Leipzig!",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1782551566285-3b5jd8id.jpeg",
+        "is_approved": true,
+        "created_at": "2026-06-27T09:12:48.246555+00:00",
+        "preis": "7,50 €",
+        "verzehrort": "Dine-in"
+      },
       {
         "id": 72,
         "reviewer_name": "👑 Pham (CKT)",
@@ -1060,6 +1083,12 @@
         "spot_id": 1743491907,
         "voter_fingerprint": "cf5ff957-afce-42de-ad19-450fc644f581",
         "created_at": "2026-06-23T21:56:46.399211+00:00"
+      },
+      {
+        "id": 73,
+        "spot_id": 1394184757,
+        "voter_fingerprint": "ddc2c74f-a226-4b89-be92-aa08c87afeff",
+        "created_at": "2026-06-27T11:43:00.539238+00:00"
       }
     ],
     "review_comments": [
