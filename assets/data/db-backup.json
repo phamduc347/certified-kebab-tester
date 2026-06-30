@@ -1,11 +1,34 @@
 {
   "info": {
-    "timestamp": "2026-06-29T04:19:55.318Z",
+    "timestamp": "2026-06-30T04:00:07.902Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
   "data": {
     "community_reviews": [
+      {
+        "id": 74,
+        "reviewer_name": "👑 Pham (CKT)",
+        "spot_name": "Taksim Steak Kebab Haus",
+        "city": "Dresden",
+        "dish": "Döner",
+        "visit_date": "2026-06-29",
+        "fleisch": 7.1,
+        "gemuese": 3.5,
+        "sosse": 7.2,
+        "brot": 7.3,
+        "balance": 7.7,
+        "auswahl": 5.6,
+        "portion": 4.5,
+        "hygiene": 4.6,
+        "service": 8,
+        "comment_text": "Der Taksim Döner zum Mittag war diesmal eher durchwachsen. Das Brot war extrem crunchy, fast schon am Limit. (Manche mögen es genau so aber für mich war es noch in Ordnung) Fleisch und Soße waren zwar gut, aber ohne besonderen Charakter. Leider fiel das Gemüse durch einen unangenehm säuerlichen Geruch und Geschmack auf. Auch die Portion war nur mittelmäßig, die Auswahl blieb wie immer unaufregend. Von mal zu mal schmeckt mir der Döner immer weniger.. Schade!",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1782728723438-f8yyolaf.jpeg",
+        "is_approved": true,
+        "created_at": "2026-06-29T10:25:25.073437+00:00",
+        "preis": "7,00 €",
+        "verzehrort": "Take-away"
+      },
       {
         "id": 73,
         "reviewer_name": "👑 Pham (CKT)",
