@@ -6,23 +6,25 @@ const SCRIPT_PATH = path.resolve(process.cwd(), '../assets/js/script.js');
 const STYLE_PATH = path.resolve(process.cwd(), '../assets/css/style.css');
 
 describe('Spotreview category chart', () => {
-    it('renders the new lollipop chart markup in renderCriteriaBar', () => {
+    it('renders the current bar chart markup in renderCriteriaBar', () => {
         const scriptSource = fs.readFileSync(SCRIPT_PATH, 'utf-8');
 
         expect(scriptSource).toContain('function renderCriteriaBar(label, value, options = {})');
-        expect(scriptSource).toContain('class="cat-score-chip"');
-        expect(scriptSource).toContain('class="bar-bg cat-lollipop-track"');
-        expect(scriptSource).toContain('class="bar-fill cat-lollipop-fill"');
-        expect(scriptSource).toContain('class="cat-lollipop-dot"');
-        expect(scriptSource).toContain("<small>/10</small>");
+        expect(scriptSource).toContain('class="cat-item-bar"');
+        expect(scriptSource).toContain('class="cat-info"');
+        expect(scriptSource).toContain('class="bar-bg"');
+        expect(scriptSource).toContain('class="bar-fill" style="--target-width: ${percentage}%; background-color: ${color}"');
+        expect(scriptSource).toContain("${showAverageSymbol ? 'Ø ' : ''}${value}");
     });
 
-    it('contains the new lollipop chart styles in style.css', () => {
+    it('contains the current bar chart styles in style.css', () => {
         const styleSource = fs.readFileSync(STYLE_PATH, 'utf-8');
 
-        expect(styleSource).toContain('.cat-score-chip');
-        expect(styleSource).toContain('.cat-lollipop-shell');
-        expect(styleSource).toContain('.cat-lollipop-track::before');
-        expect(styleSource).toContain('.cat-lollipop-dot');
+        expect(styleSource).toContain('.spot-categories');
+        expect(styleSource).toContain('.cat-item-bar');
+        expect(styleSource).toContain('.cat-info');
+        expect(styleSource).toContain('.bar-bg');
+        expect(styleSource).toContain('.bar-fill');
+        expect(styleSource).toContain('.spot-card.expanded .bar-fill');
     });
 });
