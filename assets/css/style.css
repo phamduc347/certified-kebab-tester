@@ -3726,13 +3726,37 @@ body.dark #community-review-status.is-error {
     }
 
     .spot-card.expanded .spot-categories {
-        grid-template-columns: 1fr;
-        gap: 10px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px 12px;
         margin-bottom: 18px;
         padding: 10px;
         border: 1px solid rgba(15, 23, 42, 0.06);
         border-radius: 12px;
         background: rgba(255, 255, 255, 0.62);
+    }
+
+    .spot-card.expanded .cat-item-bar {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .spot-card.expanded .cat-info {
+        gap: 6px;
+        min-width: 0;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .spot-card.expanded .cat-info span {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .spot-card.expanded .cat-info span:last-child {
+        margin-left: auto;
     }
 
     .spot-card.expanded .spot-details {
