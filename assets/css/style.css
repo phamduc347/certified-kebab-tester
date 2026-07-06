@@ -3654,12 +3654,48 @@ body.dark #community-review-status.is-error {
 
     .spot-card.expanded {
         padding: 14px 12px 16px;
+        border-radius: 18px;
+        background:
+            radial-gradient(circle at 85% -20%, rgba(37, 99, 235, 0.07), transparent 48%),
+            linear-gradient(180deg, rgba(248, 250, 252, 0.95), rgba(255, 255, 255, 0.98));
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.09);
     }
 
     .spot-card.expanded .spot-card-header {
         margin-bottom: 14px;
         padding-bottom: 12px;
         gap: 10px;
+        align-items: flex-start;
+    }
+
+    .spot-card.expanded .spot-rank {
+        font-size: 1.15rem;
+        margin-right: 8px;
+        opacity: 0.85;
+    }
+
+    .spot-card.expanded .spot-header-text h3 {
+        font-size: 1.1rem;
+        line-height: 1.2;
+    }
+
+    .spot-card.expanded .spot-city {
+        font-size: 0.9rem;
+    }
+
+    .spot-card.expanded .spot-header-actions {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .spot-card.expanded .spot-score-pill,
+    .spot-card.expanded .maps-button {
+        min-width: 0;
+        height: 40px;
+    }
+
+    .spot-card.expanded .spot-score-pill .value {
+        font-size: 1.25rem;
     }
 
     .spot-card.expanded .spot-top-content {
@@ -3673,6 +3709,7 @@ body.dark #community-review-status.is-error {
         width: 100%;
         max-width: 100%;
         height: 200px;
+        border-radius: 14px;
     }
 
     .spot-card.expanded .spot-content,
@@ -3692,11 +3729,16 @@ body.dark #community-review-status.is-error {
         grid-template-columns: 1fr;
         gap: 10px;
         margin-bottom: 18px;
+        padding: 10px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.7);
     }
 
     .spot-card.expanded .spot-details {
         gap: 8px;
         margin-bottom: 18px;
+        padding-top: 12px;
     }
 
     .spot-card.expanded .badge,
@@ -3713,12 +3755,16 @@ body.dark #community-review-status.is-error {
     .spot-card.expanded .spot-comment {
         padding: 14px;
         font-size: 0.92rem;
+        border-radius: 12px;
     }
 
     .spot-card.expanded .review-community-panel {
         padding: 12px;
         border-radius: 14px;
         overflow: hidden;
+        border-color: rgba(15, 23, 42, 0.1);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 252, 0.94));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
     }
 
     .spot-card.expanded .review-community-list {
@@ -3729,6 +3775,8 @@ body.dark #community-review-status.is-error {
     .spot-card.expanded .review-community-preview-btn {
         padding: 12px;
         border-radius: 12px;
+        border-color: rgba(15, 23, 42, 0.12);
+        background: #ffffff;
     }
 
     .spot-card.expanded .review-community-preview-topline,
@@ -3740,11 +3788,42 @@ body.dark #community-review-status.is-error {
     .spot-card.expanded .review-feedback-row {
         margin-top: 8px;
         justify-content: stretch;
+        padding-top: 8px;
+        border-top: 1px solid rgba(15, 23, 42, 0.08);
     }
 
     .spot-card.expanded .review-helpful-btn {
         width: 100%;
         justify-content: center;
+        min-height: 38px;
+        border-radius: 11px;
+    }
+
+    body.dark .spot-card.expanded {
+        background:
+            radial-gradient(circle at 85% -20%, rgba(96, 165, 250, 0.12), transparent 48%),
+            linear-gradient(180deg, rgba(17, 24, 39, 0.95), rgba(11, 16, 29, 0.98));
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+    }
+
+    body.dark .spot-card.expanded .spot-categories {
+        border-color: rgba(148, 163, 184, 0.25);
+        background: rgba(15, 23, 42, 0.55);
+    }
+
+    body.dark .spot-card.expanded .review-community-panel {
+        border-color: rgba(148, 163, 184, 0.22);
+        background: linear-gradient(180deg, rgba(17, 24, 39, 0.96), rgba(15, 23, 42, 0.9));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    body.dark .spot-card.expanded .review-community-preview-btn {
+        border-color: rgba(148, 163, 184, 0.22);
+        background: rgba(17, 24, 39, 0.88);
+    }
+
+    body.dark .spot-card.expanded .review-feedback-row {
+        border-top-color: rgba(148, 163, 184, 0.22);
     }
 
     /* Prevent iOS auto-zoom on input focus: font-size must be >= 16px. */
