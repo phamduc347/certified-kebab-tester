@@ -3656,9 +3656,9 @@ body.dark #community-review-status.is-error {
         padding: 14px 12px 16px;
         border-radius: 18px;
         background:
-            radial-gradient(circle at 85% -20%, rgba(37, 99, 235, 0.07), transparent 48%),
-            linear-gradient(180deg, rgba(248, 250, 252, 0.95), rgba(255, 255, 255, 0.98));
-        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.09);
+            radial-gradient(circle at 85% -20%, rgba(37, 99, 235, 0.05), transparent 52%),
+            linear-gradient(180deg, rgba(250, 252, 255, 0.92), rgba(255, 255, 255, 0.97));
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
     }
 
     .spot-card.expanded .spot-card-header {
@@ -3730,9 +3730,9 @@ body.dark #community-review-status.is-error {
         gap: 10px;
         margin-bottom: 18px;
         padding: 10px;
-        border: 1px solid rgba(15, 23, 42, 0.08);
+        border: 1px solid rgba(15, 23, 42, 0.06);
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.62);
     }
 
     .spot-card.expanded .spot-details {
@@ -3762,9 +3762,9 @@ body.dark #community-review-status.is-error {
         padding: 12px;
         border-radius: 14px;
         overflow: hidden;
-        border-color: rgba(15, 23, 42, 0.1);
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 252, 0.94));
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        border-color: rgba(15, 23, 42, 0.08);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 250, 252, 0.9));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
     }
 
     .spot-card.expanded .review-community-list {
@@ -3775,8 +3775,8 @@ body.dark #community-review-status.is-error {
     .spot-card.expanded .review-community-preview-btn {
         padding: 12px;
         border-radius: 12px;
-        border-color: rgba(15, 23, 42, 0.12);
-        background: #ffffff;
+        border-color: rgba(15, 23, 42, 0.1);
+        background: rgba(255, 255, 255, 0.95);
     }
 
     .spot-card.expanded .review-community-preview-topline,
@@ -3801,25 +3801,25 @@ body.dark #community-review-status.is-error {
 
     body.dark .spot-card.expanded {
         background:
-            radial-gradient(circle at 85% -20%, rgba(96, 165, 250, 0.12), transparent 48%),
-            linear-gradient(180deg, rgba(17, 24, 39, 0.95), rgba(11, 16, 29, 0.98));
-        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+            radial-gradient(circle at 85% -20%, rgba(96, 165, 250, 0.08), transparent 52%),
+            linear-gradient(180deg, rgba(17, 24, 39, 0.92), rgba(11, 16, 29, 0.96));
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
     }
 
     body.dark .spot-card.expanded .spot-categories {
-        border-color: rgba(148, 163, 184, 0.25);
-        background: rgba(15, 23, 42, 0.55);
+        border-color: rgba(148, 163, 184, 0.2);
+        background: rgba(15, 23, 42, 0.48);
     }
 
     body.dark .spot-card.expanded .review-community-panel {
-        border-color: rgba(148, 163, 184, 0.22);
-        background: linear-gradient(180deg, rgba(17, 24, 39, 0.96), rgba(15, 23, 42, 0.9));
+        border-color: rgba(148, 163, 184, 0.18);
+        background: linear-gradient(180deg, rgba(17, 24, 39, 0.92), rgba(15, 23, 42, 0.85));
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
 
     body.dark .spot-card.expanded .review-community-preview-btn {
-        border-color: rgba(148, 163, 184, 0.22);
-        background: rgba(17, 24, 39, 0.88);
+        border-color: rgba(148, 163, 184, 0.18);
+        background: rgba(17, 24, 39, 0.82);
     }
 
     body.dark .spot-card.expanded .review-feedback-row {
