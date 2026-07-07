@@ -588,6 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
         : [];
     const btnGrid = document.getElementById('btn-grid');
     const btnList = document.getElementById('btn-list');
+    const mobileViewToggleBtn = document.getElementById('mobile-view-toggle-btn');
 
     const TOTAL_COMMUNITY_FORM_STEPS = 3;
     let activeCommunityFormStep = 1;
@@ -635,6 +636,8 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedSpots.add(kebabData[0].id);
     }
     let currentSortMode = 'score-desc';
+    const REVIEWS_VIEW_MODE_STORAGE_KEY = 'ckt_reviews_view_mode_v1';
+    let currentReviewsViewMode = (localStorage.getItem(REVIEWS_VIEW_MODE_STORAGE_KEY) === 'tiles') ? 'tiles' : 'list';
 
     // Chart Configuration
     const categories = ['🥩 Fleisch', '🥬 Gemüse', '🍶 Soße', '🥖 Brot', '⚖️ Balance', '📋 Auswahl', '🍽️ Portion', '✨ Hygiene', '👨‍🍳 Service'];
@@ -4206,6 +4209,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            const tileImage = event.target.closest('.spot-tile-media .slide-image, .spot-tile-media .spot-tile-image');
+            if (tileImage && gridContainer.contains(tileImage)) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const spotId = Number(tileImage.dataset.spotId);
+                const reviewId = String(tileImage.dataset.reviewId || '').trim();
+                const opened = openTileImageReviewModal(spotId, reviewId || null, tileImage);
+
+                // Fallback to lightbox only when no community review is available yet.
+                if (!opened && lightbox && lightboxImg && tileImage.src) {
+                    lightboxImg.src = tileImage.src;
+                    lightbox.classList.add('active');
+                    document.body.classList.add('lightbox-open');
+                }
+                return;
+            }
+
+            const tileOpenBtn = event.target.closest('.spot-tile-open-btn');
+            if (tileOpenBtn && gridContainer.contains(tileOpenBtn)) {
+                event.preventDefault();
+                event.stopPropagation();
+                const spotId = Number(tileOpenBtn.dataset.spotId);
+                if (Number.isFinite(spotId)) {
+                    jumpToReview(spotId);
+                }
+                return;
+            }
+
             if (event.target.closest('.maps-button')) {
                 return;
             }
@@ -4417,7 +4449,8 @@ document.addEventListener('DOMContentLoaded', () => {
             slides.push({
                 imageUrl: spot.image || 'kebab_spot_demo.png',
                 comment: spot.kommentar || null,
-                author: '👑 Pham (CKT)'
+                author: '👑 Pham (CKT)',
+                reviewId: null
             });
         }
         const reviews = approvedCommunityReviewsBySpotId.get(Number(spot.id)) || [];
@@ -4425,10 +4458,30 @@ document.addEventListener('DOMContentLoaded', () => {
             slides.push({
                 imageUrl: String(review.image_url || '').trim() || 'kebab_spot_demo.png',
                 comment: review.comment_text || null,
-                author: escapeHtml(review.reviewer_name || 'Anonym')
+                author: escapeHtml(review.reviewer_name || 'Anonym'),
+                reviewId: review.id
             });
         });
         return slides;
+    }
+
+    function openTileImageReviewModal(spotId, reviewId, triggerElement = null) {
+        const normalizedSpotId = Number(spotId);
+        if (!Number.isFinite(normalizedSpotId)) return false;
+
+        const reviews = getSortedCommunityReviewsForSpot(normalizedSpotId);
+        if (!Array.isArray(reviews) || reviews.length === 0) return false;
+
+        let targetReview = null;
+        const normalizedReviewId = String(reviewId || '').trim();
+        if (normalizedReviewId) {
+            targetReview = reviews.find((review) => String(review && review.id) === normalizedReviewId) || null;
+        }
+        if (!targetReview) {
+            targetReview = reviews[0];
+        }
+
+        return openCommunityReviewPopup(normalizedSpotId, targetReview.id, triggerElement);
     }
 
     function initSlideshow(card, slides) {
@@ -4436,15 +4489,27 @@ document.addEventListener('DOMContentLoaded', () => {
         if (numSlides < 2) return;
 
         // --- Image Carousel Logic ---
-        const imageContainer = card.querySelector('.spot-image-container');
+        const imageContainer = card.querySelector('.spot-image-container, .spot-tile-media');
         if (imageContainer) {
             let imgIndex = 0;
             const images = imageContainer.querySelectorAll('.slide-image');
             const imgDots = imageContainer.querySelectorAll('.slide-dot');
             const track = imageContainer.querySelector('.slide-image-track');
             let interval;
+            let timeout;
             let isAnimating = false;
             let shiftState = 0; // 0 = normal, -1 = last item shifted to front
+
+            // Deterministic per-card cadence so all slideshows run asynchronously.
+            const autoplaySeed = String(card.id || `${Date.now()}-${Math.random()}`);
+            let autoplayHash = 0;
+            for (let i = 0; i < autoplaySeed.length; i++) {
+                autoplayHash = ((autoplayHash << 5) - autoplayHash) + autoplaySeed.charCodeAt(i);
+                autoplayHash |= 0;
+            }
+            const hashAbs = Math.abs(autoplayHash);
+            const autoplayIntervalMs = 5200 + (hashAbs % 1800); // 5.2s - 7.0s
+            const autoplayInitialDelayMs = 500 + (hashAbs % 2400); // 0.5s - 2.9s
 
             function updateActiveStates() {
                 imgDots.forEach((dot, i) => dot.classList.toggle('active', i === imgIndex));
@@ -4509,16 +4574,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
             function startAutoplay() {
                 stopAutoplay();
-                interval = setInterval(() => {
+                timeout = setTimeout(() => {
                     navigateImg('next');
-                }, 6000);
-                card._autoplayInterval = interval;
+                    interval = setInterval(() => {
+                        navigateImg('next');
+                    }, autoplayIntervalMs);
+                    card._autoplayInterval = interval;
+                    card._autoplayTimeout = null;
+                }, autoplayInitialDelayMs);
+                card._autoplayTimeout = timeout;
             }
 
             function stopAutoplay() {
+                if (timeout) {
+                    clearTimeout(timeout);
+                    timeout = null;
+                }
                 if (interval) {
                     clearInterval(interval);
                     interval = null;
+                }
+                if (card._autoplayTimeout) {
+                    clearTimeout(card._autoplayTimeout);
+                    card._autoplayTimeout = null;
                 }
                 if (card._autoplayInterval) {
                     clearInterval(card._autoplayInterval);
@@ -5375,6 +5453,105 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1800);
     }
 
+    function updateReviewViewButtons() {
+        if (btnList) {
+            const isList = currentReviewsViewMode === 'list';
+            btnList.classList.toggle('active', isList);
+            btnList.setAttribute('aria-pressed', isList ? 'true' : 'false');
+        }
+
+        if (btnGrid) {
+            const isTiles = currentReviewsViewMode === 'tiles';
+            btnGrid.classList.toggle('active', isTiles);
+            btnGrid.setAttribute('aria-pressed', isTiles ? 'true' : 'false');
+        }
+
+        if (gridContainer) {
+            gridContainer.classList.toggle('spots-container--tiles', currentReviewsViewMode === 'tiles');
+        }
+
+        if (mobileViewToggleBtn) {
+            const nextModeLabel = currentReviewsViewMode === 'list' ? 'Kacheln' : 'Liste';
+            const nextModeAriaLabel = currentReviewsViewMode === 'list' ? 'Ansicht auf Kacheln umschalten' : 'Ansicht auf Liste umschalten';
+            mobileViewToggleBtn.textContent = nextModeLabel;
+            mobileViewToggleBtn.setAttribute('aria-label', nextModeAriaLabel);
+        }
+    }
+
+    function setReviewsViewMode(nextMode) {
+        const normalizedMode = nextMode === 'tiles' ? 'tiles' : 'list';
+        if (currentReviewsViewMode === normalizedMode) {
+            updateReviewViewButtons();
+            return;
+        }
+
+        currentReviewsViewMode = normalizedMode;
+        localStorage.setItem(REVIEWS_VIEW_MODE_STORAGE_KEY, currentReviewsViewMode);
+        updateReviewViewButtons();
+        renderGrid();
+    }
+
+    function createReviewTileElement(spot, index, options = {}) {
+        const tile = document.createElement('article');
+        tile.className = 'spot-tile-card';
+        const cardIdPrefix = options.cardIdPrefix || 'spot-tile';
+        tile.id = `${cardIdPrefix}-${spot.id}`;
+        tile.style.animationDelay = `${index * 0.05}s`;
+
+        const displayRank = Number.isFinite(options.displayRank) ? options.displayRank : index + 1;
+        const mapsLink = buildMapsSearchLink(spot);
+        const scoreDisplay = normalizeSpotScoreDisplay(spot.score);
+        const safeSpotName = escapeHtml(spot.name);
+        const safeSpotCity = escapeHtml(spot.city);
+        const slides = buildSlidesForSpot(spot);
+        const hasSlideshow = slides.length >= 2;
+        const primarySlide = slides[0] || null;
+        const primarySlideImageUrl = primarySlide && primarySlide.imageUrl ? primarySlide.imageUrl : spot.image;
+        const primarySlideReviewId = primarySlide && primarySlide.reviewId != null
+            ? `data-review-id="${escapeHtml(String(primarySlide.reviewId))}"`
+            : '';
+
+        tile.innerHTML = `
+            <div class="spot-tile-media">
+                ${hasSlideshow ? `
+                    <div class="slide-image-track">
+                        ${slides.map((s, i) => {
+                const reviewIdAttr = s.reviewId != null ? `data-review-id="${escapeHtml(String(s.reviewId))}"` : '';
+                return `<img src="${sanitizeUrl(s.imageUrl)}" alt="Slide ${i + 1}" class="slide-image ${i === 0 ? 'active' : ''}" data-spot-id="${Number(spot.id)}" ${reviewIdAttr} loading="lazy" />`;
+            }).join('')}
+                    </div>
+                    <div class="slide-dots">
+                        ${slides.map((_, i) => `<button class="slide-dot ${i === 0 ? 'active' : ''}" aria-label="Slide ${i + 1}"></button>`).join('')}
+                    </div>
+                ` : `
+                    <img src="${sanitizeUrl(primarySlideImageUrl)}" alt="Bild von ${safeSpotName}" class="spot-tile-image" data-spot-id="${Number(spot.id)}" ${primarySlideReviewId} loading="lazy" />
+                `}
+                <span class="spot-tile-rank">#${displayRank}</span>
+                <span class="spot-tile-score">Ø ${scoreDisplay}</span>
+            </div>
+            <div class="spot-tile-body">
+                <div class="spot-tile-title-row">
+                    <h3>${safeSpotName}</h3>
+                    <div class="spot-tile-stars">${renderStars(scoreDisplay)}</div>
+                </div>
+                <p class="spot-tile-city">${safeSpotCity}</p>
+                <div class="spot-tile-actions">
+                    <a href="${mapsLink}" target="_blank" class="maps-button spot-tile-maps-button">
+                        <span>Google Maps</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                    <button type="button" class="spot-tile-open-btn" data-spot-id="${Number(spot.id)}">Details</button>
+                </div>
+            </div>
+        `;
+
+        if (hasSlideshow) {
+            initSlideshow(tile, slides);
+        }
+
+        return tile;
+    }
+
     function createReviewCardElement(spot, index, options = {}) {
         const card = document.createElement('div');
         card.className = 'spot-card';
@@ -5526,12 +5703,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearInterval(card._autoplayInterval);
                 card._autoplayInterval = null;
             }
+            if (card._autoplayTimeout) {
+                clearTimeout(card._autoplayTimeout);
+                card._autoplayTimeout = null;
+            }
+        });
+
+        const tileCards = gridContainer.querySelectorAll('.spot-tile-card');
+        tileCards.forEach(card => {
+            if (card._autoplayInterval) {
+                clearInterval(card._autoplayInterval);
+                card._autoplayInterval = null;
+            }
+            if (card._autoplayTimeout) {
+                clearTimeout(card._autoplayTimeout);
+                card._autoplayTimeout = null;
+            }
         });
     }
 
     function renderGrid() {
         cleanupGridIntervals();
         gridContainer.innerHTML = '';
+        updateReviewViewButtons();
 
         const filteredData = kebabData.filter(spot => {
             const query = reviewFilterQuery.trim().toLowerCase();
@@ -5579,16 +5773,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const fragment = document.createDocumentFragment();
 
         toShow.forEach((spot, index) => {
-            const card = createReviewCardElement(spot, index, {
-                cardIdPrefix: 'spot',
-                includeEngagement: true,
-                includePL: true,
-                includeVisits: true,
-                includePrice: true,
-                includeVerzehrort: true,
-                displayRank: index + 1
-            });
-            fragment.appendChild(card);
+            if (currentReviewsViewMode === 'tiles') {
+                const tile = createReviewTileElement(spot, index, {
+                    cardIdPrefix: 'spot-tile',
+                    displayRank: index + 1
+                });
+                fragment.appendChild(tile);
+            } else {
+                const card = createReviewCardElement(spot, index, {
+                    cardIdPrefix: 'spot',
+                    includeEngagement: true,
+                    includePL: true,
+                    includeVisits: true,
+                    includePrice: true,
+                    includeVerzehrort: true,
+                    displayRank: index + 1
+                });
+                fragment.appendChild(card);
+            }
         });
 
         // Load More button
@@ -5628,6 +5830,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function jumpToReview(spotId, reviewId) {
+        if (currentReviewsViewMode !== 'list') {
+            currentReviewsViewMode = 'list';
+            localStorage.setItem(REVIEWS_VIEW_MODE_STORAGE_KEY, currentReviewsViewMode);
+        }
+
         // 1. Reset filters to all active
         activeCities = new Set(cities);
         activeDishes = new Set(dishes);
@@ -6165,6 +6372,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initChart();
     setupGridDelegatedHandlers();
     refreshFilterOptions(false);
+    updateReviewViewButtons();
     renderGrid();
     renderToggles();
     updateChart();
@@ -6195,6 +6403,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 120);
 
         reviewFilterSearchInput.addEventListener('input', handleReviewFilterSearchInput);
+    }
+
+    if (btnList) {
+        btnList.addEventListener('click', () => setReviewsViewMode('list'));
+    }
+
+    if (btnGrid) {
+        btnGrid.addEventListener('click', () => setReviewsViewMode('tiles'));
+    }
+
+    if (mobileViewToggleBtn) {
+        mobileViewToggleBtn.addEventListener('click', () => {
+            const nextMode = currentReviewsViewMode === 'list' ? 'tiles' : 'list';
+            setReviewsViewMode(nextMode);
+        });
     }
 
     if (mobileFilterToggleBtn) {
