@@ -1,11 +1,57 @@
 {
   "info": {
-    "timestamp": "2026-07-06T03:57:01.944Z",
+    "timestamp": "2026-07-07T03:48:07.436Z",
     "version": "1.0",
     "description": "Automatisches Backup der Supabase-Tabellen"
   },
   "data": {
     "community_reviews": [
+      {
+        "id": 78,
+        "reviewer_name": "👑 Pham (CKT)",
+        "spot_name": "Taksim Steak Kebab Haus",
+        "city": "Dresden",
+        "dish": "Döner",
+        "visit_date": "2026-07-06",
+        "fleisch": 7.8,
+        "gemuese": 7.5,
+        "sosse": 7.7,
+        "brot": 8.6,
+        "balance": 7.9,
+        "auswahl": 8.2,
+        "portion": 8.1,
+        "hygiene": 8.7,
+        "service": 9,
+        "comment_text": "Es ist der vierte Tag in Folge an dem es Döner für mich gibt. Heute Mittag auf Arbeit natürlich bei Taksim. Vom Team gezwungen und aus Liebe zur Wissenschaft habe ich mir dieses türkische Sandwich trotz wenig Appetit dennoch einverleibt. Was soll ich sagen.. Fleisch, Gemüse und auch Soßen waren wieder etwas über dem Durchschnitt. Frisch aber geschmacklich keine Neuheit. Lobenswert ist das vermutlich selbstgebackene Brot (könnte aber auch von einem lokalen Bäcker stammen). Die Auswahl ist bis auf die Sumach Option leider auch eher Mid. Die Servicekräfte waren allerdings wie immer sehr nett und brachten das Essen an den Tisch. Insgesamt wieder eine sättigende Mahlzeit für einen verträglichen Preis - eine kulinarische Trendwende kann ich leider nicht erkennen",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1783370382074-npkblu4c.jpeg",
+        "is_approved": true,
+        "created_at": "2026-07-06T20:39:43.553715+00:00",
+        "preis": "7,00 €",
+        "verzehrort": "Dine-in"
+      },
+      {
+        "id": 77,
+        "reviewer_name": "👑 Pham (CKT)",
+        "spot_name": "Berlin’er gemüse döner",
+        "city": "Dresden",
+        "dish": "Dürüm",
+        "visit_date": "2026-07-04",
+        "fleisch": 9.3,
+        "gemuese": 9.7,
+        "sosse": 9.2,
+        "brot": 9.8,
+        "balance": 8.9,
+        "auswahl": 9.7,
+        "portion": 8.9,
+        "hygiene": 8.8,
+        "service": 8.5,
+        "comment_text": "Heute gabs für mich mal Dürüm, weil die Woche bereits dönerreich war. Fleisch und Soßen waren wieder überdurchschnittlich gut. Das Gemüse hat mich auch dieses mal wieder durch die Säure krass abgeholt. Mit Sumach, Käse und Spritzer Zitrone wird immer getoppt, was in DD eine Seltenheit ist! Herausragend war auch der Dürümteig der frisch im Ofen gebacken und an der Theke belegt wurde. Für mich positiv als auch negativ war das extrem scharfe Chilipulver 😮‍💨 Fazit: dieser Döner ist Stand heute meine Nr. 1 in der Dresdner Neustadt",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1783369408892-1nlxo4vk.jpeg",
+        "is_approved": true,
+        "created_at": "2026-07-06T20:23:31.254802+00:00",
+        "preis": "8,50 €",
+        "verzehrort": "Dine-in"
+      },
       {
         "id": 76,
         "reviewer_name": "👑 Pham (CKT)",
@@ -51,6 +97,29 @@
         "created_at": "2026-07-04T02:08:22.106317+00:00",
         "preis": "7,00 €",
         "verzehrort": "Dine-in"
+      },
+      {
+        "id": 74,
+        "reviewer_name": "👑 Pham (CKT)",
+        "spot_name": "Taksim Steak Kebab Haus",
+        "city": "Dresden",
+        "dish": "Döner",
+        "visit_date": "2026-06-29",
+        "fleisch": 7.1,
+        "gemuese": 3.5,
+        "sosse": 7.2,
+        "brot": 7.3,
+        "balance": 7.7,
+        "auswahl": 5.6,
+        "portion": 4.5,
+        "hygiene": 4.6,
+        "service": 8,
+        "comment_text": "Der Taksim Döner zum Mittag war diesmal eher durchwachsen. Das Brot war extrem crunchy, fast schon am Limit. (Manche mögen es genau so aber für mich war es noch in Ordnung) Fleisch und Soße waren zwar gut, aber ohne besonderen Charakter. Leider fiel das Gemüse durch einen unangenehm säuerlichen Geruch und Geschmack auf. Auch die Portion war nur mittelmäßig, die Auswahl blieb wie immer unaufregend. Von mal zu mal schmeckt mir der Döner immer weniger.. Schade!",
+        "image_url": "https://ehmrxhrfbejcaocpxfed.supabase.co/storage/v1/object/public/community-review-images/public/1782728723438-f8yyolaf.jpeg",
+        "is_approved": true,
+        "created_at": "2026-06-29T10:25:25.073437+00:00",
+        "preis": "7,00 €",
+        "verzehrort": "Take-away"
       },
       {
         "id": 73,
@@ -1124,6 +1193,24 @@
         "spot_id": 1104646612,
         "voter_fingerprint": "cf5ff957-afce-42de-ad19-450fc644f581",
         "created_at": "2026-07-05T20:03:26.564192+00:00"
+      },
+      {
+        "id": 76,
+        "spot_id": 709238275,
+        "voter_fingerprint": "6a8d12f4-6276-4bec-af3d-48a807b98ff3",
+        "created_at": "2026-07-06T10:42:20.07125+00:00"
+      },
+      {
+        "id": 77,
+        "spot_id": 1104646612,
+        "voter_fingerprint": "d963f948-0d20-4940-aa47-4c3e3144d14f",
+        "created_at": "2026-07-06T11:47:50.719743+00:00"
+      },
+      {
+        "id": 78,
+        "spot_id": 1753957884,
+        "voter_fingerprint": "ddc2c74f-a226-4b89-be92-aa08c87afeff",
+        "created_at": "2026-07-06T20:40:06.502382+00:00"
       }
     ],
     "review_comments": [
