@@ -644,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     let currentSortMode = 'score-desc';
     const REVIEWS_VIEW_MODE_STORAGE_KEY = 'ckt_reviews_view_mode_v1';
-    let currentReviewsViewMode = (localStorage.getItem(REVIEWS_VIEW_MODE_STORAGE_KEY) === 'tiles') ? 'tiles' : 'list';
+    let currentReviewsViewMode = (localStorage.getItem(REVIEWS_VIEW_MODE_STORAGE_KEY) === 'list') ? 'list' : 'tiles';
 
     // Chart Configuration
     const categories = ['🥩 Fleisch', '🥬 Gemüse', '🍶 Soße', '🥖 Brot', '⚖️ Balance', '📋 Auswahl', '🍽️ Portion', '✨ Hygiene', '👨‍🍳 Service'];
