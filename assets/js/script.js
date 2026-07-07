@@ -4453,7 +4453,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMobileFilterToggleState();
     }
 
-    const SPOTS_PER_PAGE = 7;
+    const SPOTS_PER_PAGE = 9;
     let visibleCount = SPOTS_PER_PAGE;
 
     function buildSlidesForSpot(spot) {

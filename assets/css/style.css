@@ -1946,6 +1946,12 @@ section {
     color: var(--text-main);
 }
 
+.spots-container.spots-container--tiles .load-more-btn {
+    grid-column: 1 / -1;
+    margin: 16px auto 0;
+    max-width: 320px;
+}
+
 .spot-card {
     background: var(--bg-main);
     border: 1px solid var(--border-color);
