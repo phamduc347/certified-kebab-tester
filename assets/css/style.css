@@ -1836,6 +1836,7 @@ section {
     padding: 6px 10px;
     background: rgba(2, 6, 23, 0.84);
     color: #ffffff;
+    pointer-events: none;
 }
 
 .spot-tile-rank {
