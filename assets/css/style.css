@@ -1790,6 +1790,8 @@ section {
     position: relative;
     aspect-ratio: 16 / 10;
     overflow: hidden;
+    touch-action: pan-y;
+    user-select: none;
 }
 
 .spot-tile-image {
