@@ -29,6 +29,13 @@ window.fadeOutLoader = () => {
     if (loader && !loader.classList.contains('fade-out')) {
         loader.classList.add('fade-out');
         setTimeout(() => loader.remove(), 600);
+        
+        setTimeout(() => {
+            const timeline = document.getElementById('hero-timeline');
+            if (timeline) {
+                timeline.classList.add('animate');
+            }
+        }, 200);
     }
 };
 // Global Safety Timeout: Ensure loader disappears even if scripts crash
@@ -1022,6 +1029,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const endDateLabel = document.getElementById('hero-timeline-end-date');
 
         if (!timelineContainer || !markersContainer || !startDateLabel || !endDateLabel) return;
+
+        // If the loader is already gone, ensure we have the animate class so animation plays
+        const loader = document.getElementById('page-loader');
+        if (!loader) {
+            timelineContainer.classList.add('animate');
+        }
 
         // Clear previous markers & ticks
         markersContainer.innerHTML = '';
