@@ -1828,25 +1828,52 @@ section {
 .spot-tile-rank,
 .spot-tile-score {
     position: absolute;
-    z-index: 1;
+    z-index: 2;
     border-radius: 999px;
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     font-weight: 800;
-    letter-spacing: 0.4px;
-    padding: 6px 10px;
-    background: rgba(2, 6, 23, 0.84);
-    color: #ffffff;
+    letter-spacing: 0.2px;
+    line-height: 1;
+    padding: 7px 11px;
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(148, 163, 184, 0.34);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.14);
+    font-variant-numeric: tabular-nums;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     pointer-events: none;
 }
 
 .spot-tile-rank {
-    top: 10px;
-    left: 10px;
+    top: 12px;
+    left: 12px;
 }
 
 .spot-tile-score {
-    top: 10px;
-    right: 10px;
+    top: 12px;
+    right: 12px;
+}
+
+.spots-container.spots-container--tiles .spot-tile-card:nth-child(1) .spot-tile-rank,
+.spots-container.spots-container--tiles .spot-tile-card:nth-child(1) .spot-tile-score {
+    color: #5f4200;
+    background: rgba(248, 225, 146, 0.84);
+    border: 1px solid rgba(182, 138, 22, 0.56);
+}
+
+.spots-container.spots-container--tiles .spot-tile-card:nth-child(2) .spot-tile-rank,
+.spots-container.spots-container--tiles .spot-tile-card:nth-child(2) .spot-tile-score {
+    color: #334155;
+    background: rgba(226, 232, 240, 0.86);
+    border: 1px solid rgba(107, 114, 128, 0.5);
+}
+
+.spots-container.spots-container--tiles .spot-tile-card:nth-child(3) .spot-tile-rank,
+.spots-container.spots-container--tiles .spot-tile-card:nth-child(3) .spot-tile-score {
+    color: #6b2f12;
+    background: rgba(223, 166, 129, 0.84);
+    border: 1px solid rgba(138, 75, 31, 0.56);
 }
 
 .spot-tile-body {
@@ -8985,8 +9012,31 @@ body.dark .spot-tile-card {
 
 body.dark .spot-tile-rank,
 body.dark .spot-tile-score {
-    background: rgba(255, 255, 255, 0.9);
-    color: #111827;
+    background: rgba(15, 23, 42, 0.72);
+    color: #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    box-shadow: 0 8px 18px rgba(2, 6, 23, 0.4);
+}
+
+body.dark .spots-container.spots-container--tiles .spot-tile-card:nth-child(1) .spot-tile-rank,
+body.dark .spots-container.spots-container--tiles .spot-tile-card:nth-child(1) .spot-tile-score {
+    color: #f2d37a;
+    background: rgba(111, 82, 15, 0.4);
+    border: 1px solid rgba(212, 175, 55, 0.58);
+}
+
+body.dark .spots-container.spots-container--tiles .spot-tile-card:nth-child(2) .spot-tile-rank,
+body.dark .spots-container.spots-container--tiles .spot-tile-card:nth-child(2) .spot-tile-score {
+    color: #e2e8f0;
+    background: rgba(71, 85, 105, 0.4);
+    border: 1px solid rgba(203, 213, 225, 0.5);
+}
+
+body.dark .spots-container.spots-container--tiles .spot-tile-card:nth-child(3) .spot-tile-rank,
+body.dark .spots-container.spots-container--tiles .spot-tile-card:nth-child(3) .spot-tile-score {
+    color: #e7b08a;
+    background: rgba(122, 63, 33, 0.4);
+    border: 1px solid rgba(201, 125, 75, 0.52);
 }
 
 body.dark .spot-tile-open-btn {
