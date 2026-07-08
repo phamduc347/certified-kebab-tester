@@ -5516,6 +5516,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const scoreDisplay = normalizeSpotScoreDisplay(spot.score);
         const safeSpotName = escapeHtml(spot.name);
         const safeSpotCity = escapeHtml(spot.city);
+        const spotMetaItems = [safeSpotCity];
+        const spotDate = String(spot && spot.date ? spot.date : '').trim();
+        const spotPrice = String(spot && spot.preis ? spot.preis : '').trim();
+        const reviewCount = Number(spot && spot.besuche);
+        if (spotDate && spotDate !== '-') {
+            spotMetaItems.push(escapeHtml(spotDate));
+        }
+        if (spotPrice && spotPrice !== '-') {
+            spotMetaItems.push(escapeHtml(spotPrice));
+        }
+        if (Number.isFinite(reviewCount) && reviewCount > 0) {
+            spotMetaItems.push(`${reviewCount} ${reviewCount === 1 ? 'Review' : 'Reviews'}`);
+        }
+        const safeSpotMeta = spotMetaItems.join(' · ');
         const slides = buildSlidesForSpot(spot);
         const hasSlideshow = slides.length >= 2;
         const primarySlide = slides[0] || null;
@@ -5547,7 +5561,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h3>${safeSpotName}</h3>
                     <div class="spot-tile-stars">${renderStars(scoreDisplay)}</div>
                 </div>
-                <p class="spot-tile-city">${safeSpotCity}</p>
+                <p class="spot-tile-city">${safeSpotMeta}</p>
                 <div class="spot-tile-actions">
                     <a href="${mapsLink}" target="_blank" class="maps-button spot-tile-maps-button">
                         <span>Google Maps</span>

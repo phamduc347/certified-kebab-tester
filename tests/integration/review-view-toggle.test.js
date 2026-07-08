@@ -26,6 +26,16 @@ describe('All Reviews view toggle', () => {
         expect(source).toContain('jumpToReview(spotId)');
     });
 
+    it('includes city, last visit date, price and review count in tile meta text', () => {
+        const source = fs.readFileSync(SCRIPT_PATH, 'utf-8');
+
+        expect(source).toContain("const safeSpotMeta = spotMetaItems.join(' · ');");
+        expect(source).toContain('spotMetaItems.push(escapeHtml(spotDate));');
+        expect(source).toContain('spotMetaItems.push(escapeHtml(spotPrice));');
+        expect(source).toContain("spotMetaItems.push(`${reviewCount} ${reviewCount === 1 ? 'Review' : 'Reviews'}`);");
+        expect(source).toContain('<p class="spot-tile-city">${safeSpotMeta}</p>');
+    });
+
     it('defines responsive tile layout styles', () => {
         const css = fs.readFileSync(STYLE_PATH, 'utf-8');
 
