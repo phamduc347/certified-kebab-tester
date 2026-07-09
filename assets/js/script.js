@@ -4512,6 +4512,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let timeout;
             let isAnimating = false;
             let shiftState = 0; // 0 = normal, -1 = last item shifted to front
+            const manualAutoplayResumeDelayMs = 8000;
 
             // Deterministic per-card cadence so all slideshows run asynchronously.
             const autoplaySeed = String(card.id || `${Date.now()}-${Math.random()}`);
@@ -4585,7 +4586,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            function startAutoplay() {
+            function scheduleAutoplay(delayMs = autoplayInitialDelayMs) {
                 stopAutoplay();
                 timeout = setTimeout(() => {
                     navigateImg('next');
@@ -4594,8 +4595,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, autoplayIntervalMs);
                     card._autoplayInterval = interval;
                     card._autoplayTimeout = null;
-                }, autoplayInitialDelayMs);
+                }, delayMs);
                 card._autoplayTimeout = timeout;
+            }
+
+            function startAutoplay() {
+                scheduleAutoplay();
+            }
+
+            function pauseAutoplayAfterManualNavigation() {
+                scheduleAutoplay(manualAutoplayResumeDelayMs);
             }
 
             function stopAutoplay() {
@@ -4621,7 +4630,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 dot.addEventListener('click', (e) => {
                     e.stopPropagation();
                     jumpToImg(idx);
-                    startAutoplay();
+                    pauseAutoplayAfterManualNavigation();
                 });
             });
 
@@ -4744,7 +4753,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         track.style.transform = `translateX(0)`;
                     }
                 }
-                startAutoplay();
+                pauseAutoplayAfterManualNavigation();
             });
 
             imageContainer.addEventListener('pointercancel', () => {
@@ -4776,7 +4785,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     navigateImg('prev');
                 }
-                startAutoplay();
+                pauseAutoplayAfterManualNavigation();
             }, { passive: false });
 
             startAutoplay();
