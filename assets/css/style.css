@@ -4965,6 +4965,94 @@ body.dark .mobile-filter-clear-btn:hover {
     font-weight: 400;
 }
 
+.analytics-card--credibility {
+    position: relative;
+}
+
+.credibility-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.credibility-kpi {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 14px;
+    background: linear-gradient(155deg, rgba(255, 255, 255, 0.75), rgba(246, 247, 250, 0.95));
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.credibility-kpi-copy {
+    min-width: 0;
+    flex: 1;
+}
+
+.credibility-kpi-label {
+    font-size: 0.65rem;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.credibility-kpi-value {
+    font-size: clamp(1.2rem, 1.4vw, 1.6rem);
+    line-height: 1.1;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 8px 0 6px;
+}
+
+.credibility-kpi-detail {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.credibility-kpi-trend {
+    width: 96px;
+    min-width: 96px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.credibility-kpi-sparkline {
+    width: 94px;
+    height: 36px;
+    overflow: visible;
+}
+
+.credibility-kpi-sparkline-track {
+    fill: none;
+    stroke: var(--border-color);
+    stroke-width: 2;
+    opacity: 0.5;
+}
+
+.credibility-kpi-sparkline-line {
+    fill: none;
+    stroke: var(--sparkline-color, var(--text-main));
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.credibility-kpi-sparkline-dot {
+    fill: var(--sparkline-color, var(--text-main));
+}
+
+body.dark .credibility-kpi {
+    background: linear-gradient(155deg, rgba(29, 31, 36, 0.92), rgba(22, 24, 29, 0.95));
+}
+
 .analytics-badge--tooltip {
     position: relative;
     cursor: help;
@@ -5382,6 +5470,28 @@ body.dark .mobile-filter-clear-btn:hover {
         grid-template-columns: 1fr;
     }
 
+    .credibility-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .credibility-kpi {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .credibility-kpi-trend {
+        width: 100%;
+        min-width: 0;
+        margin-top: 0;
+        justify-content: flex-start;
+    }
+
+    .credibility-kpi-sparkline {
+        width: 80px;
+        height: 32px;
+    }
+
     .analytics-card {
         padding: var(--card-padding-mobile);
         border-radius: 14px;
@@ -5465,6 +5575,16 @@ body.dark .mobile-filter-clear-btn:hover {
 
     .hm-col-label {
         font-size: 0.48rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .credibility-kpis {
+        grid-template-columns: 1fr;
+    }
+
+    .credibility-kpi {
+        align-items: center;
     }
 }
 

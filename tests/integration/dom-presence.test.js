@@ -48,6 +48,7 @@ describe('DOM Elements Presence', () => {
         expect(document.getElementById('spotlight')).not.toBeNull();
         expect(document.getElementById('spots')).not.toBeNull();
         expect(document.getElementById('analytics')).not.toBeNull();
+        expect(document.getElementById('credibility-kpis-container')).not.toBeNull();
         expect(document.getElementById('comparison')).not.toBeNull();
         expect(document.getElementById('weightings')).not.toBeNull();
     });

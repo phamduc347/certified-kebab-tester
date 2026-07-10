@@ -6547,10 +6547,161 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Analytics Section ────────────────────────────────────────────
     function initAnalytics() {
+        const credibilityContainer = document.getElementById('credibility-kpis-container');
         const container = document.getElementById('pl-chart-container');
         if (!container) return;
 
         const parseVal = (s) => parseFloat(String(s).replace(',', '.').replace('%', '').replace(' €', '')) || 0;
+
+        if (credibilityContainer) {
+            const integerFormatter = new Intl.NumberFormat('de-DE');
+
+            const reviewEvents = [...rawApprovedReviews]
+                .map((review) => {
+                    const visitTs = review && review.visit_date ? new Date(review.visit_date).getTime() : Number.NaN;
+                    const createdTs = review && review.created_at ? new Date(review.created_at).getTime() : Number.NaN;
+                    const timestamp = Number.isFinite(visitTs) ? visitTs : createdTs;
+                    return {
+                        timestamp,
+                        spotKey: buildSpotKey(review && review.spot_name, review && review.city),
+                        city: String(review && review.city ? review.city : '').trim().toLowerCase(),
+                    };
+                })
+                .filter((item) => Number.isFinite(item.timestamp))
+                .sort((a, b) => a.timestamp - b.timestamp);
+
+            const buildMonthlyReviewSeries = (events, maxBuckets = 8) => {
+                if (!events.length) return [0, 0, 0, 0, 0, 0, 0, 0];
+                const buckets = new Map();
+                events.forEach((event) => {
+                    const date = new Date(event.timestamp);
+                    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    buckets.set(key, (buckets.get(key) || 0) + 1);
+                });
+                return [...buckets.keys()]
+                    .sort()
+                    .slice(-maxBuckets)
+                    .map((key) => buckets.get(key) || 0);
+            };
+
+            const buildCumulativeSeries = (events, valueFactory) => {
+                if (!events.length) return [0, 0, 0, 0, 0, 0, 0, 0];
+                const result = [];
+                events.forEach((event, index) => {
+                    result.push(valueFactory(event, index));
+                });
+                return result;
+            };
+
+            const buildSparklineSvg = (rawSeries, color) => {
+                const width = 94;
+                const height = 36;
+                const normalizedSeries = Array.isArray(rawSeries) && rawSeries.length > 1
+                    ? rawSeries
+                    : [0, 0, 0, 0, 0, 0, 0, 0];
+                const series = normalizedSeries.map((value) => Number(value) || 0);
+                const max = Math.max(...series);
+                const min = Math.min(...series);
+                const valueRange = max - min;
+
+                const points = series.map((value, index) => {
+                    const x = series.length === 1
+                        ? width / 2
+                        : (index / (series.length - 1)) * width;
+                    const y = valueRange === 0
+                        ? height / 2
+                        : height - (((value - min) / valueRange) * height);
+                    return `${x.toFixed(1)},${y.toFixed(1)}`;
+                }).join(' ');
+
+                const endValue = series[series.length - 1] || 0;
+
+                return `
+                    <svg class="credibility-kpi-sparkline" viewBox="0 0 ${width} ${height}" role="img" aria-label="Trendverlauf">
+                        <polyline class="credibility-kpi-sparkline-track" points="${points}"></polyline>
+                        <polyline class="credibility-kpi-sparkline-line" points="${points}" style="--sparkline-color:${color}"></polyline>
+                        <circle class="credibility-kpi-sparkline-dot" cx="${(width).toFixed(1)}" cy="${valueRange === 0 ? (height / 2).toFixed(1) : (height - (((endValue - min) / (valueRange || 1)) * height)).toFixed(1)}" r="2.2" style="--sparkline-color:${color}"></circle>
+                    </svg>
+                `;
+            };
+
+            const totalVisits = kebabData.reduce((sum, spot) => {
+                const visits = Number(spot && spot.besuche);
+                return sum + (Number.isFinite(visits) && visits > 0 ? visits : 1);
+            }, 0);
+            const communityReviewCount = rawApprovedReviews.length;
+            const totalReviewCount = communityReviewCount;
+            const reviewedSpotCount = kebabData.length;
+            const reviewedCityCount = new Set(
+                kebabData
+                    .map((spot) => String(spot && spot.city ? spot.city : '').trim())
+                    .filter(Boolean)
+            ).size;
+
+            let cumulativeVisits = 0;
+            const visitsTrend = buildCumulativeSeries(reviewEvents, () => {
+                cumulativeVisits += 1;
+                return cumulativeVisits;
+            });
+
+            const reviewsTrend = buildMonthlyReviewSeries(reviewEvents);
+
+            const seenSpotKeys = new Set();
+            const spotsTrend = buildCumulativeSeries(reviewEvents, (event) => {
+                if (event.spotKey) {
+                    seenSpotKeys.add(event.spotKey);
+                }
+                return seenSpotKeys.size;
+            });
+
+            const seenCities = new Set();
+            const citiesTrend = buildCumulativeSeries(reviewEvents, (event) => {
+                if (event.city) {
+                    seenCities.add(event.city);
+                }
+                return seenCities.size;
+            });
+
+            const kpis = [
+                {
+                    label: '🍽️ Gesamtbesuche',
+                    value: integerFormatter.format(totalVisits),
+                    detail: 'Dokumentierte Besuche',
+                    trendSvg: buildSparklineSvg(visitsTrend, '#ea580c')
+                },
+                {
+                    label: '📝 Reviews gesamt',
+                    value: integerFormatter.format(totalReviewCount),
+                    detail: 'Reviews',
+                    trendSvg: buildSparklineSvg(reviewsTrend, '#0284c7')
+                },
+                {
+                    label: '📍 Getestete Spots',
+                    value: integerFormatter.format(reviewedSpotCount),
+                    detail: 'Aktuell im Ranking berücksichtigt',
+                    trendSvg: buildSparklineSvg(spotsTrend, '#16a34a')
+                },
+                {
+                    label: '🏙️ Städte-Abdeckung',
+                    value: integerFormatter.format(reviewedCityCount),
+                    detail: 'Unterschiedliche Städte mit Reviews',
+                    trendSvg: buildSparklineSvg(citiesTrend, '#7c3aed')
+                }
+            ];
+
+            credibilityContainer.innerHTML = kpis.map((item) => `
+                <article class="credibility-kpi">
+                    <div class="credibility-kpi-copy">
+                        <p class="credibility-kpi-label">${item.label}</p>
+                        <p class="credibility-kpi-value">${item.value}</p>
+                        <p class="credibility-kpi-detail">${item.detail}</p>
+                    </div>
+                    <div class="credibility-kpi-trend" aria-hidden="true">
+                        ${item.trendSvg}
+                    </div>
+                </article>
+            `).join('');
+        }
 
         // fix: guard against empty kebabData
         if (!kebabData || kebabData.length === 0) return;
