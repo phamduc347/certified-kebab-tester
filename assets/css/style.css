@@ -5978,6 +5978,11 @@ body.modal-open {
     padding: 56px 40px 40px;
 }
 
+.comment-feedback-content p {
+    color: var(--text-main);
+    opacity: 0.86;
+}
+
 .comment-feedback-eyebrow {
     display: inline-block;
     margin-bottom: 16px;
@@ -5990,6 +5995,13 @@ body.modal-open {
     letter-spacing: 1px;
     text-transform: uppercase;
     color: var(--text-main);
+}
+
+body.dark .comment-feedback-eyebrow,
+html.dark-init body .comment-feedback-eyebrow {
+    background: #1f2937;
+    border-color: #374151;
+    color: #e5e7eb;
 }
 
 .comment-feedback-content h2 {
@@ -6013,8 +6025,35 @@ body.modal-open {
 }
 
 .comment-feedback-confirm:hover {
-    opacity: 0.92;
+    opacity: 1;
+    background: #0b1220;
+    border-color: #0b1220;
     transform: translateY(-1px);
+}
+
+.comment-feedback-confirm:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.22);
+}
+
+body.dark .comment-feedback-confirm,
+html.dark-init body .comment-feedback-confirm {
+    background: #e5e7eb;
+    border-color: #e5e7eb;
+    color: #111827;
+}
+
+body.dark .comment-feedback-confirm:hover,
+html.dark-init body .comment-feedback-confirm:hover {
+    background: #f3f4f6;
+    border-color: #f3f4f6;
+}
+
+body.dark .comment-feedback-confirm:focus-visible,
+html.dark-init body .comment-feedback-confirm:focus-visible {
+    outline-color: #93c5fd;
+    box-shadow: 0 0 0 4px rgba(147, 197, 253, 0.24);
 }
 
 /* ── KI-Schreibhilfe – Notice Modal ───────────────────────────────── */
