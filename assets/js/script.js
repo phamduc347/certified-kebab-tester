@@ -194,6 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let globalTimelineOutsideClickHandler = null;
     let plChartObserver = null;
     let heatmapObserver = null;
+    let credibilityKpiObserver = null;
     let spotlightRotationTimer = null;
     let spotlightClickDotHandler = null;
     let spotlightPointerDownHandler = null;
@@ -202,6 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let spotlightPointerCancelHandler = null;
     let spotlightClickHandler = null;
     let spotlightWheelHandler = null;
+    let pendingPublishedReviewRedirect = null;
+    const PENDING_PUBLISHED_REVIEW_STORAGE_KEY = 'ckt-pending-published-review';
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const hasLowCpuBudget = typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 4;
@@ -2491,7 +2494,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const imageUrl = await uploadCommunityReviewImage(client, file);
 
-            const { error } = await client
+            const { data: insertedReview, error } = await client
                 .from('community_reviews')
                 .insert({
                     reviewer_name: reviewerName.slice(0, 40),
@@ -2512,7 +2515,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     portion: scores.portion,
                     hygiene: scores.hygiene,
                     service: scores.service
-                });
+                })
+                .select('id')
+                .single();
 
             if (error) {
                 throw error;
@@ -2540,6 +2545,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (submitButton) submitButton.blur();
             syncCommunitySpotInputsFromSelection();
             updateCommunityCommentCounter();
+            const insertedReviewId = insertedReview && insertedReview.id != null
+                ? String(insertedReview.id).trim()
+                : '';
+            const targetSpotId = Number.isFinite(existingSpotId) && selectedSpot
+                ? Number(existingSpotId)
+                : Number(generateStableSpotId(spotName, city));
+            pendingPublishedReviewRedirect = Number.isFinite(targetSpotId) && targetSpotId > 0
+                ? {
+                    spotId: targetSpotId,
+                    reviewId: insertedReviewId,
+                    reviewerName,
+                    spotName,
+                    city,
+                    commentText,
+                    visitDate
+                }
+                : null;
             setCommunityReviewStatus('Danke! Dein Review wurde veröffentlicht.');
             closeCommunitySubmitModal();
             openCommentFeedbackModal();
@@ -3348,6 +3370,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(() => loadReviewComments())
             .then(() => {
                 handleInitialReviewShareLink();
+                handlePendingPublishedReviewLink();
             })
             .catch(err => console.error("Loader Data Error:", err))
             .finally(() => {
@@ -5890,12 +5913,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 syncConfirmedReviewsPanelState(card, true);
 
                 if (reviewId) {
-                    const reviewTrigger = card.querySelector(`.review-community-preview-btn[data-review-id="${reviewId}"]`);
-                    if (reviewTrigger) {
-                        setTimeout(() => {
-                            openCommunityReviewPopup(spotId, reviewId, reviewTrigger);
-                        }, 100);
-                    }
+                    const tryOpenReviewPopup = (attempt = 0) => {
+                        const reviewTrigger = card.querySelector(`.review-community-preview-btn[data-review-id="${reviewId}"]`);
+                        const opened = openCommunityReviewPopup(spotId, reviewId, reviewTrigger || card);
+                        if (!opened && attempt < 8) {
+                            setTimeout(() => tryOpenReviewPopup(attempt + 1), 220);
+                        }
+                    };
+
+                    setTimeout(() => {
+                        tryOpenReviewPopup();
+                    }, 100);
                 }
             }, 600);
         }
@@ -6030,6 +6058,125 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         tryJumpToSharedReview();
+    }
+
+    function handlePendingPublishedReviewLink() {
+        let storedPayload = null;
+        try {
+            storedPayload = sessionStorage.getItem(PENDING_PUBLISHED_REVIEW_STORAGE_KEY);
+        } catch (_) {
+            storedPayload = null;
+        }
+        if (!storedPayload) return;
+
+        let payload = null;
+        try {
+            payload = JSON.parse(storedPayload);
+        } catch (_) {
+            try {
+                sessionStorage.removeItem(PENDING_PUBLISHED_REVIEW_STORAGE_KEY);
+            } catch (_) {
+                // Ignore storage errors.
+            }
+            return;
+        }
+
+        const clearPendingPayload = () => {
+            try {
+                sessionStorage.removeItem(PENDING_PUBLISHED_REVIEW_STORAGE_KEY);
+            } catch (_) {
+                // Ignore storage errors.
+            }
+        };
+
+        const normalizeText = (value) => String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+
+        const resolveSpotIdFromReview = (review) => {
+            const key = buildSpotKey(review && review.spot_name, review && review.city);
+            const matchingSpot = kebabData.find((spot) => buildSpotKey(spot.name, spot.city) === key);
+            return matchingSpot ? Number(matchingSpot.id) : Number.NaN;
+        };
+
+        const resolveReviewFromPayload = () => {
+            const targetReviewer = normalizeText(payload && payload.reviewerName);
+            const targetSpotName = normalizeText(payload && payload.spotName);
+            const targetCity = normalizeText(payload && payload.city);
+            const targetComment = normalizeText(payload && payload.commentText);
+            const targetVisitDate = String(payload && payload.visitDate ? payload.visitDate : '').trim();
+
+            const matches = rawApprovedReviews.filter((review) => {
+                if (targetReviewer && normalizeText(review && review.reviewer_name) !== targetReviewer) return false;
+                if (targetSpotName && normalizeText(review && review.spot_name) !== targetSpotName) return false;
+                if (targetCity && normalizeText(review && review.city) !== targetCity) return false;
+                if (targetComment && normalizeText(review && review.comment_text) !== targetComment) return false;
+                if (targetVisitDate && String(review && review.visit_date ? review.visit_date : '').trim() !== targetVisitDate) return false;
+                return true;
+            });
+
+            if (matches.length === 0) return null;
+            return matches.sort((a, b) => {
+                const aTs = a && a.created_at ? new Date(a.created_at).getTime() : 0;
+                const bTs = b && b.created_at ? new Date(b.created_at).getTime() : 0;
+                return bTs - aTs;
+            })[0];
+        };
+
+        const tryOpenPendingReview = (attempt = 0) => {
+            const hasData = Array.isArray(kebabData) && kebabData.length > 0;
+            if (!hasData || !communityReviewsReady) {
+                if (attempt < 40) {
+                    setTimeout(() => tryOpenPendingReview(attempt + 1), 250);
+                } else {
+                    clearPendingPayload();
+                }
+                return;
+            }
+
+            let targetReviewId = String(payload && payload.reviewId ? payload.reviewId : '').trim();
+            let targetSpotId = Number(payload && payload.spotId);
+
+            if (!targetReviewId) {
+                const matchedReview = resolveReviewFromPayload();
+                if (matchedReview) {
+                    targetReviewId = String(matchedReview.id || '').trim();
+                    if (!Number.isFinite(targetSpotId) || targetSpotId <= 0) {
+                        targetSpotId = resolveSpotIdFromReview(matchedReview);
+                    }
+                }
+            }
+
+            if ((!Number.isFinite(targetSpotId) || targetSpotId <= 0) && payload && payload.spotName && payload.city) {
+                const spotKey = buildSpotKey(payload.spotName, payload.city);
+                const spot = kebabData.find((item) => buildSpotKey(item.name, item.city) === spotKey);
+                if (spot) {
+                    targetSpotId = Number(spot.id);
+                }
+            }
+
+            if (Number.isFinite(targetSpotId) && targetSpotId > 0 && targetReviewId) {
+                jumpToReview(targetSpotId, targetReviewId);
+                clearPendingPayload();
+                return;
+            }
+
+            if (Number.isFinite(targetSpotId) && targetSpotId > 0) {
+                const latestReview = getSortedCommunityReviewsForSpot(targetSpotId)[0];
+                if (latestReview && latestReview.id != null) {
+                    jumpToReview(targetSpotId, String(latestReview.id));
+                    clearPendingPayload();
+                    return;
+                }
+            }
+
+            if (attempt < 40) {
+                setTimeout(() => tryOpenPendingReview(attempt + 1), 250);
+                return;
+            }
+
+            clearPendingPayload();
+        };
+
+        tryOpenPendingReview();
     }
 
     function initSpotlight() {
@@ -6689,8 +6836,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             ];
 
-            credibilityContainer.innerHTML = kpis.map((item) => `
-                <article class="credibility-kpi">
+            credibilityContainer.innerHTML = kpis.map((item, index) => `
+                <article class="credibility-kpi" style="--spark-delay:${index * 70}ms">
                     <div class="credibility-kpi-copy">
                         <p class="credibility-kpi-label">${item.label}</p>
                         <p class="credibility-kpi-value">${item.value}</p>
@@ -6701,6 +6848,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </article>
             `).join('');
+
+            // Animate when the KPI block is actually visible in viewport.
+            credibilityContainer.classList.remove('credibility-kpis-animate');
+            if (!prefersReducedMotion) {
+                if (credibilityKpiObserver) {
+                    credibilityKpiObserver.disconnect();
+                }
+
+                if (typeof IntersectionObserver === 'function') {
+                    credibilityKpiObserver = new IntersectionObserver((entries) => {
+                        if (entries[0].isIntersecting) {
+                            credibilityContainer.classList.add('credibility-kpis-animate');
+                            if (credibilityKpiObserver) {
+                                credibilityKpiObserver.unobserve(credibilityContainer);
+                            }
+                        }
+                    }, { threshold: 0.25 });
+                    credibilityKpiObserver.observe(credibilityContainer);
+                } else {
+                    requestAnimationFrame(() => {
+                        credibilityContainer.classList.add('credibility-kpis-animate');
+                    });
+                }
+            }
         }
 
         // fix: guard against empty kebabData
@@ -7076,6 +7247,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!commentFeedbackModal) return;
         commentFeedbackModal.classList.remove('active');
         syncModalOpenState();
+
+        const redirectPayload = pendingPublishedReviewRedirect;
+        pendingPublishedReviewRedirect = null;
+        if (!redirectPayload) return;
+
+        try {
+            sessionStorage.setItem(PENDING_PUBLISHED_REVIEW_STORAGE_KEY, JSON.stringify(redirectPayload));
+        } catch (_) {
+            // Ignore storage errors and still trigger the reload.
+        }
+        window.location.reload();
     };
 
     const openReviewCommentFeedbackModal = () => {

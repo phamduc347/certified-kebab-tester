@@ -5043,10 +5043,57 @@ body.dark .mobile-filter-clear-btn:hover {
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
+    transform-origin: left center;
+    transform-box: fill-box;
 }
 
 .credibility-kpi-sparkline-dot {
     fill: var(--sparkline-color, var(--text-main));
+    transform-origin: center center;
+    transform-box: fill-box;
+}
+
+.credibility-kpis-animate .credibility-kpi-sparkline-line {
+    animation: kpiSparklineDraw 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--spark-delay, 0ms);
+    will-change: transform, opacity;
+}
+
+.credibility-kpis-animate .credibility-kpi-sparkline-dot {
+    animation: kpiSparklineDot 0.45s ease-out both;
+    animation-delay: calc(var(--spark-delay, 0ms) + 0.28s);
+    will-change: transform, opacity;
+}
+
+@keyframes kpiSparklineDraw {
+    from {
+        transform: scaleX(0.02);
+        opacity: 0.2;
+    }
+    to {
+        transform: scaleX(1);
+        opacity: 1;
+    }
+}
+
+@keyframes kpiSparklineDot {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .credibility-kpis-animate .credibility-kpi-sparkline-line,
+    .credibility-kpis-animate .credibility-kpi-sparkline-dot {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
 }
 
 body.dark .credibility-kpi {
